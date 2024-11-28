@@ -1252,6 +1252,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      * For a description of late-binding, see `lateBindMember`.
      */
     function getLateBoundSymbol(symbol: Symbol): Symbol {
+        // if (symbol.flags & SymbolFlags.Class && isSourceFile(symbol.valueDeclaration)) {
+        //     // force sourcefile to resolve inherits
+        //     const symbolType = getTypeOfSymbol(symbol, CheckMode.TypeOnly) as InterfaceType;
+        //     if (!symbolType.resolvedBaseTypes) {
+        //         resolveBaseTypesOfClass(symbolType as InterfaceType);
+        //     }
+        // }
         if (symbol.flags & SymbolFlags.ClassMember && symbol.name === InternalSymbolName.Computed) {
             const links = getSymbolLinks(symbol);
             if (!links.lateSymbol && some(symbol.declarations, hasLateBindableName)) {
@@ -11836,7 +11843,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 }
 
                 return resultType;
-            } else if (nameStr === "base_name") { 
+            } else if (nameStr === "base_name" && node.arguments?.length === 0) { 
+                // only return the base name of the current file is args is 0
                 const file = getSourceFileOfNode(node);
                 const basePath = getLibRootedFileName(file.fileName, compilerOptions);                
                 return getStringLiteralType(basePath);

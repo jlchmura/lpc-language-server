@@ -25,6 +25,7 @@ export const Diagnostics = {
     Macro_parameter_0_not_found: diag(9017, DiagnosticCategory.Error, "Macro_parameter_0_not_found_9017", "Macro parameter '{0}' not found."),
     Cannot_find_include_file_0: diag(9018, DiagnosticCategory.Error, "Cannot_find_include_file_0_9018", "Cannot find include file '{0}'."),
     Pragma_option_expected: diag(9019, DiagnosticCategory.Error, "Pragma_option_expected_9019", "Pragma option expected."),
+    File_is_master_file_specified_here: diag(9020, DiagnosticCategory.Error, "File_is_master_file_specified_here_9020", "File is master file specified here."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    

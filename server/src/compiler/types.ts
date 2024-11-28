@@ -412,6 +412,7 @@ export interface ResolvedProjectReference {
 /** @internal */
 export enum FileIncludeKind {
     RootFile,
+    MasterFile,
     SourceFromProjectReference,
     OutputFromProjectReference,
     Import,
@@ -426,6 +427,12 @@ export enum FileIncludeKind {
 export interface RootFile {
     kind: FileIncludeKind.RootFile;
     index: number;
+}
+
+/** @internal */
+export interface MasterFile {
+    kind: FileIncludeKind.MasterFile;
+    index: number;    
 }
 
 /** @internal */
@@ -469,6 +476,7 @@ export interface AutomaticTypeDirectiveFile {
 /** @internal */
 export type FileIncludeReason =
     | RootFile
+    | MasterFile
     | LibFile
     | ProjectReferenceFile
     | ReferencedFile

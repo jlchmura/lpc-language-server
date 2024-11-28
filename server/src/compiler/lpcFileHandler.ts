@@ -25,7 +25,8 @@ export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
         const sourceDir = getDirectoryPath(sourcePath);
         const includePath = normalizePath(includeFilename);
         let searchPath:string;
-        
+        let attemptedPaths: string[];
+
         if (pathIsRelative(includePath)) {
             // path is relative to source file
             searchPath = resolvePath(sourceDir, includePath);
@@ -43,6 +44,7 @@ export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
             
             if (localFirst) searchDirs.reverse();
             
+            attemptedPaths = searchDirs;
             searchPath = forEach(searchDirs, (dir) => {
                 searchPath = resolvePath(dir, includePath);
                 const exists = host.fileExists(searchPath);
@@ -51,10 +53,12 @@ export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
         }
         
         if (!searchPath) {
+            // console.debug(`Include Not Found [${sourceFilename}] -> [${includeFilename}]`, attemptedPaths);
             return { filename: includePath, error: `Include file ${includeFilename} not found` };
         }
 
         const result = host.readFile(searchPath);
+        // console.debug(`Include Loaded [${sourceFilename}] -> [${includeFilename}]`);
         return { filename: searchPath, source: result };
     }
 

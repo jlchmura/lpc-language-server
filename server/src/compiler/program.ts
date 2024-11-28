@@ -227,17 +227,18 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             }
         }
         
-        // check if this program has a master file
+        // check if this program has a master file and if so
+        // get an instance of it and compile the get_include_path apply function
         let masterFileIndex = -1;
         if (fileExists(options.masterFile) && options.driverType === LanguageVariant.FluffOS) {
             masterFileIndex = rootNames.indexOf(options.masterFile);
             tracing?.push(tracing.Phase.Program, "processMasterFile");
-            processRootFile(options.masterFile, /*isDefaultLib*/ false, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.RootFile, index: masterFileIndex });
 
-            // get an instance of it and compile the get_include_path apply function
-            const masterFile = getSourceFile(options.masterFile);
+            // we need the master file before everything else is loaded, so this must be done 
+            // outside of processRootFile. 
+            const masterFile = getSourceFileWithoutReferences(options.masterFile, /*isDefaultLib*/ false, { kind: FileIncludeKind.MasterFile, index: masterFileIndex });            
             const masterApplyVm = createMasterApplyGetIncludePathVm(masterFile);
-            masterIncludeApply = masterApplyVm;// masterApplyVm ? memoizeOne(masterApplyVm) : undefined;
+            masterIncludeApply = masterApplyVm ? memoizeOne(masterApplyVm) : undefined;
                         
             tracing?.pop();    
         }
@@ -534,6 +535,26 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
 
     function getBindAndCheckDiagnosticsForFile(sourceFile: SourceFile, cancellationToken: CancellationToken | undefined): readonly Diagnostic[] {
         return getAndCacheDiagnostics(sourceFile, cancellationToken, cachedBindAndCheckDiagnosticsForFile, getBindAndCheckDiagnosticsForFileNoCache);
+    }
+
+    /**
+     * Wait - are you sure you wanted to call this?  You probably wanted processRootFile. 
+     * This function is intended for loading the master file only.
+     * @internal
+     * @param fileName 
+     * @param isDefaultLib 
+     * @param reason 
+     * @returns 
+     */
+    function getSourceFileWithoutReferences(fileName: string, isDefaultLib: boolean, reason: FileIncludeReason): SourceFile {
+        const sourceFileOptions = getCreateSourceFileOptions(fileName, isDefaultLib, /*moduleResolutionCache*/ undefined, host, options);
+        const file = host.getSourceFile(
+            fileName,
+            sourceFileOptions,
+            hostErrorMessage => addFilePreprocessingFileExplainingDiagnostic(/*file*/ undefined, reason, Diagnostics.Cannot_read_file_0_Colon_1, [fileName, hostErrorMessage]),
+            shouldCreateNewSourceFile,
+        );
+        return file;
     }
 
     function getResolvedModuleFromModuleSpecifier(moduleSpecifier: StringLiteralLike, sourceFile?: SourceFile): ResolvedModuleWithFailedLookupLocations | undefined {
@@ -871,6 +892,10 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 const target = getNameOfScriptTarget(getEmitScriptTarget(options));
                 configFileNode = target ? getOptionsSyntaxByValue("target", target) : undefined;
                 message = Diagnostics.File_is_default_library_for_target_specified_here;
+                break;
+            case FileIncludeKind.MasterFile:
+                configFileNode = getOptionsSyntaxByValue("masterFile", options.masterFile);
+                message = Diagnostics.File_is_master_file_specified_here;
                 break;
             default:
                 Debug.assertNever(reason);
@@ -1376,8 +1401,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     }
 
     function getCreateSourceFileOptions(fileName: string, isDefaultLib: boolean, moduleResolutionCache: any | undefined, host: CompilerHost, options: CompilerOptions): CreateSourceFileOptions {        
-        // TODO is this complete?
-        
+        // TODO is this complete?        
         return {
             languageVersion: ScriptTarget.Latest,
             globalIncludes: (isDefaultLib ? undefined : options.globalIncludeFiles) || emptyArray,

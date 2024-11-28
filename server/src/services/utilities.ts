@@ -2591,7 +2591,12 @@ export function getPossibleTypeArgumentsInfo(tokenIn: Node | undefined, sourceFi
     // Note that we also balance out the already provided type arguments, arrays, object literals while doing so
     let remainingLessThanTokens = 0;
     let nTypeArguments = 0;
+    let count=0;
     while (token) {
+        if (count++ > 100) {
+            console.warn("Bailed out of matching token serach");
+            break;
+        }
         switch (token.kind) {
             case SyntaxKind.LessThanToken:
                 // Found the beginning of the generic argument expression
@@ -2698,6 +2703,7 @@ export function findPrecedingMatchingToken(token: Node, matchingTokenKind: Synta
     }
     const tokenKind = token.kind;
     let remainingMatchingTokens = 0;
+    let count = 0;
     while (true) {
         const preceding = findPrecedingToken(token.getFullStart(), sourceFile);
         if (!preceding) {
@@ -2714,6 +2720,11 @@ export function findPrecedingMatchingToken(token: Node, matchingTokenKind: Synta
         }
         else if (token.kind === tokenKind) {
             remainingMatchingTokens++;
+        }
+
+        if (count++ > 100) {
+            console.warn("bailed out of matching token search");
+            break;
         }
     }
 }
