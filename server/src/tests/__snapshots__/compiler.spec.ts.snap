@@ -144,7 +144,7 @@ exports[`Compiler compiler/funcDecl2.c Reports correct errors for compiler/funcD
 
 exports[`Compiler compiler/funcSignature1.c Reports correct errors for compiler/funcSignature1.c: diags-compiler/funcSignature1.c 1`] = `
 "
-Found 1 error in server/src/tests/cases/compiler/funcSignature1.c[90m:4[0m
+Found 1 error in server/src/tests/cases/compiler/funcSignature1.c[90m:5[0m
 
 "
 `;
