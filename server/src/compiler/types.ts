@@ -3680,7 +3680,7 @@ export type DeclarationWithTypeParameterChildren =
     ;
 
     
-/** @deprecated not used in LPC? */
+
 export interface TypeParameterDeclaration extends NamedDeclaration, JSDocContainer {
     readonly kind: SyntaxKind.TypeParameter;
     readonly parent: DeclarationWithTypeParameterChildren;

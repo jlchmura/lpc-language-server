@@ -1,532 +1,279 @@
 import { StringCompletions } from "./_namespaces/lpc.Completions.js";
 import {
-    Symbol,
-    addToSeen,
-    append,
     BinaryExpression,
     BindingElement,
     BindingPattern,
     BreakOrContinueStatement,
-    CancellationToken,    
-    UnionReduction,
-    canUsePropertyAccess,
-    
+    CancellationToken,
     CaseBlock,
-    
-    cast,
-    
     CharacterCodes,
-    
     ClassElement,
-    
-    compareStringsCaseSensitiveUI,
-    
+    CodeAction,
     Comparison,
-    
     CompilerOptions,
-    
     CompletionEntry,
-    
     CompletionEntryData,
-    
     CompletionEntryDataAutoImport,
-    
     CompletionEntryDataResolved,
-    
     CompletionEntryDataUnresolved,
-    
+    CompletionEntryDetails,
     CompletionEntryLabelDetails,
-    
     CompletionInfo,
-    
     CompletionInfoFlags,
-    
-    CompletionsTriggerCharacter,
-    
     CompletionTriggerKind,
-    
-    concatenate,
-    
+    CompletionsTriggerCharacter,
     ContextFlags,
-    
-    countWhere,
-    
-    createPrinter,
-    
-    createTextSpanFromBounds,
-    
-    createTextSpanFromNode,
-    
-    createTextSpanFromRange,
-    
     Debug,
-    
     Declaration,
-    
     Diagnostics,
-    
-    displayPart,
-    
     DotDotDotToken,
-    
     EmitFlags,
-    
     EmitHint,
-    
     EmitTextWriter,
-    
-    EntityName,
-    
-    every,
-    
+    ExportKind,
     ExportMapInfoKey,
-    
     Expression,
-    
-    factory,
-    
-    filter,
-    
-    find,
-    
-    findAncestor,
-    
-    findPrecedingToken,
-    
-    first,
-    
-    firstDefined,
-    
-    flatMap,
-    
-    forEach,
-    
-    formatting,
-    
+    FunctionDeclaration,
     FunctionLikeDeclaration,
-    
-    getAllSuperTypeNodes,
-    
-    getAncestor,
-    
-    getCombinedLocalAndExportSymbolFlags,
-    
-    getContextualTypeFromParent,
-    
-    getDeclarationModifierFlagsFromSymbol,
-    
-    getEffectiveModifierFlags,
-    
-    getEffectiveTypeAnnotationNode,
-    
-    getEmitScriptTarget,
-    
-    getEscapedTextOfIdentifierOrLiteral,
-    
-    getLineAndCharacterOfPosition,
-    
-    getLocalSymbolForExportDefault,
-    
-    getNameOfDeclaration,
-    
-    getNameTable,
-    
-    getNewLineCharacter,
-    
-    getPropertyNameForPropertyNameNode,
-    
-    getQuotePreference,
-    
-    getRootDeclaration,
-    
-    getSwitchedType,
-    
-    getSymbolId,
-    
-    getTokenAtPosition,
-    
-    getTouchingPropertyName,
-    
-    hasEffectiveModifier,
-    
-    hasInitializer,
-    
-    hasType,
-    
+    FutureSymbolExportInfo,
     Identifier,
-    
-    identifierToKeywordKind,
-    
-    IndexedAccessTypeNode,
-    
-    insertSorted,
-    
+    IncompleteCompletionsCache,
+    InterfaceType,
+    InterfaceTypeWithDeclaredMembers,
     InternalSymbolName,
-    
-    isArrowFunction,
-    
-    isBinaryExpression,
-    
-    isBindingElement,
-    
-    isBindingPattern,
-    
-    isBreakOrContinueStatement,
-    
-    isCallExpression,
-    
-    isClassLike,
-    
-    isComputedPropertyName,
-    
-    isConstructorDeclaration,
-    
-    isDeclarationName,
-    
-    isDecorator,
-    
-    isDeprecatedDeclaration,
-    
-    isEntityName,
-    
-    isEqualityOperatorKind,
-    
-    isExpression,
-    
-    isExternalModuleNameRelative,
-    
-    isFunctionBlock,
-    
-    isFunctionLike,
-    
-    isFunctionLikeDeclaration,
-    
-    isFunctionLikeKind,
-    
-    isIdentifier,
-    
-    isIdentifierText,
-    
-    isInComment,
-    
-    isInJSFile,
-    
-    isInString,
-    
-    isJSDoc,
-    
-    isJSDocParameterTag,
-    
-    isJSDocTag,
-    
-    isJSDocTemplateTag,
-    
-    isKeyword,
-    
-    isLabeledStatement,
-    
-    isMemberName,
-    
-    isNodeDescendantOf,
-    
-    isObjectLiteralExpression,
-    
-    isParameter,
-    
-    isPartOfTypeNode,
-    
-    isPrivateIdentifier,
-    
-    isPropertyAccessExpression,
-    
-    isPropertyAssignment,
-    
-    isPropertyDeclaration,
-    
-    isPropertyNameLiteral,
-    
-    isShorthandPropertyAssignment,
-    
-    isSingleOrDoubleQuote,
-    
-    isSourceFile,
-    
-    isSpreadAssignment,
-    
-    isStatement,
-    
-    isStatic,
-    
-    isString,
-    
-    isStringLiteralLike,
-    
-    isStringTextContainingNode,
-    
-    isTypeKeyword,
-    
-    isTypeLiteralNode,
-    
-    isTypeNode,
-    
-    isTypeParameterDeclaration,
-    
-    isValidTypeOnlyAliasUseSite,
-    
-    isVariableDeclaration,
-    
-    isVariableLike,
-    
     JSDocParameterTag,
-    
+    JSDocPropertyTag,
     JSDocReturnTag,
-    
+    JSDocSatisfiesTag,
     JSDocTag,
-    
     JSDocTagInfo,
-    
     JSDocTemplateTag,
-    
-    JSDocTypedefTag,
-    
+    JSDocThrowsTag,
     JSDocTypeExpression,
-    
+    JSDocTypeTag,
+    JSDocTypedefTag,
+    JsDoc,
     LanguageServiceHost,
-    
     LanguageVariant,
-    
-    last,
-    
-    lastOrUndefined,
-    
-    length,
-    
     ListFormat,
-    
     LiteralType,
-    
-    LiteralTypeNode,
-    
-    map,
-    
-    mapDefined,
-    
-    memoize,
-    
     ModifierFlags,
-    
-    modifiersToFlags,
-    
     ModifierSyntaxKind,
-    
-    modifierToFlag,
-    
     Node,
-    
     NodeArray,
-    
     NodeBuilderFlags,
-    
     NodeFlags,
-    
-    nodeIsMissing,
-    
     ObjectLiteralExpression,
-    
-    ObjectType,
-    
     ObjectTypeDeclaration,
-    
-    or,
-    
     ParameterDeclaration,
-    
-    ParenthesizedTypeNode,
-    
-    positionsAreOnSameLine,
-    
     PrinterOptions,
-    
     Program,
-    
     PropertyAccessExpression,
-    
     PropertyDeclaration,
-    
     PropertyName,
-    
-    PropertySignature,
-    
     QualifiedName,
-    
     QuotePreference,
-    
-    rangeContainsPositionExclusive,
-    
-    rangeIsOnSingleLine,
-    
     ScriptElementKind,
-    
     ScriptElementKindModifier,
-    
     ScriptTarget,
-    
     SemanticMeaning,
-    
-    setEmitFlags,
-    
+    SignatureHelp,
     SignatureKind,
-    
-    singleElementArray,
-    
-    skipAlias,
-    
-    some,
-    
+    SnippetKind,
     SortedArray,
-    
     SourceFile,
-    
-    stableSort,
-    
-    startsWith,
-    
-    stringToToken,
-    
-    stripQuotes,
-    
+    Symbol,
     SymbolDisplay,
-    
     SymbolDisplayPart,
-    
     SymbolDisplayPartKind,
-    
     SymbolExportInfo,
-    
     SymbolFlags,
-    
     SymbolId,
-    
     SyntaxKind,
-    
     TextChange,
-    
-    textPart,
-    
     TextRange,
-    
     TextSpan,
-    
-    timestamp,
-    
-    Token,
-    
-    tokenToString,
-    
-    tryCast,
-    
-    tryGetImportFromModuleSpecifier,
-    
+    TokenSyntaxKind,
     Type,
-    
     TypeChecker,
-    
-    TypeElement,
-    
     TypeFlags,
-    
     TypeLiteralNode,
-    
-    TypeNode,
-    
     TypeParameterDeclaration,
-    
-    TypeReferenceNode,
-    
+    UnionReduction,
     UnionType,
     UserPreferences,
     VariableDeclaration,
-    walkUpParenthesizedExpressions,
-    FutureSymbolExportInfo,
-    TokenSyntaxKind,
-    CompletionEntryDetails,
-    CodeAction,
+    addToSeen,
+    append,
+    arrayFrom,
+    codefix,
+    compareNumberOfDirectorySeparators,
+    compareStringsCaseSensitiveUI,
+    compareTextSpans,
+    concatenate,
+    countWhere,
+    createModuleSpecifierResolutionHost,
+    createPrinter,
+    createSortedArray,
+    createTextSpanFromBounds,
+    createTextSpanFromNode,
     diagnosticToString,
-    isFunctionDeclaration,
-    isInTypeQuery,
-    ExportKind,
-    isMethodDeclaration,
-    isClassMemberModifier,
-    rangeContainsPosition,
-    findChildOfKind,
-    isModifier,
-    ImportKind,
-    isModifierKind,
-    isParameterPropertyModifier,
-    positionIsASICandidate,
-    JsDoc,
-    tryGetTextOfPropertyName,
+    displayPart,
+    emptyArray,
     escapeSnippetText,
-    textChanges,
+    every,
+    factory,
+    filter,
+    find,
+    findAncestor,
+    findChildOfKind,
+    findPrecedingToken,
+    first,
+    firstDefined,
+    flatMap,
+    forEach,
+    formatting,
+    getAncestor,
+    getCombinedLocalAndExportSymbolFlags,
+    getContextualTypeFromParent,
+    getDeclarationModifierFlagsFromSymbol,
+    getEffectiveModifierFlags,
+    getEmitScriptTarget,
+    getEscapedTextOfIdentifierOrLiteral,
+    getExportInfoMap,
     getFormatCodeSettingsForWriting,
+    getJSDocParameterTags,
+    getLeftmostAccessExpression,
+    getLineAndCharacterOfPosition,
     getLineStartPositionForPosition,
+    getLocalSymbolForExportDefault,
+    getNameOfDeclaration,
+    getNameTable,
+    getNewLineCharacter,
     getNewLineKind,
     getNewLineOrDefaultFromHost,
-    isClassElement,
-    isClassOrTypeElement,
-    isFunctionTypeNode,
-    JSDocPropertyTag,
-    MethodDeclaration,
-    probablyUsesSemicolons,
-    compareTextSpans,
-    quote,
-    codefix,
-    isCaseClause,
-    hasDocComment,
-    isJSDocImportTag,
-    getLeftmostAccessExpression,
-    memoizeOne,
-    createModuleSpecifierResolutionHost,
-    isCaseBlock,
-    newCaseClauseTracker,
-    isStringAndEmptyAnonymousObjectIntersection,
-    isNamedImportsOrExports,
-    isSyntaxList,
-    setSnippetElement,
-    SnippetKind,
-    FunctionDeclaration,
-    getSynthesizedDeepClone,
-    isKnownSymbol,
-    isStringLiteralOrTemplate,
-    isInheritDeclaration,
-    positionBelongsToNode,
-    isInitializedProperty,
-    isContextualKeyword,
-    compareNumberOfDirectorySeparators,
-    IncompleteCompletionsCache,
-    getExportInfoMap,
-    getJSDocParameterTags,
-    isCaseKeyword,
+    getPropertyNameForPropertyNameNode,
+    getQuotePreference,
     getReplacementSpanForContextToken,
-    createSortedArray,
-    JSDocTypeTag,
-    JSDocThrowsTag,
-    JSDocSatisfiesTag,
-    isInCallExpression,
-    getEffectiveBaseTypeNode,
-    ClassLikeDeclaration,
-    emptyArray,
-    forEachEntry,
-    mapDefinedEntries,
-    InterfaceType,
-    InterfaceTypeWithDeclaredMembers,
-    mapIterator,
-    arrayFrom,
-    SignatureHelp,
-    isRightSideOfQualifiedNameOrPropertyAccess,
-    isLeftSideOfPropertyAccess,
+    getSwitchedType,
+    getSymbolId,
+    getSynthesizedDeepClone,
+    getTokenAtPosition,
+    getTouchingPropertyName,
+    hasDocComment,
+    hasEffectiveModifier,
+    hasType,
+    identifierToKeywordKind,
+    insertSorted,
+    isArrowFunction,
     isAssertionExpression,
+    isBinaryExpression,
+    isBindingElement,
+    isBindingPattern,
     isBlock,
+    isBreakOrContinueStatement,
+    isCallExpression,
+    isCaseBlock,
+    isCaseClause,
+    isCaseKeyword,
+    isClassElement,
+    isClassLike,
+    isClassMemberModifier,
+    isComputedPropertyName,
+    isConstructorDeclaration,
+    isContextualKeyword,
+    isDeclarationName,
+    isDeprecatedDeclaration,
+    isEntityName,
+    isEqualityOperatorKind,
+    isExpression,
+    isExternalModuleNameRelative,
+    isFunctionBlock,
+    isFunctionDeclaration,
+    isFunctionLike,
+    isFunctionLikeDeclaration,
+    isFunctionLikeKind,
+    isFunctionTypeNode,
+    isIdentifier,
+    isIdentifierText,
+    isInCallExpression,
+    isInComment,
+    isInJSFile,
+    isInString,
+    isInTypeQuery,
+    isInheritDeclaration,
+    isInitializedProperty,
+    isJSDoc,
+    isJSDocImportTag,
+    isJSDocParameterTag,
+    isJSDocTag,
+    isJSDocTemplateTag,
+    isKeyword,
+    isKnownSymbol,
+    isLabeledStatement,
+    isLeftSideOfPropertyAccess,
+    isMemberName,
+    isMethodDeclaration,
+    isModifier,
+    isModifierKind,
+    isNamedImportsOrExports,
+    isNodeDescendantOf,
+    isObjectLiteralExpression,
+    isParameter,
+    isParameterPropertyModifier,
+    isPartOfTypeNode,
+    isPropertyAccessExpression,
+    isPropertyAssignment,
+    isPropertyDeclaration,
+    isPropertyNameLiteral,
+    isShorthandPropertyAssignment,
+    isSingleOrDoubleQuote,
+    isSourceFile,
+    isSpreadAssignment,
+    isStatement,
+    isStatic,
+    isString,
+    isStringLiteralLike,
+    isStringLiteralOrTemplate,
+    isStringTextContainingNode,
+    isSyntaxList,
+    isTypeKeyword,
+    isTypeLiteralNode,
+    isTypeParameterDeclaration,
+    isValidTypeOnlyAliasUseSite,
+    isVariableDeclaration,
+    last,
+    length,
+    map,
+    mapDefined,
+    memoize,
+    memoizeOne,
+    modifierToFlag,
+    modifiersToFlags,
+    newCaseClauseTracker,
+    nodeIsMissing,
+    positionBelongsToNode,
+    positionIsASICandidate,
+    positionsAreOnSameLine,
+    quote,
+    rangeContainsPosition,
+    rangeContainsPositionExclusive,
+    setEmitFlags,
+    setSnippetElement,
+    skipAlias,
+    some,
+    stableSort,
+    startsWith,
+    stringToToken,
+    stripQuotes,
+    textChanges,
+    textPart,
+    timestamp,
+    tokenToString,
+    tryCast,
+    tryGetImportFromModuleSpecifier,
+    tryGetTextOfPropertyName,
+    walkUpParenthesizedExpressions
 } from "./_namespaces/lpc.js";
 
 function unescapeLeadingUnderscores(s: string) { return s; }
