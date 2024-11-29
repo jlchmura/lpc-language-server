@@ -3593,6 +3593,9 @@ export interface BinaryExpression extends Expression, Declaration, JSDocContaine
     readonly right: Expression;
 }
 
+export interface ImpliedStringConcatExpression extends BinaryExpression {    
+}
+
 export type FunctionBody = Block;
 export type ConciseBody = FunctionBody | Expression;
 
@@ -4759,7 +4762,7 @@ export type BooleanLiteral = TrueLiteral | FalseLiteral;
 
 export interface LiteralTypeNode extends TypeNode {
     readonly kind: SyntaxKind.LiteralType;
-    readonly literal: LiteralExpression | PrefixUnaryExpression | BooleanLiteral;
+    readonly literal: LiteralExpression | PrefixUnaryExpression | BooleanLiteral | ImpliedStringConcatExpression;
 }
 
 export interface StructTypeNode extends TypeNode {

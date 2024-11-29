@@ -4178,8 +4178,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const links = getNodeLinks(node);
         if (!links.resolvedType) {
             // any string literal inside a jsdoc type or a type predicate is probably a filename that we need to resolve
-            if (node.parent && (isJSDocTypeExpression(node.parent) || isTypePredicateNode(node.parent)) && isStringLiteral(node.literal)) {                
-                const specifier = node.literal;                
+            if (node.parent && (isJSDocTypeExpression(node.parent) || isTypePredicateNode(node.parent)) 
+                && (isStringLiteral(node.literal) || isBinaryExpression(node.literal))) {                
+                const specifier = node.literal;
                 const moduleSymbol = resolveExternalModuleName(node, specifier, undefined);
                 const objectSymbol = resolveExternalObjectSymbol(moduleSymbol, specifier, /*dontResolveAlias*/ true);
                 if (objectSymbol && isSourceFile(objectSymbol.valueDeclaration)) {                

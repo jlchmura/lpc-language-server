@@ -759,6 +759,6 @@ varargs int command( string str, object ob );
  * following <cmd>.
  *
  */
-void add_action( string | function fun, string | string * cmd, int flag
-);
+void add_action( string | function fun, string | string * cmd);
+void add_action( string | function fun, string | string * cmd, int flag);
 
