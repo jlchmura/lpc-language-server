@@ -1327,14 +1327,18 @@ export function getTokenAtPosition(sourceFile: SourceFile, position: number): No
 function getTokenAtPositionWorker(sourceFile: SourceFile, position: number, allowPositionInLeadingTrivia: boolean, includePrecedingTokenAtEndPosition: ((n: Node) => boolean) | undefined, includeEndPosition: boolean): Node {
     let current: Node = sourceFile;
     let foundToken: Node | undefined;
+    let count=0;
     outer:
     while (true) {
+        if (count++ > 100) {
+            console.warn("Bailed out of getTokenAtPositionWorker loop");
+        }
         // find the child that contains 'position'
         // TODO - don't filter -- skip them inside the binary search
-        const children = current.getChildren(sourceFile).filter(c => 
+        const children = current.getChildren(sourceFile)/*.filter(c => 
             (!c.originFilename || c.originFilename === sourceFile.fileName) &&
             (!isSyntaxList(c) || c._children) // exclude syntax lists with empty children
-        );
+        )*/;
         const i = binarySearchKey(children, position, (_, i) => i, (middle, _) => {
             // This last callback is more of a selector than a comparator -
             // `EqualTo` causes the `middle` result to be returned
