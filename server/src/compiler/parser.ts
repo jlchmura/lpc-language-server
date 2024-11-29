@@ -1672,12 +1672,13 @@ export namespace LpcParser {
             end ??= scanner.getTokenFullStart();
         } else {
             if (pos.macro?.pos) {
-                arrayPos = pos.macro.pos.pos;
+                // arrayPos = pos.macro.pos.pos;
                 
                 const rootMacro = pos.macro ? getRootMacro(pos.macro) : undefined;            
                 const currentState = getPositionState();
                 const endToUse = (currentState.fileName === fileName && !currentState.macro) ? currentState.pos : rootMacro.end;
 
+                arrayPos = rootMacro.pos.pos;
                 end = endToUse;
             } else {
                 arrayPos = pos.pos;

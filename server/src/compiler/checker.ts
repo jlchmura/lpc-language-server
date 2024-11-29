@@ -11843,7 +11843,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 }
 
                 return resultType;
-            } else if (nameStr === "base_name" && node.arguments?.length === 0) { 
+            } else if (nameStr === "base_name" && !node.arguments?.length) { 
                 // only return the base name of the current file is args is 0
                 const file = getSourceFileOfNode(node);
                 const basePath = getLibRootedFileName(file.fileName, compilerOptions);                
