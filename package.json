@@ -26,7 +26,7 @@
         "local-test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
         "test": "node --no-warnings node_modules/jest/bin/jest.js --no-coverage",
         "vsce:package": "vsce package",
-        "vsce:publish": "vsce publish",
+        "vsce:publish": "vsce publish --pre-release --githubBranch v2",
         "copy": "ncp ./efuns ./out/server/src/efuns"
     },
     "engines": {
