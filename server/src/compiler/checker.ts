@@ -11037,7 +11037,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return;
         }
         const symbol = getMergedSymbol(type.symbol);
-        if (symbol.flags & SymbolFlags.TypeLiteral) {
+        if (symbol?.flags & SymbolFlags.TypeLiteral) {
             setStructuredTypeMembers(type, emptySymbols, emptyArray, emptyArray, emptyArray);
             const members = getMembersOfSymbol(symbol);
             const callSignatures = getSignaturesOfSymbol(members.get(InternalSymbolName.Call));
