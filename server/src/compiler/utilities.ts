@@ -1273,23 +1273,34 @@ export function createNameResolver({
             withinDeferredContext = withinDeferredContext || getIsDeferredContext(location, lastLocation);
             switch (location.kind) {
                 case SyntaxKind.SourceFile:                                                        
-                    const importTypes = getSymbolOfDeclaration(location as SourceFile).inherits;
-                    result = importTypes && forEachEntry(importTypes, (importType, importName) => {
+                    const importTypes = getSymbolOfDeclaration(location as SourceFile).inherits;                                        
+                    const importStack = Array.from(importTypes?.entries() ?? emptyArray);
+                    const seenImports = new Set<string>();
+                    while (!result && importStack.length) {                        
+                        const [importName, importType] = importStack.shift()!;
+                        if (seenImports.has(importName)) {
+                            continue;
+                        }
+                        
+                        seenImports.add(importName);                        
+
+                        const importSymbolTable = importType?.symbol?.exports ?? emptySymbols;
+                        result = lookup(importSymbolTable, name, meaning);
+                        if (result) {
+                            break loop;
+                        }
+
                         // TODO: filter by import prefix here                            
                         const inheritFile = first(importType.symbol.declarations);                                                                                                                        
                         const inheritFileSymbol = getSymbolOfDeclaration(inheritFile);                        
                         const nestedInherits = inheritFileSymbol.inherits;
-                        if (nestedInherits) {
-                            forEachEntry(nestedInherits, (importSymbol, importSymbolName) => { importTypes.set(importSymbolName, importSymbol); });                     
-                        }
-                        
-                        const importSymbolTable = importType?.symbol?.exports ?? emptySymbols;
-                        return lookup(importSymbolTable, name, meaning);
-                    });
-                    if (result) {
-                        break loop;
+                        importStack.push(...(nestedInherits?.entries() ?? emptyArray));
+                        // if (nestedInherits) {
+
+                        //     forEachEntry(nestedInherits, (importSymbol, importSymbolName) => { importTypes.set(importSymbolName, importSymbol); });                     
+                        // }                                                
                     }
-                    
+                                       
                     //const moduleExports = getSymbolOfDeclaration(location as SourceFile /*| ModuleDeclaration*/)?.exports || emptySymbols;                    
                     
                     // It's an external module. First see if the module has an export default and if the local

@@ -1,4 +1,4 @@
-import { Symbol, createTextSpanFromBounds, Declaration, DefinitionInfo, emptyArray, FileReference, findAncestor, forEach, FunctionLikeDeclaration, getTouchingPropertyName, isDefaultClause, isFunctionLikeDeclaration, isSwitchStatement, Node, Program, ScriptElementKind, SignatureDeclaration, SourceFile, SwitchStatement, SymbolFlags, SyntaxKind, TypeChecker, SymbolDisplay, getNameOfDeclaration, createTextSpanFromNode, NodeFlags, hasInitializer, HasInitializer, hasEffectiveModifier, ModifierFlags, FindAllReferences, TextSpan, concatenate, every, mapDefined, tryCast, isFunctionLike, isAssignmentExpression, isCallLikeExpression, canHaveSymbol, filter, some, map, find, isCallOrNewExpressionTarget, isNameOfFunctionDeclaration, CallLikeExpression, isRightSideOfPropertyAccess, getInvokedExpression, isPropertyName, isBindingElement, isNewExpressionTarget, textRangeContainsPositionInclusive, IncludeDirective, getTouchingToken, ResolvedModuleWithFailedLookupLocations, getDirectoryPath, resolvePath, isStringLiteral, getPreEmitDiagnostics, Debug, isIncludeDirective } from "./_namespaces/lpc";
+import { Symbol, createTextSpanFromBounds, Declaration, DefinitionInfo, emptyArray, FileReference, findAncestor, forEach, FunctionLikeDeclaration, getTouchingPropertyName, isDefaultClause, isFunctionLikeDeclaration, isSwitchStatement, Node, Program, ScriptElementKind, SignatureDeclaration, SourceFile, SwitchStatement, SymbolFlags, SyntaxKind, TypeChecker, SymbolDisplay, getNameOfDeclaration, createTextSpanFromNode, NodeFlags, hasInitializer, HasInitializer, hasEffectiveModifier, ModifierFlags, FindAllReferences, TextSpan, concatenate, every, mapDefined, tryCast, isFunctionLike, isAssignmentExpression, isCallLikeExpression, canHaveSymbol, filter, some, map, find, isCallOrNewExpressionTarget, isNameOfFunctionDeclaration, CallLikeExpression, isRightSideOfPropertyAccess, getInvokedExpression, isPropertyName, isBindingElement, isNewExpressionTarget, textRangeContainsPositionInclusive, IncludeDirective, getTouchingToken, ResolvedModuleWithFailedLookupLocations, getDirectoryPath, resolvePath, isStringLiteral, getPreEmitDiagnostics, Debug, isIncludeDirective, last } from "./_namespaces/lpc";
 import { isContextWithStartAndEndNode } from "./_namespaces/lpc.FindAllReferences";
 
 /** @internal */
@@ -406,8 +406,4 @@ function getSymbol(node: Node, checker: TypeChecker, stopAtAlias: boolean | unde
         }
     }
     return { symbol, failedAliasResolution };
-}
-
-function last(declarations: SignatureDeclaration[]): Declaration {
-    throw new Error("Function not implemented.");
 }

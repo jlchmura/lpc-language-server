@@ -1252,13 +1252,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      * For a description of late-binding, see `lateBindMember`.
      */
     function getLateBoundSymbol(symbol: Symbol): Symbol {
-        // if (symbol.flags & SymbolFlags.Class && isSourceFile(symbol.valueDeclaration)) {
-        //     // force sourcefile to resolve inherits
-        //     const symbolType = getTypeOfSymbol(symbol, CheckMode.TypeOnly) as InterfaceType;
-        //     if (!symbolType.resolvedBaseTypes) {
-        //         resolveBaseTypesOfClass(symbolType as InterfaceType);
-        //     }
-        // }
+        if (symbol.flags & SymbolFlags.Class && isSourceFile(symbol.valueDeclaration)) {
+            // force sourcefile to resolve inherits
+            const symbolType = getTypeOfSymbol(symbol, CheckMode.TypeOnly) as InterfaceType;
+            if (!symbolType.resolvedBaseTypes) {
+                resolveBaseTypesOfClass(symbolType as InterfaceType);
+            }
+        }
         if (symbol.flags & SymbolFlags.ClassMember && symbol.name === InternalSymbolName.Computed) {
             const links = getSymbolLinks(symbol);
             if (!links.lateSymbol && some(symbol.declarations, hasLateBindableName)) {
