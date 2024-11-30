@@ -256,6 +256,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             // otherwise, using options specified in '--lib' instead of '--target' default library file
             const defaultLibraryFileName = getDefaultLibraryFileName();
             if (!options.lib && defaultLibraryFileName) {
+                // console.log("Loading default library file: " + defaultLibraryFileName);
                 processRootFile(defaultLibraryFileName, /*isDefaultLib*/ true, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.LibFile });
             }
             else {
