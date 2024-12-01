@@ -101,6 +101,15 @@ Found 1 error in server/src/tests/cases/compiler/declarations6.c[90m:5[0m
 
 exports[`Compiler compiler/defaultArgs.c Reports correct errors for compiler/defaultArgs.c: diags-compiler/defaultArgs.c 1`] = `""`;
 
+exports[`Compiler compiler/defaultArgs2.c Reports correct errors for compiler/defaultArgs2.c: diags-compiler/defaultArgs2.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/defaultArgs2.c[90m:5[0m
+
+"
+`;
+
+exports[`Compiler compiler/defaultArgs3.c Reports correct errors for compiler/defaultArgs3.c: diags-compiler/defaultArgs3.c 1`] = `""`;
+
 exports[`Compiler compiler/define1.c Reports correct errors for compiler/define1.c: diags-compiler/define1.c 1`] = `""`;
 
 exports[`Compiler compiler/doWhile.c Reports correct errors for compiler/doWhile.c: diags-compiler/doWhile.c 1`] = `""`;

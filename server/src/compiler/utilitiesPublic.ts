@@ -75,8 +75,9 @@ function isFunctionLikeDeclarationKind(kind: SyntaxKind): boolean {
 export function isFunctionLikeKind(kind: SyntaxKind): boolean {
     switch (kind) {
         // case SyntaxKind.MethodSignature:
-        // case SyntaxKind.CallSignature:
-        case SyntaxKind.JSDocSignature:
+        case SyntaxKind.CallSignature:
+        case SyntaxKind.JSDocSignature:        
+        case SyntaxKind.InlineClosureExpression:
         // case SyntaxKind.ConstructSignature:
         // case SyntaxKind.IndexSignature:
         // case SyntaxKind.FunctionType:

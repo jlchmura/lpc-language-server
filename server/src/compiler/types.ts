@@ -3738,6 +3738,7 @@ export interface InlineClosureExpression extends PrimaryExpression, FunctionLike
     readonly modifiers?: NodeArray<Modifier>;
     readonly body: ConciseBody;
     readonly name: never;
+    readonly arguments?: NodeArray<Expression>;
 }
 
 export type LambdaKind = 
@@ -4459,6 +4460,7 @@ export type CallLikeExpression =
     | CallExpression    
     | NewExpression
     | CloneObjectExpression
+    | InlineClosureExpression
     //| TaggedTemplateExpression
     ;
 
