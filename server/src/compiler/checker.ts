@@ -3402,6 +3402,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return getTypeOfSymbol(getSymbolOfDeclaration(node));        
     }
 
+    function checkSpreadExpression(node: SpreadElement, checkMode?: CheckMode): Type {
+        // if (languageVersion < LanguageFeatureMinimumTarget.SpreadElements) {
+        //     checkExternalEmitHelpers(node, compilerOptions.downlevelIteration ? ExternalEmitHelpers.SpreadIncludes : ExternalEmitHelpers.SpreadArray);
+        // }
+
+        const arrayOrIterableType = checkExpression(node.expression, checkMode);
+        return checkIteratedTypeOrElementType(IterationUse.Spread, arrayOrIterableType, undefinedType, node.expression);
+    }
 
     function checkVariableDeclaration(node: VariableDeclaration) {
         tracing?.push(tracing.Phase.Check, "checkVariableDeclaration", { kind: node.kind, pos: node.pos, end: node.end, path: (node as TracingNode).tracingPath });
@@ -4430,6 +4438,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.MappingKeyword:
                 return globalMappingType;
             case SyntaxKind.BytesKeyword:
+            case SyntaxKind.BufferKeyword:
                 return bytesType;
             // case SyntaxKind.BooleanKeyword:
             //     return booleanType;            
@@ -11685,8 +11694,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return checkConditionalExpression(node as ConditionalExpression, checkMode);
             case SyntaxKind.RangeExpression:
                 return checkRangeExpression(node as RangeExpression, checkMode);
-            // case SyntaxKind.SpreadElement:
-            //     return checkSpreadExpression(node as SpreadElement, checkMode);            
+            case SyntaxKind.SpreadElement:
+                return checkSpreadExpression(node as SpreadElement, checkMode);            
             case SyntaxKind.SyntheticExpression:
                 Debug.fail("TODO - implement me - checkExpressionWorker - SyntheticExpression");
             //     return checkSyntheticExpression(node as SyntheticExpression);
