@@ -156,7 +156,7 @@ object *objects( void | string | function func );
 /**
  * objectp() - determine whether or not a given variable is an object
  *
- * Return 1 if 'arg' is an object.
+ * @returns 1 if 'arg' is an object.
  *
  */
 int objectp( mixed arg );

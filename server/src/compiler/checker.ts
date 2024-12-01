@@ -4144,6 +4144,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             const root = getJSDocRoot(declaration);            
         }        
         if (typeNode) {
+            // in this special case, don't use regular boolean. the true type should be 
+            // the function's declared return type
+            if (isTypePredicateNode(typeNode) && declaration.type) {
+                return getUnionType([falseType, getTypeFromTypeNode(declaration.type as TypeNode)]);
+            }            
             return getTypeFromTypeNode(typeNode);
         }        
         return getReturnTypeOfTypeTag(declaration);
