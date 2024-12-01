@@ -3217,7 +3217,7 @@ export function getEffectiveTypeAnnotationNode(node: Node): TypeNode | undefined
     }
 
     // If type is object or mixed keyword, try to use JSDoc type annotation first, failing back to the actual type keyword
-    if (isObjectOrMixedType(type) || (isArrayTypeNode(type) && isObjectOrMixedType(type.elementType))) {
+    if (isObjectOrMixedType(type) || (type && isArrayTypeNode(type) && isObjectOrMixedType(type.elementType))) {
         const jsDocType = tryGetJsDocType();        
         return jsDocType ? isArrayTypeNode(jsDocType) ? jsDocType.elementType : jsDocType.kind !== type.kind ? jsDocType : type : type;
     } else if (type || !isInJSFile(node)) {
