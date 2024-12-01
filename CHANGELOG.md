@@ -1,5 +1,18 @@
 # LPC Language Services Changelog
 
+## 1.1.5
+- Add support for Fluff array property access shortcut (#70)
+
+## 1.1.4
+- inline closures used as default params now resolve their return type and correctly report type mismatches
+- spread elements are properly checked
+- type predicates no longer override a function's declared return type
+- some efuns doc tweaks
+
+## 1.1.3
+
+- Initial prelease of v2
+
 ## 1.0.30
 
 -   Because 1.0.29 was incomplete
