@@ -10010,7 +10010,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     
     function isReachableFlowNodeWorker(flow: FlowNode, noCacheCheck: boolean): boolean {
+        let count = 0;
         while (true) {
+            if (count++ > 100) {
+                console.warn("Bailing out of reachable flow worker");
+                return lastFlowNodeReachable;
+            }
             if (flow === lastFlowNode) {
                 return lastFlowNodeReachable;
             }
