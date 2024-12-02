@@ -61,6 +61,7 @@ describe("Compiler", () => {
             // setup options & hosts
             const compilerOptions: lpc.CompilerOptions = {
                 driverType: lpc.driverTypeToLanguageVariant(testOptions["driver"]),
+                diagnostics: true
             };
 
             const expectedErrorCount = +(testOptions["errors"] ?? "0");

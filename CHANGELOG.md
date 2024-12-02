@@ -4,6 +4,7 @@
 
 -   Add support for Fluff array property access shortcut (#70)
 -   Better detection of Inferred to Configured projects
+-   Correctly resolve protected inherited member visibility [#67](https://github.com/jlchmura/lpc-language-server/issues/67)
 
 ## 1.1.4
 

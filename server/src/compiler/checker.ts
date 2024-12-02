@@ -11152,15 +11152,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         let baseConstructorIndexInfo: IndexInfo | undefined;
         setStructuredTypeMembers(type, members, emptyArray, emptyArray, emptyArray);
         if (symbol.flags & SymbolFlags.Class) {
-            const classType = getDeclaredTypeOfClassOrInterface(symbol);
-            const baseConstructorType = getBaseConstructorTypeOfClass(classType);
-            if (baseConstructorType.flags & (TypeFlags.Object | TypeFlags.Intersection | TypeFlags.TypeVariable)) {
+            const classType = getDeclaredTypeOfClassOrInterface(symbol);            
+            if (classType.flags & (TypeFlags.Object | TypeFlags.Intersection | TypeFlags.TypeVariable)) {
                 members = createSymbolTable(getNamedOrIndexSignatureMembers(members));
-                addInheritedMembers(members, getPropertiesOfType(baseConstructorType));
-            }
-            else if (baseConstructorType === anyType) {
-                baseConstructorIndexInfo = createIndexInfo(stringType, anyType, /*isReadonly*/ false);
-            }
+                addInheritedMembers(members, getPropertiesOfType(classType));
+            }            
         }
 
         const indexSymbol = getIndexSymbolFromSymbolTable(members);
