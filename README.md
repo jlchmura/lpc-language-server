@@ -64,8 +64,8 @@ Semantic checks can be disabled for a single file by placing a nocheck directive
 
 ### this_object()
 
-By default, the type checker will assume `this_object()` to refer to the file in which you are working. At runtime, that is
-not always the case, in particular when the file is included in a larger object.  If needed, the type checker can be instructed to override object type of `this_object()` can be specified using a comment directive:
+By default, the type checker will assume `this_object()` refers to the file in which you are working. At runtime, that is
+not always the case, in particular when the file is included in a larger object.  If needed, the type checker can be instructed to override the object type of `this_object()` by using a comment directive placed at the top of the file:
 ```js
 // @this-object /std/living
 ```
