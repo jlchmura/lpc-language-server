@@ -2019,7 +2019,7 @@ export function createLanguageService(
         const nodeForQuickInfo = getNodeForQuickInfo(node);
         const symbol = getSymbolAtLocationForQuickInfo(nodeForQuickInfo, typeChecker);
         if (!symbol || typeChecker.isUnknownSymbol(symbol) && nodeForQuickInfo) {
-            const type = shouldGetType(sourceFile, nodeForQuickInfo, position) ? typeChecker.getTypeAtLocation(nodeForQuickInfo) : undefined;
+            const type = nodeForQuickInfo && shouldGetType(sourceFile, nodeForQuickInfo, position) ? typeChecker.getTypeAtLocation(nodeForQuickInfo) : undefined;
             return type && {
                 kind: ScriptElementKind.unknown,
                 kindModifiers: ScriptElementKindModifier.none,
