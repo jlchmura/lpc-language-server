@@ -1273,6 +1273,12 @@ export function createNameResolver({
             withinDeferredContext = withinDeferredContext || getIsDeferredContext(location, lastLocation);
             switch (location.kind) {
                 case SyntaxKind.SourceFile:                                                        
+                    // first check file members
+                    if (result = lookup(getSymbolOfDeclaration(location as SourceFile).members, name, meaning)) {
+                        break loop;
+                    }    
+                
+                    // now check inherited symbols
                     const importTypes = getSymbolOfDeclaration(location as SourceFile).inherits;                                        
                     const importStack = Array.from(importTypes?.entries() ?? emptyArray);
                     const seenImports = new Set<string>();
