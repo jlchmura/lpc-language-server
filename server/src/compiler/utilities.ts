@@ -5744,7 +5744,7 @@ export function getClassExtendsHeritageElement(node: ClassLikeDeclaration | Stru
     //     return heritageClause && heritageClause.types.length > 0 ? heritageClause.types[0] : undefined;    
     // }
     
-    console.log("todo - getClassExtendsHeritageElement");
+    // TODO - getClassExtendsHeritageElement    
     return undefined;
     // const heritageClause = getHeritageClause(node.heritageClauses, SyntaxKind.ExtendsKeyword);
     // return heritageClause && heritageClause.types.length > 0 ? heritageClause.types[0] : undefined;

@@ -215,6 +215,7 @@ varargs void say( string str, object obj );
  *
  */
 int resolve( string address, string callback_func );
+int resolve( string address, closure callback_func );
 
 /**
  * remove_action - unbind a command verb from a local function
