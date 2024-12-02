@@ -266,3 +266,11 @@ int socket_acquire( int socket, string read_callback,
 int socket_accept( int s, string read_callback,
                    string write_callback );
 
+
+/**
+ * Set the option for a socket.
+ * @param socket 
+ * @param option 
+ * @param host 
+ */
+void socket_set_option(int socket, int option, int|string host);
