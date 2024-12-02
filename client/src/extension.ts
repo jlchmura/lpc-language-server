@@ -239,11 +239,16 @@ function toTsFilePath(resource: vscode.Uri): string | undefined {
         return resource.fsPath;
     }
 
-    return (this.isProjectWideIntellisenseOnWebEnabled() ? '' : inMemoryResourcePrefix)
+    return (isProjectWideIntellisenseOnWebEnabled() ? '' : inMemoryResourcePrefix)
         + '/' + resource.scheme
         + '/' + (resource.authority || emptyAuthority)
         + (resource.path.startsWith('/') ? resource.path : '/' + resource.path)
         + (resource.fragment ? '#' + resource.fragment : '');
+}
+
+function isProjectWideIntellisenseOnWebEnabled() {
+    // TODO - implement this
+    return false;    
 }
 
 export function deactivate(): Thenable<void> | undefined {
