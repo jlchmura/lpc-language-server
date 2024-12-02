@@ -1,15 +1,14 @@
 # LPC Language Services
 
-## v1.1.x IS A PRERELEASE VERSION WITH BREAKING CHANGES
-Please see [config-changes.md](config-changes.md)
-
----
-
 Language server and VSCode extension that provides rich language support for LPC (Lars Pensjö C) - an object-oriented programming language derived from C and developed originally by Lars Pensjö to facilitate MUD building on LPMuds.
 
 Currently supports [LDMud](https://www.ldmud.eu/) and [FluffOS](https://www.fluffos.info/).
 
 Install from the VS Code Marketplace: https://marketplace.visualstudio.com/items?itemName=jlchmura.lpc
+
+**NOTE: v1.1.x IS A PRERELEASE VERSION WITH BREAKING CHANGES**
+If you were a previous use of the 1.0.x version, please see [config-changes.md](config-changes.md)
+
 
 ## Features
 
@@ -21,9 +20,9 @@ Install from the VS Code Marketplace: https://marketplace.visualstudio.com/items
     -   Go to definitions (f12)
     -   Go to implementations (ctrl/cmd+f12)
     -   Go to symbol (cltr/cmd+o)
+- Symbol rename (f2)
 -   Code outline
 -   Code navigation
--   [Include / sefun support](#includes--sefuns)
 
 ### Doc Comments
 
@@ -41,6 +40,7 @@ int doCommand(string cmd) {
     return 1;
 }
 ```
+Similar to typed languages like TypeScript, the type annotations are optional but can provide valuable context to the language server. For more, see [Type Annotations](#type-annotations), below.
 
 ## If you love this extension, you could
 
@@ -50,30 +50,19 @@ int doCommand(string cmd) {
 
 See [CHANGELOG.md](CHANGELOG.md).
 
-## Setting up your workspace
+## Semantic Analysis
 
-The VS Code LPC Language Services extension does not use your MUD driver to compile code. As such, several configuration options are available to help the language server understand the structure of your mudlib.
+Semantic analysis (sometimes refered to as the _type checker_) will perform many useful checks on your code, but you must opt-in to this feature. 
+To enable semantic code analysis, set the [diagnostics](#diagnostics---diagnostics) options to `"on"`.
 
-### Workspace Root vs Lib Root
+### Disable Checks on Per-File Basis
 
-LPC Language Services will use the location of your `lpc-config.json` file to determine the root folder of your mudlib. If no config file is found, the VS Code workspace root is used.
-
-For example, see the [LIMA mudlib](https://github.com/fluffos/lima) in which the config file should be placed in the `lib` folder.
-
-**Please note**: After creating (or moving) your `lpc-config` file, you will need to restart VS Code.
-
-### Example
-
-For an example mudlib, pre-configured to work with LPC Language Services, see this slightly modified version of the [LP 2.4.5 mudlib](https://github.com/jlchmura/lp-245). LPC Language Services can parse and validate this entire lib without errors.
-
-### Type Checking
-
-Type checking can be disabled for a single file by placing a nocheck directive at the top of the file:
+Semantic checks can be disabled for a single file by placing a nocheck directive at the top of the file:
 ```js
 // @lpc-nocheck
 ```
 
-#### this_object()
+### this_object()
 
 By default, the type checker will assume `this_object()` to refer to the file in which you are working. At runtime, that is
 not always the case, in particular when the file is included in a larger object.  If needed, the type checker can be instructed to override object type of `this_object()` can be specified using a comment directive:
@@ -81,9 +70,62 @@ not always the case, in particular when the file is included in a larger object.
 // @this-object /std/living
 ```
 
-### LPC Config
+### Type Annotations
 
-Language services can be customized by creating an `lpc-config.json` file in the root folder of your workspace. The available options are as follows:
+In many instance, the type checker can automatically infer the type of an object.  For example:
+```c
+object itm = clone_object("std/item");
+```
+However, often times a parameter or variable gives the type checker no information as to its type (other than object). Consider this example in which `->query_name()` will report an error, because it cannot validate that the function exists on object player:
+```c
+void welcomePlayer(object player) {
+  write("Hi " + player->query_name());
+}
+```
+This can be solved by using a type annotation in a doc comment:
+```c
+/**
+ * @param {"/std/player.c"} player - The player to welcome
+ */
+void welcomePlayer(object player) {
+  write("Hi " + player->query_name());
+}
+```
+Annotations can also be used on variables and return statements:
+```c
+/**
+ * @returns {"/std/player.c"} The current player object
+ */
+object getPlayer() {
+  return lookupPlayer();
+}
+
+void testWeapon() {  
+  object player = getPlayer();
+  /** @type {"/std/weapon.c"} */
+  object weapon;
+  
+  if (player) {
+    weapon = player->getWeapon();
+    weapon->runTest();    
+  }  
+}
+```
+
+## Setting up your workspace
+
+The VS Code LPC Language Services extension does not use your MUD driver to compile code. As such, several configuration options are available to help the language server understand the structure of your mudlib.
+
+### Workspace Root vs Lib Root
+
+First create an `lpc-config.json` file that is used to store setting for the language server. This file must be located in your workspace root, or in your lib root.
+If no config file is found, the language server will still work but won't be able to take advante of global include files, include search dirs, etc.
+
+For example, see this [GLPU Fork](https://github.com/jlchmura/glpu) in which the config file is placed in the workspace root.
+
+### Example
+
+For an example mudlib, pre-configured to work with LPC Language Services, see this slightly modified version of the [LP 2.4.5 mudlib](https://github.com/jlchmura/lp-245). LPC Language Services can parse and validate this entire lib without errors.
 
 #### Driver Options - `driver`
 
@@ -92,13 +134,32 @@ Language services can be customized by creating an `lpc-config.json` file in the
 | `type`    | Driver type. Valid options are `ldmud` or `fluffos`. |
 | `version` | The driver version string, i.e. `"3.6.7"`            |
 
-#### File Locations - `files`
+#### Include - `include`
+Specifies an array of filenames or patterns to include in the program. These filenames are resolved relative to the directory containing the lpc-config.json file.
+
+Default: `**/*`
+
+Example:
+```json
+{
+  "include": ["lib/**/*"]
+}
+```
+
+#### Exclude - `exclude`
+
+Specifies an array of filenames or patterns that should be skipped when resolving include.
+
+Important: exclude only changes which files are included as a result of the include setting. A file specified by exclude can still become part of your codebase due to a statement in your code such as an include, a types inclusion, clone_object, etc.
+
+It is not a mechanism that prevents a file from being included in the codebase - it simply changes what the include setting finds.
+
+#### Lib File Locations - `libFiles`
 
 | Setting          | Description                                                             |
 | ---------------- | ----------------------------------------------------------------------- |
 | `master`         | The location of your master object. Defaults to `"/obj/master.c"`       |
 | `simul_efun`     | The location of your simul_efun file. Defaults to `"/obj/simul_efun.c"` |
-| `init_files`     | An array of init files. Defaults to `["/room/init_files"]`              |
 | `global_include` | When provided, will add this file as an `#include` to each file.        |
 | `player`         | The location of your player file. Defaults to `"/obj/player.c"`         |
 
@@ -106,15 +167,11 @@ Language services can be customized by creating an `lpc-config.json` file in the
 If your config file is located in a folder other than your lib's root directory, use this setting
 to specify the location of the root folder.
 
-#### Include Dirs - `include`
+#### Include Search Dirs - `libInclude`
 
 An array of folders that are searched when including files via the `#include` directive.
 
 Defaults to `["/sys", "/obj", "/room"]`
-
-#### Exclude Dirs - `exclude`
-
-An array of [glob patterns](https://code.visualstudio.com/docs/editor/glob-patterns) of directories and files that are excluded from language services. Excluded files will not report errors unless specifically opened in VS Code.
 
 #### Predefined Macros - `defines`
 
@@ -131,32 +188,10 @@ In the example above, `__HOST_NAME__` will be defined as the _string_ value `"lo
 
 #### Diagnostics - `diagnostics`
 
-
-
-The severity level of several diagnostics can be controlled through this configuration option. When a LPC language services reports a diagnostic, the _code_ is printed at the end the message and enclosed in `lpc()`, i.e. `lpc(functionNotFound)`.
-
-For example, to turn off the `functionNotFound` error completely:
+Semantic analysis is always run, but diagnostics are only reported if you opt in to receiving them. (Syntax errors will always be reported.) Example:
 
 ```json
-"diagnostics": {
-  "functionNotFound": "none"
-}
-```
-
-Valid severity levels are:
-
--   `error`
--   `warning`
--   `info`
--   `hint`
--   `none`
-
-##### Disabling Code Diagnostics
-
-All semantic diagnostics can be disabled by setting the config to `"off"`. Syntax errors will always be reported. Example:
-
-```json
-"diagnostics": "off"
+"diagnostics": "on"
 ```
 
 ## Grammar ToDo's
@@ -166,13 +201,12 @@ Language services is a work in progress. Some major areas that have yet to be im
 -   LWObjects
 -   Named object validation
 -   Coroutines
--   Complete FluffOS specific syntax parsing
 
 ## Credits
 
 Syntax highlighting is based on the [LPC Language](https://marketplace.visualstudio.com/items?itemName=undeadfish.vscode-lpc-lang) VS Code extension by Gwenn Reece, adjusted for LDMud.
 
-Original inspiration for the structure of this project came from Mike Lischke's [ANTLR4 grammar syntax support](https://marketplace.visualstudio.com/items?itemName=mike-lischke.vscode-antlr4). This language server would not have been possible without Mike's work on the ANTLR4-ng package.
+The guts of this language server is a heavily modified version of the [TypeScript](https://github.com/microsoft/typescript) compiler/server. None of it would be possible without the work of the many brilliant people working on that team.
 
 Many thanks for the fellow MUD admins, wizards, and LPC aficionados in the LPC Discord for their inspiration.
 
