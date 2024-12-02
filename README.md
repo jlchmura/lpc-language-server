@@ -118,7 +118,7 @@ An array of [glob patterns](https://code.visualstudio.com/docs/editor/glob-patte
 
 #### Predefined Macros - `defines`
 
-Since your code is not being evaluating in the mud driver, you may need to simulate one or more defines that are normally provided by the driver's compiler. Values are an array of key value pairs. Example:
+Since your code is not being evaluated in the mud driver, you may need to simulate one or more defines that are normally provided by the driver's compiler. Values are an array of key value pairs. Example:
 
 ```json
 "defines": [
@@ -179,4 +179,4 @@ Many thanks for the fellow MUD admins, wizards, and LPC aficionados in the LPC D
 ## Contact / Feature Requests / Bugs
 
 Feedback welcome. You can open an issue in the [lpc-language-server repo](https://github.com/jlchmura/lpc-language-server/issues).
-Otherwise, you can usually find me on the LPC Discord or idling on [Infinity Mud](https://infinitymud.com/).
+Otherwise, you can usually find me on the [LPC Discord](https://discord.gg/wzUbBgs3AQ) or idling on [Infinity Mud](https://infinitymud.com/).
