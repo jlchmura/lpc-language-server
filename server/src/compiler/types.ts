@@ -1096,20 +1096,21 @@ export const enum TypeFlags {
     StringOrNumberLiteralOrUnique = StringLiteral | IntLiteral,
     /** @internal */
     DefinitelyFalsy = StringLiteral | IntLiteral | FloatLiteral | BooleanLiteral | Void | Undefined | Null,
-    PossiblyFalsy = DefinitelyFalsy | String | Number | Float | Boolean,
+    PossiblyFalsy = DefinitelyFalsy | String | Number | Float | Bytes | Boolean,
     /** @internal */
-    Intrinsic = Any | Unknown | String | Number | Float | Boolean | Bytes | BooleanLiteral | BytesLiteral | Void | Undefined | Null | Never | NonPrimitive,
+    Intrinsic = Any | Unknown | String | Number | Float | Boolean | Bytes | BooleanLiteral | Void | Undefined | Null | Never | NonPrimitive,
     StringLike = String | StringLiteral | TemplateLiteral | StringMapping,
     NumberLike = Number | IntLiteral | FloatLiteral | Enum,
     BooleanLike = Boolean | BooleanLiteral,
     EnumLike = Enum | EnumLiteral,
     VoidLike = Void | Undefined,
+    BytesLike = Bytes | BytesLiteral,
     /** @internal */
-    Primitive = StringLike | NumberLike |  BooleanLike | EnumLike | VoidLike | Null,
+    Primitive = StringLike | NumberLike |  BooleanLike | EnumLike | VoidLike | BytesLike | Null,
     /** @internal */
-    DefinitelyNonNullable = StringLike | NumberLike |  BooleanLike | EnumLike | Object | NonPrimitive,
+    DefinitelyNonNullable = StringLike | NumberLike | BytesLike | BooleanLike | EnumLike | Object | NonPrimitive,
     /** @internal */
-    DisjointDomains = NonPrimitive | StringLike | NumberLike |  BooleanLike | VoidLike | Null,
+    DisjointDomains = NonPrimitive | StringLike | NumberLike | BytesLike | BooleanLike | VoidLike | Null,
     UnionOrIntersection = Union | Intersection,
     StructuredType = Object | Union | Intersection,
     TypeVariable = TypeParameter | IndexedAccess,
@@ -1125,7 +1126,7 @@ export const enum TypeFlags {
     Singleton = Any | Unknown | String | Number | Boolean | Float | Bytes | Void | Undefined | Null | Never | NonPrimitive,
     // 'Narrowable' types are types where narrowing actually narrows.
     // This *should* be every type other than null, undefined, void, and never
-    Narrowable = Any | Unknown | StructuredOrInstantiable | StringLike | NumberLike |  BooleanLike | Bytes | NonPrimitive,
+    Narrowable = Any | Unknown | StructuredOrInstantiable | StringLike | NumberLike | BooleanLike | BytesLike | NonPrimitive,
     // The following flags are aggregated during union and intersection type construction
     /** @internal */
     IncludesMask = Any | Unknown | Primitive | Never | Object | Union | Intersection | NonPrimitive | TemplateLiteral | StringMapping,

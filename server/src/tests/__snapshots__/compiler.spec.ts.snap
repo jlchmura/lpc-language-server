@@ -63,6 +63,10 @@ Found 1 error in server/src/tests/cases/compiler/badSwitch.c[90m:7[0m
 "
 `;
 
+exports[`Compiler compiler/buffer1.c Reports correct errors for compiler/buffer1.c: diags-compiler/buffer1.c 1`] = `""`;
+
+exports[`Compiler compiler/bytes1.c Reports correct errors for compiler/bytes1.c: diags-compiler/bytes1.c 1`] = `""`;
+
 exports[`Compiler compiler/catchBlock.c Reports correct errors for compiler/catchBlock.c: diags-compiler/catchBlock.c 1`] = `""`;
 
 exports[`Compiler compiler/catchExpr1.c Reports correct errors for compiler/catchExpr1.c: diags-compiler/catchExpr1.c 1`] = `""`;

@@ -12891,6 +12891,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     // If one or both operands are of the String primitive type, the result is of the String primitive type.
                     resultType = stringType;
                 }
+                else if (isTypeAssignableToKind(leftType, TypeFlags.BytesLike, /*strict*/ true) && isTypeAssignableToKind(rightType, TypeFlags.BytesLike, /*strict*/ true)) {
+                    // No implicit conversion for bytes type - both operands must be bytes
+                    resultType = bytesType;
+                }
                 else if (isTypeAny(leftType) || isTypeAny(rightType)) {
                     // Otherwise, the result is of type Any.
                     // NOTE: unknown type here denotes error type. Old compiler treated this case as any type so do we.
@@ -13621,7 +13625,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
     
     function isPrimitiveTypeName(name: string) {
-        return name === "string" || name === "int" || name === "object" || name === "float" || name === "mixed" || name === "mapping" || name === "unknown";
+        return name === "string" || name === "int" || name === "object" || name === "float" || name === "mixed" || name === "mapping" || name === "unknown" || name === "bytes" || name === "buffer";
     }
 
     /**
@@ -21222,6 +21226,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (s & TypeFlags.NumberLike && t & TypeFlags.Number) return true;                
         if (s & TypeFlags.BooleanLike && t & TypeFlags.Boolean) return true;
         if (s & TypeFlags.BooleanLike && t & TypeFlags.Number) return true;
+        if (s & TypeFlags.Bytes && t & TypeFlags.Bytes) return true;
+        if (s & TypeFlags.BytesLiteral && t & TypeFlags.Bytes) return true;
         // if (s & TypeFlags.ESSymbolLike && t & TypeFlags.ESSymbol) return true;                
         // In non-strictNullChecks mode, `undefined` and `null` are assignable to anything except `never`.
         // Since unions and intersections may reduce to `never`, we exclude them here.
@@ -22803,6 +22809,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     const primitive = source.flags & TypeFlags.StringLiteral ? stringType :
                         source.flags & TypeFlags.IntLiteral ? intType :
                         source.flags & TypeFlags.FloatLiteral ? floatType :
+                        source.flags & TypeFlags.Bytes ? bytesType :
                         undefined;
                     return primitive && containsType(targetTypes, primitive) || alternateForm && containsType(targetTypes, alternateForm) ? Ternary.True : Ternary.False;
                 }
@@ -23206,10 +23213,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             !!(kind & TypeFlags.NumberLike) && isTypeAssignableTo(source, floatType) ||
             !!(kind & TypeFlags.StringLike) && isTypeAssignableTo(source, stringType) ||
             //!!(kind & TypeFlags.BooleanLike) && isTypeAssignableTo(source, booleanType) ||
-            //!!(kind & TypeFlags.Void) && isTypeAssignableTo(source, voidType) ||
+            !!(kind & TypeFlags.BytesLike) && isTypeAssignableTo(source, bytesType) ||
             !!(kind & TypeFlags.Never) && isTypeAssignableTo(source, neverType) ||            
-            !!(kind & TypeFlags.Undefined) && isTypeAssignableTo(source, undefinedType) ||
-            //!!(kind & TypeFlags.ESSymbol) && isTypeAssignableTo(source, esSymbolType) ||
+            !!(kind & TypeFlags.Undefined) && isTypeAssignableTo(source, undefinedType) ||            
             !!(kind & TypeFlags.NonPrimitive) && isTypeAssignableTo(source, nonPrimitiveType);
     }
 

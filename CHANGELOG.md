@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.6
+
+-   Fix: Binary expression should allow bytes/buffer types
+
 ## 1.1.5
 
 -   Add support for Fluff array property access shortcut (#70)
