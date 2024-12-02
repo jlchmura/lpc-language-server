@@ -1112,7 +1112,10 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     function bindBlockScopedDeclaration(node: Declaration, symbolFlags: SymbolFlags, symbolExcludes: SymbolFlags) {
         switch (blockScopeContainer.kind) {            
             case SyntaxKind.SourceFile:
-                declareSymbol(file.symbol.members!, /*parent*/ undefined, node, symbolFlags, symbolExcludes)
+                // put variables in the members table, so that it can be accessed by inheriting objects
+                const local = declareSymbol(file.locals, /*parent*/ undefined, node, symbolFlags, symbolExcludes);
+                local.exportSymbol = declareSymbol(file.symbol.members!, container.symbol, node, symbolFlags, symbolExcludes);
+                node.localSymbol = local;                                
                 break;                
             default:
                 Debug.assertNode(blockScopeContainer, canHaveLocals);
