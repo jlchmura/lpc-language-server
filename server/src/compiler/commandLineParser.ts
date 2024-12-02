@@ -1,6 +1,6 @@
 import { config } from "process";
 import { ILpcConfig } from "../config-types";
-import { AlternateModeDiagnostics, append, arrayFrom, ArrayLiteralExpression, arrayToMap, assign, combinePaths, CommandLineOption, CommandLineOptionOfCustomType, CommandLineOptionOfListType, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createDiagnosticForNodeInSourceFile, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DidYouMeanOptionsDiagnostics, directorySeparator, driverTypeToLanguageVariant, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Expression, extend, Extension, FileExtensionInfo, fileExtensionIs, filter, find, firstOrUndefined, flatten, forEach, forEachLpcConfigPropArray, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getOwnKeys, getRegexFromPattern, getRegularExpressionForWildcard, getSpellingSuggestion, getTextOfPropertyName, hasExtension, hasProperty, isArray, isArrayLiteralExpression, isComputedNonLiteralName, isImplicitGlob, isObjectLiteralExpression, isRootedDiskPath, isString, isStringDoubleQuoted, isStringLiteral, JsonSourceFile, LanguageVariant, length, LpcConfigOnlyOption, LpcConfigSourceFile, map, MapLike, Node, NodeArray, normalizePath, normalizeSlashes, NumericLiteral, ObjectLiteralExpression, OptionsNameMap, ParseConfigHost, ParsedCommandLine, ParsedLpcConfig, Path, PrefixUnaryExpression, ProjectReference, PropertyAssignment, PropertyName, removeTrailingDirectorySeparator, startsWith, StringLiteral, SyntaxKind, toFileNameLowerCase, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
+import { AlternateModeDiagnostics, append, arrayFrom, ArrayLiteralExpression, arrayToMap, assign, combinePaths, CommandLineOption, CommandLineOptionOfCustomType, CommandLineOptionOfListType, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createDiagnosticForNodeInSourceFile, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DidYouMeanOptionsDiagnostics, directorySeparator, driverTypeToLanguageVariant, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Expression, extend, Extension, FileExtensionInfo, fileExtensionIs, filter, filterMutate, find, firstOrUndefined, flatten, forEach, forEachLpcConfigPropArray, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getOwnKeys, getRegexFromPattern, getRegularExpressionForWildcard, getSpellingSuggestion, getTextOfPropertyName, hasExtension, hasProperty, isArray, isArrayLiteralExpression, isComputedNonLiteralName, isImplicitGlob, isObjectLiteralExpression, isRootedDiskPath, isString, isStringDoubleQuoted, isStringLiteral, JsonSourceFile, LanguageVariant, length, LpcConfigOnlyOption, LpcConfigSourceFile, map, MapLike, Node, NodeArray, normalizePath, normalizeSlashes, NumericLiteral, ObjectLiteralExpression, OptionsNameMap, ParseConfigHost, ParsedCommandLine, ParsedLpcConfig, Path, PrefixUnaryExpression, ProjectReference, PropertyAssignment, PropertyName, removeTrailingDirectorySeparator, startsWith, StringLiteral, SyntaxKind, toFileNameLowerCase, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
 import { trimStart } from "../utils";
 
 export const libEntries: [string, string][] = [
@@ -2051,3 +2051,19 @@ export const typeAcquisitionDeclarations: CommandLineOption[] = [
         defaultValueDescription: false,
     },
 ];
+
+function isErrorNoInputFiles(error: Diagnostic) {
+    return error.code === Diagnostics.No_inputs_were_found_in_config_file_0_Specified_include_paths_were_1_and_exclude_paths_were_2.code;
+}
+
+/** @internal */
+export function updateErrorForNoInputFiles(fileNames: string[], configFileName: string, configFileSpecs: ConfigFileSpecs, configParseDiagnostics: Diagnostic[], canJsonReportNoInutFiles: boolean) {
+    const existingErrors = configParseDiagnostics.length;
+    if (shouldReportNoInputFiles(fileNames, canJsonReportNoInutFiles)) {
+        configParseDiagnostics.push(getErrorForNoInputFiles(configFileSpecs, configFileName));
+    }
+    else {
+        filterMutate(configParseDiagnostics, error => !isErrorNoInputFiles(error));
+    }
+    return existingErrors !== configParseDiagnostics.length;
+}

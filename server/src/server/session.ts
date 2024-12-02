@@ -128,8 +128,8 @@ export class Session<TMessage = string> implements EventSender {
         };        
         this.projectService = new ProjectService(settings);
         
-        const configFile = this.projectService.findAndOpenLpcConfig(opts.projectRootFolder);
-        this.getProject(configFile);
+        // const configFile = this.projectService.findAndOpenLpcConfig(opts.projectRootFolder);
+        // this.getProject(configFile);
         //this.projectService.setPerformanceEventHandler(this.performanceEventHandler.bind(this));
         this.gcTimer = new GcTimer(this.host, /*delay*/ 7000, this.logger);        
         

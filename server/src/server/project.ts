@@ -1,6 +1,5 @@
-import { ILpcConfig } from "../config-types.js";
 import * as lpc from "./_namespaces/lpc.js";
-import { addRange, append, arrayFrom, CachedDirectoryStructureHost, clearMap, closeFileWatcher, combinePaths, CompilerHost, CompilerOptions, createLanguageService, createLpcFileHandler, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, filter, flatMap, forEach, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, isExternalModuleNameRelative, isString, JSDocParsingMode, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, parsePackageName, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, resolutionExtensionIsTSOrJson, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, SourceMapper, StringLiteralLike, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
+import { addRange, append, arrayFrom, CachedDirectoryStructureHost, clearMap, closeFileWatcher, combinePaths, CompilerHost, CompilerOptions, createLanguageService, createLpcFileHandler, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, filter, flatMap, forEach, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, isExternalModuleNameRelative, isString, JSDocParsingMode, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, parsePackageName, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, resolutionExtensionIsTSOrJson, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, SourceMapper, StringLiteralLike, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition, updateErrorForNoInputFiles, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
 import { asNormalizedPath, emptyArray, Errors, HostCancellationToken, LogLevel, NormalizedPath, ProjectService, ScriptInfo, updateProjectIfDirty } from "./_namespaces/lpc.server.js";
 
 
@@ -1175,6 +1174,10 @@ export class ConfiguredProject extends Project {
         this.compilerHost = host;
     }
 
+    override getProjectReferences(): readonly ProjectReference[] | undefined {
+        return this.projectReferences;
+    }    
+    
     /**
      * Get all the project errors
      */
@@ -1235,9 +1238,8 @@ export class ConfiguredProject extends Project {
     }
 
     /** @internal */
-    updateErrorOnNoInputFiles(fileNames: string[]) {
-        console.debug("implement me - updateErrorOnNoInputFiles");
-        //updateErrorForNoInputFiles(fileNames, this.getConfigFilePath(), this.getCompilerOptions().configFile!.configFileSpecs!, this.projectErrors!, this.canConfigFileJsonReportNoInputFiles);
+    updateErrorOnNoInputFiles(fileNames: string[]) {        
+        updateErrorForNoInputFiles(fileNames, this.getConfigFilePath(), this.getCompilerOptions().configFile!.configFileSpecs!, this.projectErrors!, this.canConfigFileJsonReportNoInputFiles);
     }
 
     updateReferences(refs: readonly ProjectReference[] | undefined) {
@@ -1344,7 +1346,6 @@ export class AuxiliaryProject extends Project {
 
 
 export class InferredProject extends Project {    
-
     /** @internal */
     constructor(
         projectService: ProjectService,
@@ -1398,6 +1399,22 @@ export class InferredProject extends Project {
     /** @internal */
     override isOrphan() {
         return !this.hasRoots();
+    }
+
+    override addRoot(info: ScriptInfo) {
+        Debug.assert(info.isScriptOpen());
+        this.projectService.startWatchingConfigFilesForInferredProjectRoot(info);
+        super.addRoot(info);
+    }
+
+    override removeRoot(info: ScriptInfo) {
+        this.projectService.stopWatchingConfigFilesForScriptInfo(info);
+        super.removeRoot(info);        
+    }
+
+    override close() {
+        forEach(this.getRootScriptInfos(), info => this.projectService.stopWatchingConfigFilesForScriptInfo(info));
+        super.close();
     }
 }
 

@@ -2128,6 +2128,9 @@ export class ProjectService {
         return this.tryGetDefaultProjectForEnsuringConfiguredProjectForFile(fileNameOrScriptInfo) || this.doEnsureDefaultProjectForFile(fileNameOrScriptInfo);
     }
 
+    
+   
+    
     /**
      * This function tries to search for a tsconfig.json for the given file.
      * This is different from the method the compiler uses because
@@ -2435,6 +2438,44 @@ export class ProjectService {
                 Debug.assert(!configFileExistenceInfo.watcher);
                 this.configFileExistenceInfoCache.delete(canonicalConfigFilePath);
             }
+        });
+    }
+
+    /**
+     * This is called by inferred project whenever script info is added as a root
+     *
+     * @internal
+     */
+    startWatchingConfigFilesForInferredProjectRoot(info: ScriptInfo) {
+        if (this.serverMode !== LanguageServiceMode.Semantic) return;
+        Debug.assert(info.isScriptOpen());
+        // Set this file as the root of inferred project
+        this.rootOfInferredProjects.add(info);
+        this.forEachConfigFileLocation(info, (canonicalConfigFilePath, configFileName) => {
+            let configFileExistenceInfo = this.configFileExistenceInfoCache.get(canonicalConfigFilePath);
+            if (!configFileExistenceInfo) {
+                // Create the cache
+                configFileExistenceInfo = { exists: this.host.fileExists(configFileName), inferredProjectRoots: 1 };
+                this.configFileExistenceInfoCache.set(canonicalConfigFilePath, configFileExistenceInfo);
+            }
+            else {
+                configFileExistenceInfo.inferredProjectRoots = (configFileExistenceInfo.inferredProjectRoots ?? 0) + 1;
+            }
+
+            // It might not have been marked as impacting by presence of this script info if
+            // this is in ancestor folder of config that was not looked up yet
+            (configFileExistenceInfo.openFilesImpactedByConfigFile ??= new Set()).add(info.path);
+
+            // If there is no configured project for this config file, add the file watcher
+            configFileExistenceInfo.watcher ||= canWatchDirectoryOrFile(getPathComponents(getDirectoryPath(canonicalConfigFilePath) as Path)) ?
+                this.watchFactory.watchFile(
+                    configFileName,
+                    (_filename, eventKind) => this.onConfigFileChanged(configFileName, canonicalConfigFilePath, eventKind),
+                    PollingInterval.High,
+                    this.hostConfiguration.watchOptions,
+                    WatchType.ConfigFileForInferredRoot,
+                ) :
+                noopConfigFileWatcher;
         });
     }
 
