@@ -52,7 +52,7 @@ mixed *shuffle(mixed *arr);
 /**
  * pointerp() - identifies whether a given variable is an array
  *
- * Returns 1 if 'arg' is an array, otherwise returns 0.
+ * @returns {arg is mixed*} 1 if 'arg' is an array, otherwise returns 0.
  *
  * int is_array = pointerp( ({ 1, 2, 3, 4 }) ); // 1
  * int is_array = pointerp( "Foo" ); // 0
