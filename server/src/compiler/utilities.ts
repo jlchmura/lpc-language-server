@@ -1286,6 +1286,8 @@ export function createNameResolver({
 
                         const importSymbolTable = importType?.symbol?.exports ?? emptySymbols;
                         result = lookup(importSymbolTable, name, meaning);
+                        // also check inherited members
+                        if (!result) result = lookup(importType?.symbol?.members ?? emptySymbols, name, meaning);
                         if (result) {
                             break loop;
                         }

@@ -1092,7 +1092,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     }
 
     function bindInheritDeclaration(node: InheritDeclaration): void {
-        bind(node.inheritClause);        
+        bind(node.inheritClause);
     }
 
     function bindIfStatement(node: IfStatement): void {
@@ -1112,11 +1112,8 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     function bindBlockScopedDeclaration(node: Declaration, symbolFlags: SymbolFlags, symbolExcludes: SymbolFlags) {
         switch (blockScopeContainer.kind) {            
             case SyntaxKind.SourceFile:
-                // if (isExternalOrCommonJsModule(container as SourceFile)) {
-                    declareModuleMember(node, symbolFlags, symbolExcludes);
-                    break;
-                // }
-                // falls through
+                declareSymbol(file.symbol.members!, /*parent*/ undefined, node, symbolFlags, symbolExcludes)
+                break;                
             default:
                 Debug.assertNode(blockScopeContainer, canHaveLocals);
                 if (!blockScopeContainer.locals) {
@@ -1312,10 +1309,14 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     }
 
     function declareSourceFileMember(node: Declaration, symbolFlags: SymbolFlags, symbolExcludes: SymbolFlags) {        
-        if (file.isDefaultLib || getCombinedModifierFlags(node) & (ModifierFlags.Private | ModifierFlags.Protected)) {        
-            // private sourcefile members do not get exported
+        if (file.isDefaultLib) {
             // lib/sefun symbols also get declared as non-exports (Because they go on global)
             return declareSymbol(file.locals!, /*parent*/ undefined, node, symbolFlags, symbolExcludes)
+        } 
+        else if (isVariableDeclaration(node) || getCombinedModifierFlags(node) & (ModifierFlags.Private | ModifierFlags.Protected)) {        
+            // private sourcefile members do not get exported
+            // lib/sefun symbols also get declared as non-exports (Because they go on global)
+            return declareSymbol(file.symbol.members!, /*parent*/ undefined, node, symbolFlags, symbolExcludes)
         } 
         
         return declareModuleMember(node, symbolFlags, symbolExcludes);        

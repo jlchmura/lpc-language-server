@@ -4234,8 +4234,10 @@ function getCompletionData(
                         
             const currentMembers = declType.members ? Object.values(declType.members) : undefined;            
             const baseSymbols = flatMap(arrayFrom(interfaceTypes.values()), (baseTypeNode) => {
-                const properites = baseTypeNode.declaredProperties;
-                return properites;
+                const properites = baseTypeNode.declaredProperties;               
+                // also get inherited members
+                const members = (baseTypeNode.symbol?.members && arrayFrom(baseTypeNode.symbol?.members.values())) ?? emptyArray;
+                return concatenate(properites ?? emptyArray, members);
                 // const type = typeChecker.getTypeAtLocation(baseTypeNode);
                 // return classElementModifierFlags & ModifierFlags.Static ?
                 //     type?.symbol && typeChecker.getPropertiesOfType(typeChecker.getTypeOfSymbolAtLocation(type.symbol, decl)) :
