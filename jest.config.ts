@@ -17,7 +17,7 @@ const config: Config = {
             functions: 43,
             lines: 54,
         },
-    },
+    },    
     moduleDirectories: ["node_modules"],
     workerIdleMemoryLimit: "500MB",
     moduleFileExtensions: ["ts", "js", "mjs", "cjs", "json"],

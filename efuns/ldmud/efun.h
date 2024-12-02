@@ -223,7 +223,7 @@ int write_bytes(string file, int start, bytes str);
  * the message as argument.
  *
  * @example 
- * write("Hello world!\n");
+ * write("Hello world!\n"); 
  * 
  * Just print out a string.
  * 
@@ -235,7 +235,7 @@ int write_bytes(string file, int start, bytes str);
  * 
  * Will print out "<ARRAY>".
  *
- *
+ * @param msg The message to write.
  */
 void write(mixed msg);
 
@@ -417,7 +417,7 @@ int * utime();
  *
  *
  */
-object * users(void);
+object * users();
 
 /**
  * upper_case
@@ -440,7 +440,7 @@ string upper_case(string str);
  *
  *
  */
-void unshadow(void);
+void unshadow();
 
 /**
  * unquote
@@ -1217,12 +1217,11 @@ void throw(mixed arg);
  *
  * @example 
  * if (this_player() != this_interactive())
- * write("Hey, somebody must have forced us to do a
- * command!\n");
+ *   write("Hey, somebody must have forced us to do a command!\n");
  *
- *
+ * @returns {__LPC_CONFIG_LIBFILES_PLAYER} Current command giver.
  */
-object this_player(void);
+object this_player();
 
 /**
  * this_object
@@ -1233,7 +1232,7 @@ object this_player(void);
  *
  *
  */
-object|lwobject this_object(void);
+object|lwobject this_object();
 
 /**
  * this_interactive
@@ -1243,7 +1242,7 @@ object|lwobject this_object(void);
  *
  *
  */
-object this_interactive(void);
+object this_interactive();
 
 /**
  * this_coroutine
@@ -1721,10 +1720,8 @@ int strrstr(bytes  str, bytes  str2, int pos);
 
 /**
  * stringp
- *
- * Return 1 if arg is a string.
- *
- *
+ * @param arg The argument to check.
+ * @returns {arg is string} 1 if arg is a string.
  */
 int stringp(mixed arg);
 
@@ -1843,7 +1840,7 @@ string strftime(string fmt, int clock, int localized);
  * @since LDMud 3.3.713/3.2.13 introduced the '+' specifier.
  *
  */
-int sscanf(string str, string fmt, mixed var1,varargs mixed var2 );
+int sscanf(string str, string fmt, mixed var1, varargs mixed var2);
 
 /**
  * sqrt
@@ -1857,6 +1854,9 @@ float sqrt(int|float s);
 
 /**
  * sprintf
+ * @param fmt the format string.
+ * @param args the arguments to be formatted.
+ * @returns the formatted string.
  *
  * Most of the characters in the format string (FMT) get passed
  * straight through to the output (ie: printed or put in the
@@ -1946,10 +1946,18 @@ float sqrt(int|float s);
  * pad string has been given, even if it is the simple ' ', then
  * the padding will not be removed.
  *
+ * @since LDMud 3.2.9 added the "%^" sequence for compatibility with
+          terminal_colour(), added the "%Q" sequence, clarified the meaning of
+          leading 0s in the field size modifier, clarified the interaction
+          between the padding and newlines, and added the '$' formatter for
+          justified printing of strings.
+        LDMud 3.2.10 added modifier '#' for '%O'/'%Q' and the datatype '%b'.
+ *
  * @example 
  * sprintf("decimal=%d, octal=%o, hexadecimal=%x\n", 7, 7, 7);
  * 
  * sprintf("array=%O\n", ({1, 2, 3}));
+ * 
  * this will return the following:
  * ({ /* sizeof() == 3 *\/
  * 1,
@@ -2034,15 +2042,8 @@ float sqrt(int|float s);
  * sprintf("%8.3G",123.5)              // returns "     124"
  * sprintf("%8.6g",123.5)              // returns "   123.5"
  *
- * @since LDMud 3.2.9 added the "%^" sequence for compatibility with
-          terminal_colour(), added the "%Q" sequence, clarified the meaning of
-          leading 0s in the field size modifier, clarified the interaction
-          between the padding and newlines, and added the '$' formatter for
-          justified printing of strings.
-        LDMud 3.2.10 added modifier '#' for '%O'/'%Q' and the datatype '%b'.
- *
  */
-string sprintf(varargs string fmt);
+string sprintf(string fmt, varargs mixed args);
 
 /**
  * sort_array
@@ -2947,7 +2948,7 @@ varargs string save_object(int format);
  *
  *
  */
-int * rusage(void);
+int * rusage();
 
 /**
  * rmember
@@ -3490,7 +3491,7 @@ int referencep(mixed arg);
  * @since LDMud 3.6.0 added the <encoding> parameter.
  *
  */
-string read_file(string file, int start, int number, string encoding);
+varargs string read_file(string file, int start, int number, string encoding);
 
 /**
  * read_bytes
@@ -3602,7 +3603,7 @@ mixed quote(mixed a);
  * @since LDMud 3.2.9 added the optional flag argument.
  *
  */
-string query_verb(void);
+string query_verb();
 
 string query_verb(int flag);
 
@@ -3653,7 +3654,7 @@ mixed query_notify_fail(int flag);
  *
  *
  */
-string query_command(void);
+string query_command();
 
 /**
  * query_actions
@@ -3777,13 +3778,12 @@ string process_string(string str);
 
 /**
  * printf
- *
  * A cross between sprintf() and write(). Returns void and prints
  * the result string to the user.
- *
- *
+ * @param format The format string.
+ * @param {...mixed} args The arguments to be formatted. 
  */
-void printf(varargs string format );
+void printf(string format, varargs mixed args);
 
 /**
  * previous_object
@@ -4825,13 +4825,12 @@ int mkdir(string path);
  * @since Introduced in LDMud 3.2.9.
  *
  */
+int          min(varargs int arg );
+float        min(varargs float arg );
+int          min(int *arg_array);
+float        min(float *arg_array);
 string|bytes min(varargs string|bytes arg );
-
 string|bytes min(string|bytes *arg_array);
-
-int|float    min(varargs int|float arg );
-
-int|float    min(int|float *arg_array);
 
 /**
  * member
@@ -5908,7 +5907,6 @@ mixed interactive_info(object ob, int what);
  *
  */
 int interactive();
-
 int interactive(object ob);
 
 /**
@@ -7274,14 +7272,14 @@ int exec(object new, object old);
  * Destructed objects do not have an environment.
  *
  * @example 
+ * ```lpc
  * object room;
  * room = environment(this_player());
- * 
+ * ```
  * This will return the current room you are in.
- *
- *
+ * @param obj The object to get the environment of.
  */
-object environment(void);
+object environment();
 
 object environment(object obj);
 
@@ -8238,7 +8236,7 @@ void destruct(object ob);
  * @since LDMud 3.3.554 added the <depth> parameter.
  *
  */
-object * deep_inventory(void);
+object * deep_inventory();
 
 object * deep_inventory(object ob);
 
@@ -9177,7 +9175,7 @@ closure compile_string(symbol* args, string &str, struct compile_string_options 
  * @since Introduced in LDMud 3.2.7.
  *
  */
-int command_stack_depth(void);
+int command_stack_depth();
 
 /**
  * command_stack
@@ -9205,7 +9203,7 @@ int command_stack_depth(void);
         LDMud 3.2.8 added the CMD_FAILOBJ result.
  *
  */
-mixed * command_stack(void);
+mixed * command_stack();
 
 /**
  * command
@@ -9233,7 +9231,6 @@ mixed * command_stack(void);
  *
  */
 int command(string str);
-
 int command(string str, object ob);
 
 /**
@@ -9550,7 +9547,7 @@ string capitalize(string str);
  *
  *
  */
-int caller_stack_depth(void);
+int caller_stack_depth();
 
 /**
  * caller_stack
@@ -9681,7 +9678,7 @@ int* call_resolved(mixed* result, object* ob, varargs string func );
  *
  *
  */
-mixed * call_out_info(void);
+mixed * call_out_info();
 
 /**
  * call_out

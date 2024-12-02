@@ -367,7 +367,7 @@ void testCatch() {
 
 // inline closures 
 void testInlineClosures() {
-    string *s = filter(explode(read_file(f), "\n"), (: return $[0..7]=="#define"; :));
+    string *s = filter(explode(read_file(f), "\n"), (: return $1[0..7]=="#define"; :));
     filter(({}), (: $1==1 :));
 }
 
@@ -416,7 +416,7 @@ void testConditionalExpressions() {
     int i = 1;
     int j = i << 2; // shift left
     j = i >> 2;     // shift right
-    j = (i++) ^ 2;      // xor
+    j = (i++) ^ 2;  // xor
  
     return (i++, j);
 }

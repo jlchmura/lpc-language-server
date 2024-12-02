@@ -87,7 +87,7 @@ void set_author( string author );
  * This efun is only available if PRIVS is defined at driver compile time.
  *
  */
-string query_privs( object ob );
+varargs string query_privs( object ob );
 
 /**
  * livings() - return an array of all living objects
@@ -101,11 +101,10 @@ object *livings( void );
 /**
  * living() - detects whether or not a given object is "living"
  *
- * Return true if 'ob' is a living object (that is, if "enable_commands()"
- * has been called by 'ob').
- *
+ * @returns true if `ob` is a living object (that is, if `enable_commands()` has been called by `ob`).
+ * @param ob - the object to check
  */
-int living( object ob );
+varargs int living( object ob );
 
 /**
  * getuid() - return the user id (uid) of an object

@@ -243,12 +243,12 @@ tion
  * return value is a non-zero integer.
  *
  */
-mapping map( mapping | mixed* | string x,
+mapping|mixed* map( mapping | mixed* | string x,
              string fun,
              object ob,
              mixed extra... );
 
-mapping map( mapping | mixed* | string x,
+mapping|mixed* map( mapping | mixed* | string x,
              function f,
              mixed extra... );
 

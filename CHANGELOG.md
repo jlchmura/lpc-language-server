@@ -1,29 +1,20 @@
 # LPC Language Services Changelog
 
-## 1.0.35
+## 1.1.5
 
--   Fix parsing of @ and @@ blocks when inside an include file.
--   Fix include path resolution when using mudlibDir option
+-   Add support for Fluff array property access shortcut (#70)
+-   Better detection of Inferred to Configured projects
 
-## 1.0.34
+## 1.1.4
 
--   Allow lpc-config to be located anywhere (see `mudlibDir` config option)
--   Handle undefined symbols while parsing incomplete syntax
+-   inline closures used as default params now resolve their return type and correctly report type mismatches
+-   spread elements are properly checked
+-   type predicates no longer override a function's declared return type
+-   some efuns doc tweaks
 
-## 1.0.33
+## 1.1.3
 
--   Fix bad build in release 1.0.32
-
-## 1.0.32
-
--   Diagnostics are now off by default
--   Disable server's folding and use syntax folding instead
--   Add more identifier string internment
-
-## 1.0.31
-
--   Fix: [Signature hint not recognizing mapping type #56](https://github.com/jlchmura/lpc-language-server/issues/56)
--   Intern identifiers when parsing to lower memory utilization.
+-   Initial prelease of v2
 
 ## 1.0.30
 

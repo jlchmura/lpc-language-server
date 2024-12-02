@@ -1,15 +1,14 @@
 // objects.h
 
 /**
- * virtualp()  -  determine  whether  a given variable points to a virtual
-object
+ * virtualp()  -  determine  whether  a given variable points to a virtual object
  *
- * Returns true (1) if the argument is objectp() and the O_VIRTUAL flag is
+ * @returns true (1) if the argument is objectp() and the O_VIRTUAL flag is
  * set.   The driver sets the O_VIRTUAL flag for those objects created via
  * the 'compile_object' method in master.c.
  *
  */
-int virtualp( object arg );
+varargs int virtualp( object arg );
 
 /**
  * 
@@ -69,7 +68,7 @@ int set_heart_beat( int flag );
  * save file will be compressed.
  *
  */
-int save_object( string name, int flag );
+varargs int save_object( string name, int flag );
 
 /**
  * restore_object()  -  restore  values  of  variables from a file into an
@@ -83,7 +82,7 @@ object
  * and an error given.
  *
  */
-int restore_object( string name, int flag );
+varargs int restore_object( string name, int flag );
 
 /**
  * reload_object() - return an object to its just-loaded state
@@ -157,7 +156,7 @@ object *objects( void | string | function func );
 /**
  * objectp() - determine whether or not a given variable is an object
  *
- * Return 1 if 'arg' is an object.
+ * @returns 1 if 'arg' is an object.
  *
  */
 int objectp( mixed arg );
@@ -222,7 +221,7 @@ void move_object( mixed dest );
  * master() - returns the master object
  *
  * Returns a pointer to the master object.
- *
+ * @returns {__LPC_CONFIG_LIBFILES_MASTER}
  */
 object master( void );
 
@@ -270,7 +269,7 @@ object find_object( string str, void | int flag );
  * this_object() if not specified.
  *
  */
-string file_name( object ob );
+varargs string file_name( object ob );
 
 /**
  * environment() - return the environment of an object
@@ -279,7 +278,7 @@ string file_name( object ob );
  * given, <ob> defaults to this_object().
  *
  */
-object environment( object ob );
+varargs object environment( object ob );
 
 /**
  * destruct() - remove an object from the games
@@ -292,7 +291,7 @@ object environment( object ob );
  * If no object is supplied, this efun will default to this_object().
  *
  */
-void destruct( object ob );
+varargs void destruct( object ob );
 
 /**
  * deep_inventory() - return the nested inventory of an object
@@ -304,7 +303,7 @@ void destruct( object ob );
  * If no object is supplied, this efun will default to this_object().
  *
  */
-object *deep_inventory( object ob );
+varargs object *deep_inventory( object ob );
 
 /**
  * clonep() - determine whether or not a given variable points to a cloned
@@ -362,5 +361,5 @@ object *children( string name );
  * If ob is not passed, this parameter defaults to this_object().
  *
  */
-object *all_inventory( object ob );
+varargs object *all_inventory( object ob );
 

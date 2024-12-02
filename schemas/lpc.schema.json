@@ -11,9 +11,6 @@
                 },
                 {
                     "$ref": "#/definitions/includeDefinition"
-                },
-                {
-                    "$ref": "#/definitions/mudlibDir"
                 }
             ]
         },
@@ -24,7 +21,7 @@
             "$ref": "#/definitions/diagnosticsDefinition"
         },
         {
-            "$ref": "#/definitions/filesDefinition"
+            "$ref": "#/definitions/libFilesDefinition"
         }
     ],
     "definitions": {
@@ -92,17 +89,13 @@
                 }
             }
         },
-        "mudlibDir": {
-            "description": "Specifies the location directory that will be mapped to the root path of your mudlib. This directory path should be relative to the location of the lpc-config file.",
-            "type": ["string", "null"]
-        },
         "diagnosticsDefinition": {
             "properties": {
                 "diagnostics": {
                     "anyOf": [
                         {
                             "description": "Turns off all diagnostics.",
-                            "enum": ["off"],
+                            "enum": ["off", "on"],
                             "default": "off"
                         },
                         {
@@ -129,7 +122,7 @@
                 }
             }
         },
-        "filesDefinition": {
+        "libFilesDefinition": {
             "properties": {
                 "files": {
                     "description": "Specifies a list of system include directories that will be searched when importing files. If this option is not specified, a default folder of '/sys' will be used.",

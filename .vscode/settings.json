@@ -4,14 +4,21 @@
         "client/out": true,
         "server/node_modules": true,
         "server/out": true,
-        "out": true,
+        // "out": true,
         "node_modules": true
     },
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": false,
+    "editor.formatOnPaste": false,
     "[antlr]": {
         "editor.formatOnSave": false
     },
     "[lpc]": {
         "editor.formatOnSave": false
-    }
+    },
+
+    "typescript.preferences.autoImportFileExcludePatterns": [
+        "/**/compiler2/"
+    ],
+    "typescript.tsdk": "node_modules/typescript/lib",
+    
 }

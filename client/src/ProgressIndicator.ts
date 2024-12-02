@@ -19,9 +19,11 @@ export class ProgressIndicator {
 
     public constructor() {
         this.statusBarItem = window.createStatusBarItem(
+            "lpc",
             StatusBarAlignment.Left,
-            0
+            1
         );
+        this.statusBarItem.name = "LPC Language Server";
         this.setText();
     }
 
@@ -61,4 +63,7 @@ export class ProgressIndicator {
         this.driverType = type;
         this.setText();
     }
+
+    public show() { this.statusBarItem.show(); }
+    public hide() { this.statusBarItem.hide(); }
 }

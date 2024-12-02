@@ -33,38 +33,38 @@ int test_bit( string str, int n );
 int strwidth( string str );
 
 /**
- * strsrch() - search for substrings in a string
+ * Search for substrings in a string
  *
- * strsrch()  searches  for  the first occurance of the string 'substr' in
- * the string 'str'.  The last occurance of 'substr' can be found by pass‐
- * ing  '-1' as the 3rd argument (which is optional).  If the second argu‐
- * ment is an integer, that character is found  (a  la  C's  strchr()/str‐
- * rchr().)  The empty string or null value cannot be searched for.
+ * `strsrch()` searches  for  the first occurance of the string 'substr' in
+ * the string 'str'.  The last occurance of 'substr' can be found by passing  '-1' as the 3rd argument (which is optional).  
+ * If the second argument 
+ * is an integer, that character is found  (a la C's  strchr()/strrchr().)  
+ * The empty string or null value cannot be searched for.
  *
  */
-int strsrch( string str, string substr, int flag );
-int strsrch( string str, int char, int flag );
+varargs int strsrch( string str, string substr, int flag );
+varargs int strsrch( string str, int char, int flag );
 
 /**
- * strlen() - return the number of UTF-8 characters in a supplied string
- *
+ * Return the number of UTF-8 characters in a supplied string
+ * 
  * strlen() returns the number of characters in the string 'str'.
  * 
  * LPC strings are UTF-8 encoded. Driver calcuate numbers of characters
  * according to the Unicode concept "Extended Grapheme Cluster", as defined in
  * "https://www.unicode.org/reports/tr29/".
  * 
+ * ```lpc
  * strlen("abc") == 3
  * strlen("你好") == 2
- *
+ * ```
  */
 int strlen( string str );
 
 /**
  * stringp() - determine whether or not a given variable is a string
  *
- * Return 1 if 'arg' is a string.
- *
+ * @returns {arg is string} 1 if 'arg' is a string.
  */
 int stringp( mixed arg );
 
@@ -133,6 +133,7 @@ int strcmp( string one, string two );
  * str2 being assigned an "" empty string.
  *
  * Basic Usage:
+ * ```lpc
  * string what, who;
  * 
  * if (sscanf(input, "give %s to %s", what, who) == 2)
@@ -148,6 +149,7 @@ int strcmp( string one, string two );
  * 
  * sscanf("give item to name", "give %s to %s", what, who) == 2
  * what == "item" && who == "name"
+ * ```
  * 
  * Numeric:
  * int i;
@@ -168,7 +170,7 @@ int strcmp( string one, string two );
  * str1 == "one" && str2 == "two"
  *
  */
-int sscanf( string input, string fmt... );
+int sscanf(string input, string fmt, mixed outvars... );
 
 /**
  * printf, sprintf - formatted output conversion
@@ -242,15 +244,19 @@ int sscanf( string input, string fmt... );
  * f       floating point number
  *
  * Basic Usage:
+ * ```lpc
  * sprintf("%s is %i", "X", 1)   =   "X is 1"
+ * ```
  * 
  * Alignment:
+ * ```lpc
  * sprintf("%-20s", "left")      =   "left                "
  * sprintf("%20|s", "center")    =   "       center       "
  * sprintf("%20s", "right")      =   "               right"
  * sprintf("%-20'-'s", "left")   =   "left----------------"
  * sprintf("%20'-'|s", "center") =   "-------center-------"
  * sprintf("%20'-'s", "right")   =   "---------------right"
+ * ```
  * 
  * Numeric:
  * sprintf("%.2f", 1.2345)       =   "1.23"
@@ -263,8 +269,8 @@ int sscanf( string input, string fmt... );
  * sprintf("%*s", 30, "thirty")  =   "                        thirty"
  *
  */
-void printf( string format... );
-string sprintf( string format... );
+varargs void printf(string format, mixed args...);
+varargs string sprintf(string format, mixed args...);
 
 /**
  * sha1() - hash a string using SHA-1

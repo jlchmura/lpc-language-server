@@ -8,7 +8,7 @@
  * ing.
  *
  */
-int write_file( string file, string str, int flag );
+varargs int write_file( string file, string str, int flag );
 
 /**
  * write_bytes() - writes a contiguous series of bytes to a file
@@ -73,7 +73,7 @@ int rename( string src, string dst );
  * if you try to read from a nonpositive line.
  *
  */
-string read_file( string file, int start_line, int number_of_lines );
+varargs string read_file( string file, int start_line, int number_of_lines );
 
 /**
  * read_bytes()  -  reads  a contiguous series of bytes from a file into a
@@ -132,7 +132,7 @@ void link( string original, string reference );
  * @param {string} dir - the directory to get information about
  * @param {int} flag defaults 0, if 0, return an array of strings, if -1, return an array of subarrays
  */
-mixed *get_dir( string dir, int flag );
+varargs mixed *get_dir(string dir, int flag);
 
 /**
  * file_size() - get the size of a file

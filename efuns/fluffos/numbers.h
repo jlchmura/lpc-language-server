@@ -7,7 +7,8 @@
  * lent to the int 'i'.
  *
  */
-float to_float( int i );
+float to_float(int i);
+float to_float(string i);
 
 /**
  * secure_random() - return a pseudo-random number, this should be

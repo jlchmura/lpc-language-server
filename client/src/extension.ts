@@ -3,51 +3,51 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
+import * as vscode from "vscode";
 import * as path from "path";
 import {
     workspace,
     ExtensionContext,
-    languages,
-    SemanticTokensLegend,
-    DocumentSemanticTokensProvider,
-    TextDocument,
-    CancellationToken,
-    ProviderResult,
-    SemanticTokens,
     commands,
     TextEditor,
     TextEditorEdit,
-    window,
-    DefinitionProvider,
+    window,    
+    DocumentFilter,
 } from "vscode";
-
-import {
-    DocumentSelector,
+import * as fileSchemes from './fileSchemes';
+import {        
     LanguageClient,
-    LanguageClientOptions,
-    SemanticTokenModifiers,
-    SemanticTokenTypes,
-    SemanticTokensParams,
+    LanguageClientOptions,    
     ServerOptions,
     TransportKind,
+    WorkspaceFolder,
 } from "vscode-languageclient/node";
 import { ProgressIndicator } from "./ProgressIndicator";
+import { DocumentSelector } from "./documentSelector";
+import { LanguageDescription, isLpcConfigFileName, standardLanguageDescriptions } from "./configuration/languageDescription";
 
+let clientInitialized = false;
 let client: LanguageClient;
+let syntaxClient: LanguageClient;
 const progress = new ProgressIndicator();
+const _disposables: vscode.Disposable[] = [];
+let _isDisposed = false;
 
 export function activate(context: ExtensionContext) {
     // The server is implemented in node
     const serverModule = context.asAbsolutePath(
         path.join("out", "server", "src", "server.js")
-    );
+    );    
 
     // get location of efuns folder and pass to server as an argument
     const efunDir = context.asAbsolutePath("efuns");
 
     let debugOptions = {
-        execArgv: ["--nolazy", "--enable-source-maps", "--inspect"],
+        execArgv: ["--nolazy", "--enable-source-maps", "--inspect"]
     };
+
+    const serverArgs = [efunDir, "--serverMode", "semantic"];
+    const syntaxServerArgs = [efunDir, "--serverMode", "syntactic"];
 
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
@@ -56,15 +56,19 @@ export function activate(context: ExtensionContext) {
             module: serverModule,
             transport: TransportKind.ipc,
             options: { execArgv: ["--enable-source-maps"] },
-            args: [efunDir],
+            args: serverArgs,
         },
         debug: {
             module: serverModule,
             transport: TransportKind.ipc,
             options: debugOptions,
-            args: [efunDir],
+            args: serverArgs,
         },
     };
+
+    const syntaxServerOptions: ServerOptions = { run: {...serverOptions.run}, debug: {...serverOptions.debug} };
+    syntaxServerOptions.run.args = syntaxServerArgs;
+    syntaxServerOptions.debug.args = syntaxServerArgs;
 
     const docSel = [{ scheme: "file", language: "lpc" }];
 
@@ -72,9 +76,12 @@ export function activate(context: ExtensionContext) {
     const clientOptions: LanguageClientOptions = {
         // Register the server for plain text documents
         documentSelector: docSel,
+        markdown: {
+            isTrusted: true,
+        },        
         synchronize: {
             // Notify the server about file changes to lpc config files contained in the workspace
-            fileEvents: workspace.createFileSystemWatcher("**/lpc-config.json"),
+            fileEvents: workspace.createFileSystemWatcher("**/lpc-config.json"),            
         },
         diagnosticCollectionName: "LPC",
     };
@@ -90,79 +97,9 @@ export function activate(context: ExtensionContext) {
     // Start the client. This will also launch the server
     client.start();
 
-    const provider: DocumentSemanticTokensProvider = {
-        provideDocumentSemanticTokens: function (
-            document: TextDocument,
-            token: CancellationToken
-        ): Promise<SemanticTokens> {
-            //console.log("[Request] textDocument/semanticTokens/full");
-
-            return client
-                .sendRequest("textDocument/semanticTokens/full", {
-                    textDocument: { uri: document.uri.toString() },
-                })
-                .catch((e) => {
-                    console.error("Error sending semantic tokens request", e);
-                    return e;
-                })
-                .then((res) => res as SemanticTokens);
-        },
-        onDidChangeSemanticTokens: null,
-        provideDocumentSemanticTokensEdits: null,
-    };
-
-    const legend: SemanticTokensLegend = {
-        tokenTypes: [
-            "comment-block-preprocessor",
-            SemanticTokenTypes.macro,
-            SemanticTokenTypes.operator,
-            SemanticTokenTypes.method,
-            SemanticTokenTypes.parameter,
-            "define",
-            SemanticTokenTypes.string,
-            SemanticTokenTypes.number,
-            "lpc-type",
-            SemanticTokenTypes.variable,
-            SemanticTokenTypes.property,
-            "lambda",
-            SemanticTokenTypes.keyword,
-            SemanticTokenTypes.modifier,
-        ],
-        tokenModifiers: [
-            "",
-            SemanticTokenModifiers.documentation,
-            SemanticTokenModifiers.declaration,
-            SemanticTokenModifiers.definition,
-            SemanticTokenModifiers.static,
-            SemanticTokenModifiers.defaultLibrary,
-            "local",
-        ],
-    };
-
-    context.subscriptions.push(
-        languages.registerDocumentSemanticTokensProvider(
-            docSel,
-            provider,
-            legend
-        )
-    );
-
-    const p: DefinitionProvider = {
-        // provideDefinition(document: TextDocument, position: any, token: CancellationToken) {
-        //     return client.sendRequest("textDocument/definition", {
-        //         textDocument: { uri: document.uri.toString() },
-        //         position: position
-        //     }).then((res) => res);
-        // }
-        provideDefinition(document, position, cancellationToken) {
-            const token = document.getWordRangeAtPosition(position);
-            const word = document.getText(token);
-            return [];
-        },
-    };
-
-    context.subscriptions.push(languages.registerDefinitionProvider(docSel, p));
-
+    syntaxClient = new LanguageClient("lpc", "LPC Syntax Server", syntaxServerOptions, clientOptions);
+    syntaxClient.start();
+          
     context.subscriptions.push(
         commands.registerCommand(
             "lpc.processAll",
@@ -177,20 +114,14 @@ export function activate(context: ExtensionContext) {
                         return e;
                     });
             }
-        ),
-        // register the lpc/clear-contexts command
-        commands.registerCommand("lpc.clearContexts", async () => {
-            // close all docs that are open in vscode
-            await commands.executeCommand("workbench.action.closeAllEditors");
-
-            return await client
-                .sendRequest("lpc/clear-contexts", {})
-                .catch((e) => {
-                    console.error("Error sending clear contexts request", e);
-                    return e;
-                });
-        })
+        )
     );
+
+    client.onNotification("lpc/initialized", () => {
+        clientInitialized=true;
+        // don't initialize providers until the server says its ready
+        registerProviders();    
+    })
 
     client.onNotification("lpc/processing-start", (params) => {
         progress.startAnimation();
@@ -206,10 +137,113 @@ export function activate(context: ExtensionContext) {
     });
     client.onNotification("lpc/info", (params) => {
         window.showWarningMessage(params);
+    });    
+    
+    function _register<T extends vscode.Disposable>(value: T): T {
+		if (_isDisposed) {
+			value.dispose();
+		} else {
+			_disposables.push(value);
+		}
+		return value;
+	}
+
+    async function registerProviders(): Promise<void> {
+        const language = standardLanguageDescriptions.at(0);
+        const selector = createDocumentSelector(language);
+        
+        await Promise.all([
+            import("./languageFeatures/semanticTokens").then(provider => _register(provider.register(selector, client))),
+            import("./languageFeatures/jsDocCompletions").then(provider => _register(provider.register(selector, language, syntaxClient))),
+        ]);
+    }
+    
+    window.onDidChangeActiveTextEditor(async (editor) => {
+        await getLpcConfigForActiveFile();
     });
-    client.onNotification("lpc/set-driver-type", (params: string) => {
-        progress.driverType = params;
-    });
+
+    async function getLpcConfigForActiveFile(): Promise<any[]> {
+        const editor = vscode.window.activeTextEditor;    
+        if (!editor) return;
+        
+        if (isLpcConfigFileName(editor.document.fileName)) {
+            const uri = editor.document.uri;
+            return [{
+                uri,
+                fsPath: uri.fsPath,
+                posixPath: uri.path,
+                WorkspaceFolder: vscode.workspace.getWorkspaceFolder(uri)
+            }];
+        }
+
+        const file = getActiveLpcFile();
+        if (!file) {
+            progress.hide();
+            return [];
+        }
+        const { document} = editor;        
+        if (document?.languageId !== "lpc") {
+            progress.hide(); 
+        }
+
+        // get projectInfo from server
+        const info: any = await client.sendRequest("projectInfo", { 
+            command: "projectInfo",
+            arguments: {
+                needFileNameList: false,
+                file: document.uri.toString()
+            }            
+        });
+
+        progress.setDriverType(info?.driverType || "");            
+        progress.show();           
+
+        if (!info) return [];
+        const { configFileName } = info;
+		if (configFileName && !isImplicitProjectConfigFile(configFileName)) {
+			const normalizedConfigPath = path.normalize(configFileName);
+			const uri = vscode.Uri.file(normalizedConfigPath);
+			const folder = vscode.workspace.getWorkspaceFolder(uri);
+			return [{
+				uri,
+				fsPath: normalizedConfigPath,
+				posixPath: uri.path,
+				workspaceFolder: folder
+			}];
+		}
+
+        return [];
+    }
+    
+    function getActiveLpcFile(): string | undefined {
+		const editor = vscode.window.activeTextEditor;
+		if (editor) {
+			const document = editor.document;
+			if (document && (document.languageId === 'lpc')) {
+				return toTsFilePath(document.uri);
+			}
+		}
+		return undefined;
+	}
+}
+
+export const emptyAuthority = 'ts-nul-authority';
+export const inMemoryResourcePrefix = '^';
+function isWeb() { return false; }
+function toTsFilePath(resource: vscode.Uri): string | undefined {
+    if (fileSchemes.disabledSchemes.has(resource.scheme)) {
+        return undefined;
+    }
+
+    if (resource.scheme === fileSchemes.file && !isWeb()) {
+        return resource.fsPath;
+    }
+
+    return (this.isProjectWideIntellisenseOnWebEnabled() ? '' : inMemoryResourcePrefix)
+        + '/' + resource.scheme
+        + '/' + (resource.authority || emptyAuthority)
+        + (resource.path.startsWith('/') ? resource.path : '/' + resource.path)
+        + (resource.fragment ? '#' + resource.fragment : '');
 }
 
 export function deactivate(): Thenable<void> | undefined {
@@ -218,4 +252,21 @@ export function deactivate(): Thenable<void> | undefined {
         return undefined;
     }
     return client.stop();
+}
+
+function createDocumentSelector(langDesc: LanguageDescription): DocumentSelector {
+    const semantic: DocumentFilter[] = [];
+    const syntax: DocumentFilter[] = [];    
+    for (const language of langDesc.languageIds) {
+        syntax.push({ language });
+        for (const scheme of fileSchemes.getSemanticSupportedSchemes()) {
+            semantic.push({ language, scheme });
+        }
+    }
+
+    return { semantic, syntax };
+}
+
+export function isImplicitProjectConfigFile(configFileName: string) {
+	return configFileName.startsWith('/dev/null/');
 }

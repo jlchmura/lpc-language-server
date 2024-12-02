@@ -261,8 +261,9 @@ mixed *function_profile( object ob );
 /**
  * function_exists()  -  find  the  file containing a given function in an
 object
- *
- * Return the file name of the object that defines the function  'str'  in
+ * @param str the name of the function to check for
+ * @param ob the object to check in
+ * @returns the file name of the object that defines the function  'str'  in
  * object  'ob'.  The  returned value can be other than 'file_name(ob)' if
  * the function is defined by an inherited object.
  * 
@@ -274,7 +275,7 @@ object
  * to this_object().
  *
  */
-
+varargs string function_exists( string str, object ob );
 
 /**
  * flush_messages - send all pending messages to a user
@@ -357,7 +358,7 @@ int errorp( mixed arg );
  * 2045 characters not  counting  an  optional  '\n'  as  last  character.
  * Before processing if the error the optional '\n' will be removed, a '*'
  * will be prepended and an unconditional '\n' gets appended.
- *
+ * @throws err
  */
 void error( string err );
 

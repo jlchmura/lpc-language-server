@@ -1,159 +1,101 @@
 #!/usr/bin/env node
 import * as fs from "fs";
 import * as path from "path";
-import {
-    BailErrorStrategy,
-    CharStream,
-    CommonTokenStream,
-    DefaultErrorStrategy,
-    ParseCancellationException,
-    ParseTreeWalker,
-    PredictionMode,
-} from "antlr4ng";
-import { LPCLexer } from "./parser3/LPCLexer";
-import { LPCParser } from "./parser3/LPCParser";
-import { TextDocument } from "vscode-languageserver-textdocument";
-import { LPCTokenFactor } from "./parser3/LPCTokenFactory";
-import { LPCPreprocessingLexer } from "./parser3/LPCPreprocessingLexer";
-import { LPCToken } from "./parser3/LPCToken";
-import { IFileHandler } from "./backend/types";
-import { ConsoleErrorListener } from "./ConsoleErrorListener";
-import { LpcFacade } from "./backend/facade";
-import { SemanticListener } from "./backend/SemanticListener";
-import { MethodSymbol } from "./symbols/methodSymbol";
-import { CallStack } from "./backend/CallStack";
-import { addPogramToStack } from "./backend/CallStackUtils";
-import { IEvaluatableSymbol } from "./symbols/base";
-import { LiteralSymbol } from "./symbols/literalSymbol";
-import { LpcTypes } from "./types";
-import { getDriverInfo } from "./driver/Driver";
-import { loadLpcConfig } from "./backend/LpcConfig";
+import { loadLpcConfig } from "./compiler/LpcConfig";
+import * as lpc from "./lpc/_namespaces/lpc.js";
+import { Session, protocol } from "./lpc/_namespaces/lpc.server.js";
+import { Logger } from "./lpcserver/nodeServer";
+import { IFileHandler } from "./lpc/_namespaces/lpc.js";
 
-class MockFileHandler implements IFileHandler {
-    constructor() {}
+function main() {
+    class MockFileHandler implements IFileHandler {
+        constructor() {}
 
-    public loadInclude(
-        refFilename: string,
-        filename: string
-    ): { uri: string; source: string } {
-        filename = filename.slice(1, -1);
-        if (fs.existsSync(filename)) {
-            const source = fs.readFileSync(filename, "utf-8");
-            return { uri: filename, source };
-        } else {
-            return { uri: filename, source: "" };
+        public loadInclude(
+            refFilename: string,
+            filename: string
+        ): { uri: string; source: string } {
+            filename = filename.slice(1, -1);
+            if (fs.existsSync(filename)) {
+                const source = fs.readFileSync(filename, "utf-8");
+                return { uri: filename, source };
+            } else {
+                return { uri: filename, source: "" };
+            }
         }
     }
+
+    lpc.performance.enable();
+    lpc.Debug.enableDebugInfo();
+
+    //import { LpcFacade } from "./backend/facade";
+    //const workDir = path.resolve(process.cwd()); //, "../fluff-test");
+    const workDir = path.resolve(process.cwd());
+    //const filename = path.join(workDir, process.argv[3]);
+    const filename = path.join(workDir, "a/test.c");
+    const fileOnly = path.basename(filename);
+    const sourceText = fs.readFileSync(filename, "utf-8");
+    const configFile = path.join(workDir, "lpc-config.json");
+    const config = loadLpcConfig(configFile);
+
+    const files: { [index: string]: string } = {
+        [fileOnly]: sourceText,
+    };
+
+    const fileRelativePath = lpc.convertToRelativePath(filename, workDir, f=>f);
+    const projectFile = path.normalize(path.join(workDir, "lpc-config.json"));
+    //const host = createHost(filename, sourceText, config);
+    const serverHost = lpc.sys as lpc.server.ServerHost;
+    const cancelToken = lpc.server.nullCancellationToken;
+    const logger = new Logger(undefined, true, lpc.server.LogLevel.verbose);
+    const session = new Session({ 
+        host: serverHost, 
+        cancellationToken: cancelToken,
+        byteLength: Buffer.byteLength,
+        useSingleInferredProject: false,
+        useInferredProjectPerProjectRoot: false,
+        logger,
+        canUseEvents: true,
+        hrtime: process.hrtime,
+        projectRootFolder: workDir,
+    });
+
+    session.onMessage({
+        seq: 1,
+        type: "request",
+        command: protocol.CommandTypes.UpdateOpen,
+        arguments: {
+            openFiles: [{ file: filename, projectFileName: projectFile }],            
+        }
+    });
+    
+    //const svc = doCreateLanguageService();
+    // const srcFile = host.getSourceFile(filename);
+    // const checker = p2.createTypeChecker(host); // binder is called by checker
+    // const diags = checker.getDiagnostics(srcFile);
+    // const daigsB = srcFile.bindDiagnostics;
+
+    const pos = 64;
+    const args: lpc.server.protocol.FileLocationRequestArgs = {
+        file: fileRelativePath,
+        line: 4,
+        offset: 15,
+        //position: pos, 
+        projectFileName: projectFile
+    };
+    // const node = getTouchingPropertyName(srcFile, pos);
+    //const def = svc.getDefinitionAtPosition(fileOnly, pos, false, false);
+    const diags2 = session.getSemanticDiagnosticsSync({file: fileRelativePath, projectFileName: projectFile});
+    //const inf2 = session.getQuickInfoWorker(args, false);
+    //const diags = session.getDiagnosticsForFiles({delay:0, files: [fileRelativePath]});
+    // const refs = session.getReferences(args, true);
+
+    // const comps = session.getCompletions(
+    //     {file: 'room/test.c', projectFileName: '/Users/johnchmura/code/lpc-test2/lpc-config.json', line: 9, offset: 7, prefix: undefined},
+    //     protocol.CommandTypes.CompletionInfo
+    // );
+
+    console.debug("done");
 }
 
-//import { LpcFacade } from "./backend/facade";
-const workDir = path.resolve(process.cwd(), "../fluff-test");
-const filename = path.join(workDir, process.argv[3]);
-const configFile = path.join(workDir, "lpc-config.json");
-const config = loadLpcConfig(configFile);
-
-const facade = new LpcFacade(workDir, undefined);
-const ctx = facade.loadLpc(filename);
-
-const semanticListener = new SemanticListener(
-    ctx.diagnostics,
-    ctx.symbolTable,
-    ctx
-);
-ParseTreeWalker.DEFAULT.walk(semanticListener, ctx.getParseTree());
-
-const driver = getDriverInfo();
-const stack = new CallStack(ctx.symbolTable);
-stack.diagnosticMode = false;
-addPogramToStack(driver.efuns, stack);
-addPogramToStack(ctx.symbolTable, stack);
-
-const applyFn = ctx.symbolTable.resolveSync("get_include_path") as MethodSymbol;
-const callArgs: IEvaluatableSymbol[] = [
-    new LiteralSymbol("string", LpcTypes.stringType, "/domain/test/room.c"),
-];
-
-const fnResult = applyFn.eval(stack, callArgs, stack.root);
-
-const ii = 0;
-console.log("done");
-// // const codeStream = new ReadableString(code);
-// // const unbuf = new UnbufferedCharStream(codeStream, 256);
-// // for (let i = 0; i < 10; i++) {
-// //     console.log(`${i}: ${String.fromCharCode(unbuf.LA(0))}`);
-// //     unbuf.consume();
-// // }
-
-// const doc = TextDocument.create("uri", "lpc", 0, code);
-// const stream = CharStream.fromString(code);
-// const includes = [];
-// const lexer = new LPCPreprocessingLexer(stream, filename, includes);
-// lexer.driverType = "fluffos";
-// lexer.fileHandler = new MockFileHandler();
-// lexer.tokenFactory = new LPCTokenFactor(filename);
-
-// const tStream = new CommonTokenStream(lexer, 0);
-// const parser = new LPCParser(tStream);
-// parser.driverType = lexer.driverType;
-// parser.errorHandler = new DefaultErrorStrategy();
-// parser.interpreter.predictionMode = PredictionMode.SLL;
-// parser.removeErrorListeners();
-// parser.addErrorListener(new ConsoleErrorListener());
-// parser.setTokenFactory(lexer.tokenFactory);
-// parser.buildParseTrees = true;
-
-// tStream.fill();
-// const finalTokens = tStream.getTokens();
-// finalTokens.forEach((t) => {
-//     console.log((t as LPCToken).toString());
-// });
-
-// const newSource = finalTokens
-//     .filter((t) => t.channel == 0 || t.type == LPCLexer.WS)
-//     .map((t) => t.text)
-//     .join("");
-
-// //lexer.reset();
-// // lexer.inputStream = CharStream.fromString(code);
-// // tStream.setTokenSource(lexer);
-// // parser.reset();
-
-// tStream.reset();
-// tStream.fill();
-
-// //parser.interpreter.predictionMode = PredictionMode.SLL;
-// try {
-//     const tree = parser.program();
-//     console.log("tree", tree.children);
-// } catch (e) {
-//     if (!(e instanceof ParseCancellationException)) {
-//         throw e;
-//     }
-//     console.warn("Parse error");
-// }
-// //const filename = process.argv[2];
-// //const dir = path.dirname(filename);
-
-// // const backend = new LpcFacade(dir);
-// // //main file
-// // const ctxFile = backend.loadLpc(filename, code);
-
-// // const tree = ctxFile.symbolTable;
-
-// // const m = tree.getAllSymbolsSync(MethodSymbol, false);
-// // const v = tree.getAllNestedSymbolsSync("subFn");
-
-// // // trigger semantic analysis
-// // backend.getDiagnostics(filename);
-
-// // const tbl = backend.getContext(filename).symbolTable;
-
-// // const varI = tbl.resolveSync("i") as VariableSymbol;
-// // const varS = m[0].resolveSync("s") as VariableSymbol;
-// // const finalValue = varI?.value;
-// // const finalTValue = varS?.value;
-
-// // console.log("i", finalValue);
-// // console.log("t", finalTValue);
-
-// const i = 0;
+main();

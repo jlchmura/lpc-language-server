@@ -216,10 +216,10 @@ structDeclaration
     ;
 
 variableDeclarationStatement
-    : variableDeclaration SEMI
+    : variableDeclarationList SEMI
     ;
 
-variableDeclaration    
+variableDeclarationList    
     : variableModifier* type=unionableTypeSpecifier? objectName=StringLiteral? variableDeclaratorExpression (COMMA variableDeclaratorExpression)*
     ;
 
@@ -308,7 +308,7 @@ mappingExpression
 
 /** The default expression - comma expressions are not allowed here */
 expression
-    : conditionalExpression[4] // skip comma
+    : conditionalExpression[3] // skip comma
     ;
 
 /** For instances where comma expressions are allowed */
@@ -356,7 +356,7 @@ conditionalExpression[int _p]
     | { 7  >= $_p }? cond=AND_AND conditionalExpression[8]
     | { 6  >= $_p }? cond=OR_OR conditionalExpression[7]
     | { 5  >= $_p }? ternOp=QUESTION conditionalExpression[4] ternOp2=COLON conditionalExpression[4]
-    | { 4  >= $_p }? assignOp=assignmentOperator conditionalExpression[5]    
+    | { 4  >= $_p }? assignOp=assignmentOperator conditionalExpression[5]        
     //| { 2  >= $_p }? op=COMMA conditionalExpression[4]
     )*
     ;    
@@ -438,8 +438,7 @@ primaryExpression
     (
         (
             methodInvocation 
-            | INC 
-            | DEC 
+            | op=(INC | DEC)            
             | (ARROW target=callOtherTarget? invocation=methodInvocation)  // arrow fn
             | ((DOT|ARROW) structMember=Identifier) // struct member access
             | Identifier
@@ -458,7 +457,7 @@ primaryExpressionStart
         |    
         { this.isLD() }? (PAREN_OPEN structName=BracketedIdentifier (structMemberInitializer (COMMA structMemberInitializer)*)? COMMA? PAREN_CLOSE) // LD
       ) # structInitializerExpression            
-    | PAREN_OPEN (commaableExpression | variableDeclaration) PAREN_CLOSE # parenExpression
+    | PAREN_OPEN (commaableExpression | variableDeclarationList) PAREN_CLOSE # parenExpression
     | arrayExpression                       # primaryArrayExpression
     | mappingExpression                     # primaryMappingExpression    
     | catchExpr                             # catchExpression    
@@ -565,20 +564,8 @@ switchStatement
     ;
 
 caseExpression
-    : caseCondition (caseOperators caseCondition)* (DOUBLEDOT caseCondition (caseOperators caseCondition)*)?
-    | { this.isFluff() }? (
-            (DOUBLEDOT caseCondition (caseOperators caseCondition)*) |
-            ( MINUS? caseCondition (caseOperators caseCondition)* DOUBLEDOT )
-        )
-    ;
-
-caseOperators
-    : PLUS | MINUS | STAR | DIV 
-    ;
-
-caseCondition
-    : MINUS? (StringLiteral|IntegerConstant|HexIntConstant|Identifier|CharacterConstant)
-    | PAREN_OPEN conditionalExpression[13] PAREN_CLOSE // NTBLA see if we can use tokens instead of expression here
+    : expression DOUBLEDOT? expression?
+    | DOUBLEDOT expression
     ;
 
 caseStatement
@@ -591,26 +578,26 @@ defaultStatement
 iterationStatement
     : WHILE PAREN_OPEN expression PAREN_CLOSE (statement|SEMI)                  #whileStatement
     | DO statement WHILE PAREN_OPEN expression PAREN_CLOSE SEMI                 #doWhileStatement
-    | FOR PAREN_OPEN (forRangeExpression) PAREN_CLOSE (statement|SEMI)            #forStatement
+    | FOR PAREN_OPEN (forRangeExpression) PAREN_CLOSE (statement|SEMI)          #forStatement
     | FOREACH PAREN_OPEN foreachRangeExpression PAREN_CLOSE (statement|SEMI)    #forEachStatement
     ;
 
 forRangeExpression
-    : (forVariable (COMMA forVariable)*)? SEMI expression? SEMI expression? (COMMA expression)*
+    : init=variableDeclarationList? SEMI condition=expression? SEMI incrementor=commaableExpression?
     ;
 
 foreachRangeExpression
-    : forEachVariable (COMMA forEachVariable)* (IN | COLON) expression (DOUBLEDOT expression)?
+    : variableDeclarationList (COMMA variableDeclarationList)* (IN | COLON) expression (DOUBLEDOT expression)?
     ;
 
-forVariable
-    : primitiveTypeSpecifier? variableDeclarator (ASSIGN variableInitializer | INC | DEC)?
-    | expression
-    ;
+// forVariable
+//     : primitiveTypeSpecifier? variableDeclarator (ASSIGN variableInitializer | INC | DEC)?
+//     | expression
+//     ;
 
-forEachVariable
-    : typeSpecifier? variableDeclarator
-    ;
+// forEachVariable
+//     : typeSpecifier? variableDeclarator
+//     ;
 
 returnStatement
     : RETURN commaableExpression? SEMI

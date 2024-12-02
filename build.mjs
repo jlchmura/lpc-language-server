@@ -3,8 +3,6 @@ import * as esbuild from 'esbuild'
 await esbuild.build({
   entryPoints: ['client/src/extension.ts','server/src/server.ts'],
   bundle: true,
-  treeShaking: true,
-  minify: false,  
   outdir: 'out',
   external: ['vscode'],
   platform: 'node',

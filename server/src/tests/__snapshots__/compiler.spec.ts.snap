@@ -1,0 +1,306 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Compiler compiler/arity1.c Reports correct errors for compiler/arity1.c: diags-compiler/arity1.c 1`] = `""`;
+
+exports[`Compiler compiler/arity2.c Reports correct errors for compiler/arity2.c: diags-compiler/arity2.c 1`] = `
+"
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/arity2.c[90m:5[0m
+
+"
+`;
+
+exports[`Compiler compiler/assignment1.c Reports correct errors for compiler/assignment1.c: diags-compiler/assignment1.c 1`] = `""`;
+
+exports[`Compiler compiler/assignment2.c Reports correct errors for compiler/assignment2.c: diags-compiler/assignment2.c 1`] = `
+"
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/assignment2.c[90m:3[0m
+
+"
+`;
+
+exports[`Compiler compiler/assignment3.c Reports correct errors for compiler/assignment3.c: diags-compiler/assignment3.c 1`] = `""`;
+
+exports[`Compiler compiler/assignmentArraySpread.c Reports correct errors for compiler/assignmentArraySpread.c: diags-compiler/assignmentArraySpread.c 1`] = `""`;
+
+exports[`Compiler compiler/atBlock1.c Reports correct errors for compiler/atBlock1.c: diags-compiler/atBlock1.c 1`] = `""`;
+
+exports[`Compiler compiler/atBlock2.c Reports correct errors for compiler/atBlock2.c: diags-compiler/atBlock2.c 1`] = `""`;
+
+exports[`Compiler compiler/atBlock3.c Reports correct errors for compiler/atBlock3.c: diags-compiler/atBlock3.c 1`] = `""`;
+
+exports[`Compiler compiler/badBreak.c Reports correct errors for compiler/badBreak.c: diags-compiler/badBreak.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/badBreak.c[90m:3[0m
+
+"
+`;
+
+exports[`Compiler compiler/badContinue.c Reports correct errors for compiler/badContinue.c: diags-compiler/badContinue.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/badContinue.c[90m:3[0m
+
+"
+`;
+
+exports[`Compiler compiler/badInitializer.c Reports correct errors for compiler/badInitializer.c: diags-compiler/badInitializer.c 1`] = `
+"
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/badInitializer.c[90m:2[0m
+
+"
+`;
+
+exports[`Compiler compiler/badLocalInit.c Reports correct errors for compiler/badLocalInit.c: diags-compiler/badLocalInit.c 1`] = `
+"
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/badLocalInit.c[90m:3[0m
+
+"
+`;
+
+exports[`Compiler compiler/badSwitch.c Reports correct errors for compiler/badSwitch.c: diags-compiler/badSwitch.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/badSwitch.c[90m:7[0m
+
+"
+`;
+
+exports[`Compiler compiler/catchBlock.c Reports correct errors for compiler/catchBlock.c: diags-compiler/catchBlock.c 1`] = `""`;
+
+exports[`Compiler compiler/catchExpr1.c Reports correct errors for compiler/catchExpr1.c: diags-compiler/catchExpr1.c 1`] = `""`;
+
+exports[`Compiler compiler/class1.c Reports correct errors for compiler/class1.c: diags-compiler/class1.c 1`] = `""`;
+
+exports[`Compiler compiler/class2.c Reports correct errors for compiler/class2.c: diags-compiler/class2.c 1`] = `
+"
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/class2.c[90m:5[0m
+
+"
+`;
+
+exports[`Compiler compiler/closure1.c Reports correct errors for compiler/closure1.c: diags-compiler/closure1.c 1`] = `""`;
+
+exports[`Compiler compiler/closure2.c Reports correct errors for compiler/closure2.c: diags-compiler/closure2.c 1`] = `""`;
+
+exports[`Compiler compiler/commaExpr.c Reports correct errors for compiler/commaExpr.c: diags-compiler/commaExpr.c 1`] = `""`;
+
+exports[`Compiler compiler/declarations1.c Reports correct errors for compiler/declarations1.c: diags-compiler/declarations1.c 1`] = `""`;
+
+exports[`Compiler compiler/declarations2.c Reports correct errors for compiler/declarations2.c: diags-compiler/declarations2.c 1`] = `""`;
+
+exports[`Compiler compiler/declarations3.c Reports correct errors for compiler/declarations3.c: diags-compiler/declarations3.c 1`] = `""`;
+
+exports[`Compiler compiler/declarations4.c Reports correct errors for compiler/declarations4.c: diags-compiler/declarations4.c 1`] = `""`;
+
+exports[`Compiler compiler/declarations5.c Reports correct errors for compiler/declarations5.c: diags-compiler/declarations5.c 1`] = `""`;
+
+exports[`Compiler compiler/declarations6.c Reports correct errors for compiler/declarations6.c: diags-compiler/declarations6.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/declarations6.c[90m:5[0m
+
+"
+`;
+
+exports[`Compiler compiler/defaultArgs.c Reports correct errors for compiler/defaultArgs.c: diags-compiler/defaultArgs.c 1`] = `""`;
+
+exports[`Compiler compiler/defaultArgs2.c Reports correct errors for compiler/defaultArgs2.c: diags-compiler/defaultArgs2.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/defaultArgs2.c[90m:5[0m
+
+"
+`;
+
+exports[`Compiler compiler/defaultArgs3.c Reports correct errors for compiler/defaultArgs3.c: diags-compiler/defaultArgs3.c 1`] = `""`;
+
+exports[`Compiler compiler/define1.c Reports correct errors for compiler/define1.c: diags-compiler/define1.c 1`] = `""`;
+
+exports[`Compiler compiler/doWhile.c Reports correct errors for compiler/doWhile.c: diags-compiler/doWhile.c 1`] = `""`;
+
+exports[`Compiler compiler/expr1.c Reports correct errors for compiler/expr1.c: diags-compiler/expr1.c 1`] = `""`;
+
+exports[`Compiler compiler/expr2.c Reports correct errors for compiler/expr2.c: diags-compiler/expr2.c 1`] = `""`;
+
+exports[`Compiler compiler/expr3.c Reports correct errors for compiler/expr3.c: diags-compiler/expr3.c 1`] = `""`;
+
+exports[`Compiler compiler/fnNoReturn1.c Reports correct errors for compiler/fnNoReturn1.c: diags-compiler/fnNoReturn1.c 1`] = `""`;
+
+exports[`Compiler compiler/fnNoReturn2.c Reports correct errors for compiler/fnNoReturn2.c: diags-compiler/fnNoReturn2.c 1`] = `
+"
+Found 1 error.
+
+"
+`;
+
+exports[`Compiler compiler/fnNoReturn3.c Reports correct errors for compiler/fnNoReturn3.c: diags-compiler/fnNoReturn3.c 1`] = `""`;
+
+exports[`Compiler compiler/for1.c Reports correct errors for compiler/for1.c: diags-compiler/for1.c 1`] = `""`;
+
+exports[`Compiler compiler/for2.c Reports correct errors for compiler/for2.c: diags-compiler/for2.c 1`] = `""`;
+
+exports[`Compiler compiler/for3.c Reports correct errors for compiler/for3.c: diags-compiler/for3.c 1`] = `""`;
+
+exports[`Compiler compiler/for4.c Reports correct errors for compiler/for4.c: diags-compiler/for4.c 1`] = `""`;
+
+exports[`Compiler compiler/forEach1.c Reports correct errors for compiler/forEach1.c: diags-compiler/forEach1.c 1`] = `""`;
+
+exports[`Compiler compiler/forEach2.c Reports correct errors for compiler/forEach2.c: diags-compiler/forEach2.c 1`] = `""`;
+
+exports[`Compiler compiler/forEach3.c Reports correct errors for compiler/forEach3.c: diags-compiler/forEach3.c 1`] = `""`;
+
+exports[`Compiler compiler/forEachRef.c Reports correct errors for compiler/forEachRef.c: diags-compiler/forEachRef.c 1`] = `""`;
+
+exports[`Compiler compiler/funcDecl1.c Reports correct errors for compiler/funcDecl1.c: diags-compiler/funcDecl1.c 1`] = `""`;
+
+exports[`Compiler compiler/funcDecl2.c Reports correct errors for compiler/funcDecl2.c: diags-compiler/funcDecl2.c 1`] = `""`;
+
+exports[`Compiler compiler/funcSignature1.c Reports correct errors for compiler/funcSignature1.c: diags-compiler/funcSignature1.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/funcSignature1.c[90m:5[0m
+
+"
+`;
+
+exports[`Compiler compiler/funcSignature2.c Reports correct errors for compiler/funcSignature2.c: diags-compiler/funcSignature2.c 1`] = `""`;
+
+exports[`Compiler compiler/functionCall1.c Reports correct errors for compiler/functionCall1.c: diags-compiler/functionCall1.c 1`] = `""`;
+
+exports[`Compiler compiler/functionCall2.c Reports correct errors for compiler/functionCall2.c: diags-compiler/functionCall2.c 1`] = `""`;
+
+exports[`Compiler compiler/functionCall3.c Reports correct errors for compiler/functionCall3.c: diags-compiler/functionCall3.c 1`] = `""`;
+
+exports[`Compiler compiler/functionCall4.c Reports correct errors for compiler/functionCall4.c: diags-compiler/functionCall4.c 1`] = `""`;
+
+exports[`Compiler compiler/functionCall5.c Reports correct errors for compiler/functionCall5.c: diags-compiler/functionCall5.c 1`] = `""`;
+
+exports[`Compiler compiler/identifier1.c Reports correct errors for compiler/identifier1.c: diags-compiler/identifier1.c 1`] = `""`;
+
+exports[`Compiler compiler/if1.c Reports correct errors for compiler/if1.c: diags-compiler/if1.c 1`] = `""`;
+
+exports[`Compiler compiler/if2.c Reports correct errors for compiler/if2.c: diags-compiler/if2.c 1`] = `""`;
+
+exports[`Compiler compiler/if3.c Reports correct errors for compiler/if3.c: diags-compiler/if3.c 1`] = `""`;
+
+exports[`Compiler compiler/ifelse.c Reports correct errors for compiler/ifelse.c: diags-compiler/ifelse.c 1`] = `""`;
+
+exports[`Compiler compiler/indexAccess.c Reports correct errors for compiler/indexAccess.c: diags-compiler/indexAccess.c 1`] = `""`;
+
+exports[`Compiler compiler/intLiteral1.c Reports correct errors for compiler/intLiteral1.c: diags-compiler/intLiteral1.c 1`] = `""`;
+
+exports[`Compiler compiler/intLiteral2.c Reports correct errors for compiler/intLiteral2.c: diags-compiler/intLiteral2.c 1`] = `""`;
+
+exports[`Compiler compiler/jsDocParam.c Reports correct errors for compiler/jsDocParam.c: diags-compiler/jsDocParam.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/jsDocParam.c[90m:4[0m
+
+"
+`;
+
+exports[`Compiler compiler/lambda1.c Reports correct errors for compiler/lambda1.c: diags-compiler/lambda1.c 1`] = `""`;
+
+exports[`Compiler compiler/macro1.c Reports correct errors for compiler/macro1.c: diags-compiler/macro1.c 1`] = `""`;
+
+exports[`Compiler compiler/macro2.c Reports correct errors for compiler/macro2.c: diags-compiler/macro2.c 1`] = `""`;
+
+exports[`Compiler compiler/missingFunc.c Reports correct errors for compiler/missingFunc.c: diags-compiler/missingFunc.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/missingFunc.c[90m:3[0m
+
+"
+`;
+
+exports[`Compiler compiler/modifiers1.c Reports correct errors for compiler/modifiers1.c: diags-compiler/modifiers1.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/modifiers1.c[90m:3[0m
+
+"
+`;
+
+exports[`Compiler compiler/modifiers2.c Reports correct errors for compiler/modifiers2.c: diags-compiler/modifiers2.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/modifiers2.c[90m:2[0m
+
+"
+`;
+
+exports[`Compiler compiler/modifiers3.c Reports correct errors for compiler/modifiers3.c: diags-compiler/modifiers3.c 1`] = `""`;
+
+exports[`Compiler compiler/new1.c Reports correct errors for compiler/new1.c: diags-compiler/new1.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/new1.c[90m:6[0m
+
+"
+`;
+
+exports[`Compiler compiler/new2.c Reports correct errors for compiler/new2.c: diags-compiler/new2.c 1`] = `""`;
+
+exports[`Compiler compiler/new3.c Reports correct errors for compiler/new3.c: diags-compiler/new3.c 1`] = `""`;
+
+exports[`Compiler compiler/new4.c Reports correct errors for compiler/new4.c: diags-compiler/new4.c 1`] = `""`;
+
+exports[`Compiler compiler/operatorBitwise.c Reports correct errors for compiler/operatorBitwise.c: diags-compiler/operatorBitwise.c 1`] = `""`;
+
+exports[`Compiler compiler/operatorDoubleBang.c Reports correct errors for compiler/operatorDoubleBang.c: diags-compiler/operatorDoubleBang.c 1`] = `""`;
+
+exports[`Compiler compiler/operatorLogical.c Reports correct errors for compiler/operatorLogical.c: diags-compiler/operatorLogical.c 1`] = `""`;
+
+exports[`Compiler compiler/preproc_conditional.c Reports correct errors for compiler/preproc_conditional.c: diags-compiler/preproc_conditional.c 1`] = `""`;
+
+exports[`Compiler compiler/preproc_conditional_macro.c Reports correct errors for compiler/preproc_conditional_macro.c: diags-compiler/preproc_conditional_macro.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/preproc_conditional_macro.c[90m:10[0m
+
+"
+`;
+
+exports[`Compiler compiler/struct1.c Reports correct errors for compiler/struct1.c: diags-compiler/struct1.c 1`] = `""`;
+
+exports[`Compiler compiler/struct2.c Reports correct errors for compiler/struct2.c: diags-compiler/struct2.c 1`] = `""`;
+
+exports[`Compiler compiler/structMemberAccess.c Reports correct errors for compiler/structMemberAccess.c: diags-compiler/structMemberAccess.c 1`] = `""`;
+
+exports[`Compiler compiler/super1.c Reports correct errors for compiler/super1.c: diags-compiler/super1.c 1`] = `""`;
+
+exports[`Compiler compiler/switch1.c Reports correct errors for compiler/switch1.c: diags-compiler/switch1.c 1`] = `""`;
+
+exports[`Compiler compiler/switch2.c Reports correct errors for compiler/switch2.c: diags-compiler/switch2.c 1`] = `""`;
+
+exports[`Compiler compiler/switch3.c Reports correct errors for compiler/switch3.c: diags-compiler/switch3.c 1`] = `""`;
+
+exports[`Compiler compiler/ternary.c Reports correct errors for compiler/ternary.c: diags-compiler/ternary.c 1`] = `""`;
+
+exports[`Compiler compiler/typeAssertion1.c Reports correct errors for compiler/typeAssertion1.c: diags-compiler/typeAssertion1.c 1`] = `""`;
+
+exports[`Compiler compiler/typeAssertion2.c Reports correct errors for compiler/typeAssertion2.c: diags-compiler/typeAssertion2.c 1`] = `""`;
+
+exports[`Compiler compiler/typeAssertion3.c Reports correct errors for compiler/typeAssertion3.c: diags-compiler/typeAssertion3.c 1`] = `""`;
+
+exports[`Compiler compiler/typeInference1.c Reports correct errors for compiler/typeInference1.c: diags-compiler/typeInference1.c 1`] = `""`;
+
+exports[`Compiler compiler/typeInference2.c Reports correct errors for compiler/typeInference2.c: diags-compiler/typeInference2.c 1`] = `""`;
+
+exports[`Compiler compiler/typeInference3.c Reports correct errors for compiler/typeInference3.c: diags-compiler/typeInference3.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/typeInference3.c[90m:4[0m
+
+"
+`;
+
+exports[`Compiler compiler/unionTypes.c Reports correct errors for compiler/unionTypes.c: diags-compiler/unionTypes.c 1`] = `""`;
+
+exports[`Compiler compiler/utf8.c Reports correct errors for compiler/utf8.c: diags-compiler/utf8.c 1`] = `""`;
+
+exports[`Compiler compiler/varBeforeDecl.c Reports correct errors for compiler/varBeforeDecl.c: diags-compiler/varBeforeDecl.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/varBeforeDecl.c[90m:3[0m
+
+"
+`;
+
+exports[`Compiler compiler/varBeforeDecl2.c Reports correct errors for compiler/varBeforeDecl2.c: diags-compiler/varBeforeDecl2.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/varBeforeDecl2.c[90m:2[0m
+
+"
+`;
+
+exports[`Compiler compiler/varBeforeDecl3.c Reports correct errors for compiler/varBeforeDecl3.c: diags-compiler/varBeforeDecl3.c 1`] = `""`;
+
+exports[`Compiler compiler/while1.c Reports correct errors for compiler/while1.c: diags-compiler/while1.c 1`] = `""`;

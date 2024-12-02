@@ -1,5 +1,10 @@
 # LPC Language Services
 
+## v1.1.x IS A PRERELEASE VERSION WITH BREAKING CHANGES
+Please see [config-changes.md](config-changes.md)
+
+---
+
 Language server and VSCode extension that provides rich language support for LPC (Lars Pensjö C) - an object-oriented programming language derived from C and developed originally by Lars Pensjö to facilitate MUD building on LPMuds.
 
 Currently supports [LDMud](https://www.ldmud.eu/) and [FluffOS](https://www.fluffos.info/).
@@ -49,11 +54,32 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 The VS Code LPC Language Services extension does not use your MUD driver to compile code. As such, several configuration options are available to help the language server understand the structure of your mudlib.
 
+### Workspace Root vs Lib Root
+
+LPC Language Services will use the location of your `lpc-config.json` file to determine the root folder of your mudlib. If no config file is found, the VS Code workspace root is used.
+
+For example, see the [LIMA mudlib](https://github.com/fluffos/lima) in which the config file should be placed in the `lib` folder.
+
 **Please note**: After creating (or moving) your `lpc-config` file, you will need to restart VS Code.
 
 ### Example
 
 For an example mudlib, pre-configured to work with LPC Language Services, see this slightly modified version of the [LP 2.4.5 mudlib](https://github.com/jlchmura/lp-245). LPC Language Services can parse and validate this entire lib without errors.
+
+### Type Checking
+
+Type checking can be disabled for a single file by placing a nocheck directive at the top of the file:
+```js
+// @lpc-nocheck
+```
+
+#### this_object()
+
+By default, the type checker will assume `this_object()` to refer to the file in which you are working. At runtime, that is
+not always the case, in particular when the file is included in a larger object.  If needed, the type checker can be instructed to override object type of `this_object()` can be specified using a comment directive:
+```js
+// @this-object /std/living
+```
 
 ### LPC Config
 
@@ -66,32 +92,6 @@ Language services can be customized by creating an `lpc-config.json` file in the
 | `type`    | Driver type. Valid options are `ldmud` or `fluffos`. |
 | `version` | The driver version string, i.e. `"3.6.7"`            |
 
-#### Mudlib Root - `mudlibDir`
-
-Most file locations and path settings in the lpc-config file are set relative to the mudlib root regardless of where your lpc-config file is located. The one exception to this is the `mudlibDir` setting, which is always relative to the workspace root.
-
-By default, LPC Language Services will use the location of your `lpc-config.json` file to determine the root folder of your mudlib. If no config file is found, the VS Code workspace root is used.
-
-If you want to place the lpc-config.json file in a different location, then you must set the `mudlibDir` setting.
-
-This optional setting specifies which local folder the root of your mudlib will map to. The path is relative to the location of your lpc-config file.
-
-For example, let's say your project is structured thus:
-
-```
-MyProj
-|- settings
-|  |- lpc-config.json
-|- lib
-|  |- std
-|  |  |- simul_efun.c
-|  |- rooms
-|  |  |- entrance.c
-|  |- admin
-```
-
-Then your `mudlibDir` setting should be set to `../lib`
-
 #### File Locations - `files`
 
 | Setting          | Description                                                             |
@@ -101,6 +101,10 @@ Then your `mudlibDir` setting should be set to `../lib`
 | `init_files`     | An array of init files. Defaults to `["/room/init_files"]`              |
 | `global_include` | When provided, will add this file as an `#include` to each file.        |
 | `player`         | The location of your player file. Defaults to `"/obj/player.c"`         |
+
+#### Lib Root Dir - `rootDir`
+If your config file is located in a folder other than your lib's root directory, use this setting
+to specify the location of the root folder.
 
 #### Include Dirs - `include`
 
@@ -126,6 +130,8 @@ Since your code is not being evaluated in the mud driver, you may need to simula
 In the example above, `__HOST_NAME__` will be defined as the _string_ value `"localhost"`. `TLS_PORT` on the other hand, will be defined as an _int_ value `5555`.
 
 #### Diagnostics - `diagnostics`
+
+
 
 The severity level of several diagnostics can be controlled through this configuration option. When a LPC language services reports a diagnostic, the _code_ is printed at the end the message and enclosed in `lpc()`, i.e. `lpc(functionNotFound)`.
 

@@ -64,7 +64,7 @@ object this_object( void );
  * classes had to be in the player object itself.
  *
  */
-object shadow( object ob, int flag );
+varargs object shadow( object ob, int flag );
 
 /**
  * remove_call_out() - remove a pending call_out
@@ -186,7 +186,7 @@ this function
  * and the line number.
  *
  */
-string *call_stack(int option);
+varargs string *call_stack(int option);
 
 /**
  * call_out_walltime - delayed function call in same object

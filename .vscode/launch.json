@@ -8,14 +8,14 @@
             "name": "Launch Client",
             "runtimeExecutable": "${execPath}",
             "args": [
-                //"${workspaceRoot}/../mg-mudlib",
+                // "${workspaceRoot}/../StickLib",
+                // "${workspaceRoot}/../mg-mudlib",
                 // "${workspaceRoot}/../lima",
-                // "${workspaceRoot}/../sticktemp",
-                //"${workspaceRoot}/../dbjh2024",
+                "${workspaceRoot}/../lpc-test2",
+                // "${workspaceRoot}/../glpu-john",
                 // "${workspaceRoot}/../nightmare-residuum",
-                "${workspaceRoot}/../nightmare3",
-                //"${workspaceRoot}/../infinity-lib",
-                //"${workspaceRoot}/../fluff-test",
+                // "${workspaceRoot}/../infinity-lib",
+                // "${workspaceRoot}/../fluff-test",
                 //"${workspaceRoot}/efuns/ldmud",
                 "--extensionDevelopmentPath=${workspaceRoot}"
             ],
@@ -29,7 +29,8 @@
                 "node_modules/**/*",
                 "**/vs/workbench/api/**/*",
                 "**/gitlens.js"
-            ]
+            ],
+            "customDescriptionGenerator": "'__lpcDebuggerDisplay' in this ? this.__lpcDebuggerDisplay(defaultValue) : defaultValue"
         },
         {
             "type": "node",
@@ -37,10 +38,11 @@
             "name": "Launch Bin",
             "skipFiles": ["<node_internals>/**"],
             "program": "${workspaceFolder}/out/server/src/bin.js",
-            "args": ["", "secure/master.c"],
+            "args": ["", "test.c"],
             "preLaunchTask": "compile:bin",
             "sourceMaps": true,
-            "outFiles": ["${workspaceFolder}/out/**/*.js"]
+            "outFiles": ["${workspaceFolder}/out/**/*.js"],
+            "cwd": "${workspaceFolder}/../lpc-test2"
         },
         {
             "type": "node",
@@ -66,14 +68,27 @@
             "outFiles": ["${workspaceRoot}/client/out/test/**/*.js"]
         },
         {
-            "name": "Debug ANTLR4 grammar",
-            "type": "antlr-debug",
+            "type": "node",
             "request": "launch",
-            "input": "test.c",
-            "grammar": "grammar/LPC.g4",
-            "startRule": "lpc_program",
-            "printParseTree": true,
-            "visualParseTree": true
+            "name": "Jest Tests",
+            "program": "${workspaceFolder}/node_modules/jest/bin/jest",
+            "sourceMaps": true,
+            "args": [
+                "${fileBasenameNoExtension}",
+                "--no-cache",
+                "--runInBand",
+                "--coverage=false"
+                // "--config",
+                // "${workspaceFolder}/jest.config.js"
+            ],
+            "preLaunchTask": "compile",
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "windows": {
+                "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+            }
+            // "envFile": "${workspaceFolder}/.env"
         }
     ]
 }

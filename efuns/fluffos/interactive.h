@@ -15,7 +15,7 @@ void write( mixed str );
 /**
  * users() - return an array of objects containing all interactive players
  *
- * Return an array of objects, containing all interactive players.
+ * @returns {__LPC_CONFIG_LIBFILES_PLAYER*} An array of objects, containing all interactive players.
  *
  */
 object *users( void );
@@ -23,10 +23,10 @@ object *users( void );
 /**
  * userp() - determine if a given object was once interactive
  *
- * Returns 1 if the arg was once interactive.
+ * @returns 1 if the arg was once interactive.
  *
  */
-int userp( object );
+int userp(object ob);
 
 /**
  * this_user - the current interactive player object
@@ -38,8 +38,9 @@ int userp( object );
  * this_player(3).
  *
  * @param {int} flag - if non-zero, return the interactive player object. Defaults to 0
+ * @returns {__LPC_CONFIG_LIBFILES_PLAYER} - the interactive player object
  */
-varargs object this_user( int flag);
+varargs object this_user(int flag);
 
 
 /**
@@ -214,6 +215,7 @@ varargs void say( string str, object obj );
  *
  */
 int resolve( string address, string callback_func );
+int resolve( string address, closure callback_func );
 
 /**
  * remove_action - unbind a command verb from a local function
@@ -262,7 +264,7 @@ object query_snoop( object ob );
  * 'ob'.
  *
  */
-string query_ip_number( object ob );
+varargs string query_ip_number( object ob );
 
 /**
  * query_ip_name() - return the ip name of a given player object.
@@ -469,7 +471,7 @@ void message( mixed type, string message, mixed target, mixed exclude );
  * he is link dead.
  *
  */
-int interactive( object ob );
+varargs int interactive( object ob );
 
 /**
  * input_to()  - causes next line of input to be sent to a specified func‐
@@ -496,7 +498,7 @@ tion
  * be passed on to 'fun' as arguments following the user input.
  *
  */
-varargs void input_to( string | function fun, int flag... );
+varargs void input_to(string | function fun, int flag, mixed args... );
 
 /**
  * in_input() - determines if a player is inputting to an input_to
@@ -728,7 +730,7 @@ mixed *commands( void );
  * jective and unreliable.
  *
  */
-int command( string str, object ob );
+varargs int command( string str, object ob );
 
 /**
  * add_action() - bind a command verb to a local function
@@ -758,6 +760,6 @@ int command( string str, object ob );
  * following <cmd>.
  *
  */
-void add_action( string | function fun, string | string * cmd, int flag
-);
+void add_action( string | function fun, string | string * cmd);
+void add_action( string | function fun, string | string * cmd, int flag);
 

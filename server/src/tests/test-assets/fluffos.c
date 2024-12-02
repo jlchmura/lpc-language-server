@@ -168,9 +168,7 @@ void testArrayWithSpread() {
 
 // keywords that can also be used as identifiers 
 void testValidIdentifiers() {
-
     string symbol;
-
 }
 
 // two forms of catch in Fluff

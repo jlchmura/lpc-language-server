@@ -16,10 +16,12 @@ server/
 grammar/
 test*.c
 test*.h
+efuns/
 !out/server/src/server.js
 !out/server/src/server.js.map
 !out/client/src/extension.js
 !out/client/src/extension.js.map
+!out/server/src/efuns/**/*
 jest.config.ts
 tests/
 coverage/
