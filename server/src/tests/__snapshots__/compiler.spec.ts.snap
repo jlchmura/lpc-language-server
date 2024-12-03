@@ -84,6 +84,13 @@ exports[`Compiler compiler/closure1.c Reports correct errors for compiler/closur
 
 exports[`Compiler compiler/closure2.c Reports correct errors for compiler/closure2.c: diags-compiler/closure2.c 1`] = `""`;
 
+exports[`Compiler compiler/closure3.c Reports correct errors for compiler/closure3.c: diags-compiler/closure3.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/closure3.c[90m:4[0m
+
+"
+`;
+
 exports[`Compiler compiler/commaExpr.c Reports correct errors for compiler/commaExpr.c: diags-compiler/commaExpr.c 1`] = `""`;
 
 exports[`Compiler compiler/declarations1.c Reports correct errors for compiler/declarations1.c: diags-compiler/declarations1.c 1`] = `""`;
