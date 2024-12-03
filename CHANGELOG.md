@@ -6,6 +6,8 @@
 -   Fix: [Assignment with conditional expression reports type error #73](https://github.com/jlchmura/lpc-language-server/issues/73)
 -   Fix: [String literals should allow newlines in FluffOS #85](https://github.com/jlchmura/lpc-language-server/issues/85)
 -   Fix: Mapping elements were not getting type checked
+-   Fix: Error when call expression had incorrect arity but signature has a rest parameter.
+-   Fix: Inline closure body was not being consistently checked
 -   Various efun definition tweaks
 
 ## 1.1.5

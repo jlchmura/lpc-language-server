@@ -2859,7 +2859,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.PropertyDeclaration:
                 return checkPropertyDeclaration(node as PropertyDeclaration);
             case SyntaxKind.PropertySignature:
-                return checkPropertySignature(node as PropertySignature);
+                return checkPropertySignature(node as PropertySignature);            
             // case SyntaxKind.ConstructorType:
             // case SyntaxKind.FunctionType:
             // case SyntaxKind.CallSignature:
@@ -10543,7 +10543,6 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // const type = getDeclaredTypeOfSymbol(symbol);
             const classType = getDeclaredTypeOfClassOrInterface(symbol);
             // resolveClassOrInterfaceMembers(classType);
-
             
             checkDeferredNodes(node);
             
@@ -10572,17 +10571,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     forEach(potentialNewTargetCollisions, checkIfNewTargetIsCapturedInEnclosingScope);
             //     clear(potentialNewTargetCollisions);
             // }
-
-            // if (potentialWeakMapSetCollisions.length) {
-            //     forEach(potentialWeakMapSetCollisions, checkWeakMapSetCollision);
-            //     clear(potentialWeakMapSetCollisions);
-            // }
-
-            // if (potentialReflectCollisions.length) {
-            //     forEach(potentialReflectCollisions, checkReflectCollision);
-            //     clear(potentialReflectCollisions);
-            // }
-
+            
             links.flags |= NodeCheckFlags.TypeChecked;            
         }
     }
@@ -10750,7 +10739,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.InlineClosureExpression:
             // case SyntaxKind.MethodDeclaration:
             // case SyntaxKind.MethodSignature:
-                //checkFunctionExpressionOrObjectLiteralMethodDeferred(node as FunctionExpression);
+                checkFunctionExpressionOrObjectLiteralMethodDeferred(node as FunctionExpression);
                 break;            
             case SyntaxKind.ClassExpression:
                 //checkClassExpressionDeferred(node as ClassExpression);
@@ -10769,6 +10758,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 //     resolveUntypedCall(node);
                 // }
                 break;
+            default:
+                console.log("Unhandled deferred node kind: ", Debug.formatSyntaxKind(node.kind));
         }
         currentNode = saveCurrentNode;
         tracing?.pop();
@@ -10817,6 +10808,47 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return { type, expression };
     }
 
+    function checkFunctionExpressionOrObjectLiteralMethodDeferred(node: FunctionExpression | InlineClosureExpression) {
+        // Debug.assert(node.kind !== SyntaxKind.MethodDeclaration || isObjectLiteralMethod(node));
+
+        const functionFlags = getFunctionFlags(node);
+        const returnType = getReturnTypeFromAnnotation(node);
+        checkAllCodePathsInNonVoidFunctionReturnOrThrow(node, returnType);
+
+        if (node.body) {
+            if (!getEffectiveReturnTypeNode(node)) {
+                // There are some checks that are only performed in getReturnTypeFromBody, that may produce errors
+                // we need. An example is the noImplicitAny errors resulting from widening the return expression
+                // of a function. Because checking of function expression bodies is deferred, there was never an
+                // appropriate time to do this during the main walk of the file (see the comment at the top of
+                // checkFunctionExpressionBodies). So it must be done now.
+                getReturnTypeOfSignature(getSignatureFromDeclaration(node));
+            }
+
+            if (node.body.kind === SyntaxKind.Block) {
+                checkSourceElement(node.body);
+            }
+            else {
+                // From within an async function you can return either a non-promise value or a promise. Any
+                // Promise/A+ compatible implementation will always assimilate any foreign promise, so we
+                // should not be checking assignability of a promise to the return type. Instead, we need to
+                // check assignability of the awaited type of the expression body against the promised type of
+                // its return type annotation.
+                const exprType = checkExpression(node.body);
+                const returnOrPromisedType = returnType && unwrapReturnType(returnType, functionFlags);
+                if (returnOrPromisedType) {
+                    const effectiveCheckNode = getEffectiveCheckNode(node.body);
+                    // if ((functionFlags & FunctionFlags.AsyncGenerator) === FunctionFlags.Async) { // Async function
+                    //     const awaitedType = checkAwaitedType(exprType, /*withAlias*/ false, effectiveCheckNode, Diagnostics.The_return_type_of_an_async_function_must_either_be_a_valid_promise_or_must_not_contain_a_callable_then_member);
+                    //     checkTypeAssignableToAndOptionallyElaborate(awaitedType, returnOrPromisedType, effectiveCheckNode, effectiveCheckNode);
+                    // }
+                    // else { // Normal function
+                        checkTypeAssignableToAndOptionallyElaborate(exprType, returnOrPromisedType, effectiveCheckNode, effectiveCheckNode);
+                    // }
+                }
+            }
+        }
+    }
     
     function resolveUntypedCall(node: CallLikeExpression): Signature {                
         if (isBinaryExpression(node)) {
