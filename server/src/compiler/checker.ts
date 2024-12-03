@@ -4516,6 +4516,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return mixedType;
             case SyntaxKind.LwObjectKeyword:
                 return lwObjectType;
+            case SyntaxKind.FunctionKeyword:
             case SyntaxKind.ClosureKeyword:
                 return closureType;                
             case SyntaxKind.ObjectKeyword:
@@ -7337,7 +7338,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function hasEffectiveRestParameter(signature: Signature): boolean {
-        return hasVarArgsParam(signature.declaration as SignatureDeclaration);
+        if (hasVarArgsParam(signature.declaration as SignatureDeclaration)) {
+            return true;
+        } 
+        else if (signatureHasRestParameter(signature)) {
+            const restType = getTypeOfSymbol(signature.parameters[signature.parameters.length - 1]);
+            return !isTupleType(restType) || restType.target.hasRestElement;
+        }
+        return false;
     }
 
     
@@ -27284,7 +27292,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (args.length < maxParameter && maxParameter < minAbove) minAbove = maxParameter;
         }
         const hasRestParameter = some(signatures, hasEffectiveRestParameter);
-        if (hasRestParameter) min--; // in LPC, varargs params are optional
+        // if (hasRestParameter) min--; // in LPC, varargs params are optional
         const parameterRange = hasRestParameter ? min 
             : min < max ? min + "-" + max
             : min;

@@ -6760,7 +6760,7 @@ function forEachChildInBlock<T>(node: Block, cbNode: (node: Node) => T | undefin
 }
 
 function forEachChildInCallOrNewExpression<T>(node: CallExpression | NewExpression | CloneObjectExpression, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {    
-    return visitNode(cbNode, node.expression) ||
+    return visitNode(cbNode, node.expression) ||        
         visitNodes(cbNode, cbNodes, node.arguments);
 }
 
