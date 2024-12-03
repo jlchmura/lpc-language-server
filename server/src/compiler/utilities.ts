@@ -1400,6 +1400,10 @@ export function createNameResolver({
                         result = argumentsSymbol;
                         break loop;
                     }
+                    else if (meaning & SymbolFlags.Function && name==="$") {
+                        result = argumentsSymbol;
+                        break loop;
+                    }
                     break;
                 case SyntaxKind.FunctionExpression:
                     if (meaning & SymbolFlags.Variable && name === "arguments") {

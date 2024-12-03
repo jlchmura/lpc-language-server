@@ -318,6 +318,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
 
     const program: Program = {
         getRootFileNames: () => rootNames,
+        getDriverType: () => options.driverType,
         getSourceFile,
         getSourceFileByPath,
         getSourceFiles: () => files,
@@ -465,7 +466,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         }
     }
     
-    function getTypeChecker() {
+    function getTypeChecker() {        
         return typeChecker || (typeChecker = createTypeChecker(program));
     }
 

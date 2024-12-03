@@ -612,7 +612,7 @@ export interface ResolvedModuleWithFailedLookupLocations {
 /** @internal */
 export interface    TypeCheckerHost extends ModuleSpecifierResolutionHost {
     getCompilerOptions(): CompilerOptions;
-
+    getDriverType(): LanguageVariant;
     getSourceFiles(): readonly SourceFile[];
     getSourceFile(fileName: string): SourceFile | undefined;
     // getProjectReferenceRedirect(fileName: string): string | undefined;
