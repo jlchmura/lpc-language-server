@@ -200,6 +200,7 @@ import {
     TypeParameterDeclaration,
     TypePredicateNode,
     TypeReferenceNode,
+    UnaryExpression,
     UndefDirective,
     UnionTypeNode,
     VariableDeclaration,
@@ -1735,10 +1736,17 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return createToken(kind);
     }
 
+
     // @api
     function createPrefixUnaryExpression(operator: PrefixUnaryOperator, operand: Expression) {
         const node = createBaseNode<PrefixUnaryExpression>(SyntaxKind.PrefixUnaryExpression);
         node.operator = operator;
+
+        // force parenthesization of non-unary expressssion operands
+        if (operand.kind !== SyntaxKind.PrefixUnaryExpression) {
+            operand = setTextRange(factory.createParenthesizedExpression(operand), operand)
+        }
+
         node.operand = parenthesizerRules().parenthesizeOperandOfPrefixUnary(operand);
         //node.transformFlags |= propagateChildFlags(node.operand);
         // Only set this flag for non-generated identifiers and non-"local" names. See the

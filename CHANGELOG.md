@@ -3,6 +3,7 @@
 ## 1.1.6
 
 -   Fix: Binary expression should allow bytes/buffer types
+-   Fix: [Assignment with conditional expression reports type error #73](https://github.com/jlchmura/lpc-language-server/issues/73)
 
 ## 1.1.5
 

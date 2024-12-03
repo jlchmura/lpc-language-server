@@ -124,6 +124,8 @@ exports[`Compiler compiler/expr2.c Reports correct errors for compiler/expr2.c: 
 
 exports[`Compiler compiler/expr3.c Reports correct errors for compiler/expr3.c: diags-compiler/expr3.c 1`] = `""`;
 
+exports[`Compiler compiler/expr4.c Reports correct errors for compiler/expr4.c: diags-compiler/expr4.c 1`] = `""`;
+
 exports[`Compiler compiler/fnNoReturn1.c Reports correct errors for compiler/fnNoReturn1.c: diags-compiler/fnNoReturn1.c 1`] = `""`;
 
 exports[`Compiler compiler/fnNoReturn2.c Reports correct errors for compiler/fnNoReturn2.c: diags-compiler/fnNoReturn2.c 1`] = `
