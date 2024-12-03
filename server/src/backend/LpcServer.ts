@@ -454,7 +454,7 @@ export class LpcServer {
         const folders = params.workspaceFolders;
 
         // find the lpc-config.json file
-        const rootFolderPath = findLpcRoot(folders);
+        const rootFolderPath = findLpcRoot(folders) ?? process.cwd();
 
         // load the config
         const config = loadLpcConfig(

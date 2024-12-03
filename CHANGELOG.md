@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.0.36
+
+-   Fix: [Server is feeling fussy today and is not loving the fact that I'm loading an LPC file not in a workspace? #80](https://github.com/jlchmura/lpc-language-server/issues/80)
+
 ## 1.0.35
 
 -   Fix parsing of @ and @@ blocks when inside an include file.
