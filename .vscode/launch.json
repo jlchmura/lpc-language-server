@@ -13,11 +13,13 @@
                 // "${workspaceRoot}/../sticktemp",
                 //"${workspaceRoot}/../dbjh2024",
                 // "${workspaceRoot}/../nightmare-residuum",
-                "${workspaceRoot}/../nightmare3",
+                // "${workspaceRoot}/../nightmare3",
                 //"${workspaceRoot}/../infinity-lib",
                 //"${workspaceRoot}/../fluff-test",
                 //"${workspaceRoot}/efuns/ldmud",
-                "--extensionDevelopmentPath=${workspaceRoot}"
+                "${workspaceRoot}/../temp/testlpc",
+                "${workspaceRoot}/../temp/testlpc/body.c"
+                "--extensionDevelopmentPath=${workspaceRoot}"                
             ],
             "autoAttachChildProcesses": true,
             "sourceMaps": true,
