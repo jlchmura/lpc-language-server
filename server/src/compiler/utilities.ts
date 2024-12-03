@@ -1393,8 +1393,10 @@ export function createNameResolver({
                     break;                               
                 case SyntaxKind.InlineClosureExpression:                    
                 //case SyntaxKind.MethodDeclaration:                
-                case SyntaxKind.FunctionDeclaration:
-                    if (meaning & SymbolFlags.Variable && name === "arguments") {
+                case SyntaxKind.FunctionDeclaration:                        
+                    // resolve any $n variable to the arguments symbol                
+                    // this isn't correct - but is good enough for now
+                    if (meaning & SymbolFlags.Variable && /^\$\d+$/.test(name)) {
                         result = argumentsSymbol;
                         break loop;
                     }

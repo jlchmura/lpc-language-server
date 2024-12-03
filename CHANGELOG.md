@@ -8,6 +8,7 @@
 -   Fix: Mapping elements were not getting type checked
 -   Fix: Error when call expression had incorrect arity but signature has a rest parameter.
 -   Fix: Inline closure body was not being consistently checked
+-   Fix: Inline closure arguments were not resolved
 -   Various efun definition tweaks
 
 ## 1.1.5
