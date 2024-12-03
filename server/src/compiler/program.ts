@@ -1395,6 +1395,11 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         result.set("FP_OWNER_DESTED",   "0x20");
         result.set("FP_NOT_BINDABLE",   "0x40");
 
+        result.set("EESUCCESS",         "0");
+        result.set("EEWOULDBLOCK",      "1");
+        result.set("EECALLBACK",        "2");
+        result.set("EEALREADY",         "3");        
+
         for (const key in options.configDefines || emptyMap) {
             result.set(key, options.configDefines[key]);
         }

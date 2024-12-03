@@ -59,6 +59,7 @@ varargs object this_user(int flag);
  * different default flags.
  *
  * @param {int} flag - if non-zero, return the interactive player object. Defaults to 0
+ * @returns {__LPC_CONFIG_LIBFILES_PLAYER} - the player object
  */
 varargs object this_player( int flag );
 
@@ -518,7 +519,7 @@ int in_input( object ob );
  *
  * @param {object} ob - the object to check, defaults to F_THIS_OBJECT
  */
-string in_edit( object ob );
+varargs string in_edit( object ob );
 
 /**
  * has_zmp
@@ -584,7 +585,7 @@ varargs void get_char( string | function fun, int flag... );
  *
  * Similar  to  find_living(),  but only searches through objects that are
  * interactive, or were once interactive.
- *
+ * @returns {__LPC_CONFIG_LIBFILES_PLAYER} - the player object
  */
 object find_player( string str );
 

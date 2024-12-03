@@ -106,7 +106,7 @@ void reload_object( object ob );
  * If no object is supplied, this efun will default to this_object().
  *
  */
-int query_heart_beat( object );
+varargs int query_heart_beat( object );
 
 /**
  * present() - find an object by id
@@ -156,7 +156,7 @@ object *objects( void | string | function func );
 /**
  * objectp() - determine whether or not a given variable is an object
  *
- * @returns 1 if 'arg' is an object.
+ * @returns {arg is object} 1 if 'arg' is an object.
  *
  */
 int objectp( mixed arg );

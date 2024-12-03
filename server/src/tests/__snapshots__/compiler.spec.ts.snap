@@ -271,6 +271,13 @@ Found 1 error in server/src/tests/cases/compiler/preproc_conditional_macro.c[90
 "
 `;
 
+exports[`Compiler compiler/string1.c Reports correct errors for compiler/string1.c: diags-compiler/string1.c 1`] = `
+"
+Found 6 errors in the same file, starting at: server/src/tests/cases/compiler/string1.c[90m:4[0m
+
+"
+`;
+
 exports[`Compiler compiler/struct1.c Reports correct errors for compiler/struct1.c: diags-compiler/struct1.c 1`] = `""`;
 
 exports[`Compiler compiler/struct2.c Reports correct errors for compiler/struct2.c: diags-compiler/struct2.c 1`] = `""`;
