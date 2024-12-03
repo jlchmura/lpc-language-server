@@ -3930,11 +3930,18 @@ export namespace LpcParser {
         
         const pos = getPositionState();
         let expr = parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true);
+
+        if (token() == SyntaxKind.EqualsToken) {
+            // this syntax is allow in LPC but is ambiguous -- it should be parenethesized for better readability
+            // TODO: offer a codefix?
+            expr = finishNode(factoryCreateParenthesizedExpression(parseBinaryExpressionRest(OperatorPrecedence.Equality, expr, pos)), pos);            
+        }
+        
         let operatorToken: BinaryOperatorToken;
         while ((operatorToken = parseOptionalToken(SyntaxKind.CommaToken))) {
             expr = makeBinaryExpression(expr, operatorToken, parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true), pos);
         }
-       
+               
         return expr;
     }
 
@@ -3984,17 +3991,17 @@ export namespace LpcParser {
         // Note: for ease of implementation we treat productions '2' and '3' as the same thing.
         // (i.e. they're both BinaryExpressions with an assignment operator in it).        
 
-        // // Then, check if we have an arrow function (production '4' and '5') that starts with a parenthesized
-        // // parameter list or is an async arrow function.
-        // // AsyncArrowFunctionExpression:
-        // //      1) async[no LineTerminator here]AsyncArrowBindingIdentifier[?Yield][no LineTerminator here]=>AsyncConciseBody[?In]
-        // //      2) CoverCallExpressionAndAsyncArrowHead[?Yield, ?Await][no LineTerminator here]=>AsyncConciseBody[?In]
-        // // Production (1) of AsyncArrowFunctionExpression is parsed in "tryParseAsyncSimpleArrowFunctionExpression".
-        // // And production (2) is parsed in "tryParseParenthesizedArrowFunctionExpression".
-        // //
-        // // If we do successfully parse arrow-function, we must *not* recurse for productions 1, 2 or 3. An ArrowFunction is
-        // // not a LeftHandSideExpression, nor does it start a ConditionalExpression.  So we are done
-        // // with AssignmentExpression if we see one.
+        // Then, check if we have an arrow function (production '4' and '5') that starts with a parenthesized
+        // parameter list or is an async arrow function.
+        // AsyncArrowFunctionExpression:
+        //      1) async[no LineTerminator here]AsyncArrowBindingIdentifier[?Yield][no LineTerminator here]=>AsyncConciseBody[?In]
+        //      2) CoverCallExpressionAndAsyncArrowHead[?Yield, ?Await][no LineTerminator here]=>AsyncConciseBody[?In]
+        // Production (1) of AsyncArrowFunctionExpression is parsed in "tryParseAsyncSimpleArrowFunctionExpression".
+        // And production (2) is parsed in "tryParseParenthesizedArrowFunctionExpression".
+        //
+        // If we do successfully parse arrow-function, we must *not* recurse for productions 1, 2 or 3. An ArrowFunction is
+        // not a LeftHandSideExpression, nor does it start a ConditionalExpression.  So we are done
+        // with AssignmentExpression if we see one.
         // const arrowExpression = tryParseParenthesizedArrowFunctionExpression(allowReturnTypeInArrowFunction) || tryParseAsyncSimpleArrowFunctionExpression(allowReturnTypeInArrowFunction);
         // if (arrowExpression) {
         //     return arrowExpression;
@@ -4019,7 +4026,7 @@ export namespace LpcParser {
         // if (expr.kind === SyntaxKind.Identifier && token() === SyntaxKind.EqualsGreaterThanToken) {
         //     return parseSimpleArrowFunctionExpression(pos, expr as Identifier, allowReturnTypeInArrowFunction, hasJSDoc, /*asyncModifier*/ undefined);
         // }
-
+    
         // Now see if we might be in cases '2' or '3'.
         // If the expression was a LHS expression, and we have an assignment operator, then
         // we're in '2' or '3'. Consume the assignment and return.
@@ -4311,8 +4318,8 @@ export namespace LpcParser {
     }    
     
     function parsePrefixUnaryExpression() {
-        const pos = getPositionState();
-        return finishNode(factory.createPrefixUnaryExpression(token() as PrefixUnaryOperator, nextTokenAnd(parseSimpleUnaryExpression)), pos);
+        const pos = getPositionState();        
+        return finishNode(factory.createPrefixUnaryExpression(token() as PrefixUnaryOperator, nextTokenAnd(parseExpression)), pos);
     }
     
     /**
@@ -4588,13 +4595,6 @@ export namespace LpcParser {
 
             if (token() == SyntaxKind.ColonColonToken) {
                 expression = parseSuperExpression(pos, expression)
-            }
-
-            if (token() == SyntaxKind.EqualsToken) {
-                // this syntax is allow in LPC but is ambiguous -- it should be parenethesized for better readability
-                // TODO: offer a codefix?
-                expression = finishNode(factoryCreateParenthesizedExpression(parseBinaryExpressionRest(OperatorPrecedence.Equality, expression, pos)), pos);
-                continue;
             }
 
             if (token() == SyntaxKind.DotToken || token() == SyntaxKind.MinusGreaterThanToken) {
