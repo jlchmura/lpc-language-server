@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.7
+
+-   Fix: [v2 parse function ref in inline closure #72](https://github.com/jlchmura/lpc-language-server/issues/72)
+
 ## 1.1.6
 
 -   Fix: Binary expression should allow bytes/buffer types

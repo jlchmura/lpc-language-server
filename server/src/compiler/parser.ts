@@ -2759,6 +2759,7 @@ export namespace LpcParser {
             case SyntaxKind.OpenBraceToken:
             case SyntaxKind.OpenParenBraceToken:
             case SyntaxKind.OpenParenBracketToken:                
+            case SyntaxKind.OpenParenAsteriskToken:
             case SyntaxKind.FunctionKeyword:
             case SyntaxKind.ClassKeyword:
             case SyntaxKind.NewKeyword:
@@ -4202,10 +4203,10 @@ export namespace LpcParser {
             case SyntaxKind.PlusToken:
             case SyntaxKind.MinusToken:
             case SyntaxKind.TildeToken:
-            case SyntaxKind.ExclamationToken:
-                return parsePrefixUnaryExpression();   
+            case SyntaxKind.ExclamationToken:            
+                return parsePrefixUnaryExpression();                   
             // case SyntaxKind.VoidKeyword:
-            //     return parseVoidExpression();                                 
+            //     return parseVoidExpression();                  
             case SyntaxKind.OpenParenToken:
             case SyntaxKind.OpenParenBraceToken:                
                 // try parsing this as a type assertion. 
@@ -4215,7 +4216,7 @@ export namespace LpcParser {
                 if (assertExpr) {
                     return assertExpr;
                 }                
-                // fall through
+                // fall through            
             default:
                 return parseUpdateExpression();
         }
