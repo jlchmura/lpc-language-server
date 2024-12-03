@@ -1532,7 +1532,8 @@ export function createScanner(
                 continue;
             }
 
-            if ((ch === CharacterCodes.lineFeed || ch === CharacterCodes.carriageReturn) && !jsxAttributeString) {
+            // FluffOS allows newlines in string literals - weird!
+            if (languageVariant !== LanguageVariant.FluffOS && (ch === CharacterCodes.lineFeed || ch === CharacterCodes.carriageReturn) && !jsxAttributeString) {
                 result += text.substring(start, pos);
                 tokenFlags |= TokenFlags.Unterminated;
                 error(Diagnostics.Unterminated_string_literal);

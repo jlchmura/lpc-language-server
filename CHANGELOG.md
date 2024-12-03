@@ -4,6 +4,9 @@
 
 -   Fix: Binary expression should allow bytes/buffer types
 -   Fix: [Assignment with conditional expression reports type error #73](https://github.com/jlchmura/lpc-language-server/issues/73)
+-   Fix: [String literals should allow newlines in FluffOS #85](https://github.com/jlchmura/lpc-language-server/issues/85)
+-   Fix: Mapping elements were not getting type checked
+-   Various efun definition tweaks
 
 ## 1.1.5
 
