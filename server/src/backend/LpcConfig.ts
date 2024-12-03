@@ -94,7 +94,7 @@ export class LpcConfig implements ILpcConfig {
     };
 
     public diagnostics: DiagnosticsInfo = defaultDiagnostics;
-    public allDiagnosticsOff: boolean = false;
+    public allDiagnosticsOff: boolean = true;
 
     public files: FilesInfo = {
         simul_efun: "/obj/simul_efun.c",
@@ -174,19 +174,18 @@ export function loadLpcConfig(filename: string): LpcConfig {
                 config.files?.init_files,
         };
 
-        config.mudlibDir = rawConfig.mudlibDir ?? "." + path.sep;
+        if (rawConfig.mudlibDir && typeof rawConfig.mudlibDir === "string") {
+            config.mudlibDir = rawConfig.mudlibDir ?? "." + path.sep;
+        }
         config.exclude = (rawConfig.exclude as string[]) ?? config.exclude;
         config.include =
             (rawConfig.libInclude as string[]) ??
             (rawConfig.include as string[]) ??
             config.include;
         config.driver = { ...config.driver, ...rawConfig.driver };
-        config.diagnostics = {
-            ...config.diagnostics,
-            ...rawConfig.diagnostics,
-        };
-        if (rawConfig.diagnostics === "off" || !rawConfig.diagnostics) {
-            config.allDiagnosticsOff = true;
+        config.allDiagnosticsOff = true;
+        if (rawConfig.diagnostics === "on") {
+            config.allDiagnosticsOff = false;
         }
 
         globalConfig = config;

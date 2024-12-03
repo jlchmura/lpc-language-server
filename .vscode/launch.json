@@ -14,12 +14,12 @@
                 //"${workspaceRoot}/../dbjh2024",
                 // "${workspaceRoot}/../nightmare-residuum",
                 // "${workspaceRoot}/../nightmare3",
+                "${workspaceRoot}/../glpu",
                 //"${workspaceRoot}/../infinity-lib",
                 //"${workspaceRoot}/../fluff-test",
                 //"${workspaceRoot}/efuns/ldmud",
-                "${workspaceRoot}/../temp/testlpc",
-                "${workspaceRoot}/../temp/testlpc/body.c"
-                "--extensionDevelopmentPath=${workspaceRoot}"                
+                // "${workspaceRoot}/../temp/testlpc/body.c",
+                "--extensionDevelopmentPath=${workspaceRoot}"
             ],
             "autoAttachChildProcesses": true,
             "sourceMaps": true,
