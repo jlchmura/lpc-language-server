@@ -18,6 +18,7 @@ import {
     CaseBlock,
     CaseClause,
     CaseOrDefaultClause,
+    cast,
     CastExpression,
     CatchExpression,
     CatchStatement,
@@ -77,6 +78,7 @@ import {
     isPropertyName,
     isSourceFile,
     isTypeNode,
+    isUnaryExpression,
     JSDoc,
     JSDocAugmentsTag,
     JSDocAuthorTag,
@@ -1743,11 +1745,11 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.operator = operator;
 
         // force parenthesization of non-unary expressssion operands
-        if (operand.kind !== SyntaxKind.PrefixUnaryExpression) {
+        if (!isUnaryExpression(operand)) {
             operand = setTextRange(factory.createParenthesizedExpression(operand), operand)
         }
 
-        node.operand = parenthesizerRules().parenthesizeOperandOfPrefixUnary(operand);
+        node.operand = cast(operand, isUnaryExpression);//parenthesizerRules().parenthesizeOperandOfPrefixUnary(operand);
         //node.transformFlags |= propagateChildFlags(node.operand);
         // Only set this flag for non-generated identifiers and non-"local" names. See the
         // comment in `visitPreOrPostfixUnaryExpression` in module.ts

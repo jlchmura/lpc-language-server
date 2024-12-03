@@ -6699,7 +6699,7 @@ export function createMasterApplyGetIncludePathVm(masterFile: SourceFile) {
     }
 
     // convert fn to javascript code
-    const jsSource = emitNodeAsJsText(getIncludePathFn, masterFile) + "\nreturn get_include_path(ctxInput);";        
+    const jsSource = emitNodeAsJsText(getIncludePathFn, masterFile) + "\nreturn get_include_path(ctxInput);";            
     // compile into vm
     const masterCtx = vm.createContext(createVmHelperContext(), { name: "masterApply_GetIncludePath" });        
     const compileOptions = { parsingContext: masterCtx, filename: masterFile.fileName + ".js.vm" };
