@@ -1205,7 +1205,7 @@ export const enum NodeFlags {
     YieldContext       = 1 << 14, // If node was parsed in the 'yield' context created when parsing a generator
     DisallowTypes      = 1 << 15, // If node was parsed in a context where types are not allowed
     AwaitContext       = 1 << 16, // If node was parsed in the 'await' context created when parsing an async function
-    DisallowConditionalTypesContext = 1 << 17, // If node was parsed in a context where conditional types are not allowed
+    DisallowCommaContext = 1 << 17, // If node was parsed in a context where comma expr are not allow
     ThisNodeHasError   = 1 << 18, // If the parser encountered an error when parsing the code that created this node
     JavaScriptFile     = 1 << 19, // If node was parsed in a JavaScript
     ThisNodeOrAnySubNodesHasError = 1 << 20, // If this node or any of its children had an error
@@ -1221,7 +1221,7 @@ export const enum NodeFlags {
     ReachabilityAndEmitFlags = ReachabilityCheckFlags,
 
     // Parsing context flags
-    ContextFlags = DisallowInContext | DisallowConditionalTypesContext | YieldContext | DisallowTypes | AwaitContext | JavaScriptFile | Ambient,
+    ContextFlags = DisallowInContext | DisallowCommaContext | YieldContext | DisallowTypes | AwaitContext | JavaScriptFile | Ambient,
 
     // parse set flags
     BlockScoped = Variable,

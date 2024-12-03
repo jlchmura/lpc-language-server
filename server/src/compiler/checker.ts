@@ -2231,10 +2231,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function checkMappingEntry(node: MappingEntryExpression, checkMode: CheckMode | undefined, forceTuple: boolean | undefined): Type {
-        if (node.name) checkSourceElement(node.name);
-        forEach(node.elements || emptyArray, checkSourceElement);
-        // TODO
-        return anyType;
+        if (node.name) checkExpression(node.name);       
+         
+        const elTypes = map(node.elements || emptyArray, checkExpression);
+        // TODO - this should return a tuple type, not anyArray - but that wasn't working with check mapping literal code
+        return elTypes.length === 1 ? elTypes[0] : anyArrayType;
     }
 
     function checkMappingLiteral(node: MappingLiteralExpression, checkMode: CheckMode | undefined, forceTuple: boolean | undefined): Type {

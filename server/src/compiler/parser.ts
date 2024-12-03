@@ -2496,6 +2496,10 @@ export namespace LpcParser {
         return doInsideOfContext(NodeFlags.DisallowInContext, func);
     }
 
+    function disallowComma<T>(func: () => T): T {
+        return doInsideOfContext(NodeFlags.DisallowCommaContext, func);
+    }
+
     function disallowTypes<T>(func: () => T): T {
         return doInsideOfContext(NodeFlags.DisallowTypes, func);
     }
@@ -3937,8 +3941,9 @@ export namespace LpcParser {
             expr = finishNode(factoryCreateParenthesizedExpression(parseBinaryExpressionRest(OperatorPrecedence.Equality, expr, pos)), pos);            
         }
         
+        
         let operatorToken: BinaryOperatorToken;
-        while ((operatorToken = parseOptionalToken(SyntaxKind.CommaToken))) {
+        while (!inContext(NodeFlags.DisallowCommaContext) && (operatorToken = parseOptionalToken(SyntaxKind.CommaToken))) {
             expr = makeBinaryExpression(expr, operatorToken, parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true), pos);
         }
                
@@ -4318,8 +4323,8 @@ export namespace LpcParser {
     }    
     
     function parsePrefixUnaryExpression() {
-        const pos = getPositionState();        
-        return finishNode(factory.createPrefixUnaryExpression(token() as PrefixUnaryOperator, nextTokenAnd(parseExpression)), pos);
+        const pos = getPositionState();                                
+        return finishNode(factory.createPrefixUnaryExpression(token() as PrefixUnaryOperator, nextTokenAnd(()=>disallowComma(parseExpression))), pos);
     }
     
     /**

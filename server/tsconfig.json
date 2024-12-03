@@ -11,7 +11,7 @@
         "skipLibCheck": true,
         "declaration": true,
         "declarationMap": true,
-        "composite": true,
+        "composite": false,
         "strictBindCallApply": false,
         "noImplicitOverride": false,
         "declarationDir": "out",

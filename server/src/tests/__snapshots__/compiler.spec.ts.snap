@@ -205,6 +205,21 @@ exports[`Compiler compiler/macro1.c Reports correct errors for compiler/macro1.c
 
 exports[`Compiler compiler/macro2.c Reports correct errors for compiler/macro2.c: diags-compiler/macro2.c 1`] = `""`;
 
+exports[`Compiler compiler/mapping1.c Reports correct errors for compiler/mapping1.c: diags-compiler/mapping1.c 1`] = `""`;
+
+exports[`Compiler compiler/mapping2.c Reports correct errors for compiler/mapping2.c: diags-compiler/mapping2.c 1`] = `""`;
+
+exports[`Compiler compiler/mapping3.c Reports correct errors for compiler/mapping3.c: diags-compiler/mapping3.c 1`] = `""`;
+
+exports[`Compiler compiler/mapping4.c Reports correct errors for compiler/mapping4.c: diags-compiler/mapping4.c 1`] = `""`;
+
+exports[`Compiler compiler/mapping5.c Reports correct errors for compiler/mapping5.c: diags-compiler/mapping5.c 1`] = `
+"
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/mapping5.c[90m:5[0m
+
+"
+`;
+
 exports[`Compiler compiler/missingFunc.c Reports correct errors for compiler/missingFunc.c: diags-compiler/missingFunc.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/missingFunc.c[90m:3[0m
