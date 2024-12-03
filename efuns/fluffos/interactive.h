@@ -498,7 +498,7 @@ tion
  * be passed on to 'fun' as arguments following the user input.
  *
  */
-varargs void input_to(string | function fun, int flag, mixed args... );
+varargs void input_to(string | function fun, mixed flag, mixed args... );
 
 /**
  * in_input() - determines if a player is inputting to an input_to
