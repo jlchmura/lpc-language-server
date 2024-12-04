@@ -840,6 +840,7 @@ export const enum SyntaxKind {
     PropertyDeclaration,
     PropertySignature,
     MethodDeclaration,
+    InterfaceDeclaration,
     MethodSignature,
 
 
@@ -848,6 +849,7 @@ export const enum SyntaxKind {
     FunctionType,
     IntersectionType,
     ArrayType,
+    TupleType,
     TypeLiteral,
     ParenthesizedType,
     TypeReference,
@@ -1409,6 +1411,7 @@ export type TokenSyntaxKind =
 
 export type TypeNodeSyntaxKind =
     | KeywordTypeSyntaxKind
+    | SyntaxKind.TupleType
     | SyntaxKind.InferType
     | SyntaxKind.UnionType
     | SyntaxKind.NamedTupleMember
@@ -7347,7 +7350,21 @@ export interface IdentifierTypePredicate extends TypePredicateBase {
     type: Type;
 }
 
-export type TypePredicate = IdentifierTypePredicate;//ThisTypePredicate | IdentifierTypePredicate | AssertsThisTypePredicate | AssertsIdentifierTypePredicate;
+export interface AssertsThisTypePredicate extends TypePredicateBase {
+    kind: TypePredicateKind.AssertsThis;
+    parameterName: undefined;
+    parameterIndex: undefined;
+    type: Type | undefined;
+}
+
+export interface AssertsIdentifierTypePredicate extends TypePredicateBase {
+    kind: TypePredicateKind.AssertsIdentifier;
+    parameterName: string;
+    parameterIndex: number;
+    type: Type | undefined;
+}
+
+export type TypePredicate = IdentifierTypePredicate | AssertsThisTypePredicate | AssertsIdentifierTypePredicate;
 
 export interface ExpressionWithTypeArguments extends MemberExpression, NodeWithTypeArguments {
     readonly kind: SyntaxKind.ExpressionWithTypeArguments;
@@ -7670,3 +7687,40 @@ export type DeclarationWithTypeParameters =
     | JSDocTypedefTag
     | JSDocCallbackTag
     | JSDocSignature;
+
+    
+export interface ConditionalRoot {
+    node: ConditionalTypeNode;
+    checkType: Type;
+    extendsType: Type;
+    isDistributive: boolean;
+    inferTypeParameters?: TypeParameter[];
+    outerTypeParameters?: TypeParameter[];
+    instantiations?: Map<string, Type>;
+    aliasSymbol?: Symbol;
+    aliasTypeArguments?: Type[];
+}
+    
+// T extends U ? X : Y (TypeFlags.Conditional)
+export interface ConditionalType extends InstantiableType {
+    root: ConditionalRoot;
+    checkType: Type;
+    extendsType: Type;
+    resolvedTrueType?: Type;
+    resolvedFalseType?: Type;
+    /** @internal */
+    resolvedInferredTrueType?: Type; // The `trueType` instantiated with the `combinedMapper`, if present
+    /** @internal */
+    resolvedDefaultConstraint?: Type;
+    /** @internal */
+    resolvedConstraintOfDistributive?: Type | false;
+    /** @internal */
+    mapper?: TypeMapper;
+    /** @internal */
+    combinedMapper?: TypeMapper;
+}
+
+export interface TupleTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.TupleType;
+    readonly elements: NodeArray<TypeNode | NamedTupleMember>;
+}

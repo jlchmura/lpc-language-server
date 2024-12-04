@@ -480,4 +480,8 @@ export const Diagnostics = {
     Required_type_parameters_may_not_follow_optional_type_parameters: diag(2706, DiagnosticCategory.Error, "Required_type_parameters_may_not_follow_optional_type_parameters_2706", "Required type parameters may not follow optional type parameters."),
     Type_parameter_defaults_can_only_reference_previously_declared_type_parameters: diag(2744, DiagnosticCategory.Error, "Type_parameter_defaults_can_only_reference_previously_declared_type_parameters_2744", "Type parameter defaults can only reference previously declared type parameters."),
     Type_0_does_not_satisfy_the_constraint_1: diag(2344, DiagnosticCategory.Error, "Type_0_does_not_satisfy_the_constraint_1_2344", "Type '{0}' does not satisfy the constraint '{1}'."),
+    Property_0_of_type_1_is_not_assignable_to_2_index_type_3: diag(2411, DiagnosticCategory.Error, "Property_0_of_type_1_is_not_assignable_to_2_index_type_3_2411", "Property '{0}' of type '{1}' is not assignable to '{2}' index type '{3}'."),
+    _0_index_type_1_is_not_assignable_to_2_index_type_3: diag(2413, DiagnosticCategory.Error, "_0_index_type_1_is_not_assignable_to_2_index_type_3_2413", "'{0}' index type '{1}' is not assignable to '{2}' index type '{3}'."),
+    Type_parameter_0_has_a_circular_constraint: diag(2313, DiagnosticCategory.Error, "Type_parameter_0_has_a_circular_constraint_2313", "Type parameter '{0}' has a circular constraint."),
+    Circularity_originates_in_type_at_this_location: diag(2751, DiagnosticCategory.Error, "Circularity_originates_in_type_at_this_location_2751", "Circularity originates in type at this location."),
 }
