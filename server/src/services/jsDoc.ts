@@ -291,6 +291,7 @@ function getDisplayPartsFromComment(comment: string | readonly JSDocComment[], c
 function getCommentDisplayParts(tag: JSDocTag, checker?: TypeChecker): SymbolDisplayPart[] | undefined {
     const { comment, kind } = tag;
     const namePart = getTagNameDisplayPart(kind);
+    const displayParts: SymbolDisplayPart[] = [];
     switch (kind) {
         case SyntaxKind.JSDocThrowsTag:
             const typeExpression = (tag as JSDocThrowsTag).typeExpression;
@@ -301,8 +302,7 @@ function getCommentDisplayParts(tag: JSDocTag, checker?: TypeChecker): SymbolDis
         case SyntaxKind.JSDocAugmentsTag:
             return withNode((tag as JSDocAugmentsTag).class);
         case SyntaxKind.JSDocTemplateTag:
-            const templateTag = tag as JSDocTemplateTag;
-            const displayParts: SymbolDisplayPart[] = [];
+            const templateTag = tag as JSDocTemplateTag;            
             if (templateTag.constraint) {
                 displayParts.push(textPart(templateTag.constraint.getText()));
             }
@@ -330,10 +330,21 @@ function getCommentDisplayParts(tag: JSDocTag, checker?: TypeChecker): SymbolDis
         case SyntaxKind.JSDocPropertyTag:
         case SyntaxKind.JSDocParameterTag:
         case SyntaxKind.JSDocSeeTag:
-            const { name } = tag as JSDocTypedefTag | JSDocCallbackTag | JSDocPropertyTag | JSDocParameterTag | JSDocSeeTag;
-            return name ? withNode(name)
-                : comment === undefined ? undefined
-                : getDisplayPartsFromComment(comment, checker);
+            // if (isJSDocPropertyLikeTag(tag)) {
+            //     const { typeExpression } = tag;
+            //     if (typeExpression) {
+            //         displayParts.push(spacePart());
+            //         displayParts.push(...withNode(typeExpression));
+            //     }
+            // }
+            const { name } = tag as JSDocTypedefTag | JSDocCallbackTag | JSDocPropertyTag | JSDocParameterTag | JSDocSeeTag;            
+            if (name) {
+                displayParts.push(...withNode(name));
+            } else if (comment) {
+                displayParts.push(...getDisplayPartsFromComment(comment, checker));
+            }
+            
+            return displayParts;
         default:
             return comment === undefined ? undefined : getDisplayPartsFromComment(comment, checker);
     }

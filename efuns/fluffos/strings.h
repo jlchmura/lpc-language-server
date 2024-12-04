@@ -361,6 +361,7 @@ string replace_string( str, pattern, replace, first, last );
  *
  */
 string *regexp( string *lines, string pattern, void | int flag );
+int regexp(string str, string pattern, void | int flag );
 
 /**
  * reg_assoc() - A regular pattern substring extractor
