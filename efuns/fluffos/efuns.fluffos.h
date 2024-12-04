@@ -8,6 +8,11 @@
  */
 
 /** Used by the type checker for various non-primitive types */
+
+/** 
+ * @type {T[]} 
+ * @template T
+ */
 object __LS__Array = 0;
 object __LS__Mapping = 0;
 object __LS__Object = 0;

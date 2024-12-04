@@ -1,4 +1,4 @@
-import { append, Debug, EmitFlags, EmitHelper, EmitNode, getParseTreeNode, getSourceFileOfNode, Identifier, InternalEmitFlags, isParseTreeNode, Node, NodeArray, SnippetElement, SourceFile, SyntaxKind, SynthesizedComment, TextRange, TypeNode, TypeParameterDeclaration } from "../_namespaces/lpc";
+import { append, AutoGenerateInfo, Debug, EmitFlags, EmitHelper, EmitNode, getParseTreeNode, getSourceFileOfNode, Identifier, InternalEmitFlags, isParseTreeNode, Node, NodeArray, SnippetElement, SourceFile, SyntaxKind, SynthesizedComment, TextRange, TypeNode, TypeParameterDeclaration } from "../_namespaces/lpc";
 
 
 /**
@@ -137,4 +137,10 @@ export function getSnippetElement(node: Node): SnippetElement | undefined {
  */
 export function getEmitHelpers(node: Node): EmitHelper[] | undefined {
     return node.emitNode?.helpers;
+}
+
+/** @internal */
+export function setIdentifierAutoGenerate<T extends Identifier >(node: T, autoGenerate: AutoGenerateInfo | undefined) {
+    getOrCreateEmitNode(node).autoGenerate = autoGenerate;
+    return node;
 }

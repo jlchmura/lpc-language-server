@@ -1979,3 +1979,55 @@ export function extend<T1, T2>(first: T1, second: T2): T1 & T2 {
 export function* singleIterator<T>(value: T) {
     yield value;
 }
+
+/** @internal */
+export function firstOrUndefinedIterator<T>(iter: Iterable<T> | undefined): T | undefined {
+    if (iter) {
+        for (const value of iter) {
+            return value;
+        }
+    }
+    return undefined;
+}
+
+/** @internal */
+export function arrayOf<T>(count: number, f: (index: number) => T): T[] {
+    const result = new Array(count);
+    for (let i = 0; i < count; i++) {
+        result[i] = f(i);
+    }
+    return result;
+}
+
+/** @internal */
+export function cartesianProduct<T>(arrays: readonly T[][]) {
+    const result: T[][] = [];
+    cartesianProductWorker(arrays, result, /*outer*/ undefined, 0);
+    return result;
+}
+
+function cartesianProductWorker<T>(arrays: readonly (readonly T[])[], result: (readonly T[])[], outer: readonly T[] | undefined, index: number) {
+    for (const element of arrays[index]) {
+        let inner: T[];
+        if (outer) {
+            inner = outer.slice();
+            inner.push(element);
+        }
+        else {
+            inner = [element];
+        }
+        if (index === arrays.length - 1) {
+            result.push(inner);
+        }
+        else {
+            cartesianProductWorker(arrays, result, inner, index + 1);
+        }
+    }
+}
+
+/** @internal */
+export function replaceElement<T>(array: readonly T[], index: number, value: T): T[] {
+    const result = array.slice(0);
+    result[index] = value;
+    return result;
+}

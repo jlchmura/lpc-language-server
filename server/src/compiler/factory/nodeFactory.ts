@@ -38,6 +38,7 @@ import {
     DotDotDotToken,
     DoWhileStatement,
     ElementAccessExpression,
+    EmitFlags,
     EmitNode,
     emptyArray,
     EmptyStatement,
@@ -53,17 +54,26 @@ import {
     FloatLiteral,    
     ForEachStatement,
     ForInitializer,
+    formatGeneratedName,
     ForStatement,
     FunctionDeclaration,
     FunctionExpression,
     FunctionTypeNode,
+    GeneratedIdentifier,
+    GeneratedIdentifierFlags,
+    GeneratedNamePart,
+    getEmitFlags,
     getIdentifierTypeArguments,
     getJSDocTypeAliasName,
+    getNameOfDeclaration,
+    getNodeId,
+    getNonAssignedNameOfDeclaration,
     getTextOfIdentifierOrLiteral,
     hasProperty,
     HeritageClause,
     Identifier,
     identity,
+    idText,
     IfStatement,
     IncludeDirective,
     IndexSignatureDeclaration,
@@ -71,7 +81,9 @@ import {
     InheritDeclaration,
     InlineClosureExpression,
     IntLiteral,
+    isGeneratedIdentifier,
     isIdentifier,    
+    isMemberName,    
     isNamedDeclaration,
     isNodeArray,
     isNodeKind,
@@ -174,7 +186,10 @@ import {
     RangeExpression,
     RefToken,
     ReturnStatement,
+    setEmitFlags,
+    setIdentifierAutoGenerate,
     setIdentifierTypeArguments,    
+    setParent,    
     setTextRange,    
     SourceFile,
     SpreadElement,
@@ -211,6 +226,8 @@ import {
     WhileStatement,
 } from "../_namespaces/lpc.js";
 import { nullNodeConverters } from "./nodeConverters.js";
+
+let nextAutoGenerateId = 0;
 
 /** @internal */
 export const enum NodeFactoryFlags {
@@ -258,6 +275,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         get converters() {
             return converters();
         },
+
+        getDeclarationName,
         
         createToken,
         createSourceFile,
@@ -542,6 +561,56 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         const node = createBaseNode(kind);
         node.symbol = undefined!; // initialized by binder
         return node;
+    }
+
+    function getName(node: Declaration | undefined, allowComments?: boolean, allowSourceMaps?: boolean, emitFlags: EmitFlags = 0, ignoreAssignedName?: boolean) {
+        const nodeName = ignoreAssignedName ? node && getNonAssignedNameOfDeclaration(node) : getNameOfDeclaration(node);
+        if (nodeName && isIdentifier(nodeName) && !isGeneratedIdentifier(nodeName)) {
+            // TODO(rbuckton): Does this need to be parented?
+            const name = setParent(setTextRange(cloneNode(nodeName), nodeName), nodeName.parent);
+            emitFlags |= getEmitFlags(nodeName);
+            if (!allowSourceMaps) emitFlags |= EmitFlags.NoSourceMap;
+            if (!allowComments) emitFlags |= EmitFlags.NoComments;
+            if (emitFlags) setEmitFlags(name, emitFlags);
+            return name;
+        }
+        return getGeneratedNameForNode(node);
+    }
+    
+    /** Create a unique name generated for a node. */
+    // @api
+    function getGeneratedNameForNode(node: Node | undefined, flags: GeneratedIdentifierFlags = 0, prefix?: string | GeneratedNamePart, suffix?: string): Identifier {
+        Debug.assert(!(flags & GeneratedIdentifierFlags.KindMask), "Argument out of range: flags");
+        const text = !node ? "" :
+            isMemberName(node) ? formatGeneratedName(/*privateName*/ false, prefix, node, suffix, idText) :
+            `generated@${getNodeId(node)}`;
+        if (prefix || suffix) flags |= GeneratedIdentifierFlags.Optimistic;
+        const name = createBaseGeneratedIdentifier(text, GeneratedIdentifierFlags.Node | flags, prefix, suffix);
+        name.original = node;
+        return name;
+    }
+
+    function createBaseGeneratedIdentifier(text: string, autoGenerateFlags: GeneratedIdentifierFlags, prefix: string | GeneratedNamePart | undefined, suffix: string | undefined) {
+        const node = createBaseIdentifier((text)) as Mutable<GeneratedIdentifier>;
+        setIdentifierAutoGenerate(node, {
+            flags: autoGenerateFlags,
+            id: nextAutoGenerateId,
+            prefix,
+            suffix,
+        });
+        nextAutoGenerateId++;
+        return node;
+    }
+    
+    /**
+     * Gets the name of a declaration for use in declarations.
+     *
+     * @param node The declaration.
+     * @param allowComments A value indicating whether comments may be emitted for the name.
+     * @param allowSourceMaps A value indicating whether source maps may be emitted for the name.
+     */
+    function getDeclarationName(node: Declaration | undefined, allowComments?: boolean, allowSourceMaps?: boolean) {
+        return getName(node, allowComments, allowSourceMaps);
     }
 
     // @api
