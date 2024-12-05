@@ -3722,9 +3722,8 @@ export interface FunctionDeclaration extends FunctionLikeDeclarationBase, Declar
 
 export interface CallExpression extends LeftHandSideExpression, Declaration {
     readonly kind: SyntaxKind.CallExpression;
-    readonly expression: LeftHandSideExpression;
-    ///** @deprecated LPC doesn't use type args on call expressions */
-    //readonly typeArguments?: NodeArray<TypeNode>;
+    readonly expression: LeftHandSideExpression;    
+    readonly typeArguments?: NodeArray<TypeNode>;
     readonly arguments: NodeArray<Expression>;
 }
 
@@ -3874,6 +3873,10 @@ export interface SuperAccessExpression extends MemberExpression, NamedDeclaratio
     readonly namespace: Identifier | StringLiteral;
     readonly name: MemberName;
     // readonly propertyAccessToken: PropertyAccessToken
+}
+
+export interface SuperCall extends CallExpression {
+    readonly expression: SuperAccessExpression;
 }
 
 /** @internal */
@@ -6061,7 +6064,7 @@ export interface TypeReference extends ObjectType {
     cachedEquivalentBaseType?: Type; // Only set on references to class or interfaces with a single base type and no augmentations
 }
 
-export type TypeReferenceType = TypeReferenceNode | StructTypeNode;
+export type TypeReferenceType = TypeReferenceNode | StructTypeNode | ExpressionWithTypeArguments;
 
 export interface FunctionOrConstructorTypeNodeBase extends TypeNode, SignatureDeclarationBase {
     readonly kind: SyntaxKind.FunctionType;

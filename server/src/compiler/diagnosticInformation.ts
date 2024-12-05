@@ -484,4 +484,5 @@ export const Diagnostics = {
     _0_index_type_1_is_not_assignable_to_2_index_type_3: diag(2413, DiagnosticCategory.Error, "_0_index_type_1_is_not_assignable_to_2_index_type_3_2413", "'{0}' index type '{1}' is not assignable to '{2}' index type '{3}'."),
     Type_parameter_0_has_a_circular_constraint: diag(2313, DiagnosticCategory.Error, "Type_parameter_0_has_a_circular_constraint_2313", "Type parameter '{0}' has a circular constraint."),
     Circularity_originates_in_type_at_this_location: diag(2751, DiagnosticCategory.Error, "Circularity_originates_in_type_at_this_location_2751", "Circularity originates in type at this location."),
+    Private_or_protected_member_0_cannot_be_accessed_on_a_type_parameter: diag(4105, DiagnosticCategory.Error, "Private_or_protected_member_0_cannot_be_accessed_on_a_type_parameter_4105", "Private or protected member '{0}' cannot be accessed on a type parameter."),
 }

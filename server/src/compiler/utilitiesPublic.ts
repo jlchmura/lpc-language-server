@@ -1337,3 +1337,13 @@ export function getEffectiveTypeParameterDeclarations(node: DeclarationWithTypeP
 export function getJSDocClassTag(node: Node): JSDocClassTag | undefined {
     return getFirstJSDocTag(node, isJSDocClassTag);
 }
+
+/**
+ * Return true if the node has JSDoc parameter tags.
+ *
+ * @remarks Includes parameter tags that are not directly on the node,
+ * for example on a variable declaration whose initializer is a function expression.
+ */
+export function hasJSDocParameterTags(node: FunctionLikeDeclaration | SignatureDeclaration): boolean {
+    return !!getFirstJSDocTag(node, isJSDocParameterTag);
+}
