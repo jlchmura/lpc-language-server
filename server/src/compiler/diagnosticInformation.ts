@@ -485,4 +485,7 @@ export const Diagnostics = {
     Type_parameter_0_has_a_circular_constraint: diag(2313, DiagnosticCategory.Error, "Type_parameter_0_has_a_circular_constraint_2313", "Type parameter '{0}' has a circular constraint."),
     Circularity_originates_in_type_at_this_location: diag(2751, DiagnosticCategory.Error, "Circularity_originates_in_type_at_this_location_2751", "Circularity originates in type at this location."),
     Private_or_protected_member_0_cannot_be_accessed_on_a_type_parameter: diag(4105, DiagnosticCategory.Error, "Private_or_protected_member_0_cannot_be_accessed_on_a_type_parameter_4105", "Private or protected member '{0}' cannot be accessed on a type parameter."),
+    Cannot_assign_to_0_because_it_is_a_read_only_property: diag(2540, DiagnosticCategory.Error, "Cannot_assign_to_0_because_it_is_a_read_only_property_2540", "Cannot assign to '{0}' because it is a read-only property."),
+    A_tuple_type_cannot_be_indexed_with_a_negative_value: diag(2514, DiagnosticCategory.Error, "A_tuple_type_cannot_be_indexed_with_a_negative_value_2514", "A tuple type cannot be indexed with a negative value."),
+    Tuple_type_0_of_length_1_has_no_element_at_index_2: diag(2493, DiagnosticCategory.Error, "Tuple_type_0_of_length_1_has_no_element_at_index_2_2493", "Tuple type '{0}' of length '{1}' has no element at index '{2}'."),
 }

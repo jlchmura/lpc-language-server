@@ -2031,3 +2031,24 @@ export function replaceElement<T>(array: readonly T[], index: number, value: T):
     result[index] = value;
     return result;
 }
+
+/**
+ * Calls the callback with (start, afterEnd) index pairs for each range where 'pred' is true.
+ *
+ * @internal
+ */
+export function getRangesWhere<T>(arr: readonly T[], pred: (t: T) => boolean, cb: (start: number, afterEnd: number) => void): void {
+    let start: number | undefined;
+    for (let i = 0; i < arr.length; i++) {
+        if (pred(arr[i])) {
+            start = start === undefined ? i : start;
+        }
+        else {
+            if (start !== undefined) {
+                cb(start, i);
+                start = undefined;
+            }
+        }
+    }
+    if (start !== undefined) cb(start, arr.length);
+}

@@ -447,3 +447,7 @@ export function isTupleTypeNode(node: Node): node is TupleTypeNode {
 export function isJSDocClassTag(node: Node): node is JSDocClassTag {
     return node.kind === SyntaxKind.JSDocClassTag;
 }
+
+export function isEnumDeclaration(node: Node) {
+    return false;// TODO return node.kind === SyntaxKind.EnumDeclaration;
+}

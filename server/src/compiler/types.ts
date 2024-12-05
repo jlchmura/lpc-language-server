@@ -633,12 +633,15 @@ export const enum SignatureKind {
     Construct,
 }
 
+export type DestructuringPattern = BindingPattern | ObjectLiteralExpression | ArrayLiteralExpression;
+
 // Properties common to all types
 export interface Type {
     flags: TypeFlags; // Flags
     /** @internal */ id: TypeId; // Unique ID
     /** @internal */ checker: any; // TypeChecker
     symbol: Symbol; // Symbol associated with type (if any)    
+    pattern?: DestructuringPattern;  // Destructuring pattern represented by type (if any)
     aliasSymbol?: Symbol; // Alias associated with type
     aliasTypeArguments?: readonly Type[]; // Alias type arguments (if any)
     /** @internal */
@@ -7726,4 +7729,18 @@ export interface ConditionalType extends InstantiableType {
 export interface TupleTypeNode extends TypeNode {
     readonly kind: SyntaxKind.TupleType;
     readonly elements: NodeArray<TypeNode | NamedTupleMember>;
+}
+
+/** @internal */
+export interface JSDocSatisfiesExpression extends ParenthesizedExpression {
+    readonly _jsDocSatisfiesExpressionBrand: never;
+}
+
+export interface InterfaceDeclaration extends DeclarationStatement, JSDocContainer {
+    readonly kind: SyntaxKind.InterfaceDeclaration;
+    readonly modifiers?: NodeArray<ModifierLike>;
+    readonly name: Identifier;
+    readonly typeParameters?: NodeArray<TypeParameterDeclaration>;
+    readonly heritageClauses?: NodeArray<HeritageClause>;
+    readonly members: NodeArray<TypeElement>;
 }
