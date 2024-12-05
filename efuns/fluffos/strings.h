@@ -403,8 +403,7 @@ string *regexp(string *lines, string pattern, void | int flag);
  * "no-match", F_STRING, "no-match" }) })
  *
  */
-mixed  *reg_assoc(string  str,  string *pat_arr, mixed *tok_arr, void |
-mixed def);
+mixed *reg_assoc(string  str,  string *pat_arr, mixed *tok_arr, void | mixed def);
 
 /**
  * oldcrypt() - encrypt a string

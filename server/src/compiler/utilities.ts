@@ -692,6 +692,7 @@ export function getErrorSpanForNode(sourceFile: SourceFile, node: Node): TextSpa
     //Debug.assert(!isJSDoc(errorNode));
 
     const isMissing = nodeIsMissing(errorNode);
+    Debug.assertIsDefined(sourceFile);
     const pos = isMissing// || isJsxText(node)
         ? errorNode.pos
         : skipTrivia(sourceFile.text, errorNode.pos);    

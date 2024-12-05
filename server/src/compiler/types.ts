@@ -3246,7 +3246,7 @@ export const enum SymbolFlags {
     ExportValue             = 1 << 20,  // Exported value marker (see comment in declareModuleMember in binder)
     Alias                   = 1 << 21,  // An alias for another symbol (see comment in isAliasSymbolDeclaration in checker)
     Prototype               = 1 << 22,  // Prototype property (no source representation)
-    ExportStar              = 1 << 23,  // Export * declaration
+    FakeGlobal              = 1 << 23,  // A fake symbol created for global type purposes
     Optional                = 1 << 24,  // Optional property
     Transient               = 1 << 25,  // Transient symbol (created during type check)
     Assignment              = 1 << 26,  // Assignment treated as declaration (eg `this.prop = 1`)

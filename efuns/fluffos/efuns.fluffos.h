@@ -8,15 +8,16 @@
  */
 
 /** Used by the type checker for various non-primitive types */
-
-/** 
- * @type {T[]} 
- * @template T
- */
-object __LS__Array = 0;
-object __LS__Mapping = 0;
-object __LS__Object = 0;
-object __LS__ReadonlyArray = 0;
+object __LS__Array;
+object __LS__Mapping;
+object __LS__Object;
+object __LS__Function;
+object __LS__CallableFunction;
+object __LS__NewableFunction;
+object __LS__Int;
+object __LS__ReadonlyArray;
+object __LS__String;
+object __LS__Closure;
 
 
 #include "arrays.h"
