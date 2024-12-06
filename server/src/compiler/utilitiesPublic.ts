@@ -1207,11 +1207,10 @@ export function getJSDocTypeParameterTags(param: TypeParameterDeclaration): read
     return getJSDocTypeParameterTagsWorker(param, /*noCache*/ false);
 }
 
-export function getEffectiveConstraintOfTypeParameter(node: TypeParameterDeclaration): TypeNode | undefined {
-    return undefined;
-    // return node.constraint ? node.constraint :
-    //     isJSDocTemplateTag(node.parent) && node === node.parent.typeParameters[0] ? node.parent.constraint :
-    //     undefined;
+export function getEffectiveConstraintOfTypeParameter(node: TypeParameterDeclaration): TypeNode | undefined {    
+    return node.constraint ? node.constraint :
+        isJSDocTemplateTag(node.parent) && node === node.parent.typeParameters[0] ? node.parent.constraint :
+        undefined;
 }
 
 export function getModifiers(node: HasModifiers): readonly Modifier[] | undefined {

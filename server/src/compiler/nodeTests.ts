@@ -459,3 +459,7 @@ export function isJSDocNameReference(node: Node): node is JSDocNameReference {
 export function isJSDocMemberName(node: Node): node is JSDocMemberName {
     return node.kind === SyntaxKind.JSDocMemberName;
 }
+
+export function isExportAssignment(node: Node){//}: node is ExportAssignment {
+    return false; // TODO return node.kind === SyntaxKind.ExportAssignment;
+}

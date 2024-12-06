@@ -4236,11 +4236,7 @@ export interface ObjectType extends Type {
     /** @internal */ properties?: Symbol[];             // Properties
     /** @internal */ callSignatures?: readonly Signature[];      // Call signatures of type
     /** @internal */ constructSignatures?: readonly Signature[]; // Construct signatures of type
-    /** 
-     * @internal 
-     * @deprecated doesn't exist in lpc?
-     */ 
-    indexInfos?: readonly IndexInfo[];  // Index signatures - 
+    /** @internal */ indexInfos?: readonly IndexInfo[];  // Index signatures - 
     /** @internal */ objectTypeWithoutAbstractConstructSignatures?: ObjectType;
 }
 

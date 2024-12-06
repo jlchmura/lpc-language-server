@@ -35,9 +35,9 @@ mixed unique_array( mixed *arr, function f, void | mixed skip );
  * that the array must be homogeneous, composed entirely of a single type,
  * where  that type is string, int, or float.  Arrays of arrays are sorted
  * by sorting based on the first element, making database sorts possible.
- * @template T
- * @param {T*} arr The array to sort
- * @returns {T*} The sorted array
+ * @template {string*|int*|float*|object*|mixed*} T
+ * @param {T} arr The array to sort
+ * @returns {T} The sorted array
  */
 mixed *sort_array( mixed *arr, string fun, object ob );
 mixed *sort_array( mixed *arr, function f );

@@ -492,4 +492,5 @@ export const Diagnostics = {
     _0_could_be_instantiated_with_an_arbitrary_type_which_could_be_unrelated_to_1: diag(5082, DiagnosticCategory.Error, "_0_could_be_instantiated_with_an_arbitrary_type_which_could_be_unrelated_to_1_5082", "'{0}' could be instantiated with an arbitrary type which could be unrelated to '{1}'."),
     The_type_0_is_readonly_and_cannot_be_assigned_to_the_mutable_type_1: diag(4104, DiagnosticCategory.Error, "The_type_0_is_readonly_and_cannot_be_assigned_to_the_mutable_type_1_4104", "The type '{0}' is 'readonly' and cannot be assigned to the mutable type '{1}'."),
     This_type_parameter_might_need_an_extends_0_constraint: diag(2208, DiagnosticCategory.Error, "This_type_parameter_might_need_an_extends_0_constraint_2208", "This type parameter might need an `extends {0}` constraint."),
+    Type_of_property_0_circularly_references_itself_in_mapped_type_1: diag(2615, DiagnosticCategory.Error, "Type_of_property_0_circularly_references_itself_in_mapped_type_1_2615", "Type of property '{0}' circularly references itself in mapped type '{1}'."),
 }
