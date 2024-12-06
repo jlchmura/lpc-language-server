@@ -2862,8 +2862,11 @@ export namespace LpcParser {
             while (parseOptional(operator)) {                
                 if (token() === SyntaxKind.LessThanToken)
                     types.push(parseUnionOrIntersectionType(operator, parseConstituentType, createTypeNode));
-                else
-                    types.push(parseConstituentType());
+                else {
+                    const t = parseConstituentType() ?? createMissingNode(SyntaxKind.MixedKeyword, true, Diagnostics.Type_expected);
+                    Debug.assertIsDefined(t);
+                    types.push(t);
+                }
             }
             type = finishNode(createTypeNode(createNodeArray(types, pos)), pos);
         }
@@ -6880,7 +6883,7 @@ export function forEachChildRecursively<T>(rootNode: Node, cbNode: (node: Node, 
                 if (res === "skip") continue;
                 return res;
             }
-            if (current.kind >= SyntaxKind.FirstNode) {
+            if (current && current.kind >= SyntaxKind.FirstNode) {
                 // add children in reverse order to the queue, so popping gives the first child
                 for (const child of gatherPossibleChildren(current)) {
                     queue.push(child);

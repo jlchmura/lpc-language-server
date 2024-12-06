@@ -21263,9 +21263,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function getCannotFindNameDiagnosticForName(node: Identifier): DiagnosticMessage {
-        // TODO
-        console.debug("todo - getCannotFindNameDiagnosticForName");
         switch (node.text) {
+            case "bytes":
+            case "buffer":
+                return Diagnostics.Cannot_find_0_Do_you_need_to_change_your_driver_type;
             // case "document":
             // case "console":
             //     return Diagnostics.Cannot_find_name_0_Do_you_need_to_change_your_target_library_Try_changing_the_lib_compiler_option_to_include_dom;

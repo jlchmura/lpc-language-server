@@ -1,5 +1,8 @@
 // arrays.h
 
+#define ALL_ARRAY_TYPES string*|int*|float*|object*|mixed*|function*
+#define ALL_PRIMITIVE_TYPES string|int|float|object|mixed|function
+
 /**
  * unique_array() - partitions an array of objects into groups
  *
@@ -35,7 +38,7 @@ mixed unique_array( mixed *arr, function f, void | mixed skip );
  * that the array must be homogeneous, composed entirely of a single type,
  * where  that type is string, int, or float.  Arrays of arrays are sorted
  * by sorting based on the first element, making database sorts possible.
- * @template {string*|int*|float*|object*|mixed*} T
+ * @template {ALL_ARRAY_TYPES} T
  * @param {T} arr The array to sort
  * @returns {T} The sorted array
  */
@@ -47,13 +50,15 @@ mixed *sort_array( mixed *arr, int direction );
  * shuffle() - Rearrange the elements in the array in random order
  *
  * Shuffle the array and return.
- *
+ * @template {ALL_ARRAY_TYPES} T
+ * @param {T} arr The array to shuffle
+ * @returns {T} The shuffled array
  */
 mixed *shuffle(mixed *arr);
 
 /**
  * pointerp() - identifies whether a given variable is an array
- * @template T
+ * @template {ALL_PRIMITIVE_TYPES} T
  * @param {T|T*} arg The argument to check 
  * @returns {arg is T*} 1 if 'arg' is an array, otherwise returns 0.
  * @example

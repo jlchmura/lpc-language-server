@@ -5006,14 +5006,14 @@ export function setParentRecursive<T extends Node>(rootNode: T | undefined, incr
     return rootNode;
 
     function bindParentToChildIgnoringJSDoc(child: Node, parent: Node): void | "skip" {
-        if (incremental && child.parent === parent) {
+        if (incremental && child?.parent === parent) {
             return "skip";
         }
         setParent(child, parent);
     }
 
     function bindJSDoc(child: Node) {
-        if (hasJSDocNodes(child)) {
+        if (child && hasJSDocNodes(child)) {
             for (const doc of child.jsDoc!) {
                 bindParentToChildIgnoringJSDoc(doc, child);
                 forEachChildRecursively(doc, bindParentToChildIgnoringJSDoc);
