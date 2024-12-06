@@ -13363,7 +13363,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     resolveMappedTypeMembers(type as MappedType);
                 }
                 else {
-                    console.warn("Unhandled object type " + Debug.formatObjectFlags(type.objectFlags));
+                    // console.warn("Unhandled object type " + Debug.formatObjectFlags(type.objectFlags));
                 }
             }
             else if (type.flags & TypeFlags.Union) {

@@ -233,24 +233,21 @@ float norm(int * | float *);
 int next_bit(string, int);
 
 /**
- * map()  - modify an mapping, array, or string via application of a func‐
-tion
+ * map()  - modify an mapping, array, or string via application of a function
  *
  * If the first argument is a mapping, map() behaves exactly like map_map‐
  * ping().  If it is an array, map() behaves exactly like map_array().  If
  * it's argument is a string, map() passes each character (as an  int)  to
  * the  function,  and replaces the character with the return value if the
  * return value is a non-zero integer.
- *
  */
-mapping|mixed* map( mapping | mixed* | string x,
-             string fun,
-             object ob,
-             mixed extra... );
+mapping map( mapping x, string fun, object ob, mixed extra... );
+mapping map( mapping x, function f, mixed extra... );
+mixed* map( mixed* x, string fun, object ob, mixed extra... );
+mixed* map( mixed* x, function f, mixed extra... );
+string map( string x, string fun, object ob, mixed extra... );
+string map( string x, function f, mixed extra... );
 
-mapping|mixed* map( mapping | mixed* | string x,
-             function f,
-             mixed extra... );
 
 /**
  * lookat_rotate2
