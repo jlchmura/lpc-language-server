@@ -851,9 +851,11 @@ export const enum SyntaxKind {
     UnionType, // First Type Node
     FunctionType,
     IntersectionType,
+    RestType,
     ArrayType,
     TupleType,
     TypeLiteral,
+    TypeQuery,
     ParenthesizedType,
     TypeReference,
     TypePredicate,
