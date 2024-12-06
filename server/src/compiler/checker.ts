@@ -3149,6 +3149,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.StringKeyword:
             case SyntaxKind.ObjectKeyword:
             case SyntaxKind.VoidKeyword:
+            case SyntaxKind.FunctionKeyword:
             case SyntaxKind.MixedKeyword:
                 return;
             // don't typecheck define directives
@@ -3172,6 +3173,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.EmptyStatement:
             case SyntaxKind.CatchStatement:
             case SyntaxKind.JSDocClassTag:
+            
                 return;
         }
 
@@ -3692,7 +3694,6 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // }
 
         contextuallyCheckFunctionExpressionOrObjectLiteralMethod(node, checkMode);
-
 
         return getTypeOfSymbol(getSymbolOfDeclaration(node));        
     }
@@ -5511,10 +5512,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     !!symbol.exports?.size;
                 if (!isJSObjectLiteralInitializer && node.parent.parent.kind !== SyntaxKind.ForEachStatement) {
                     let initializerType: Type;
+                    // check the closure, but don't use its type
                     if (isInlineClosureExpression(initializer)) {                        
                         checkExpressionCached(initializer);
-                        const sig = getResolvedSignature(initializer);
-                        initializerType = getReturnTypeOfSignature(sig);                        
+                    //     const sig = getResolvedSignature(initializer);
+                    //     initializerType = getReturnTypeOfSignature(sig);                        
                     }
 
                     if (!initializerType) {
@@ -5522,7 +5524,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     }
 
                     checkTypeAssignableToAndOptionallyElaborate(initializerType, type, node, initializer, /*headMessage*/ undefined);
-                    const blockScopeKind = getCombinedNodeFlagsCached(node) & NodeFlags.BlockScoped;
+                    // const blockScopeKind = getCombinedNodeFlagsCached(node) & NodeFlags.BlockScoped;
                     // if (blockScopeKind === NodeFlags.AwaitUsing) {
                     //     const globalAsyncDisposableType = getGlobalAsyncDisposableType(/*reportErrors*/ true);
                     //     const globalDisposableType = getGlobalDisposableType(/*reportErrors*/ true);
@@ -23610,6 +23612,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function isSimpleTypeRelatedTo(source: Type, target: Type, relation: Map<string, RelationComparisonResult>, errorReporter?: ErrorReporter) {
         const s = source.flags;
         const t = target.flags;
+        
         if (t & TypeFlags.Any || s & TypeFlags.Never) return true;
         if (t & TypeFlags.Unknown && !(relation === strictSubtypeRelation && s & TypeFlags.Any)) return true;
         if (t & TypeFlags.Never) return false;
@@ -23632,6 +23635,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (s & TypeFlags.Undefined && (!strictNullChecks && !(t & TypeFlags.UnionOrIntersection) || t & (TypeFlags.Undefined | TypeFlags.Void))) return true;
         if (s & TypeFlags.Null && (!strictNullChecks && !(t & TypeFlags.UnionOrIntersection) || t & TypeFlags.Null)) return true;
         if (s & TypeFlags.Object && t & TypeFlags.NonPrimitive && !(relation === strictSubtypeRelation && isEmptyAnonymousObjectType(source) && !(getObjectFlags(source) & ObjectFlags.FreshLiteral))) return true;        
+        if (s & TypeFlags.Object && source.symbol?.flags & SymbolFlags.Function && source.symbol?.name===InternalSymbolName.Function && t & TypeFlags.Object && target === globalClosureType) {
+            return true;
+        }
         if (relation === assignableRelation || relation === comparableRelation) {
             if (s & TypeFlags.Any) return true;
             // Type number is assignable to any computed numeric enum type or any numeric enum literal type, and
@@ -24440,8 +24446,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function isWeakType(type: Type): boolean {
         if (type.flags & TypeFlags.Object) {
             const resolved = resolveStructuredTypeMembers(type as ObjectType);
-            Debug.assertIsDefined(resolved.callSignatures);
-            return resolved.callSignatures.length === 0 && resolved.constructSignatures.length === 0 && resolved.indexInfos.length === 0 &&
+            // Debug.assertIsDefined(resolved.callSignatures);
+            return resolved.callSignatures?.length === 0 && resolved.constructSignatures.length === 0 && resolved.indexInfos.length === 0 &&
                 resolved.properties.length > 0 && every(resolved.properties, p => !!(p.flags & SymbolFlags.Optional));
         }
         if (type.flags & TypeFlags.Substitution) {

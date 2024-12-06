@@ -314,7 +314,9 @@ float * id_matrix();
  * If the first syntax is used, the filter function is performed as a
  * call_other. If ob is a string, it is assumed to be the filename of an
  * object to load and call the filter function on.
- *
+ * @template {string|mapping|mixed*} T
+ * @param {T} source - The source to filter
+ * @returns {T} - The filtered source
  */
 mixed filter(string|mapping|mixed* source,
              string filter_function,
