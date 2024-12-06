@@ -5515,11 +5515,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     // check the closure, but don't use its type
                     if (isInlineClosureExpression(initializer)) {                        
                         checkExpressionCached(initializer);
-                    //     const sig = getResolvedSignature(initializer);
-                    //     initializerType = getReturnTypeOfSignature(sig);                        
-                    }
 
-                    if (!initializerType) {
+                        if (isParameter(node)) {
+                            // however, if we're initializing a parameter then get the closures
+                            // result type
+                            const sig = getResolvedSignature(initializer);
+                            initializerType = getReturnTypeOfSignature(sig);
+                        }
+                    } 
+                    else if (!initializerType) {
                         initializerType = checkExpressionCached(initializer);
                     }
 
