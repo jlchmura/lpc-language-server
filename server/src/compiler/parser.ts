@@ -3737,7 +3737,7 @@ export namespace LpcParser {
         if (tempType && isArrayTypeNode(tempType) && !tempType.elementType && type) {
             // we can't use the original type node, as it's in the wrong place in our hierarchy.
             // so we'll clone it and reset the position to match this array indicator
-            const elementType = finishNode(factory.cloneNode(type), pos);
+            const elementType = finishNode(factory.cloneNode(isArrayTypeNode(type) ? type.elementType : type), pos);
             (tempType as Mutable<ArrayTypeNode>).elementType = elementType;
         } else if (index && (!tempType || !isArrayTypeNode(tempType)) && type && isArrayTypeNode(type)) {
             // type-in was an array but the decl type wasn't
