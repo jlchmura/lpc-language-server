@@ -8404,6 +8404,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const length = signature.parameters.length;
         if (signatureHasRestParameter(signature)) {
             const restType = getTypeOfSymbol(signature.parameters[length - 1]);            
+            if (isTupleType(restType)) {
+                return length + restType.target.fixedLength - (restType.target.hasRestElement ? 0 : 1);
+            }
         }
         return length;
     }
@@ -23459,6 +23462,39 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
     }
 
+    /** remove undefined from the annotated type of a parameter when there is an initializer (that doesn't include undefined) */
+    function removeOptionalityFromDeclaredType(declaredType: Type, declaration: VariableLikeDeclaration): Type {
+        const removeUndefined = strictNullChecks &&
+            declaration.kind === SyntaxKind.Parameter &&
+            declaration.initializer &&
+            hasTypeFacts(declaredType, TypeFacts.IsUndefined) &&
+            !parameterInitializerContainsUndefined(declaration);
+
+        return removeUndefined ? getTypeWithFacts(declaredType, TypeFacts.NEUndefined) : declaredType;
+    }
+
+    function parameterInitializerContainsUndefined(declaration: ParameterDeclaration): boolean {
+        const links = getNodeLinks(declaration);
+
+        if (links.parameterInitializerContainsUndefined === undefined) {
+            if (!pushTypeResolution(declaration, TypeSystemPropertyName.ParameterInitializerContainsUndefined)) {
+                reportCircularityError(declaration.symbol);
+                return true;
+            }
+
+            const containsUndefined = !!(hasTypeFacts(checkDeclarationInitializer(declaration, CheckMode.Normal), TypeFacts.IsUndefined));
+
+            if (!popTypeResolution()) {
+                reportCircularityError(declaration.symbol);
+                return true;
+            }
+
+            links.parameterInitializerContainsUndefined ??= containsUndefined;
+        }
+
+        return links.parameterInitializerContainsUndefined;
+    }
+
     function checkIdentifier(node: Identifier, checkMode: CheckMode | undefined, symbolFlags?: SymbolFlags): Type {
         // if (isThisInTypeQuery(node)) {
         //     return checkThisExpression(node);
@@ -23565,7 +23601,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             declaration.flags & NodeFlags.Ambient;
         const initialType = 
             // isAutomaticTypeInNonNull ? undefinedType :
-            assumeInitialized ? type : //(isParameter ? removeOptionalityFromDeclaredType(type, declaration as VariableLikeDeclaration) : type) :
+            assumeInitialized ? (isParameter ? removeOptionalityFromDeclaredType(type, declaration as VariableLikeDeclaration) : type) :
             typeIsAutomatic ? undefinedType : getOptionalType(type);
         const flowType = getFlowTypeOfReference(node, type, initialType, flowContainer);
         // A variable is considered uninitialized when it is possible to analyze the entire control flow graph

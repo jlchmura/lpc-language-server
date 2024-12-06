@@ -212,9 +212,11 @@ void parse_add_synonym(string, string, string);
  * 
  * 3.  it  is  a function (formal) parameter that corresponds to a missing
  * actual argument.
- *
+ * @template T
+ * @param {T} arg - The variable to check
+ * @returns {arg as T} - 1 if the variable is null, 0 otherwise
  */
-int nullp( mixed arg );
+int nullp(mixed arg);
 
 /**
  * norm
@@ -241,12 +243,12 @@ int next_bit(string, int);
  * the  function,  and replaces the character with the return value if the
  * return value is a non-zero integer.
  */
-mapping map( mapping x, string fun, object ob, mixed extra... );
-mapping map( mapping x, function f, mixed extra... );
-mixed* map( mixed* x, string fun, object ob, mixed extra... );
-mixed* map( mixed* x, function f, mixed extra... );
-string map( string x, string fun, object ob, mixed extra... );
-string map( string x, function f, mixed extra... );
+varargs mapping map( mapping x, string fun, object ob, mixed extra... );
+varargs mapping map( mapping x, function f, mixed extra... );
+varargs mixed* map( mixed* x, string fun, object ob, mixed extra... );
+varargs mixed* map( mixed* x, function f, mixed extra... );
+varargs string map( string x, string fun, object ob, mixed extra... );
+varargs string map( string x, function f, mixed extra... );
 
 
 /**
