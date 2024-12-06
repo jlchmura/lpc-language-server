@@ -8493,20 +8493,21 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (hasSyntacticModifier(signature.declaration, ModifierFlags.VarArgs)) {
                 minArgumentCount = 0;
             } else if (signatureHasRestParameter(signature)) {
-                //const restType = getTypeOfSymbol(signature.parameters[signature.parameters.length - 1]);
+                const restType = getTypeOfSymbol(signature.parameters[signature.parameters.length - 1]);
                 minArgumentCount = signature.parameters.length - 1;
-                // if (isTupleType(restType)) {
-                //     const firstOptionalIndex = findIndex(restType.target.elementFlags, f => !(f & ElementFlags.Required));
-                //     const requiredCount = firstOptionalIndex < 0 ? restType.target.fixedLength : firstOptionalIndex;
-                //     if (requiredCount > 0) {
-                //         minArgumentCount = signature.parameters.length - 1 + requiredCount;
-                //     }
-                // }
+                if (isTupleType(restType)) {
+                    const firstOptionalIndex = findIndex(restType.target.elementFlags, f => !(f & ElementFlags.Required));
+                    const requiredCount = firstOptionalIndex < 0 ? restType.target.fixedLength : firstOptionalIndex;
+                    if (requiredCount > 0) {
+                        minArgumentCount = signature.parameters.length - 1 + requiredCount;
+                    }
+                }
             }
             if (minArgumentCount === undefined) {
-                if (!strongArityForUntypedJS && signature.flags & SignatureFlags.IsUntypedSignatureInJSFile) {
-                    return 0;
-                }
+                // Not used in LPC
+                // if (!strongArityForUntypedJS && signature.flags & SignatureFlags.IsUntypedSignatureInJSFile) {
+                //     return 0;
+                // }
                 minArgumentCount = signature.minArgumentCount;
             }
             if (voidIsNonOptional) {
@@ -11154,9 +11155,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
 
         const kind = target.declaration ? target.declaration.kind : SyntaxKind.Unknown;
-        const strictVariance = false;
-        // const strictVariance = !(checkMode & SignatureCheckMode.Callback) && strictFunctionTypes && kind !== SyntaxKind.MethodDeclaration &&
-        //     kind !== SyntaxKind.MethodSignature;
+        const strictVariance = !(checkMode & SignatureCheckMode.Callback) && strictFunctionTypes && kind !== SyntaxKind.MethodDeclaration &&
+            kind !== SyntaxKind.MethodSignature;
         let result = Ternary.True;
 
         // const sourceThisType = getThisTypeOfSignature(source);
