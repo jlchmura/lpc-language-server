@@ -768,9 +768,7 @@ export const enum SyntaxKind {
     
     // Keywords
     IntKeyword, // FIrst Keyword, FirstReserved Word
-    FloatKeyword,
-    FalseKeyword,
-    TrueKeyword,
+    FloatKeyword,    
     StringKeyword,
     LwObjectKeyword,        
     UndefinedKeyword,
@@ -794,8 +792,7 @@ export const enum SyntaxKind {
     DefaultKeyword,
     IfKeyword,
     
-    ReturnKeyword,
-    NullKeyword,
+    ReturnKeyword,    
     SwitchKeyword,
     WhileKeyword,
     AsyncKeyword,
@@ -818,6 +815,9 @@ export const enum SyntaxKind {
     // non-reserved keywords go below this line
     ClassKeyword,
     StatusKeyword,
+    FalseKeyword,       // JSON-only
+    TrueKeyword,        // JSON-only
+    NullKeyword,        // JSON-only    
     FunctionKeyword,    // can be used as a param name
     SymbolKeyword,      // not reserved in fluffos
     ObjectKeyword,      // can occur in a super expr i.e.  object::fn()
@@ -1714,6 +1714,7 @@ export interface CompilerOptions {
     noUnusedLocals?: boolean;
     noUnusedParameters?: boolean;
     noImplicitReturns?: boolean;
+    strictObjectTypes?: boolean;
     newLine?: NewLineKind;    
     configFile?: LpcConfigSourceFile; 
     sefunFile?: string;
@@ -2341,6 +2342,8 @@ export type DirectiveSyntaxKind =
 
 export type KeywordSyntaxKind =
     | SyntaxKind.AnyKeyword    
+    | SyntaxKind.TrueKeyword
+    | SyntaxKind.FalseKeyword
     | SyntaxKind.FunctionsKeyword
     | SyntaxKind.VirtualKeyword
     | SyntaxKind.IsKeyword

@@ -194,6 +194,39 @@ Semantic analysis is always run, but diagnostics are only reported if you opt in
 "diagnostics": "on"
 ```
 
+### Compiler Options - `compilerOptions`
+
+Compiler options are specified under the `compilerOptions` object:
+```json
+{
+  "compilerOptions": {
+    ...
+  }
+}
+```
+
+#### Strict Object Type Checking - `strictObjectTypes`
+
+Defaults to `false` unless `strict` is on.
+
+When enabled, strick object checking will report an error when an untyped object is being assigned to a typed object.
+For example:
+```c
+/** 
+ * @param {"std/player.c"} p
+ */
+void foo(object p) {
+  tell_object(p, "hi");
+}
+void bar(object p)  {
+  tell_object(p, "hi");
+}
+
+object player;
+foo(p); /* p will report an error when strictObjectTypes is true, because it is an untyped object. */
+bar(p); /* this call is ok because both objects are untyped */
+```
+
 ## Grammar ToDo's
 
 Language services is a work in progress. Some major areas that have yet to be implemented are:

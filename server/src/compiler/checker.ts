@@ -165,6 +165,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var strictNullChecks = false; 
     var strictPropertyInitialization  = false;
     var strictFunctionTypes = getStrictOptionValue(compilerOptions, "strictFunctionTypes");
+    var strickObjectTypes = getStrictOptionValue(compilerOptions, "strictObjectTypes");
 
     var checkBinaryExpression = createCheckBinaryExpression();
     var emitResolver = createResolver();
@@ -24150,9 +24151,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (related !== undefined) {
                 return !!(related & RelationComparisonResult.Succeeded);
             }
-        }
+        }        
         if (source.flags & TypeFlags.StructuredOrInstantiable || target.flags & TypeFlags.StructuredOrInstantiable) {
-            return checkTypeRelatedTo(source, target, relation, /*errorNode*/ undefined);
+            const related = checkTypeRelatedTo(source, target, relation, /*errorNode*/ undefined);
+            // we can skip the strict check if strict object types aren't turn on and as long as one of the types is not a structured anonymouse type            
+            const canSkipStrictCheck = !strickObjectTypes && !(getObjectFlags(source) & ObjectFlags.Anonymous && getObjectFlags(target) & ObjectFlags.Anonymous);
+            if (canSkipStrictCheck && !related && source.flags & TypeFlags.Object && target.flags & TypeFlags.Object) {            
+                return true;
+            }
+            return related;
         }
         return false;
     }

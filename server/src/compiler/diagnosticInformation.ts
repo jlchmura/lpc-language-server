@@ -27,6 +27,7 @@ export const Diagnostics = {
     Pragma_option_expected: diag(9019, DiagnosticCategory.Error, "Pragma_option_expected_9019", "Pragma option expected."),
     File_is_master_file_specified_here: diag(9020, DiagnosticCategory.Error, "File_is_master_file_specified_here_9020", "File is master file specified here."),
     Cannot_find_0_Do_you_need_to_change_your_driver_type: diag(9021, DiagnosticCategory.Error, "Cannot_find_0_Do_you_need_to_change_your_driver_type_9021", "Cannot find '{0}'. Do you need to change your driver type?"),
+    When_comparing_types_check_that_the_objectStructure_is_compatible_with_the_target_type: diag(9022, DiagnosticCategory.Message, "When_comparing_types_check_that_the_objectStructure_is_compatible_with_the_target_type_6699", "When comparing types, check that the object structure is compatible with the target type."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    
@@ -309,6 +310,10 @@ export const Diagnostics = {
     Property_value_can_only_be_string_literal_numeric_literal_true_false_null_object_literal_or_array_literal: diag(1328, DiagnosticCategory.Error, "Property_value_can_only_be_string_literal_numeric_literal_true_false_null_object_literal_or_array_li_1328", "Property value can only be string literal, numeric literal, 'true', 'false', 'null', object literal or array literal."),
     Unknown_option_excludes_Did_you_mean_exclude: diag(6114, DiagnosticCategory.Error, "Unknown_option_excludes_Did_you_mean_exclude_6114", "Unknown option 'excludes'. Did you mean 'exclude'?"),
     Command_line_Options: diag(6171, DiagnosticCategory.Message, "Command_line_Options_6171", "Command-line Options"),
+    Type_Checking: diag(6248, DiagnosticCategory.Message, "Type_Checking_6248", "Type Checking"),
+    When_assigning_functions_check_to_ensure_parameters_and_the_return_values_are_subtype_compatible: diag(6698, DiagnosticCategory.Message, "When_assigning_functions_check_to_ensure_parameters_and_the_return_values_are_subtype_compatible_6698", "When assigning functions, check to ensure parameters and the return values are subtype-compatible."),
+    
+    Enable_verbose_logging: diag(6713, DiagnosticCategory.Message, "Enable_verbose_logging_6713", "Enable verbose logging."),
     Print_this_message: diag(6017, DiagnosticCategory.Message, "Print_this_message_6017", "Print this message."),
     Watch_input_files: diag(6005, DiagnosticCategory.Message, "Watch_input_files_6005", "Watch input files."),
     Output_Formatting: diag(6256, DiagnosticCategory.Message, "Output_Formatting_6256", "Output Formatting"),
@@ -494,4 +499,5 @@ export const Diagnostics = {
     The_type_0_is_readonly_and_cannot_be_assigned_to_the_mutable_type_1: diag(4104, DiagnosticCategory.Error, "The_type_0_is_readonly_and_cannot_be_assigned_to_the_mutable_type_1_4104", "The type '{0}' is 'readonly' and cannot be assigned to the mutable type '{1}'."),
     This_type_parameter_might_need_an_extends_0_constraint: diag(2208, DiagnosticCategory.Error, "This_type_parameter_might_need_an_extends_0_constraint_2208", "This type parameter might need an `extends {0}` constraint."),
     Type_of_property_0_circularly_references_itself_in_mapped_type_1: diag(2615, DiagnosticCategory.Error, "Type_of_property_0_circularly_references_itself_in_mapped_type_1_2615", "Type of property '{0}' circularly references itself in mapped type '{1}'."),
+    false_unless_strict_is_set: diag(6905, DiagnosticCategory.Message, "false_unless_strict_is_set_6905", "`false`, unless `strict` is set"),
 }

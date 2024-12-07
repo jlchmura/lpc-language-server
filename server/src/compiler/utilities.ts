@@ -7018,6 +7018,7 @@ export type StrictOptionName =
     | "strictBindCallApply"
     | "strictPropertyInitialization"
     | "alwaysStrict"
+    | "strictObjectTypes"
     | "useUnknownInCatchVariables";
     
 /** @internal */
