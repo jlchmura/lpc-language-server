@@ -520,6 +520,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var nonPrimitiveType = createIntrinsicType(TypeFlags.NonPrimitive, "object");
     var voidType = createIntrinsicType(TypeFlags.Void, "void");
     var stringOrNumberType = getUnionType([stringType, intType]);
+    var validArithmeticType; // assigned after globals are initialized
     var stringNumberSymbolType = getUnionType([stringType, intType, floatType]); // esSymbolType
     var numberType = getUnionType([intType, floatType]);
     var numberLiteralTypes = new Map<number, IntLiteralType>();
@@ -689,6 +690,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         globalReadonlyArrayType = getGlobalTypeOrUndefined("__LS__ReadonlyArray" as string, /*arity*/ 1) as GenericType;
         anyReadonlyArrayType = globalReadonlyArrayType ? createTypeFromGenericGlobalType(globalReadonlyArrayType, [anyType]) : anyArrayType;
         // globalThisType = getGlobalTypeOrUndefined("ThisType" as string, /*arity*/ 1) as GenericType;
+
+        validArithmeticType = getUnionType([numberType, globalArrayType]); // valid lhs for arithmetic operations
     }
     
     function getGlobalType(name: string, arity: 0, reportErrors: true): ObjectType;
@@ -2487,7 +2490,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 elementFlags.push(ElementFlags.Optional);
             }
             else {
-                const type = checkExpressionForMutableLocation(e, checkMode, forceTuple);
+                const type = checkExpressionForMutableLocation(e, checkMode, forceTuple);               
                 elementTypes.push(addOptionality(type, /*isProperty*/ true, hasOmittedExpression));
                 elementFlags.push(hasOmittedExpression ? ElementFlags.Optional : ElementFlags.Required);
                 if (inTupleContext && checkMode && checkMode & CheckMode.Inferential && !(checkMode & CheckMode.SkipContextSensitive) && isContextSensitive(e)) {
@@ -15119,8 +15122,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return isTypeComparableTo(type1, type2) || isTypeComparableTo(type2, type1);
     }
 
-    function checkArithmeticOperandType(operand: Node, type: Type, diagnostic: DiagnosticMessage, isAwaitValid = false): boolean {
-        if (!isTypeAssignableTo(type, numberType)) {            
+    function checkArithmeticOperandType(operand: Node, type: Type, diagnostic: DiagnosticMessage, isAwaitValid = false): boolean {        
+        if (!isTypeAssignableTo(type, validArithmeticType)) {
             errorAndMaybeSuggestAwait(
                 operand,
                 false,
@@ -15131,6 +15134,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return true;
     }
     
+    function isArrayLiteralTypeWithOnlyZero(type: Type): type is TypeReference {
+        if (isArrayType(type) && type.resolvedTypeArguments?.length === 1) {
+            const elemType = first(type.resolvedTypeArguments);
+            return elemType.flags & TypeFlags.IntLiteral && (elemType as IntLiteralType).value === 0;
+        }
+        return false;
+    }
+
     function checkBinaryLikeExpressionWorker(
         left: Expression,
         operatorToken: BinaryOperatorToken,
@@ -15187,8 +15198,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     const leftOk = checkArithmeticOperandType(left, leftType, Diagnostics.The_left_hand_side_of_an_arithmetic_operation_must_be_of_type_any_number_bigint_or_an_enum_type, /*isAwaitValid*/ true);
                     const rightOk = checkArithmeticOperandType(right, rightType, Diagnostics.The_right_hand_side_of_an_arithmetic_operation_must_be_of_type_any_number_bigint_or_an_enum_type, /*isAwaitValid*/ true);
                     let resultType: Type;
+
+                    // check for a special case where an array literal with a zero is on the right and another array is on the left
+                    if (isArrayType(leftType) && isArrayLiteralTypeWithOnlyZero(rightType)) {
+                        resultType = rightType.resolvedTypeArguments[0];
+                    }
                     // If both are any or unknown, allow operation; assume it will resolve to number
-                    if (
+                    else if (
                         (isTypeAssignableToKind(leftType, TypeFlags.AnyOrUnknown) && isTypeAssignableToKind(rightType, TypeFlags.AnyOrUnknown)) ||
                         // Or, if neither could be bigint, implicit coercion results in a number result
                         !(maybeTypeOfKind(leftType, TypeFlags.FloatLiteral) || maybeTypeOfKind(rightType, TypeFlags.FloatLiteral))
@@ -15577,7 +15593,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function isTypeAssertion(node: Expression) {
         node = skipParentheses(node, /*excludeJSDocTypeAssertions*/ true);
         return node.kind === SyntaxKind.TypeAssertionExpression ||
-            node.kind === SyntaxKind.CastExpression /*|| isJSDocTypeAssertion(node)*/;
+            node.kind === SyntaxKind.CastExpression || isJSDocTypeAssertion(node);
     }
 
     function checkInExpression(left: Expression, right: Expression, leftType: Type, rightType: Type): Type {
@@ -22267,9 +22283,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function checkExpressionForMutableLocation(node: Expression, checkMode: CheckMode | undefined, forceTuple?: boolean): Type {
         const type = checkExpression(node, checkMode, forceTuple);
-        // return isCommonJsExportedExpression(node) ? getRegularTypeOfLiteralType(type) :
-        //isTypeAssertion(node) ? type :
-        return  getWidenedLiteralLikeTypeForContextualType(type, instantiateContextualType(getContextualType(node, /*contextFlags*/ undefined), node, /*contextFlags*/ undefined));
+        if (isLiteralType(type)) {
+            const reg = getRegularTypeOfLiteralType(type);
+            if (reg.isIntLiteral() && reg.value === 0) {
+                return reg;
+            }
+        } 
+        // return isCommonJsExportedExpression(node) ? getRegularTypeOfLiteralType(type) :        
+        return isTypeAssertion(node) ? type : getWidenedLiteralLikeTypeForContextualType(type, instantiateContextualType(getContextualType(node, /*contextFlags*/ undefined), node, /*contextFlags*/ undefined));
     }
 
     function getTypeOfSymbol(symbol: Symbol, checkMode?: CheckMode): Type {        
