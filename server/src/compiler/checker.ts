@@ -11853,8 +11853,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         let yieldType: Type | undefined;
         let nextType: Type | undefined;
         let fallbackReturnType: Type = voidType;
+        
         if (func.body.kind !== SyntaxKind.Block) { // Async or normal arrow function
-            returnType = checkExpressionCached(func.body, checkMode && checkMode & ~CheckMode.SkipGenericFunctions);
+            returnType = checkExpressionCached(func.body, checkMode && checkMode & ~CheckMode.SkipGenericFunctions);            
             // if (isAsync) {
             //     // From within an async function you can return either a non-promise value or a promise. Any
             //     // Promise/A+ compatible implementation will always assimilate any foreign promise, so the
@@ -12831,6 +12832,38 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         checkAllCodePathsInNonVoidFunctionReturnOrThrow(node, returnType);
 
         if (node.body) {
+            if (isInlineClosureExpression(node) && isBinaryExpression(node.body)) {
+                console.warn("todo - getReturnTypeFromBody - possible FluffOS function shortcut");
+                // this inline expr is a fluffos function shortcut https://www.fluffos.info/lpc/types/function.html
+                // if the binary expression is all comma operators, then its really an a bunch of arguments
+                // validate that like a call expression
+                // this should really be handled in the parser as an argument list
+                const exprs: Expression[] = [];
+                let e: BinaryExpression = node.body;
+                let isFluffosFunction = true;
+                while (e) {
+                    if (e.operatorToken.kind !== SyntaxKind.CommaToken) {
+                        // if we encounter anything but a comma then bail
+                        isFluffosFunction = false;
+                        break;
+                    }
+                        
+                    exprs.push(e.right);
+                    if (isBinaryExpression(e.left)) {
+                        e = e.left;
+                    } else {
+                        exprs.push(e.left);
+                        break;
+                    }                    
+                }
+    
+                // for now just check each - but this should eventually be checked like a call expression
+                if (isFluffosFunction) {
+                    exprs.forEach(expr => checkExpressionCached(expr));
+                    return;
+                }                
+            }
+
             if (!getEffectiveReturnTypeNode(node)) {
                 // There are some checks that are only performed in getReturnTypeFromBody, that may produce errors
                 // we need. An example is the noImplicitAny errors resulting from widening the return expression
