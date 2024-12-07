@@ -1616,7 +1616,7 @@ export interface NodeFactory {
     createConditionalExpression(condition: Expression, questionToken: QuestionToken | undefined, whenTrue: Expression, colonToken: ColonToken | undefined, whenFalse: Expression): ConditionalExpression;
     createBinaryExpression(left: Expression, operator: BinaryOperator | BinaryOperatorToken, right: Expression): BinaryExpression;
     createCallExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CallExpression;
-    createInlineClosure(body: ConciseBody): InlineClosureExpression;
+    createInlineClosure(body: ConciseBody | NodeArray<Expression>): InlineClosureExpression;
     createSuperAccessExpression(name: MemberName, namespace?: string | StringLiteral | Identifier): SuperAccessExpression;
     createPropertyAccessExpression(expression: Expression, name: string | Identifier | Expression, propertyAccessToken?: PropertyAccessToken): PropertyAccessExpression;
     createPrefixUnaryExpression(operator: PrefixUnaryOperator, operand: Expression): PrefixUnaryExpression;
@@ -3615,7 +3615,7 @@ export interface ImpliedStringConcatExpression extends BinaryExpression {
 }
 
 export type FunctionBody = Block;
-export type ConciseBody = FunctionBody | Expression;
+export type ConciseBody = FunctionBody | Expression ;
 
 export interface ParameterDeclaration extends NamedDeclaration, JSDocContainer {
     readonly kind: SyntaxKind.Parameter;
