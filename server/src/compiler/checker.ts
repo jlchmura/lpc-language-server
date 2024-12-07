@@ -12834,6 +12834,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (node.body) {   
             if (isInlineClosureExpression(node) && isArray(node.body as unknown as NodeArray<Expression>)) {
                 console.warn("todo - getReturnTypeFromBody - possible FluffOS function shortcut");                               
+                // TODO - remove this hack
+                (node.body as unknown as NodeArray<Expression>).forEach(e => checkExpression(e));
             }
 
             if (!getEffectiveReturnTypeNode(node)) {

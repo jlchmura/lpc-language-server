@@ -100,7 +100,14 @@ Found 1 error in server/src/tests/cases/compiler/closure5.c[90m:6[0m
 "
 `;
 
-exports[`Compiler compiler/closure6.c Reports correct errors for compiler/closure6.c: diags-compiler/closure6.c 1`] = `""`;
+exports[`Compiler compiler/closureFuncShortcut1.c Reports correct errors for compiler/closureFuncShortcut1.c: diags-compiler/closureFuncShortcut1.c 1`] = `""`;
+
+exports[`Compiler compiler/closureFuncShortcut2.c Reports correct errors for compiler/closureFuncShortcut2.c: diags-compiler/closureFuncShortcut2.c 1`] = `
+"
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/closureFuncShortcut2.c[90m:9[0m
+
+"
+`;
 
 exports[`Compiler compiler/commaExpr.c Reports correct errors for compiler/commaExpr.c: diags-compiler/commaExpr.c 1`] = `""`;
 
