@@ -11855,6 +11855,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         let fallbackReturnType: Type = voidType;
         
         if (func.body.kind !== SyntaxKind.Block) { // Async or normal arrow function
+            if (isInlineClosureExpression(func) && isArray(func.body)) {
+                console.debug("todo - remove this hack");
+                return anyType;
+            }
             returnType = checkExpressionCached(func.body, checkMode && checkMode & ~CheckMode.SkipGenericFunctions);            
             // if (isAsync) {
             //     // From within an async function you can return either a non-promise value or a promise. Any
@@ -12834,8 +12838,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (node.body) {   
             if (isInlineClosureExpression(node) && isArray(node.body as unknown as NodeArray<Expression>)) {
                 console.warn("todo - getReturnTypeFromBody - possible FluffOS function shortcut");                               
-                // TODO - remove this hack
+                // TODO - remove this hack                
                 (node.body as unknown as NodeArray<Expression>).forEach(e => checkExpression(e));
+                return;
             }
 
             if (!getEffectiveReturnTypeNode(node)) {
