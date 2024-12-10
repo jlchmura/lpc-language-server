@@ -494,7 +494,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         //     }
         //     return concatenate(sourceFile.additionalSyntacticDiagnostics, sourceFile.parseDiagnostics);
         // }
-        return sourceFile.parseDiagnostics;
+        return sourceFile.parseDiagnostics?.slice();
     }
 
     function forEachResolvedModule(

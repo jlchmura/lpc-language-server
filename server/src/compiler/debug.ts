@@ -1,4 +1,4 @@
-import { getOwnKeys, AnyFunction, AssertionLevel, Node, NodeArray, objectAllocator, Type,Symbol, SymbolFlags, symbolName, SortedReadonlyArray, compareValues, stableSort, TypeFlags, hasProperty, LiteralType, ObjectType, ObjectFlags, Signature, SignatureFlags, isIdentifier, idText, isStringLiteral, isIntLiteral, isFloatLiteral, SyntaxKind, NodeFlags, ModifierFlags, isParseTreeNode, getEffectiveModifierFlagsNoCache, nodeIsSynthesized, getParseTreeNode, getSourceFileOfNode, getSourceTextOfNodeFromSourceFile, FlowNode, FlowFlags, FlowSwitchClause, FlowLabel, isDefaultClause, maxBy, TypeMapper, TypeMapKind, zipWith, map, MatchingKeys, noop, NodeCheckFlags, isParameter, isArrayTypeNode, isUnionTypeNode, isParenthesizedTypeNode, isLiteralTypeNode, isIndexedAccessTypeNode, every, Macro } from "./_namespaces/lpc";
+import { getOwnKeys, AnyFunction, AssertionLevel, Node, NodeArray, objectAllocator, Type,Symbol, SymbolFlags, symbolName, SortedReadonlyArray, compareValues, stableSort, TypeFlags, hasProperty, LiteralType, ObjectType, ObjectFlags, Signature, SignatureFlags, isIdentifier, idText, isStringLiteral, isIntLiteral, isFloatLiteral, SyntaxKind, NodeFlags, ModifierFlags, isParseTreeNode, getEffectiveModifierFlagsNoCache, nodeIsSynthesized, getParseTreeNode, getSourceFileOfNode, getSourceTextOfNodeFromSourceFile, FlowNode, FlowFlags, FlowSwitchClause, FlowLabel, isDefaultClause, maxBy, TypeMapper, TypeMapKind, zipWith, map, MatchingKeys, noop, NodeCheckFlags, isParameter, isArrayTypeNode, isUnionTypeNode, isParenthesizedTypeNode, isLiteralTypeNode, isIndexedAccessTypeNode, every, Macro, VarianceFlags } from "./_namespaces/lpc";
 import * as lpc from "./_namespaces/lpc.js";
 
 /** @internal */
@@ -43,6 +43,22 @@ export namespace Debug {
         }
     }    
 
+    export function formatVariance(varianceFlags: VarianceFlags) {
+        const variance = varianceFlags & VarianceFlags.VarianceMask;
+        let result = variance === VarianceFlags.Invariant ? "in out" :
+            variance === VarianceFlags.Bivariant ? "[bivariant]" :
+            variance === VarianceFlags.Contravariant ? "in" :
+            variance === VarianceFlags.Covariant ? "out" :
+            variance === VarianceFlags.Independent ? "[independent]" : "";
+        if (varianceFlags & VarianceFlags.Unmeasurable) {
+            result += " (unmeasurable)";
+        }
+        else if (varianceFlags & VarianceFlags.Unreliable) {
+            result += " (unreliable)";
+        }
+        return result;
+    }
+    
     function attachNodeArrayDebugInfoWorker(array: NodeArray<Node>) {
         if (!("__lpcDebuggerDisplay" in array)) { // eslint-disable-line local/no-in-operator
             Object.defineProperties(array, {

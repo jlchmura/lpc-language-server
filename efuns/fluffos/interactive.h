@@ -679,8 +679,8 @@ void enable_commands( int setup_actions = 0 );
  * as inserting a file, and saving using an alternate file name.
  *
  */
-void ed( string file, string exit_fn, int restricted );
-void ed( string file, string write_fn, string exit_fn, int restricted );
+varargs void ed( string file, string exit_fn, int restricted );
+varargs void ed( string file, string write_fn, string exit_fn, int restricted );
 
 /**
  * disable_wizard() - remove wizard priveleges from an object

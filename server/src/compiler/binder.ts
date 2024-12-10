@@ -1,4 +1,4 @@
-import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression, isBinaryLogicalOperator, isLogicalOrCoalescingAssignmentOperator, isParenthesizedExpression, isPrefixUnaryExpression, BinaryOperatorToken, isAssignmentTarget, ElementAccessExpression, isBinaryExpression, isDottedName, FlowCall, createBinaryExpressionTrampoline, CaseClause, CallChain, LeftHandSideExpression, skipParentheses, ParameterDeclaration, ExpressionStatement, FunctionDeclaration, removeFileExtension, hasEffectiveModifier, getCombinedModifierFlags, isExpression, isIdentifierName, identifierToKeywordKind, AccessExpression, BindingElement, TypeLiteralNode, JSDocTypeLiteral, EntityNameExpression, isVariableDeclaration, factory, isVariableDeclarationList, isVariableStatement, setNodeFlags, isBindingPattern, ArrayBindingElement, InheritDeclaration, ClassLikeDeclaration, symbolName, StructDeclaration, BindableStaticNameExpression, BindableStaticAccessExpression, tryCast, isSourceFile, canHaveSymbol, getElementOrPropertyAccessName, MappingLiteralExpression, isStringOrNumericLiteralLike, isEntityNameExpression, isOmittedExpression, PropertyDeclaration, PropertySignature, PropertyAccessChain, ElementAccessChain, JSDocCallbackTag, JSDocTypedefTag, setParentRecursive, hasJSDocNodes, isInJSFile, DefineDirective, isAssignmentExpression, isObjectLiteralOrClassExpressionMethodOrAccessor, hasDynamicName, getLibRootedFileName, emptyArray, JSDocFunctionType, isFunctionDeclaration, isCallExpression } from "./_namespaces/lpc";
+import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, getSourceFileOfNode, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression, isBinaryLogicalOperator, isLogicalOrCoalescingAssignmentOperator, isParenthesizedExpression, isPrefixUnaryExpression, BinaryOperatorToken, isAssignmentTarget, ElementAccessExpression, isBinaryExpression, isDottedName, FlowCall, createBinaryExpressionTrampoline, CaseClause, CallChain, LeftHandSideExpression, skipParentheses, ParameterDeclaration, ExpressionStatement, FunctionDeclaration, removeFileExtension, hasEffectiveModifier, getCombinedModifierFlags, isExpression, isIdentifierName, identifierToKeywordKind, AccessExpression, BindingElement, TypeLiteralNode, JSDocTypeLiteral, EntityNameExpression, isVariableDeclaration, factory, isVariableDeclarationList, isVariableStatement, setNodeFlags, isBindingPattern, ArrayBindingElement, InheritDeclaration, ClassLikeDeclaration, symbolName, StructDeclaration, BindableStaticNameExpression, BindableStaticAccessExpression, tryCast, isSourceFile, canHaveSymbol, getElementOrPropertyAccessName, MappingLiteralExpression, isStringOrNumericLiteralLike, isEntityNameExpression, isOmittedExpression, PropertyDeclaration, PropertySignature, PropertyAccessChain, ElementAccessChain, JSDocCallbackTag, JSDocTypedefTag, setParentRecursive, hasJSDocNodes, isInJSFile, DefineDirective, isAssignmentExpression, isObjectLiteralOrClassExpressionMethodOrAccessor, hasDynamicName, getLibRootedFileName, emptyArray, JSDocFunctionType, isFunctionDeclaration, isCallExpression, TypeParameterDeclaration, isJSDocTemplateTag, getEffectiveContainerForJSDocTemplateTag, ConditionalTypeNode, findAncestor, isConditionalTypeNode, MappedTypeNode, SignatureDeclaration, JSDocSignature, JSDocParameterTag, JSDocPropertyLikeTag, JSDocOverloadTag, getEnclosingContainer, getEnclosingBlockScopeContainer, isPropertyAccessEntityNameExpression, JSDocClassTag, getHostSignatureFromJSDoc, isTypeAliasDeclaration, nodeIsMissing, isStatementButNotDeclaration, unreachableCodeIsError, getCombinedNodeFlags, isBlock, isStatement, sliceAfter, getRangesWhere, isEnumDeclaration, getTokenPosOfNode, TextRange, createFileDiagnostic, append, DiagnosticCategory } from "./_namespaces/lpc";
 
 const binder = /* @__PURE__ */ createBinder();
 
@@ -34,7 +34,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     var parentContainer: IsContainer | EntityNameExpression; // Container one level up
     var blockScopeContainer: IsBlockScopedContainer;
     var lastContainer: HasLocals;
-    //var delayedTypeAliases: (JSDocTypedefTag | JSDocCallbackTag | JSDocEnumTag)[];
+    var delayedTypeAliases: (JSDocTypedefTag | JSDocCallbackTag)[];
     var seenThisKeyword: boolean;
     //var jsDocImports: JSDocImportTag[];
     
@@ -96,19 +96,19 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             tracing?.pop();
             file.symbolCount = symbolCount;
             file.classifiableNames = classifiableNames;
-            // delayedBindJSDocTypedefTag();
+            delayedBindJSDocTypedefTag();
             // bindJSDocImports();
         }
 
         file = undefined!;
         options = undefined!;
-        //languageVersion = undefined!;
+        // languageVersion = undefined!;
         parent = undefined!;
         container = undefined!;
         parentContainer = undefined!;
         blockScopeContainer = undefined!;
         lastContainer = undefined!;
-        // delayedTypeAliases = undefined!;
+        delayedTypeAliases = undefined!;
         // jsDocImports = undefined!;
         seenThisKeyword = false;
         currentFlow = undefined!;
@@ -122,7 +122,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         hasExplicitReturn = false;
         hasFlowEffects = false;
         inAssignmentPattern = false;
-        //emitFlags = NodeFlags.None;      
+        emitFlags = NodeFlags.None;      
     }
 
     function bind(node:Node|undefined): void {
@@ -506,9 +506,60 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     }
 
     function checkUnreachable(node:Node): boolean {
-        return false;
+        if (!(currentFlow.flags & FlowFlags.Unreachable)) {
+            return false;
+        }
+        if (currentFlow === unreachableFlow) {
+            const reportError =
+                // report error on all statements except empty ones
+                (isStatementButNotDeclaration(node) && node.kind !== SyntaxKind.EmptyStatement) ||
+                // report error on class declarations
+                node.kind === SyntaxKind.ClassDeclaration;// ||
+                // report error on instantiated modules or const-enums only modules if preserveConstEnums is set
+                // (node.kind === SyntaxKind.ModuleDeclaration && shouldReportErrorOnModuleDeclaration(node as ModuleDeclaration));
+
+            if (reportError) {
+                currentFlow = reportedUnreachableFlow;
+
+                if (!options.allowUnreachableCode) {
+                    // unreachable code is reported if
+                    // - user has explicitly asked about it AND
+                    // - statement is in not ambient context (statements in ambient context is already an error
+                    //   so we should not report extras) AND
+                    //   - node is not variable statement OR
+                    //   - node is block scoped variable statement OR
+                    //   - node is not block scoped variable statement and at least one variable declaration has initializer
+                    //   Rationale: we don't want to report errors on non-initialized var's since they are hoisted
+                    //   On the other side we do want to report errors on non-initialized 'lets' because of TDZ
+                    const isError = unreachableCodeIsError(options) &&
+                        !(node.flags & NodeFlags.Ambient) &&
+                        (
+                            !isVariableStatement(node) ||
+                            !!(getCombinedNodeFlags(node.declarationList) & NodeFlags.BlockScoped) ||
+                            node.declarationList.declarations.some(d => !!d.initializer)
+                        );
+
+                    eachUnreachableRange(node, (start, end) => errorOrSuggestionOnRange(isError, start, end, Diagnostics.Unreachable_code_detected));
+                }
+            }
+        }
+        return true;
     }
 
+    function errorOrSuggestionOnRange(isError: boolean, startNode: Node, endNode: Node, message: DiagnosticMessage): void {
+        addErrorOrSuggestionDiagnostic(isError, { pos: getTokenPosOfNode(startNode, file), end: endNode.end }, message);
+    }
+
+    function addErrorOrSuggestionDiagnostic(isError: boolean, range: TextRange, message: DiagnosticMessage): void {
+        const diag = createFileDiagnostic(file, range.pos, range.end - range.pos, message);
+        if (isError) {
+            file.bindDiagnostics.push(diag);
+        }
+        else {
+            file.bindSuggestionDiagnostics = append(file.bindSuggestionDiagnostics, { ...diag, category: DiagnosticCategory.Suggestion });
+        }
+    }
+    
     function addToContainerChain(next: HasLocals) {
         if (lastContainer) {
             lastContainer.nextContainer = next;
@@ -567,10 +618,18 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 return declareSymbolAndAddToSymbolTable(node as Declaration, SymbolFlags.Signature, SymbolFlags.None);
             case SyntaxKind.TypeLiteral:
             case SyntaxKind.JSDocTypeLiteral:
-            // case SyntaxKind.MappedType:
+            case SyntaxKind.MappedType:
                 return bindAnonymousTypeWorker(node as TypeLiteralNode/* | MappedTypeNode*/ | JSDocTypeLiteral);            
+            case SyntaxKind.JSDocClassTag:
+                return bindJSDocClassTag(node as JSDocClassTag);
+            case SyntaxKind.FunctionType:
+            case SyntaxKind.JSDocFunctionType:
+            case SyntaxKind.JSDocSignature:            
+                return bindFunctionOrConstructorType(node as SignatureDeclaration | JSDocSignature);
             case SyntaxKind.TypePredicate:
                 break; // Binding the children will handle everything
+            case SyntaxKind.TypeParameter:
+                return bindTypeParameter(node as TypeParameterDeclaration);                
             case SyntaxKind.CallExpression:
                 const assignmentKind = getAssignmentDeclarationKind(node as CallExpression);
                 switch (assignmentKind) {
@@ -601,6 +660,34 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                     expr.flowNode = currentFlow;
                 }                                
                 break;
+            case SyntaxKind.TypeLiteral:
+            case SyntaxKind.JSDocTypeLiteral:
+            case SyntaxKind.MappedType:
+                return bindAnonymousTypeWorker(node as TypeLiteralNode | MappedTypeNode | JSDocTypeLiteral);
+            case SyntaxKind.TypeAliasDeclaration:
+                return bindBlockScopedDeclaration(node as Declaration, SymbolFlags.TypeAlias, SymbolFlags.TypeAliasExcludes);
+            case SyntaxKind.JSDocParameterTag:
+                if (node.parent.kind === SyntaxKind.JSDocSignature) {
+                    return bindParameter(node as JSDocParameterTag);
+                }
+                if (node.parent.kind !== SyntaxKind.JSDocTypeLiteral) {
+                    break;
+                }
+                // falls through
+            case SyntaxKind.JSDocPropertyTag:
+                const propTag = node as JSDocPropertyLikeTag;
+                const flags = propTag.isBracketed || propTag.typeExpression && propTag.typeExpression.type.kind === SyntaxKind.JSDocOptionalType ?
+                    SymbolFlags.Property | SymbolFlags.Optional :
+                    SymbolFlags.Property;
+                return declareSymbolAndAddToSymbolTable(propTag, flags, SymbolFlags.PropertyExcludes);
+            case SyntaxKind.JSDocTypedefTag:
+            case SyntaxKind.JSDocCallbackTag:
+            case SyntaxKind.JSDocEnumTag:
+                return (delayedTypeAliases || (delayedTypeAliases = [])).push(node as JSDocTypedefTag | JSDocCallbackTag);
+            case SyntaxKind.JSDocOverloadTag:
+                return bind((node as JSDocOverloadTag).typeExpression);
+            // case SyntaxKind.JSDocImportTag:
+            //     return (jsDocImports || (jsDocImports = [])).push(node as JSDocImportTag);
             case SyntaxKind.BinaryExpression:
                 const specialKind = getAssignmentDeclarationKind(node as BinaryExpression);
                 switch (specialKind) {
@@ -642,7 +729,31 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         return bindAnonymousDeclaration(node, SymbolFlags.Function, bindingName);
     }
     
-    function bindAnonymousTypeWorker(node: TypeLiteralNode | /*MappedTypeNode |*/ JSDocTypeLiteral) {
+    function bindJSDocClassTag(node: JSDocClassTag) {
+        bindEachChild(node);
+        const host = getHostSignatureFromJSDoc(node);
+        if (host && host.kind !== SyntaxKind.MethodDeclaration) {
+            addDeclarationToSymbol(host.symbol, host, SymbolFlags.Class);
+        }
+    }
+    
+    function bindFunctionOrConstructorType(node: SignatureDeclaration | JSDocSignature): void {
+        // For a given function symbol "<...>(...) => T" we want to generate a symbol identical
+        // to the one we would get for: { <...>(...): T }
+        //
+        // We do that by making an anonymous type literal symbol, and then setting the function
+        // symbol as its sole member. To the rest of the system, this symbol will be indistinguishable
+        // from an actual type literal symbol you would have gotten had you used the long form.
+        const symbol = createSymbol(SymbolFlags.Signature, getDeclarationName(node)!); // TODO: GH#18217
+        addDeclarationToSymbol(symbol, node, SymbolFlags.Signature);
+
+        const typeLiteralSymbol = createSymbol(SymbolFlags.TypeLiteral, InternalSymbolName.Type);
+        addDeclarationToSymbol(typeLiteralSymbol, node, SymbolFlags.TypeLiteral);
+        typeLiteralSymbol.members = createSymbolTable();
+        typeLiteralSymbol.members.set(symbol.name, symbol);
+    }
+
+    function bindAnonymousTypeWorker(node: TypeLiteralNode | MappedTypeNode | JSDocTypeLiteral) {
         return bindAnonymousDeclaration(node as Declaration, SymbolFlags.TypeLiteral, InternalSymbolName.Type);
     }    
 
@@ -781,7 +892,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         
         // only exclude functions from declaration if there is no body (meaning it is a function header decl).
         const excludes = !node.body ? SymbolFlags.FunctionExcludes : SymbolFlags.None;
-        declareSymbolAndAddToSymbolTable(node, SymbolFlags.Function, excludes);        
+        declareSymbolAndAddToSymbolTable(node, SymbolFlags.Function, SymbolFlags.FunctionExcludes);
     }
     
     // Should not be called on a declaration with a computed property name,
@@ -974,7 +1085,11 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                     }
 
                     const relatedInformation: DiagnosticRelatedInformation[] = [];
-                   
+                    // if (isTypeAliasDeclaration(node) && nodeIsMissing(node.type) && hasSyntacticModifier(node, ModifierFlags.Export) && symbol.flags & (SymbolFlags.Alias | SymbolFlags.Type | SymbolFlags.Namespace)) {
+                    //     // export type T; - may have meant export type { T }?
+                    //     relatedInformation.push(createDiagnosticForNode(node, Diagnostics.Did_you_mean_0, `export type { ${(node.name.text)} }`));
+                    // }
+                    
                     const declarationName = getNameOfDeclaration(node) || node;
                     forEach(symbol.declarations, (declaration, index) => {
                         const decl =  getNameOfDeclaration(declaration) || declaration;
@@ -1149,7 +1264,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
 
             case SyntaxKind.TypeLiteral:
             case SyntaxKind.JSDocTypeLiteral:
-            // case SyntaxKind.ObjectLiteralExpression:
+            case SyntaxKind.ObjectLiteralExpression:
             // case SyntaxKind.InterfaceDeclaration:            
                 // Interface/Object-types always have their children added to the 'members' of
                 // their container. They are only accessible through an instance of their
@@ -1157,14 +1272,14 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 // object / type / interface declaring them). An exception is type parameters,
                 // which are in scope without qualification (similar to 'locals').
                 return declareSymbol(container.symbol.members!, container.symbol, node, symbolFlags, symbolExcludes);           
-            // case SyntaxKind.FunctionType:
+            case SyntaxKind.FunctionType:
             // case SyntaxKind.ConstructorType:
-            // case SyntaxKind.CallSignature:
+            case SyntaxKind.CallSignature:
             // case SyntaxKind.ConstructSignature:
             case SyntaxKind.JSDocSignature:
             case SyntaxKind.IndexSignature:
-            // case SyntaxKind.MethodDeclaration:
-            // case SyntaxKind.MethodSignature:
+            case SyntaxKind.MethodDeclaration:
+            case SyntaxKind.MethodSignature:
             // case SyntaxKind.Constructor:
             // case SyntaxKind.GetAccessor:
             // case SyntaxKind.SetAccessor:
@@ -1172,10 +1287,10 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             case SyntaxKind.FunctionExpression:            
             case SyntaxKind.InlineClosureExpression:            
             case SyntaxKind.StructDeclaration:
-            // case SyntaxKind.JSDocFunctionType:
+            case SyntaxKind.JSDocFunctionType:
             // case SyntaxKind.ClassStaticBlockDeclaration:
-            // case SyntaxKind.TypeAliasDeclaration:
-            // case SyntaxKind.MappedType:
+            case SyntaxKind.TypeAliasDeclaration:
+            case SyntaxKind.MappedType:
                 // All the children of these container types are never visible through another
                 // symbol (i.e. through another symbol's 'exports' or 'members').  Instead,
                 // they're only accessed 'lexically' (i.e. from code that exists underneath
@@ -1357,7 +1472,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 if (!canHaveLocals(container) || !container.locals) {
                     return declareSymbol(container.symbol.exports!, container.symbol, node, symbolFlags, symbolExcludes); // No local symbol for an unnamed default!
                 }
-                const exportKind = symbolFlags | (symbolFlags & SymbolFlags.Value ? SymbolFlags.ExportValue : 0);
+                const exportKind = (symbolFlags & SymbolFlags.Value ? SymbolFlags.ExportValue : 0);
                 const local = declareSymbol(container.locals, /*parent*/ undefined, node, exportKind, symbolExcludes);
                 local.exportSymbol = declareSymbol(container.symbol.exports!, container.symbol, node, symbolFlags, symbolExcludes);
                 node.localSymbol = local;
@@ -1371,22 +1486,22 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     }
 
 
-    function bindParameter(node: ParameterDeclaration /*| JSDocParameterTag*/) {
-        // if (node.kind === SyntaxKind.JSDocParameterTag && container.kind !== SyntaxKind.JSDocSignature) {
-        //     return;
-        // }
+    function bindParameter(node: ParameterDeclaration | JSDocParameterTag) {
+        if (node.kind === SyntaxKind.JSDocParameterTag && container.kind !== SyntaxKind.JSDocSignature) {
+            return;
+        }
         // if (inStrictMode && !(node.flags & NodeFlags.Ambient)) {
         //     // It is a SyntaxError if the identifier eval or arguments appears within a FormalParameterList of a
         //     // strict mode FunctionLikeDeclaration or FunctionExpression(13.1)
         //     checkStrictModeEvalOrArguments(node, node.name);
         // }
 
-        // if (isBindingPattern(node.name)) {
-        //     bindAnonymousDeclaration(node, SymbolFlags.FunctionScopedVariable, "__" + (node as ParameterDeclaration).parent.parameters.indexOf(node as ParameterDeclaration) as string);
-        // }
-        // else {
+        if (isBindingPattern(node.name)) {
+            bindAnonymousDeclaration(node, SymbolFlags.FunctionScopedVariable, "__" + (node as ParameterDeclaration).parent.parameters.indexOf(node as ParameterDeclaration) as string);
+        }
+        else {
             declareSymbolAndAddToSymbolTable(node, SymbolFlags.FunctionScopedVariable, SymbolFlags.ParameterExcludes);
-        //}    
+        }    
     }
 
     function bindEachFunctionsFirst(nodes: NodeArray<Node> | undefined): void {
@@ -2026,6 +2141,108 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         // }
     }
 
+    function getInferTypeContainer(node: Node): ConditionalTypeNode | undefined {
+        const extendsType = findAncestor(node, n => n.parent && isConditionalTypeNode(n.parent) && n.parent.extendsType === n);
+        return extendsType && extendsType.parent as ConditionalTypeNode;
+    }
+    
+    function delayedBindJSDocTypedefTag() {
+        if (!delayedTypeAliases) {
+            return;
+        }
+        const saveContainer = container;
+        const saveLastContainer = lastContainer;
+        const saveBlockScopeContainer = blockScopeContainer;
+        const saveParent = parent;
+        const saveCurrentFlow = currentFlow;
+        for (const typeAlias of delayedTypeAliases) {
+            const host = typeAlias.parent.parent;
+            container = (getEnclosingContainer(host) as IsContainer | undefined) || file;
+            blockScopeContainer = (getEnclosingBlockScopeContainer(host) as IsBlockScopedContainer | undefined) || file;
+            currentFlow = createFlowNode(FlowFlags.Start, /*node*/ undefined, /*antecedent*/ undefined);
+            parent = typeAlias;
+            bind(typeAlias.typeExpression);
+            const declName = getNameOfDeclaration(typeAlias);
+            if ((!typeAlias.fullName) && declName && isPropertyAccessEntityNameExpression(declName.parent)) {
+                // typedef anchored to an A.B.C assignment - we need to bind into B's namespace under name C
+                const isTopLevel = false;// isTopLevelNamespaceAssignment(declName.parent);
+                if (isTopLevel) {
+                    // bindPotentiallyMissingNamespaces(file.symbol, declName.parent, isTopLevel, !!findAncestor(declName, d => isPropertyAccessExpression(d) && d.name.escapedText === "prototype"), /*containerIsClass*/ false);
+                    // const oldContainer = container;
+                    // switch (getAssignmentDeclarationPropertyAccessKind(declName.parent)) {
+                    //     case AssignmentDeclarationKind.ExportsProperty:
+                    //     case AssignmentDeclarationKind.ModuleExports:
+                    //         if (!isExternalOrCommonJsModule(file)) {
+                    //             container = undefined!;
+                    //         }
+                    //         else {
+                    //             container = file;
+                    //         }
+                    //         break;
+                    //     case AssignmentDeclarationKind.ThisProperty:
+                    //         container = declName.parent.expression;
+                    //         break;
+                    //     case AssignmentDeclarationKind.PrototypeProperty:
+                    //         container = (declName.parent.expression as PropertyAccessEntityNameExpression).name;
+                    //         break;
+                    //     case AssignmentDeclarationKind.Property:
+                    //         container = isExportsOrModuleExportsOrAlias(file, declName.parent.expression) ? file
+                    //             : isPropertyAccessExpression(declName.parent.expression) ? declName.parent.expression.name
+                    //             : declName.parent.expression;
+                    //         break;
+                    //     case AssignmentDeclarationKind.None:
+                    //         return Debug.fail("Shouldn't have detected typedef or enum on non-assignment declaration");
+                    // }
+                    // if (container) {
+                    //     declareModuleMember(typeAlias, SymbolFlags.TypeAlias, SymbolFlags.TypeAliasExcludes);
+                    // }
+                    // container = oldContainer;
+                }
+            }
+            else if (!typeAlias.fullName || typeAlias.fullName.kind === SyntaxKind.Identifier) {
+                parent = typeAlias.parent;
+                bindBlockScopedDeclaration(typeAlias, SymbolFlags.TypeAlias, SymbolFlags.TypeAliasExcludes);
+            }
+            else {
+                bind(typeAlias.fullName);
+            }
+        }
+        container = saveContainer;
+        lastContainer = saveLastContainer;
+        blockScopeContainer = saveBlockScopeContainer;
+        parent = saveParent;
+        currentFlow = saveCurrentFlow;
+    }
+
+
+    function bindTypeParameter(node: TypeParameterDeclaration) {
+        if (isJSDocTemplateTag(node.parent)) {
+            const container: HasLocals | undefined = getEffectiveContainerForJSDocTemplateTag(node.parent);
+            if (container) {
+                Debug.assertNode(container, canHaveLocals);
+                container.locals ??= createSymbolTable();
+                declareSymbol(container.locals, /*parent*/ undefined, node, SymbolFlags.TypeParameter, SymbolFlags.TypeParameterExcludes);
+            }
+            else {
+                declareSymbolAndAddToSymbolTable(node, SymbolFlags.TypeParameter, SymbolFlags.TypeParameterExcludes);
+            }
+        }
+        else if (node.parent.kind === SyntaxKind.InferType) {
+            const container: HasLocals | undefined = getInferTypeContainer(node.parent);
+            if (container) {
+                Debug.assertNode(container, canHaveLocals);
+                container.locals ??= createSymbolTable();
+                declareSymbol(container.locals, /*parent*/ undefined, node, SymbolFlags.TypeParameter, SymbolFlags.TypeParameterExcludes);
+            }
+            else {
+                bindAnonymousDeclaration(node, SymbolFlags.TypeParameter, getDeclarationName(node)!); // TODO: GH#18217
+            }
+        }
+        else {
+            declareSymbolAndAddToSymbolTable(node, SymbolFlags.TypeParameter, SymbolFlags.TypeParameterExcludes);
+        }
+    }
+    
     function bindJSDocTypeAlias(node: JSDocTypedefTag | JSDocCallbackTag) {
         bind(node.tagName);
         if (node.fullName) {
@@ -2190,5 +2407,38 @@ function lookupSymbolForName(container: Node, name: string): Symbol | undefined 
     // }
     if (canHaveSymbol(container)) {
         return container.symbol?.exports?.get(name);
+    }
+}
+
+function eachUnreachableRange(node: Node, cb: (start: Node, last: Node) => void): void {
+    if (isStatement(node) && isExecutableStatement(node) && isBlock(node.parent)) {
+        const { statements } = node.parent;
+        const slice = sliceAfter(statements, node);
+        getRangesWhere(slice, isExecutableStatement, (start, afterEnd) => cb(slice[start], slice[afterEnd - 1]));
+    }
+    else {
+        cb(node, node);
+    }
+}
+// As opposed to a pure declaration like an `interface`
+function isExecutableStatement(s: Statement): boolean {
+    // Don't remove statements that can validly be used before they appear.
+    return !isFunctionDeclaration(s) && !isPurelyTypeDeclaration(s) && !isEnumDeclaration(s) &&
+        // `var x;` may declare a variable used above
+        !(isVariableStatement(s) && !(getCombinedNodeFlags(s) & (NodeFlags.BlockScoped)) && s.declarationList.declarations.some(d => !d.initializer));
+}
+
+
+function isPurelyTypeDeclaration(s: Statement): boolean {
+    switch (s.kind) {
+        case SyntaxKind.InterfaceDeclaration:
+        case SyntaxKind.TypeAliasDeclaration:
+            return true;
+        // case SyntaxKind.ModuleDeclaration:
+        //     return getModuleInstanceState(s as ModuleDeclaration) !== ModuleInstanceState.Instantiated;
+        // case SyntaxKind.EnumDeclaration:
+        //     return hasSyntacticModifier(s, ModifierFlags.Const);
+        default:
+            return false;
     }
 }

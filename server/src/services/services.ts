@@ -2291,6 +2291,11 @@ export class ThrottledCancellationToken implements CancellationToken {
     }
 }
 
+/**
+ * Convert display parts to a string
+ * @param displayParts array of parts
+ * @returns a string
+ */
 export function displayPartsToString(displayParts: SymbolDisplayPart[] | undefined) {
     if (displayParts) {        
         return map(displayParts, displayPart => displayPart.text).join("");

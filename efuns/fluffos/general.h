@@ -212,9 +212,11 @@ void parse_add_synonym(string, string, string);
  * 
  * 3.  it  is  a function (formal) parameter that corresponds to a missing
  * actual argument.
- *
+ * @template T
+ * @param {T} arg - The variable to check
+ * @returns {arg as T} - 1 if the variable is null, 0 otherwise
  */
-int nullp( mixed arg );
+int nullp(mixed arg);
 
 /**
  * norm
@@ -233,24 +235,21 @@ float norm(int * | float *);
 int next_bit(string, int);
 
 /**
- * map()  - modify an mapping, array, or string via application of a func‐
-tion
+ * map()  - modify an mapping, array, or string via application of a function
  *
  * If the first argument is a mapping, map() behaves exactly like map_map‐
  * ping().  If it is an array, map() behaves exactly like map_array().  If
  * it's argument is a string, map() passes each character (as an  int)  to
  * the  function,  and replaces the character with the return value if the
  * return value is a non-zero integer.
- *
  */
-mapping|mixed* map( mapping | mixed* | string x,
-             string fun,
-             object ob,
-             mixed extra... );
+varargs mapping map( mapping x, string fun, object ob, mixed extra... );
+varargs mapping map( mapping x, function f, mixed extra... );
+varargs mixed* map( mixed* x, string fun, object ob, mixed extra... );
+varargs mixed* map( mixed* x, function f, mixed extra... );
+varargs string map( string x, string fun, object ob, mixed extra... );
+varargs string map( string x, function f, mixed extra... );
 
-mapping|mixed* map( mapping | mixed* | string x,
-             function f,
-             mixed extra... );
 
 /**
  * lookat_rotate2
@@ -314,7 +313,9 @@ float * id_matrix();
  * If the first syntax is used, the filter function is performed as a
  * call_other. If ob is a string, it is assumed to be the filename of an
  * object to load and call the filter function on.
- *
+ * @template {string|mapping|mixed*} T
+ * @param {T} source - The source to filter
+ * @returns {T} - The filtered source
  */
 mixed filter(string|mapping|mixed* source,
              string filter_function,

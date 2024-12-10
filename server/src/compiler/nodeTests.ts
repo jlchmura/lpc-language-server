@@ -1,4 +1,4 @@
-import { ArrayBindingPattern, ArrayLiteralExpression, ArrayTypeNode, ArrowFunction, BinaryExpression, BindingElement, Block, CallExpression, CallSignatureDeclaration, CaseBlock, CaseClause, CaseKeyword, ClassExpression, CloneObjectExpression, ComputedPropertyName, ConditionalTypeNode, DefaultClause, DefineDirective, ElementAccessExpression, EmptyStatement, ExpressionStatement, ExpressionWithTypeArguments, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, Identifier, IfStatement, IncludeDirective, IndexedAccessTypeNode, InheritDeclaration, InlineClosureExpression, IntLiteral, JSDoc, JSDocAllType, JSDocCallbackTag, JSDocDeprecatedTag, JSDocFunctionType, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocOptionalType, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSignature, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocUnknownType, JSDocVariadicType, LabeledStatement, LiteralTypeNode, MethodDeclaration, NewExpression, Node, NodeFlags, ObjectLiteralExpression, OmittedExpression, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PartiallyEmittedExpression, PrefixUnaryExpression, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, PropertySignature, QualifiedName, ShorthandPropertyAssignment, SourceFile, SpreadElement, StringLiteral, StructDeclaration, StructTypeNode, SwitchStatement, SyntaxKind, SyntaxList, ThisTypeNode, TypeAliasDeclaration, TypeLiteralNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
+import { ArrayBindingPattern, ArrayLiteralExpression, ArrayTypeNode, ArrowFunction, BinaryExpression, BindingElement, Block, CallExpression, CallSignatureDeclaration, CaseBlock, CaseClause, CaseKeyword, ClassDeclaration, ClassExpression, CloneObjectExpression, ComputedPropertyName, ConditionalTypeNode, DefaultClause, DefineDirective, ElementAccessExpression, EmptyStatement, ExpressionStatement, ExpressionWithTypeArguments, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, FunctionTypeNode, Identifier, IfStatement, IncludeDirective, IndexedAccessTypeNode, InheritDeclaration, InlineClosureExpression, IntLiteral, JSDoc, JSDocAllType, JSDocCallbackTag, JSDocClassTag, JSDocDeprecatedTag, JSDocFunctionType, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOptionalType, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSignature, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocUnknownType, JSDocVariadicType, LabeledStatement, LiteralTypeNode, MethodDeclaration, NewExpression, Node, NodeFlags, ObjectLiteralExpression, OmittedExpression, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PartiallyEmittedExpression, PrefixUnaryExpression, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, PropertySignature, QualifiedName, ShorthandPropertyAssignment, SourceFile, SpreadElement, StringLiteral, StructDeclaration, StructTypeNode, SwitchStatement, SyntaxKind, SyntaxList, ThisTypeNode, TupleTypeNode, TypeAliasDeclaration, TypeLiteralNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
 
 export function isBinaryExpression(node: Node): node is BinaryExpression {
     return node.kind === SyntaxKind.BinaryExpression;
@@ -181,7 +181,7 @@ export function isForStatement(node: Node): node is ForStatement {
 }
 
 export function isSpreadAssignment(node: Node) {//: node is SpreadAssignment {
-    // TODO
+    console.debug("todo - isSpreadAssignment");
     return false;//return node.kind === SyntaxKind.SpreadAssignment;
 }
 
@@ -253,8 +253,8 @@ export function isConstructorDeclaration(node: Node) {//: node is ConstructorDec
     return false;//return node.kind === SyntaxKind.Constructor;
 }
 
-export function isClassDeclaration(node: Node): node is Node {
-    return false;//return node.kind === SyntaxKind.ClassDeclaration;
+export function isClassDeclaration(node: Node): node is ClassDeclaration {
+    return node.kind === SyntaxKind.ClassDeclaration;
 }
 
 export function isArrowFunction(node: Node): node is ArrowFunction {
@@ -306,8 +306,8 @@ export function isJSDocLinkPlain(node: Node): node is JSDocLinkPlain {
     return node.kind === SyntaxKind.JSDocLinkPlain;
 }
 
-export function isFunctionTypeNode(node: Node){//: node is FunctionTypeNode {
-    return false;//return node.kind === SyntaxKind.FunctionType;
+export function isFunctionTypeNode(node: Node): node is FunctionTypeNode {
+    return node.kind === SyntaxKind.FunctionType;
 }
 
 export function isJSDocOverloadTag(node: Node): node is JSDocOverloadTag {
@@ -438,4 +438,32 @@ export function isCallSignatureDeclaration(node: Node): node is CallSignatureDec
 
 export function isEmptyStatement(node: Node): node is EmptyStatement {
     return node.kind === SyntaxKind.EmptyStatement;
+}
+
+export function isTupleTypeNode(node: Node): node is TupleTypeNode {
+    return node.kind === SyntaxKind.TupleType;
+}
+
+export function isJSDocClassTag(node: Node): node is JSDocClassTag {
+    return node.kind === SyntaxKind.JSDocClassTag;
+}
+
+export function isEnumDeclaration(node: Node) {
+    return false;// TODO return node.kind === SyntaxKind.EnumDeclaration;
+}
+
+export function isJSDocNameReference(node: Node): node is JSDocNameReference {
+    return node.kind === SyntaxKind.JSDocNameReference;
+}
+
+export function isJSDocMemberName(node: Node): node is JSDocMemberName {
+    return node.kind === SyntaxKind.JSDocMemberName;
+}
+
+export function isExportAssignment(node: Node){//}: node is ExportAssignment {
+    return false; // TODO return node.kind === SyntaxKind.ExportAssignment;
+}
+
+export function isTypeOperatorNode(node: Node){//}: node is TypeOperatorNode {
+    return node.kind === SyntaxKind.TypeOperator;
 }

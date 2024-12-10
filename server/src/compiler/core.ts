@@ -1979,3 +1979,76 @@ export function extend<T1, T2>(first: T1, second: T2): T1 & T2 {
 export function* singleIterator<T>(value: T) {
     yield value;
 }
+
+/** @internal */
+export function firstOrUndefinedIterator<T>(iter: Iterable<T> | undefined): T | undefined {
+    if (iter) {
+        for (const value of iter) {
+            return value;
+        }
+    }
+    return undefined;
+}
+
+/** @internal */
+export function arrayOf<T>(count: number, f: (index: number) => T): T[] {
+    const result = new Array(count);
+    for (let i = 0; i < count; i++) {
+        result[i] = f(i);
+    }
+    return result;
+}
+
+/** @internal */
+export function cartesianProduct<T>(arrays: readonly T[][]) {
+    const result: T[][] = [];
+    cartesianProductWorker(arrays, result, /*outer*/ undefined, 0);
+    return result;
+}
+
+function cartesianProductWorker<T>(arrays: readonly (readonly T[])[], result: (readonly T[])[], outer: readonly T[] | undefined, index: number) {
+    for (const element of arrays[index]) {
+        let inner: T[];
+        if (outer) {
+            inner = outer.slice();
+            inner.push(element);
+        }
+        else {
+            inner = [element];
+        }
+        if (index === arrays.length - 1) {
+            result.push(inner);
+        }
+        else {
+            cartesianProductWorker(arrays, result, inner, index + 1);
+        }
+    }
+}
+
+/** @internal */
+export function replaceElement<T>(array: readonly T[], index: number, value: T): T[] {
+    const result = array.slice(0);
+    result[index] = value;
+    return result;
+}
+
+/**
+ * Calls the callback with (start, afterEnd) index pairs for each range where 'pred' is true.
+ *
+ * @internal
+ */
+export function getRangesWhere<T>(arr: readonly T[], pred: (t: T) => boolean, cb: (start: number, afterEnd: number) => void): void {
+    let start: number | undefined;
+    for (let i = 0; i < arr.length; i++) {
+        if (pred(arr[i])) {
+            start = start === undefined ? i : start;
+        }
+        else {
+            if (start !== undefined) {
+                cb(start, i);
+                start = undefined;
+            }
+        }
+    }
+    if (start !== undefined) cb(start, arr.length);
+}

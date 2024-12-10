@@ -266,7 +266,6 @@ export function start(connection: Connection, platform: string) {
                      });
                 }
                 
-                // executeRequest<protocol.UpdateOpenRequest>(protocol.CommandTypes.UpdateOpen, {changedFiles: [{fileName: filename, textChanges: changes }]});                                                
                 if (serverMode !== lpc.LanguageServiceMode.Syntactic) {
                     executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: DIAG_DELAY, files: [filename]});
                 }

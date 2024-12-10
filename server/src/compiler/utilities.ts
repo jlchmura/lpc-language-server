@@ -1,5 +1,5 @@
 import * as vm from "node:vm";
-import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression, createTextSpan, CaseOrDefaultClause, createTextSpanFromBounds, ReturnStatement, createScanner, isQualifiedName, EntityNameOrEntityNameExpression, isCallOrNewExpression, CallLikeExpression, EmitTextWriter, computeLineStarts, last, isWhiteSpaceLike, ScriptTarget, isIdentifierStart, isFunctionDeclaration, HasType, Block, Statement, NodeArray, ClassElement, TypeElement, ObjectLiteralElement, ObjectTypeDeclaration, ObjectLiteralExpression, noop, NewExpression, CommaListExpression, ConditionalExpression, ElementAccessExpression, PartiallyEmittedExpression, InternalEmitFlags, EmitFlags, getLineStarts, getLinesBetweenPositions, HasExpressionInitializer, isStringLiteral, isIntLiteral, StringLiteral, IntLiteral, VariableLikeDeclaration, isBindingElement, BindingElementOfBareOrAccessedRequire, QualifiedName, TypeParameterDeclaration, contains, JSDocTypedefTag, EqualityComparer, equateValues, TypeReferenceNode, isTypeReferenceNode, LateVisibilityPaintedStatement, IndexInfo, PrintHandlers, StringLiteralType, IntLiteralType, flatten, LanguageVariant, combinePaths, map, isRootedDiskPath, getStringComparer, containsPath, every, indexOfAnyCharCode, hasExtension, getDirectoryPath, createGetCanonicalFileName, sort, fileExtensionIsOneOf, findIndex, ReadonlyCollection, equalOwnProperties, FileExtensionInfo, mapDefined, EmitHost, ModuleKind, filter, getNormalizedAbsolutePath, getCommonSourceDirectory, comparePaths, GetCanonicalFileName, SourceFileMayBeEmittedHost, Diagnostics, TypeCheckerHost, ModuleResolutionKind, ResolutionMode, forEachChildRecursively, CommandLineOption, InheritDeclaration, emptyMap, LiteralLikeElementAccessExpression, VariableDeclaration, VariableDeclarationList, isComputedPropertyName, isJSDocParameterTag, BindableStaticNameExpression, getNameOfDeclaration, isVariableStatement, isExpressionStatement, getLeadingCommentRanges, SuperContainer, SuperContainerOrFunctions, CharacterCodes, StringLiteralLike, AnyValidImportOrReExport, tryCast, CloneObjectExpression, TriviaSyntaxKind, concatenate, getTrailingCommentRanges, computeLineOfPosition, AnyImportSyntax, PrologueDirective, startsWith, stringToToken, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, ClassLikeDeclaration, JSDocCallbackTag, TypeAliasDeclaration, isJSDocTypeAlias, isTypeAliasDeclaration, EvaluationResolver, EvaluatorResult, FloatLiteral, isPropertyName, isPrefixUnaryExpression, tokenToString, isJSDocPropertyLikeTag, getJSDocType, ContainerFlags, MethodDeclaration, getContainerFlags, TypePredicate, IdentifierTypePredicate, TypePredicateKind, first, isClassLike, IncludeDirective, hasInitializer, addRange, getJSDocParameterTagsNoCache, getJSDocParameterTags, getJSDocTypeParameterTags, getJSDocTypeParameterTagsNoCache, JSDocArray, isJSDocOverloadTag, isJSDocTypeTag, isJSDocSatisfiesTag, isParenthesizedExpression, HasInferredType, assertType, PropertySignature, JSDocTypeAssertion, getJSDocTypeTag, PrimitiveLiteral, isNumericLiteral, isFunctionExpression, isArrowFunction, ArrowFunction, InheritClauseNodeType, isJSDocTag, isJSDocTypeLiteral, isTypeElement, TypeLiteralNode, UnionOrIntersectionTypeNode, ArrayLiteralExpression, ObjectLiteralExpressionBase, CaseBlock, isClassElement, MethodSignature, CallSignatureDeclaration, IndexSignatureDeclaration, ComputedPropertyName, getSnippetElement, SnippetKind, VariableStatement, singleElementArray, ExpressionWithTypeArguments, getJSDocImplementsTags, HeritageClause, isPropertySignature, isParenthesizedTypeNode, DynamicNamedDeclaration, DynamicNamedBinaryExpression, CommentRange, isWhiteSpaceSingleLine, LineAndCharacter, computeLineAndCharacterOfPosition, TokenFlags, emitNodeAsJsText, createVmHelperContext, HasLocals, ProjectReference, LpcConfigSourceFile, isObjectLiteralExpression, isPropertyAssignment, JSDocParameterTag, getJSDocReturnType, isArray, factory, ThisObjectPragmas, isArrayLiteralExpression, convertToRelativePath, moduleResolutionOptionDeclarations, ResolvedModuleWithFailedLookupLocations, optionsAffectingProgramStructure, ConciseBody, isArrayTypeNode } from "./_namespaces/lpc.js";
+import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression, createTextSpan, CaseOrDefaultClause, createTextSpanFromBounds, ReturnStatement, createScanner, isQualifiedName, EntityNameOrEntityNameExpression, isCallOrNewExpression, CallLikeExpression, EmitTextWriter, computeLineStarts, last, isWhiteSpaceLike, ScriptTarget, isIdentifierStart, isFunctionDeclaration, HasType, Block, Statement, NodeArray, ClassElement, TypeElement, ObjectLiteralElement, ObjectTypeDeclaration, ObjectLiteralExpression, noop, NewExpression, CommaListExpression, ConditionalExpression, ElementAccessExpression, PartiallyEmittedExpression, InternalEmitFlags, EmitFlags, getLineStarts, getLinesBetweenPositions, HasExpressionInitializer, isStringLiteral, isIntLiteral, StringLiteral, IntLiteral, VariableLikeDeclaration, isBindingElement, BindingElementOfBareOrAccessedRequire, QualifiedName, TypeParameterDeclaration, contains, JSDocTypedefTag, EqualityComparer, equateValues, TypeReferenceNode, isTypeReferenceNode, LateVisibilityPaintedStatement, IndexInfo, PrintHandlers, StringLiteralType, IntLiteralType, flatten, LanguageVariant, combinePaths, map, isRootedDiskPath, getStringComparer, containsPath, every, indexOfAnyCharCode, hasExtension, getDirectoryPath, createGetCanonicalFileName, sort, fileExtensionIsOneOf, findIndex, ReadonlyCollection, equalOwnProperties, FileExtensionInfo, mapDefined, EmitHost, ModuleKind, filter, getNormalizedAbsolutePath, getCommonSourceDirectory, comparePaths, GetCanonicalFileName, SourceFileMayBeEmittedHost, Diagnostics, TypeCheckerHost, ModuleResolutionKind, ResolutionMode, forEachChildRecursively, CommandLineOption, InheritDeclaration, emptyMap, LiteralLikeElementAccessExpression, VariableDeclaration, VariableDeclarationList, isComputedPropertyName, isJSDocParameterTag, BindableStaticNameExpression, getNameOfDeclaration, isVariableStatement, isExpressionStatement, getLeadingCommentRanges, SuperContainer, SuperContainerOrFunctions, CharacterCodes, StringLiteralLike, AnyValidImportOrReExport, tryCast, CloneObjectExpression, TriviaSyntaxKind, concatenate, getTrailingCommentRanges, computeLineOfPosition, AnyImportSyntax, PrologueDirective, startsWith, stringToToken, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, ClassLikeDeclaration, JSDocCallbackTag, TypeAliasDeclaration, isJSDocTypeAlias, isTypeAliasDeclaration, EvaluationResolver, EvaluatorResult, FloatLiteral, isPropertyName, isPrefixUnaryExpression, tokenToString, isJSDocPropertyLikeTag, getJSDocType, ContainerFlags, MethodDeclaration, getContainerFlags, TypePredicate, IdentifierTypePredicate, TypePredicateKind, first, isClassLike, IncludeDirective, hasInitializer, addRange, getJSDocParameterTagsNoCache, getJSDocParameterTags, getJSDocTypeParameterTags, getJSDocTypeParameterTagsNoCache, JSDocArray, isJSDocOverloadTag, isJSDocTypeTag, isJSDocSatisfiesTag, isParenthesizedExpression, HasInferredType, assertType, PropertySignature, JSDocTypeAssertion, getJSDocTypeTag, PrimitiveLiteral, isNumericLiteral, isFunctionExpression, isArrowFunction, ArrowFunction, InheritClauseNodeType, isJSDocTag, isJSDocTypeLiteral, isTypeElement, TypeLiteralNode, UnionOrIntersectionTypeNode, ArrayLiteralExpression, ObjectLiteralExpressionBase, CaseBlock, isClassElement, MethodSignature, CallSignatureDeclaration, IndexSignatureDeclaration, ComputedPropertyName, getSnippetElement, SnippetKind, VariableStatement, singleElementArray, ExpressionWithTypeArguments, getJSDocImplementsTags, HeritageClause, isPropertySignature, isParenthesizedTypeNode, DynamicNamedDeclaration, DynamicNamedBinaryExpression, CommentRange, isWhiteSpaceSingleLine, LineAndCharacter, computeLineAndCharacterOfPosition, TokenFlags, emitNodeAsJsText, createVmHelperContext, HasLocals, ProjectReference, LpcConfigSourceFile, isObjectLiteralExpression, isPropertyAssignment, JSDocParameterTag, getJSDocReturnType, isArray, factory, ThisObjectPragmas, isArrayLiteralExpression, convertToRelativePath, moduleResolutionOptionDeclarations, ResolvedModuleWithFailedLookupLocations, optionsAffectingProgramStructure, ConciseBody, isArrayTypeNode, getSymbolId, ClassDeclaration, DeclarationWithTypeParameters, getJSDocTags, SuperCall, JSDocOverloadTag, getAllJSDocTags, JSDocSatisfiesExpression, getJSDocSatisfiesTag, ParenthesizedTypeNode } from "./_namespaces/lpc.js";
 
 /** @internal */
 export const resolvingEmptyArray: never[] = [];
@@ -638,6 +638,10 @@ export function getTextOfNode(node: Node, includeTrivia = false): string {
 
 /** @internal */
 export function getErrorSpanForNode(sourceFile: SourceFile, node: Node): TextSpan {
+    // if the node came from a macro, move up the parent chain until we find a non-macro node
+    while (node.originFilename=="macro" && node.parent) {
+        node = node.parent;
+    }
     // if this node was from an include file, switch to the position of the include directive
     if (node.includeDirEnd !== undefined) {
         return getSpanOfTokenAtPosition(sourceFile, node.includeDirPos);
@@ -692,6 +696,7 @@ export function getErrorSpanForNode(sourceFile: SourceFile, node: Node): TextSpa
     //Debug.assert(!isJSDoc(errorNode));
 
     const isMissing = nodeIsMissing(errorNode);
+    Debug.assertIsDefined(sourceFile);
     const pos = isMissing// || isJsxText(node)
         ? errorNode.pos
         : skipTrivia(sourceFile.text, errorNode.pos);    
@@ -1274,12 +1279,16 @@ export function createNameResolver({
             switch (location.kind) {
                 case SyntaxKind.SourceFile:                                                        
                     // first check file members
-                    if (result = lookup(getSymbolOfDeclaration(location as SourceFile).members, name, meaning)) {
+                    const sourceFileSymbol = getSymbolOfDeclaration(location as SourceFile);
+                    if (result = lookup(sourceFileSymbol.members, name, meaning)) {
                         break loop;
                     }    
+                    if (result = lookup(sourceFileSymbol.exports, name, meaning)) {
+                        break loop;
+                    }
                 
                     // now check inherited symbols
-                    const importTypes = getSymbolOfDeclaration(location as SourceFile).inherits;                                        
+                    const importTypes = sourceFileSymbol.inherits;                                        
                     const importStack = Array.from(importTypes?.entries() ?? emptyArray);
                     const seenImports = new Set<string>();
                     while (!result && importStack.length) {                        
@@ -3233,7 +3242,9 @@ export function getEffectiveTypeAnnotationNode(node: Node): TypeNode | undefined
     // If type is object or mixed keyword, try to use JSDoc type annotation first, failing back to the actual type keyword
     if (isObjectOrMixedType(type) || (type && isArrayTypeNode(type) && isObjectOrMixedType(type.elementType))) {
         const jsDocType = tryGetJsDocType();        
-        return jsDocType ? isArrayTypeNode(jsDocType) ? jsDocType.elementType : jsDocType.kind !== type.kind ? jsDocType : type : type;
+        // return jsDocType ? isArrayTypeNode(jsDocType) ? jsDocType.elementType : jsDocType.kind !== type.kind ? jsDocType : type : type;
+        // use the jsdoc kind if its different, otherwise use the real type annotation
+        return jsDocType && (jsDocType.kind !== type.kind || isArrayTypeNode(jsDocType)) ? jsDocType : type;
     } else if (type || !isInJSFile(node)) {
         return type;
     }
@@ -5001,14 +5012,14 @@ export function setParentRecursive<T extends Node>(rootNode: T | undefined, incr
     return rootNode;
 
     function bindParentToChildIgnoringJSDoc(child: Node, parent: Node): void | "skip" {
-        if (incremental && child.parent === parent) {
+        if (incremental && child?.parent === parent) {
             return "skip";
         }
         setParent(child, parent);
     }
 
     function bindJSDoc(child: Node) {
-        if (hasJSDocNodes(child)) {
+        if (child && hasJSDocNodes(child)) {
             for (const doc of child.jsDoc!) {
                 bindParentToChildIgnoringJSDoc(doc, child);
                 forEachChildRecursively(doc, bindParentToChildIgnoringJSDoc);
@@ -6958,4 +6969,108 @@ export function moduleResolutionIsEqualTo(oldResolution: ResolvedModuleWithFaile
 /** @internal */
 export function changesAffectingProgramStructure(oldOptions: CompilerOptions, newOptions: CompilerOptions) {
     return optionsHaveChanges(oldOptions, newOptions, optionsAffectingProgramStructure);
+}
+
+/** @internal */
+export function getSymbolNameForPrivateIdentifier(containingClassSymbol: Symbol, description: string): string {
+    return `__#${getSymbolId(containingClassSymbol)}@${description}` as string;
+}
+
+/** @internal */
+export function getTypeParameterFromJsDoc(node: TypeParameterDeclaration & { parent: JSDocTemplateTag; }): TypeParameterDeclaration | undefined {    
+    const name = node.name.text;    
+    const { typeParameters } = node.parent.parent.parent as SignatureDeclaration | ClassDeclaration;// | InterfaceDeclaration;
+    return typeParameters && find(typeParameters, p => p.name.text === name);
+}
+
+/** @internal */
+export function canHaveIllegalTypeParameters(node: Node) { //: node is HasIllegalTypeParameters {
+    const kind = node.kind;
+    return false;
+    // return kind === SyntaxKind.Constructor
+    //     || kind === SyntaxKind.GetAccessor
+    //     || kind === SyntaxKind.SetAccessor;
+}
+
+/** @internal */
+export function getJSDocTypeParameterDeclarations(node: DeclarationWithTypeParameters): readonly TypeParameterDeclaration[] {
+    return flatMap(getJSDocTags(node), tag => isNonTypeAliasTemplate(tag) ? tag.typeParameters : undefined);
+}
+
+/** template tags are only available when a typedef isn't already using them */
+function isNonTypeAliasTemplate(tag: JSDocTag): tag is JSDocTemplateTag {
+    return isJSDocTemplateTag(tag) && !(tag.parent.kind === SyntaxKind.JSDoc && (tag.parent.tags!.some(isJSDocTypeAlias) || tag.parent.tags!.some(isJSDocOverloadTag)));
+}
+
+/** @internal */
+export function isSuperCall(n: Node): n is SuperCall {
+    return n.kind === SyntaxKind.CallExpression && (n as CallExpression).expression.kind === SyntaxKind.SuperAccessExpression;
+}
+
+
+/** @internal */
+export function getJSDocOverloadTags(node: Node): readonly JSDocOverloadTag[] {
+    return getAllJSDocTags(node, isJSDocOverloadTag);
+}
+
+/** @internal */
+export type StrictOptionName =
+    | "noImplicitAny"
+    | "noImplicitThis"
+    | "strictNullChecks"
+    | "strictFunctionTypes"
+    | "strictBindCallApply"
+    | "strictPropertyInitialization"
+    | "alwaysStrict"
+    | "strictObjectTypes"
+    | "useUnknownInCatchVariables";
+    
+/** @internal */
+export function getStrictOptionValue(compilerOptions: CompilerOptions, flag: StrictOptionName): boolean {
+    return compilerOptions[flag] === undefined ? !!compilerOptions.strict : !!compilerOptions[flag];
+}
+
+/** @internal */
+export function isJSDocSatisfiesExpression(node: Node): node is JSDocSatisfiesExpression {
+    return isInJSFile(node) && isParenthesizedExpression(node) && hasJSDocNodes(node) && !!getJSDocSatisfiesTag(node);
+}
+
+/** @internal */
+export function getJSDocSatisfiesExpressionType(node: JSDocSatisfiesExpression) {
+    return Debug.checkDefined(tryGetJSDocSatisfiesTypeNode(node));
+}
+
+/** @internal */
+export function tryGetJSDocSatisfiesTypeNode(node: Node) {
+    const tag = getJSDocSatisfiesTag(node);
+    return tag && tag.typeExpression && tag.typeExpression.type;
+}
+
+/** @internal */
+export function unreachableCodeIsError(options: CompilerOptions): boolean {
+    return options.allowUnreachableCode === false;
+}
+
+/** @internal */
+export function sliceAfter<T>(arr: readonly T[], value: T): readonly T[] {
+    const index = arr.indexOf(value);
+    Debug.assert(index !== -1);
+    return arr.slice(index);
+}
+
+
+/**
+ * Walks up parenthesized types.
+ * It returns both the outermost parenthesized type and its parent.
+ * If given node is not a parenthesiezd type, undefined is return as the former.
+ *
+ * @internal
+ */
+export function walkUpParenthesizedTypesAndGetParentAndChild(node: Node): [ParenthesizedTypeNode | undefined, Node] {
+    let child: ParenthesizedTypeNode | undefined;
+    while (node && node.kind === SyntaxKind.ParenthesizedType) {
+        child = node as ParenthesizedTypeNode;
+        node = node.parent;
+    }
+    return [child, node];
 }

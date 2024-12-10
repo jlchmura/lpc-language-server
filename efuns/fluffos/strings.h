@@ -360,7 +360,8 @@ string replace_string( str, pattern, replace, first, last );
  * the index of 1st match/non match in the array lines.
  *
  */
-string *regexp( string *lines, string pattern, void | int flag );
+int regexp(string str, string pattern, void | int flag);
+string *regexp(string *lines, string pattern, void | int flag);
 
 /**
  * reg_assoc() - A regular pattern substring extractor
@@ -402,8 +403,7 @@ string *regexp( string *lines, string pattern, void | int flag );
  * "no-match", F_STRING, "no-match" }) })
  *
  */
-mixed  *reg_assoc(string  str,  string *pat_arr, mixed *tok_arr, void |
-mixed def);
+mixed *reg_assoc(string  str,  string *pat_arr, mixed *tok_arr, void | mixed def);
 
 /**
  * oldcrypt() - encrypt a string

@@ -633,12 +633,15 @@ export const enum SignatureKind {
     Construct,
 }
 
+export type DestructuringPattern = BindingPattern | ObjectLiteralExpression | ArrayLiteralExpression;
+
 // Properties common to all types
 export interface Type {
     flags: TypeFlags; // Flags
     /** @internal */ id: TypeId; // Unique ID
     /** @internal */ checker: any; // TypeChecker
     symbol: Symbol; // Symbol associated with type (if any)    
+    pattern?: DestructuringPattern;  // Destructuring pattern represented by type (if any)
     aliasSymbol?: Symbol; // Alias associated with type
     aliasTypeArguments?: readonly Type[]; // Alias type arguments (if any)
     /** @internal */
@@ -765,9 +768,7 @@ export const enum SyntaxKind {
     
     // Keywords
     IntKeyword, // FIrst Keyword, FirstReserved Word
-    FloatKeyword,
-    FalseKeyword,
-    TrueKeyword,
+    FloatKeyword,    
     StringKeyword,
     LwObjectKeyword,        
     UndefinedKeyword,
@@ -791,8 +792,7 @@ export const enum SyntaxKind {
     DefaultKeyword,
     IfKeyword,
     
-    ReturnKeyword,
-    NullKeyword,
+    ReturnKeyword,    
     SwitchKeyword,
     WhileKeyword,
     AsyncKeyword,
@@ -815,6 +815,9 @@ export const enum SyntaxKind {
     // non-reserved keywords go below this line
     ClassKeyword,
     StatusKeyword,
+    FalseKeyword,       // JSON-only
+    TrueKeyword,        // JSON-only
+    NullKeyword,        // JSON-only    
     FunctionKeyword,    // can be used as a param name
     SymbolKeyword,      // not reserved in fluffos
     ObjectKeyword,      // can occur in a super expr i.e.  object::fn()
@@ -840,14 +843,19 @@ export const enum SyntaxKind {
     PropertyDeclaration,
     PropertySignature,
     MethodDeclaration,
+    InterfaceDeclaration,
     MethodSignature,
 
 
     // Types
     UnionType, // First Type Node
     FunctionType,
+    IntersectionType,
+    RestType,
     ArrayType,
+    TupleType,
     TypeLiteral,
+    TypeQuery,
     ParenthesizedType,
     TypeReference,
     TypePredicate,
@@ -964,9 +972,11 @@ export const enum SyntaxKind {
 
     LiteralType,
     StructType,
+    InferType,
     ThisType,
     IndexedAccessType,
     NamedTupleMember,
+    TypeOperator,
     MappedType,
 
     // Binding Pattern
@@ -1278,11 +1288,12 @@ export const enum ModifierFlags {
     Static =             1 << 8,  // Property/Method
     VarArgs =            1 << 9,
     Visible =            1 << 10,
-    Export =             1 << 11, // Declarations
-    
+    Export =             1 << 11, // Declarations    
     
     Ambient =            1 << 12,
     Readonly =           1 << 13,
+    In =                 1 << 14, // Contravariance modifier
+    Out =                1 << 15, // Covariance modifier
 
     Deprecated =         1 << 16, // Deprecated tag.
 
@@ -1406,6 +1417,8 @@ export type TokenSyntaxKind =
 
 export type TypeNodeSyntaxKind =
     | KeywordTypeSyntaxKind
+    | SyntaxKind.TupleType
+    | SyntaxKind.InferType
     | SyntaxKind.UnionType
     | SyntaxKind.NamedTupleMember
     | SyntaxKind.IndexedAccessType
@@ -1604,7 +1617,7 @@ export interface NodeFactory {
     createConditionalExpression(condition: Expression, questionToken: QuestionToken | undefined, whenTrue: Expression, colonToken: ColonToken | undefined, whenFalse: Expression): ConditionalExpression;
     createBinaryExpression(left: Expression, operator: BinaryOperator | BinaryOperatorToken, right: Expression): BinaryExpression;
     createCallExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CallExpression;
-    createInlineClosure(body: ConciseBody): InlineClosureExpression;
+    createInlineClosure(body: ConciseBody | NodeArray<Expression>): InlineClosureExpression;
     createSuperAccessExpression(name: MemberName, namespace?: string | StringLiteral | Identifier): SuperAccessExpression;
     createPropertyAccessExpression(expression: Expression, name: string | Identifier | Expression, propertyAccessToken?: PropertyAccessToken): PropertyAccessExpression;
     createPrefixUnaryExpression(operator: PrefixUnaryOperator, operand: Expression): PrefixUnaryExpression;
@@ -1677,6 +1690,17 @@ export interface NodeFactory {
     //
     /** @internal */ createSyntheticExpression(type: Type, isSpread?: boolean, tupleNameSource?: ParameterDeclaration | NamedTupleMember): SyntheticExpression;
     /** @internal */ createSyntaxList(children: readonly Node[]): SyntaxList;
+
+    /**
+     * Gets the name of a declaration for use in declarations.
+     *
+     * @param node The declaration.
+     * @param allowComments A value indicating whether comments may be emitted for the name.
+     * @param allowSourceMaps A value indicating whether source maps may be emitted for the name.
+     *
+     * @internal
+     */
+    getDeclarationName(node: Declaration | undefined, allowComments?: boolean, allowSourceMaps?: boolean): Identifier;
 }
 
 export interface CompilerOptions {
@@ -1691,6 +1715,7 @@ export interface CompilerOptions {
     noUnusedLocals?: boolean;
     noUnusedParameters?: boolean;
     noImplicitReturns?: boolean;
+    strictObjectTypes?: boolean;
     newLine?: NewLineKind;    
     configFile?: LpcConfigSourceFile; 
     sefunFile?: string;
@@ -1877,35 +1902,35 @@ export interface CanonicalDiagnostic {
 export type IsContainer =
     InlineClosureExpression
     | StructDeclaration
-    // | ClassExpression
-    // | ClassDeclaration
+    | ClassExpression
+    | ClassDeclaration
     // | EnumDeclaration
-    // | ObjectLiteralExpression
+    | ObjectLiteralExpression
     | TypeLiteralNode
     | JSDocTypeLiteral
     // | JsxAttributes
     // | InterfaceDeclaration
     // | ModuleDeclaration
-    // | TypeAliasDeclaration
-    // | MappedTypeNode
+    | TypeAliasDeclaration
+    | MappedTypeNode
     | IndexSignatureDeclaration
     | SourceFile
     // | GetAccessorDeclaration
     // | SetAccessorDeclaration
-    // | MethodDeclaration
+    | MethodDeclaration
     // | ConstructorDeclaration
     | FunctionDeclaration
-    // | MethodSignature
-    // | CallSignatureDeclaration
+    | MethodSignature
+    | CallSignatureDeclaration
     | JSDocSignature
-    // | JSDocFunctionType
-    // | FunctionTypeNode
+    | JSDocFunctionType
+    | FunctionTypeNode
     // | ConstructSignatureDeclaration
     // | ConstructorTypeNode
     // | ClassStaticBlockDeclaration
     | FunctionExpression
     | InlineClosureExpression
-    // | ArrowFunction;
+    | ArrowFunction;
 
 /**
  * Nodes that introduce a new block scope. Corresponds with `ContainerFlags.IsBlockScopedContainer` in binder.ts.
@@ -2027,33 +2052,26 @@ export type HasInitializer =
 export type HasLocals =
     | InlineClosureExpression
     | Block
-    //| CallSignatureDeclaration
+    | CallSignatureDeclaration
     | CaseBlock
-    | CatchStatement    
-    // | ClassStaticBlockDeclaration
-    // | ConditionalTypeNode
-    // | ConstructorDeclaration
-    // | ConstructorTypeNode
-    // | ConstructSignatureDeclaration
+    | CatchStatement        
+    | ConditionalTypeNode    
     | ForStatement
     | ForEachStatement    
     | FunctionDeclaration
     | FunctionExpression
-    // | FunctionTypeNode
-    // | GetAccessorDeclaration
-    // | IndexSignatureDeclaration
-    // | JSDocCallbackTag
-    // | JSDocEnumTag
-    // | JSDocFunctionType
+    | FunctionTypeNode    
+    | IndexSignatureDeclaration
+    | JSDocCallbackTag   
+    | JSDocFunctionType
     | JSDocSignature
-    // | JSDocTypedefTag
-    // | MappedTypeNode
+    | JSDocTypedefTag
+    | MappedTypeNode
     | MethodDeclaration
     // | MethodSignature
-    // | ModuleDeclaration
-    // | SetAccessorDeclaration
+    // | ModuleDeclaration    
     | SourceFile
-    //| TypeAliasDeclaration;
+    | TypeAliasDeclaration
     ;
 
 // NOTE: Changing the following list requires changes to:
@@ -2179,6 +2197,7 @@ export type ForEachChildNodes =
 /** @internal */
 export type HasChildren =
     | InheritDeclaration
+    | InferTypeNode
     | IncludeDirective
     | ParameterDeclaration        
     | ByRefElement
@@ -2324,6 +2343,8 @@ export type DirectiveSyntaxKind =
 
 export type KeywordSyntaxKind =
     | SyntaxKind.AnyKeyword    
+    | SyntaxKind.TrueKeyword
+    | SyntaxKind.FalseKeyword
     | SyntaxKind.FunctionsKeyword
     | SyntaxKind.VirtualKeyword
     | SyntaxKind.IsKeyword
@@ -3234,7 +3255,7 @@ export const enum SymbolFlags {
     ExportValue             = 1 << 20,  // Exported value marker (see comment in declareModuleMember in binder)
     Alias                   = 1 << 21,  // An alias for another symbol (see comment in isAliasSymbolDeclaration in checker)
     Prototype               = 1 << 22,  // Prototype property (no source representation)
-    ExportStar              = 1 << 23,  // Export * declaration
+    FakeGlobal              = 1 << 23,  // A fake symbol created for global type purposes
     Optional                = 1 << 24,  // Optional property
     Transient               = 1 << 25,  // Transient symbol (created during type check)
     Assignment              = 1 << 26,  // Assignment treated as declaration (eg `this.prop = 1`)
@@ -3243,7 +3264,7 @@ export const enum SymbolFlags {
 
     Enum = RegularEnum | ConstEnum,
     Variable = FunctionScopedVariable | BlockScopedVariable,
-    Value = Variable | Property | EnumMember | ObjectLiteral | Function | Class | Enum | ValueModule | Method | GetAccessor | SetAccessor | ExportValue,
+    Value = Variable | Property | EnumMember | ObjectLiteral | Function | Class | Enum | ValueModule | Method | GetAccessor | SetAccessor,
     Type = Class | Interface | Enum | EnumMember | TypeLiteral | TypeParameter | TypeAlias,
     Namespace = ValueModule | NamespaceModule | Enum,
     Module = ValueModule | NamespaceModule,
@@ -3598,7 +3619,7 @@ export interface ImpliedStringConcatExpression extends BinaryExpression {
 }
 
 export type FunctionBody = Block;
-export type ConciseBody = FunctionBody | Expression;
+export type ConciseBody = FunctionBody | Expression ;
 
 export interface ParameterDeclaration extends NamedDeclaration, JSDocContainer {
     readonly kind: SyntaxKind.Parameter;
@@ -3614,6 +3635,7 @@ export interface ParameterDeclaration extends NamedDeclaration, JSDocContainer {
 export interface SignatureDeclarationBase extends NamedDeclaration, JSDocContainer {
     readonly kind: SignatureDeclaration["kind"];
     readonly name?: PropertyName;    
+    readonly typeParameters?: NodeArray<TypeParameterDeclaration> | undefined;
     readonly parameters: NodeArray<ParameterDeclaration>;
     readonly type?: TypeNode | undefined;
     /** @internal */ typeArguments?: NodeArray<TypeNode>; // Used for quick info, replaces typeParameters for instantiated signatures
@@ -3674,17 +3696,18 @@ export interface CallSignatureDeclaration extends SignatureDeclarationBase, Type
     
 export type DeclarationWithTypeParameterChildren =
     | SignatureDeclaration
-    // | ClassLikeDeclaration
+    | ClassLikeDeclaration
+    | StructDeclaration
     // | InterfaceDeclaration
-    // | TypeAliasDeclaration
-    // | JSDocTemplateTag;
+    | TypeAliasDeclaration
+    | JSDocTemplateTag;
     ;
 
     
 
 export interface TypeParameterDeclaration extends NamedDeclaration, JSDocContainer {
     readonly kind: SyntaxKind.TypeParameter;
-    readonly parent: DeclarationWithTypeParameterChildren;
+    readonly parent: DeclarationWithTypeParameterChildren | InferTypeNode;
     readonly modifiers?: NodeArray<Modifier>;
     readonly name: Identifier;
     /** Note: Consider calling `getEffectiveConstraintOfTypeParameter` */
@@ -3708,9 +3731,8 @@ export interface FunctionDeclaration extends FunctionLikeDeclarationBase, Declar
 
 export interface CallExpression extends LeftHandSideExpression, Declaration {
     readonly kind: SyntaxKind.CallExpression;
-    readonly expression: LeftHandSideExpression;
-    ///** @deprecated LPC doesn't use type args on call expressions */
-    //readonly typeArguments?: NodeArray<TypeNode>;
+    readonly expression: LeftHandSideExpression;    
+    readonly typeArguments?: NodeArray<TypeNode>;
     readonly arguments: NodeArray<Expression>;
 }
 
@@ -3860,6 +3882,10 @@ export interface SuperAccessExpression extends MemberExpression, NamedDeclaratio
     readonly namespace: Identifier | StringLiteral;
     readonly name: MemberName;
     // readonly propertyAccessToken: PropertyAccessToken
+}
+
+export interface SuperCall extends CallExpression {
+    readonly expression: SuperAccessExpression;
 }
 
 /** @internal */
@@ -4214,17 +4240,14 @@ export interface ObjectType extends Type {
     /** @internal */ properties?: Symbol[];             // Properties
     /** @internal */ callSignatures?: readonly Signature[];      // Call signatures of type
     /** @internal */ constructSignatures?: readonly Signature[]; // Construct signatures of type
-    /** 
-     * @internal 
-     * @deprecated doesn't exist in lpc?
-     */ 
-    indexInfos?: readonly IndexInfo[];  // Index signatures - 
+    /** @internal */ indexInfos?: readonly IndexInfo[];  // Index signatures - 
     /** @internal */ objectTypeWithoutAbstractConstructSignatures?: ObjectType;
 }
 
 export interface StructDeclaration extends DeclarationStatement, JSDocContainer, LocalsContainer {
     readonly kind: SyntaxKind.StructDeclaration;
     readonly name: Identifier;
+    readonly typeParameters: NodeArray<TypeParameterDeclaration>;
     readonly modifiers?: NodeArray<Modifier>;
     readonly heritageName?: Identifier;
     readonly type: TypeNode;    
@@ -6046,7 +6069,7 @@ export interface TypeReference extends ObjectType {
     cachedEquivalentBaseType?: Type; // Only set on references to class or interfaces with a single base type and no augmentations
 }
 
-export type TypeReferenceType = TypeReferenceNode | StructTypeNode;
+export type TypeReferenceType = TypeReferenceNode | StructTypeNode | ExpressionWithTypeArguments;
 
 export interface FunctionOrConstructorTypeNodeBase extends TypeNode, SignatureDeclarationBase {
     readonly kind: SyntaxKind.FunctionType;
@@ -6100,6 +6123,10 @@ export const enum InferencePriority {
     Circularity = -1,  // Inference circularity (value less than all other priorities)
 }
 
+export interface InferTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.InferType;
+    readonly typeParameter: TypeParameterDeclaration;
+}
 
 /** @internal */
 export interface InferenceInfo {
@@ -6216,6 +6243,11 @@ export interface SubstitutionType extends InstantiableType {
     objectFlags: ObjectFlags;
     baseType: Type; // Target type
     constraint: Type; // Constraint that target type is known to satisfy
+}
+
+export interface StringMappingType extends InstantiableType {
+    symbol: Symbol;
+    type: Type;
 }
 
 export interface SynthesizedComment extends CommentRange {
@@ -7232,6 +7264,7 @@ export interface TypeAliasDeclaration extends DeclarationStatement, JSDocContain
     readonly kind: SyntaxKind.TypeAliasDeclaration;
     readonly modifiers?: NodeArray<ModifierLike>;
     readonly name: Identifier;    
+    readonly typeParameters?: NodeArray<TypeParameterDeclaration>;
     readonly type: TypeNode;
 }
 
@@ -7325,7 +7358,21 @@ export interface IdentifierTypePredicate extends TypePredicateBase {
     type: Type;
 }
 
-export type TypePredicate = IdentifierTypePredicate;//ThisTypePredicate | IdentifierTypePredicate | AssertsThisTypePredicate | AssertsIdentifierTypePredicate;
+export interface AssertsThisTypePredicate extends TypePredicateBase {
+    kind: TypePredicateKind.AssertsThis;
+    parameterName: undefined;
+    parameterIndex: undefined;
+    type: Type | undefined;
+}
+
+export interface AssertsIdentifierTypePredicate extends TypePredicateBase {
+    kind: TypePredicateKind.AssertsIdentifier;
+    parameterName: string;
+    parameterIndex: number;
+    type: Type | undefined;
+}
+
+export type TypePredicate = IdentifierTypePredicate | AssertsThisTypePredicate | AssertsIdentifierTypePredicate;
 
 export interface ExpressionWithTypeArguments extends MemberExpression, NodeWithTypeArguments {
     readonly kind: SyntaxKind.ExpressionWithTypeArguments;
@@ -7642,3 +7689,60 @@ export type BlockLike =
     | SourceFile
     | Block    
     | CaseOrDefaultClause;
+
+export type DeclarationWithTypeParameters =
+    | DeclarationWithTypeParameterChildren
+    | JSDocTypedefTag
+    | JSDocCallbackTag
+    | JSDocSignature;
+
+    
+export interface ConditionalRoot {
+    node: ConditionalTypeNode;
+    checkType: Type;
+    extendsType: Type;
+    isDistributive: boolean;
+    inferTypeParameters?: TypeParameter[];
+    outerTypeParameters?: TypeParameter[];
+    instantiations?: Map<string, Type>;
+    aliasSymbol?: Symbol;
+    aliasTypeArguments?: Type[];
+}
+    
+// T extends U ? X : Y (TypeFlags.Conditional)
+export interface ConditionalType extends InstantiableType {
+    root: ConditionalRoot;
+    checkType: Type;
+    extendsType: Type;
+    resolvedTrueType?: Type;
+    resolvedFalseType?: Type;
+    /** @internal */
+    resolvedInferredTrueType?: Type; // The `trueType` instantiated with the `combinedMapper`, if present
+    /** @internal */
+    resolvedDefaultConstraint?: Type;
+    /** @internal */
+    resolvedConstraintOfDistributive?: Type | false;
+    /** @internal */
+    mapper?: TypeMapper;
+    /** @internal */
+    combinedMapper?: TypeMapper;
+}
+
+export interface TupleTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.TupleType;
+    readonly elements: NodeArray<TypeNode | NamedTupleMember>;
+}
+
+/** @internal */
+export interface JSDocSatisfiesExpression extends ParenthesizedExpression {
+    readonly _jsDocSatisfiesExpressionBrand: never;
+}
+
+export interface InterfaceDeclaration extends DeclarationStatement, JSDocContainer {
+    readonly kind: SyntaxKind.InterfaceDeclaration;
+    readonly modifiers?: NodeArray<ModifierLike>;
+    readonly name: Identifier;
+    readonly typeParameters?: NodeArray<TypeParameterDeclaration>;
+    readonly heritageClauses?: NodeArray<HeritageClause>;
+    readonly members: NodeArray<TypeElement>;
+}

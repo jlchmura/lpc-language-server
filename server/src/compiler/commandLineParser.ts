@@ -895,9 +895,8 @@ function getCompilerOptionValueTypeString(option: CommandLineOption): string {
 }
 
 let buildOptionsNameMapCache: OptionsNameMap;
-function getBuildOptionsNameMap(): OptionsNameMap {
-    console.debug("todo - getBuildOptionsNameMap");
-    return undefined;//return buildOptionsNameMapCache || (buildOptionsNameMapCache = createOptionNameMap(buildOpts));
+function getBuildOptionsNameMap(): OptionsNameMap {    
+    return buildOptionsNameMapCache || (buildOptionsNameMapCache = createOptionNameMap(buildOpts));
 }
 
 
@@ -1143,6 +1142,16 @@ const commandOptionsWithoutBuild: CommandLineOption[] = [
         description: Diagnostics.Specify_the_root_folder_within_your_source_files,
         defaultValueDescription: Diagnostics.Computed_from_the_list_of_input_files,
     },
+    {
+        name: "strictObjectTypes",
+        type: "boolean",
+        affectsSemanticDiagnostics: true,
+        affectsBuildInfo: true,
+        strictFlag: true,
+        category: Diagnostics.Type_Checking,
+        description: Diagnostics.When_comparing_types_check_that_the_objectStructure_is_compatible_with_the_target_type,
+        defaultValueDescription: Diagnostics.false_unless_strict_is_set,
+    },
 ];
 
 /** @internal */
@@ -1154,6 +1163,26 @@ export const optionDeclarations: CommandLineOption[] = [
 // Watch related options
 /** @internal */
 export const optionsForWatch: CommandLineOption[] = [];
+
+// Build related options
+/** @internal */
+export const optionsForBuild: CommandLineOption[] = [
+    {
+        name: "verbose",
+        shortName: "v",
+        category: Diagnostics.Command_line_Options,
+        description: Diagnostics.Enable_verbose_logging,
+        type: "boolean",
+        defaultValueDescription: false,
+    },
+];
+
+/** @internal */
+export const buildOpts: CommandLineOption[] = [
+    ...commonOptionsWithBuild,
+    ...optionsForBuild,
+];
+
 
 /** @internal */
 export const moduleResolutionOptionDeclarations: readonly CommandLineOption[] = optionDeclarations.filter(option => !!option.affectsModuleResolution);
