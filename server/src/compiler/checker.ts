@@ -23346,6 +23346,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function checkPropertyAccessExpressionOrQualifiedName(node: PropertyAccessExpression | QualifiedName, left: Expression | QualifiedName, leftType: Type, right: Identifier, checkMode: CheckMode | undefined, writeOnly?: boolean) {
         const parentSymbol = getNodeLinks(left).resolvedSymbol;
         const assignmentKind = getAssignmentTargetKind(node);
+        // if left is an array, then use its element type in fluffos
+        const origLeftType = leftType;        
+        leftType = languageVariant===LanguageVariant.FluffOS && isArrayType(leftType) ? getElementTypeOfArrayType(leftType) : leftType;
         const apparentType = getApparentType(assignmentKind !== AssignmentKind.None || isMethodAccessForCall(node) ? getWidenedType(leftType) : leftType);
         const isAnyLike = isTypeAny(apparentType) || apparentType === silentNeverType;
         let prop: Symbol | undefined;       

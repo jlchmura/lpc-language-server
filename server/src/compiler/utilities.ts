@@ -3244,7 +3244,7 @@ export function getEffectiveTypeAnnotationNode(node: Node): TypeNode | undefined
         const jsDocType = tryGetJsDocType();        
         // return jsDocType ? isArrayTypeNode(jsDocType) ? jsDocType.elementType : jsDocType.kind !== type.kind ? jsDocType : type : type;
         // use the jsdoc kind if its different, otherwise use the real type annotation
-        return jsDocType && jsDocType.kind !== type.kind ? jsDocType : type;
+        return jsDocType && (jsDocType.kind !== type.kind || isArrayTypeNode(jsDocType)) ? jsDocType : type;
     } else if (type || !isInJSFile(node)) {
         return type;
     }
