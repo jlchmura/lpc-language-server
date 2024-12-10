@@ -605,7 +605,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 return bindFunctionDeclaration(node as FunctionDeclaration);                        
             case SyntaxKind.FunctionExpression:
             case SyntaxKind.InlineClosureExpression:
-                        return bindFunctionExpression(node as InlineClosureExpression | FunctionExpression);
+                return bindFunctionExpression(node as InlineClosureExpression | FunctionExpression);
             case SyntaxKind.PropertyDeclaration:
             case SyntaxKind.PropertySignature:
                 return bindPropertyWorker(node as PropertyDeclaration | PropertySignature);
@@ -2348,10 +2348,10 @@ export function getContainerFlags(node: Node): ContainerFlags {
         // case SyntaxKind.Constructor:
         case SyntaxKind.FunctionDeclaration:        
         // case SyntaxKind.MethodSignature:
-        // case SyntaxKind.CallSignature:
+        case SyntaxKind.CallSignature:
         case SyntaxKind.JSDocSignature:
         case SyntaxKind.JSDocFunctionType:
-        // case SyntaxKind.FunctionType:
+        case SyntaxKind.FunctionType:
         // case SyntaxKind.ConstructSignature:
         // case SyntaxKind.ConstructorType:
         // case SyntaxKind.ClassStaticBlockDeclaration:

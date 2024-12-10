@@ -2050,7 +2050,7 @@ export type HasInitializer =
  * @internal
  */
 export type HasLocals =
-    | InlineClosureExpression
+    | ArrowFunction
     | Block
     | CallSignatureDeclaration
     | CaseBlock
@@ -2062,13 +2062,14 @@ export type HasLocals =
     | FunctionExpression
     | FunctionTypeNode    
     | IndexSignatureDeclaration
+    | InlineClosureExpression
     | JSDocCallbackTag   
     | JSDocFunctionType
     | JSDocSignature
     | JSDocTypedefTag
     | MappedTypeNode
     | MethodDeclaration
-    // | MethodSignature
+    | MethodSignature
     // | ModuleDeclaration    
     | SourceFile
     | TypeAliasDeclaration
@@ -3661,12 +3662,7 @@ export interface FunctionLikeDeclarationBase extends SignatureDeclarationBase {
     /** @internal */ returnFlowNode?: FlowNode;
 }
 
-export interface FunctionExpression
-    extends PrimaryExpression,
-        FunctionLikeDeclarationBase,
-        JSDocContainer,
-        LocalsContainer,
-        FlowContainer {
+export interface FunctionExpression extends PrimaryExpression, FunctionLikeDeclarationBase, JSDocContainer, LocalsContainer, FlowContainer {
     readonly kind: SyntaxKind.FunctionExpression;
     readonly modifiers?: NodeArray<Modifier>;
     readonly name?: Identifier;
@@ -3680,25 +3676,25 @@ export type SignatureDeclaration =
     | IndexSignatureDeclaration
     | FunctionTypeNode
     // | ConstructorTypeNode
-    | JSDocFunctionType
-    | ArrowFunction
+    | JSDocFunctionType    
     | FunctionDeclaration
     | MethodDeclaration
     // | ConstructorDeclaration
     // | AccessorDeclaration
     | InlineClosureExpression
     | FunctionExpression
+    | ArrowFunction
     ;
 
 export interface CallSignatureDeclaration extends SignatureDeclarationBase, TypeElement, LocalsContainer {
         readonly kind: SyntaxKind.CallSignature;
-    }
+}
     
 export type DeclarationWithTypeParameterChildren =
     | SignatureDeclaration
     | ClassLikeDeclaration
     | StructDeclaration
-    // | InterfaceDeclaration
+    | InterfaceDeclaration
     | TypeAliasDeclaration
     | JSDocTemplateTag;
     ;
@@ -7104,7 +7100,7 @@ export interface MethodDeclaration extends FunctionLikeDeclarationBase, ClassEle
 
 export interface MethodSignature extends SignatureDeclarationBase, TypeElement, LocalsContainer {
     readonly kind: SyntaxKind.MethodSignature;
-    readonly parent: TypeLiteralNode;// | InterfaceDeclaration;
+    readonly parent: TypeLiteralNode | InterfaceDeclaration;
     readonly modifiers?: NodeArray<Modifier>;
     readonly name: PropertyName;
 }

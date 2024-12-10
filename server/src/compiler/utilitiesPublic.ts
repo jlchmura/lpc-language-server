@@ -128,11 +128,11 @@ export function canHaveLocals(node: Node): node is HasLocals {
     switch (node.kind) {
         case SyntaxKind.Block:
         case SyntaxKind.InlineClosureExpression: 
-        // case SyntaxKind.CallSignature:
+        case SyntaxKind.CallSignature:
         case SyntaxKind.CaseBlock:
         case SyntaxKind.CatchStatement:
         // case SyntaxKind.ClassStaticBlockDeclaration:
-        // case SyntaxKind.ConditionalType:
+        case SyntaxKind.ConditionalType:
         // case SyntaxKind.Constructor:
         // case SyntaxKind.ConstructorType:
         // case SyntaxKind.ConstructSignature:
@@ -140,21 +140,21 @@ export function canHaveLocals(node: Node): node is HasLocals {
         case SyntaxKind.ForEachStatement:
         case SyntaxKind.FunctionDeclaration:
         case SyntaxKind.FunctionExpression:
-        // case SyntaxKind.FunctionType:
+        case SyntaxKind.FunctionType:
         // case SyntaxKind.GetAccessor:
-        // case SyntaxKind.IndexSignature:
+        case SyntaxKind.IndexSignature:
         case SyntaxKind.JSDocCallbackTag:
         case SyntaxKind.JSDocEnumTag:
         case SyntaxKind.JSDocFunctionType:
         case SyntaxKind.JSDocSignature:
         case SyntaxKind.JSDocTypedefTag:
-        // case SyntaxKind.MappedType:
+        case SyntaxKind.MappedType:
         // case SyntaxKind.MethodDeclaration:
         // case SyntaxKind.MethodSignature:
         // case SyntaxKind.ModuleDeclaration:
         // case SyntaxKind.SetAccessor:
         case SyntaxKind.SourceFile:
-        // case SyntaxKind.TypeAliasDeclaration:
+        case SyntaxKind.TypeAliasDeclaration:
             return true;
         default:
             return false;
