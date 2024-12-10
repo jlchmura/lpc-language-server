@@ -463,3 +463,7 @@ export function isJSDocMemberName(node: Node): node is JSDocMemberName {
 export function isExportAssignment(node: Node){//}: node is ExportAssignment {
     return false; // TODO return node.kind === SyntaxKind.ExportAssignment;
 }
+
+export function isTypeOperatorNode(node: Node){//}: node is TypeOperatorNode {
+    return node.kind === SyntaxKind.TypeOperator;
+}

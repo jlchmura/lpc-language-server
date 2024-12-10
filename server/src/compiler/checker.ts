@@ -4565,7 +4565,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 const objectSymbol = resolveExternalObjectSymbol(moduleSymbol, specifier, /*dontResolveAlias*/ true);
                 if (objectSymbol && isSourceFile(objectSymbol.valueDeclaration)) {                
                     const objectType = getTypeOfSymbol(objectSymbol);                    
-                    links.resolvedType = isArrayTypeNode(node.parent) ? createArrayType(objectType) : objectType;                
+                    links.resolvedType = objectType;// isArrayTypeNode(node.parent) ? createArrayType(objectType) : objectType;                
                 } 
             }
 
@@ -7501,7 +7501,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function getAliasSymbolForTypeNode(node: Node) {
         let host = node.parent;
-        while (isParenthesizedTypeNode(host)/* || isJSDocTypeExpression(host) || isTypeOperatorNode(host) && host.operator === SyntaxKind.ReadonlyKeyword*/) {
+        while (isParenthesizedTypeNode(host) || isJSDocTypeExpression(host) /*|| isTypeOperatorNode(host) && host.operator === SyntaxKind.ReadonlyKeyword*/) {
             host = host.parent;
         }
         return isTypeAlias(host) ? getSymbolOfDeclaration(host) : undefined;
@@ -15975,40 +15975,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function checkAndReportErrorForMissingPrefix(errorLocation: Node, name: string, nameArg: string | Identifier): boolean {
-        if (!isIdentifier(errorLocation) || errorLocation.text !== name /*|| isTypeReferenceIdentifier(errorLocation) || isInTypeQuery(errorLocation)*/) {
+        if (!isIdentifier(errorLocation) || errorLocation.text !== name || isTypeReferenceIdentifier(errorLocation) || isInTypeQuery(errorLocation)) {
             return false;
-        }
-        console.debug("todo - checkAndReportErrorForMissingPrefix");
-        // TODO: no this in LPC, not needed?
-        // const container = getThisContainer(errorLocation, /*includeArrowFunctions*/ false, /*includeClassComputedPropertyName*/ false);
-        // let location: Node = container;
-        // while (location) {
-        //     if (isClassLike(location.parent)) {
-        //         const classSymbol = getSymbolOfDeclaration(location.parent);
-        //         if (!classSymbol) {
-        //             break;
-        //         }
-
-        //         // Check to see if a static member exists.
-        //         const constructorType = getTypeOfSymbol(classSymbol);
-        //         if (getPropertyOfType(constructorType, name)) {
-        //             error(errorLocation, Diagnostics.Cannot_find_name_0_Did_you_mean_the_static_member_1_0, diagnosticName(nameArg), symbolToString(classSymbol));
-        //             return true;
-        //         }
-
-        //         // No static member is present.
-        //         // Check if we're in an instance method and look for a relevant instance member.
-        //         if (location === container && !isStatic(location)) {
-        //             const instanceType = (getDeclaredTypeOfSymbol(classSymbol) as InterfaceType).thisType!; // TODO: GH#18217
-        //             if (getPropertyOfType(instanceType, name)) {
-        //                 error(errorLocation, Diagnostics.Cannot_find_name_0_Did_you_mean_the_instance_member_this_0, diagnosticName(nameArg));
-        //                 return true;
-        //             }
-        //         }
-        //     }
-
-        //     location = location.parent;
-        // }
+        }        
+        
         return false;
     }
     
@@ -27478,9 +27448,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // to X. Failing both of those we want to check if the aggregation of A and B's members structurally
                 // relates to X. Thus, we include intersection types on the source side here.
                 if (sourceFlags & (TypeFlags.Object | TypeFlags.Intersection) && targetFlags & TypeFlags.Object) {
+                    // check if strictObjectTypes mode is on
+                    const canSkipStrictCheck = !strickObjectTypes && !(getObjectFlags(source) & ObjectFlags.Anonymous && getObjectFlags(target) & ObjectFlags.Anonymous);
                     // Report structural errors only if we haven't reported any errors yet
-                    const reportStructuralErrors = reportErrors && errorInfo === saveErrorInfo.errorInfo && !sourceIsPrimitive;
+                    const reportStructuralErrors = !canSkipStrictCheck && reportErrors && errorInfo === saveErrorInfo.errorInfo && !sourceIsPrimitive;
                     result = propertiesRelatedTo(source, target, reportStructuralErrors, /*excludedProperties*/ undefined, /*optionalsOnly*/ false, intersectionState);
+                    
                     if (result) {
                         result &= signaturesRelatedTo(source, target, SignatureKind.Call, reportStructuralErrors, intersectionState);
                         if (result) {
@@ -27495,6 +27468,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     }
                     else if (result) {
                         return result;
+                    }
+                    if (canSkipStrictCheck) {
+                        return Ternary.True;
                     }
                 }
                 // If S is an object type and T is a discriminated union, S may be related to T if

@@ -976,6 +976,7 @@ export const enum SyntaxKind {
     ThisType,
     IndexedAccessType,
     NamedTupleMember,
+    TypeOperator,
     MappedType,
 
     // Binding Pattern
