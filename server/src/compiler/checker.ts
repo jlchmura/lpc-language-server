@@ -12883,6 +12883,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
     
     function resolveUntypedCall(node: CallLikeExpression): Signature {                
+        if (callLikeExpressionMayHaveTypeArguments(node)) {
+            // Check type arguments even though we will give an error that untyped calls may not accept type arguments.
+            // This gets us diagnostics for the type arguments and marks them as referenced.
+            forEach(node.typeArguments, checkSourceElement);
+        }
+
         if (isBinaryExpression(node)) {
             checkExpression((node as BinaryExpression).left);
         }
@@ -24136,14 +24142,24 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }        
         if (source.flags & TypeFlags.StructuredOrInstantiable || target.flags & TypeFlags.StructuredOrInstantiable) {
             const related = checkTypeRelatedTo(source, target, relation, /*errorNode*/ undefined);
-            // we can skip the strict check if strict object types aren't turn on and as long as one of the types is not a structured anonymouse type            
-            const canSkipStrictCheck = !strickObjectTypes && !(getObjectFlags(source) & ObjectFlags.Anonymous && getObjectFlags(target) & ObjectFlags.Anonymous);
-            if (canSkipStrictCheck && !related && source.flags & TypeFlags.Object && target.flags & TypeFlags.Object) {            
+            // we can skip the strict check if strict object types aren't turn on and as long as one of the types is not a structured anonymouse type                        
+            if (canSkipStrictObjectCheck(source, target) && !related && source.flags & TypeFlags.Object && target.flags & TypeFlags.Object) {            
                 return true;
             }
             return related;
         }
         return false;
+    }
+
+    function canSkipStrictObjectCheck(source: Type, target: Type) {
+        const canSkipStrictCheck = !strickObjectTypes && 
+                !(getObjectFlags(source) & ObjectFlags.Anonymous && getObjectFlags(target) & ObjectFlags.Anonymous) &&
+                !(isGlobalType(source) && isGlobalType(target));
+        return canSkipStrictCheck;
+    }
+
+    function isGlobalType(type: Type) {        
+        return type?.symbol?.flags & SymbolFlags.FakeGlobal;
     }
 
     function typeCouldHaveTopLevelSingletonTypes(type: Type): boolean {
@@ -27453,7 +27469,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // relates to X. Thus, we include intersection types on the source side here.
                 if (sourceFlags & (TypeFlags.Object | TypeFlags.Intersection) && targetFlags & TypeFlags.Object) {
                     // check if strictObjectTypes mode is on
-                    const canSkipStrictCheck = !strickObjectTypes && !(getObjectFlags(source) & ObjectFlags.Anonymous && getObjectFlags(target) & ObjectFlags.Anonymous);
+                    const canSkipStrictCheck = canSkipStrictObjectCheck(source,target);
                     // Report structural errors only if we haven't reported any errors yet
                     const reportStructuralErrors = !canSkipStrictCheck && reportErrors && errorInfo === saveErrorInfo.errorInfo && !sourceIsPrimitive;
                     result = propertiesRelatedTo(source, target, reportStructuralErrors, /*excludedProperties*/ undefined, /*optionalsOnly*/ false, intersectionState);
@@ -31025,7 +31041,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
 
         let callChainFlags: SignatureFlags;
-        let funcType = checkExpression(node.expression, undefined, undefined, SymbolFlags.Function);
+        let funcType = checkExpression(node.expression);//, undefined, undefined, SymbolFlags.Function);
         if (isCallChain(node)) {
             console.debug("todo - call chain");
             // const nonOptionalType = getOptionalExpressionType(funcType, node.expression);
