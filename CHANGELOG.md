@@ -3,6 +3,7 @@
 ## 1.1.7
 
 -   Fix: [v2 parse function ref in inline closure #72](https://github.com/jlchmura/lpc-language-server/issues/72)
+-   Fix: [Function arguments inside catch() statement being flagged as unused #90](https://github.com/jlchmura/lpc-language-server/issues/90)
 -   Fix: [Object resolution fails when file extension ends with .h #92](https://github.com/jlchmura/lpc-language-server/issues/92)
 -   FluffOS - function shortcuts now validated, e.g. `(: call_other, ob, fun :)`
 -   FluffOS call_other with array target shortcuts now validated
