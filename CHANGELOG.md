@@ -3,7 +3,8 @@
 ## 1.1.7
 
 -   Fix: [v2 parse function ref in inline closure #72](https://github.com/jlchmura/lpc-language-server/issues/72)
--   FluffOS function shortcuts now validated, e.g. `(: call_other, ob, fun :)`
+-   Fix: [Object resolution fails when file extension ends with .h #92](https://github.com/jlchmura/lpc-language-server/issues/92)
+-   FluffOS - function shortcuts now validated, e.g. `(: call_other, ob, fun :)`
 -   FluffOS call_other with array target shortcuts now validated
 -   Array arithmetic ops no longer report an error
 -   Finished support for doc comment templates and type inference

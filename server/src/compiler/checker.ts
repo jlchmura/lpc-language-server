@@ -705,6 +705,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         
         // get the symbol from efun file
         const valueSymbol = getGlobalSymbol(name, SymbolFlags.Variable, reportErrors ? Diagnostics.Cannot_find_global_type_0 : undefined);
+        if (!valueSymbol) {
+            console.warn("Global symbol not found: " + name);
+            return errorType;
+        }
 
         // now rcreate a fake class symbol
         const symbol = createSymbol(SymbolFlags.Class | SymbolFlags.FakeGlobal, name);        
@@ -7172,7 +7176,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function createTypeReference(target: GenericType, typeArguments: readonly Type[] | undefined): TypeReference {
         const id = getTypeListId(typeArguments);        
-        Debug.assertIsDefined(target?.instantiations)
+        // Debug.assertIsDefined(target?.instantiations)
         let type = target?.instantiations.get(id);
         if (!type) {
             type = createObjectType(ObjectFlags.Reference, target.symbol) as TypeReference;
