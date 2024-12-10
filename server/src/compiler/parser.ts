@@ -1202,8 +1202,8 @@ export namespace LpcParser {
                 return isBindingIdentifier();
             case ParsingContext.ArrayBindingElements:
                 return token() === SyntaxKind.CommaToken || token() === SyntaxKind.DotDotDotToken || isBindingIdentifier();
-            // case ParsingContext.TypeParameters:
-            //     return token() === SyntaxKind.InKeyword || token() === SyntaxKind.ConstKeyword || isIdentifier();
+            case ParsingContext.TypeParameters:
+                return token() === SyntaxKind.InKeyword /*|| token() === SyntaxKind.ConstKeyword*/ || isIdentifier();
             case ParsingContext.MappingLiteralMembers:
             case ParsingContext.JsonArrayLiteralMembers:
             case ParsingContext.ArrayLiteralMembers:
@@ -1222,9 +1222,9 @@ export namespace LpcParser {
                 return isStartOfParameter(/*isJSDocParameter*/ false);
             case ParsingContext.JSDocParameters:
                 return isStartOfParameter(/*isJSDocParameter*/ true);
-            // case ParsingContext.TypeArguments:
-            // case ParsingContext.TupleElementTypes:
-            //     return token() === SyntaxKind.CommaToken || isStartOfType();
+            case ParsingContext.TypeArguments:
+            case ParsingContext.TupleElementTypes:
+                return token() === SyntaxKind.CommaToken || isStartOfType();
             // case ParsingContext.HeritageClauses:
             //     return isHeritageClause();
             // case ParsingContext.ImportOrExportSpecifiers:

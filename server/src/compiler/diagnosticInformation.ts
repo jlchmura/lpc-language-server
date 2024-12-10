@@ -500,4 +500,6 @@ export const Diagnostics = {
     This_type_parameter_might_need_an_extends_0_constraint: diag(2208, DiagnosticCategory.Error, "This_type_parameter_might_need_an_extends_0_constraint_2208", "This type parameter might need an `extends {0}` constraint."),
     Type_of_property_0_circularly_references_itself_in_mapped_type_1: diag(2615, DiagnosticCategory.Error, "Type_of_property_0_circularly_references_itself_in_mapped_type_1_2615", "Type of property '{0}' circularly references itself in mapped type '{1}'."),
     false_unless_strict_is_set: diag(6905, DiagnosticCategory.Message, "false_unless_strict_is_set_6905", "`false`, unless `strict` is set"),
+    Generic_type_0_requires_1_type_argument_s: diag(2314, DiagnosticCategory.Error, "Generic_type_0_requires_1_type_argument_s_2314", "Generic type '{0}' requires {1} type argument(s)."),
+    Generic_type_0_requires_between_1_and_2_type_arguments: diag(2707, DiagnosticCategory.Error, "Generic_type_0_requires_between_1_and_2_type_arguments_2707", "Generic type '{0}' requires between {1} and {2} type arguments."),
 }
