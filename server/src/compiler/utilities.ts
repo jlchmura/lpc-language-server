@@ -638,6 +638,10 @@ export function getTextOfNode(node: Node, includeTrivia = false): string {
 
 /** @internal */
 export function getErrorSpanForNode(sourceFile: SourceFile, node: Node): TextSpan {
+    // if the node came from a macro, move up the parent chain until we find a non-macro node
+    while (node.originFilename=="macro" && node.parent) {
+        node = node.parent;
+    }
     // if this node was from an include file, switch to the position of the include directive
     if (node.includeDirEnd !== undefined) {
         return getSpanOfTokenAtPosition(sourceFile, node.includeDirPos);
