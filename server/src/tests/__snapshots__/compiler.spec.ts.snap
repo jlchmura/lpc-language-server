@@ -9,6 +9,12 @@ Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/ar
 "
 `;
 
+exports[`Compiler compiler/array1.c Reports correct errors for compiler/array1.c: diags-compiler/array1.c 1`] = `""`;
+
+exports[`Compiler compiler/array2.c Reports correct errors for compiler/array2.c: diags-compiler/array2.c 1`] = `""`;
+
+exports[`Compiler compiler/array3.c Reports correct errors for compiler/array3.c: diags-compiler/array3.c 1`] = `""`;
+
 exports[`Compiler compiler/assignment1.c Reports correct errors for compiler/assignment1.c: diags-compiler/assignment1.c 1`] = `""`;
 
 exports[`Compiler compiler/assignment2.c Reports correct errors for compiler/assignment2.c: diags-compiler/assignment2.c 1`] = `

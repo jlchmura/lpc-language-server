@@ -7,7 +7,7 @@
 -   Array arithmetic ops no longer report an error
 -   Finished support for doc comment templates and type inference
 -   Completed type checking code for structured types (to check objects against each other)
-- Added [`strictObjectTypes`](./README.md#strict-object-type-checking---strictobjecttypes) compiler option.
+-   Added [`strictObjectTypes`](./README.md#strict-object-type-checking---strictobjecttypes) compiler option.
 
 ## 1.1.6
 

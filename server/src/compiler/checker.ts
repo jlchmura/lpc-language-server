@@ -15213,8 +15213,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     let resultType: Type;
 
                     // check for a special case where an array literal with a zero is on the right and another array is on the left
-                    if (isArrayType(leftType) && isArrayLiteralTypeWithOnlyZero(rightType)) {
-                        resultType = rightType.resolvedTypeArguments[0];
+                    // if (isArrayType(leftType) && isArrayLiteralTypeWithOnlyZero(rightType)) {
+                    //     resultType = rightType.resolvedTypeArguments[0];
+                    // }
+                    // else 
+                    if (isArrayType(leftType) && isArrayType(rightType)) {
+                        //compareTypesAssignable(rightType, leftType)
+                        resultType = leftType;//first(rightType.resolvedTypeArguments) ?? anyType;
                     }
                     // If both are any or unknown, allow operation; assume it will resolve to number
                     else if (
