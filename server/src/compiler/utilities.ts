@@ -7078,3 +7078,10 @@ export function walkUpParenthesizedTypesAndGetParentAndChild(node: Node): [Paren
     }
     return [child, node];
 }
+
+/** @internal */
+export function scanTokenAtPosition(sourceFile: SourceFile, pos: number) {
+    const scanner = createScanner(sourceFile.languageVersion, /*skipTrivia*/ true, true, sourceFile.languageVariant, sourceFile.text, /*onError*/ undefined, pos);
+    scanner.scan();
+    return scanner.getToken();
+}

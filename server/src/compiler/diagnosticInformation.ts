@@ -506,4 +506,5 @@ export const Diagnostics = {
     Type_0_is_not_assignable_to_type_1_as_implied_by_variance_annotation: diag(2636, DiagnosticCategory.Error, "Type_0_is_not_assignable_to_type_1_as_implied_by_variance_annotation_2636", "Type '{0}' is not assignable to type '{1}' as implied by variance annotation."),
     Type_parameter_list_cannot_be_empty: diag(1098, DiagnosticCategory.Error, "Type_parameter_list_cannot_be_empty_1098", "Type parameter list cannot be empty."),
     Type_argument_list_cannot_be_empty: diag(1099, DiagnosticCategory.Error, "Type_argument_list_cannot_be_empty_1099", "Type argument list cannot be empty."),
+    JSDoc_types_can_only_be_used_inside_documentation_comments: diag(8020, DiagnosticCategory.Error, "JSDoc_types_can_only_be_used_inside_documentation_comments_8020", "JSDoc types can only be used inside documentation comments."),
 }

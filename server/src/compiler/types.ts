@@ -6054,7 +6054,7 @@ export interface GenericType extends InterfaceType, TypeReference {
  */
 export interface TypeReference extends ObjectType {
     target: GenericType; // Type reference target
-    node?: TypeReferenceNode | ArrayTypeNode;
+    node?: TypeReferenceNode | ArrayTypeNode | TupleTypeNode;
     /** @internal */
     mapper?: TypeMapper;
     /** @internal */
@@ -6175,7 +6175,7 @@ export interface ReverseMappedType extends ObjectType {
 
 export interface DeferredTypeReference extends TypeReference {
     /** @internal */
-    node: TypeReferenceNode | ArrayTypeNode;
+    node: TypeReferenceNode | ArrayTypeNode | TupleTypeNode;
     /** @internal */
     mapper?: TypeMapper;
     /** @internal */
@@ -7742,3 +7742,21 @@ export interface InterfaceDeclaration extends DeclarationStatement, JSDocContain
     readonly heritageClauses?: NodeArray<HeritageClause>;
     readonly members: NodeArray<TypeElement>;
 }
+
+export interface JSDocNullableType extends JSDocType {
+    readonly kind: SyntaxKind.JSDocNullableType;
+    readonly type: TypeNode;
+    readonly postfix: boolean;
+}
+
+export interface JSDocNonNullableType extends JSDocType {
+    readonly kind: SyntaxKind.JSDocNonNullableType;
+    readonly type: TypeNode;
+    readonly postfix: boolean;
+}
+
+export type JSDocTypeReferencingNode =
+    | JSDocVariadicType
+    | JSDocOptionalType
+    | JSDocNullableType
+    | JSDocNonNullableType;
