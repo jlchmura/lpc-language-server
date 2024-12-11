@@ -502,4 +502,8 @@ export const Diagnostics = {
     false_unless_strict_is_set: diag(6905, DiagnosticCategory.Message, "false_unless_strict_is_set_6905", "`false`, unless `strict` is set"),
     Generic_type_0_requires_1_type_argument_s: diag(2314, DiagnosticCategory.Error, "Generic_type_0_requires_1_type_argument_s_2314", "Generic type '{0}' requires {1} type argument(s)."),
     Generic_type_0_requires_between_1_and_2_type_arguments: diag(2707, DiagnosticCategory.Error, "Generic_type_0_requires_between_1_and_2_type_arguments_2707", "Generic type '{0}' requires between {1} and {2} type arguments."),
+    Variance_annotations_are_only_supported_in_type_aliases_for_object_function_constructor_and_mapped_types: diag(2637, DiagnosticCategory.Error, "Variance_annotations_are_only_supported_in_type_aliases_for_object_function_constructor_and_mapped_t_2637", "Variance annotations are only supported in type aliases for object, function, constructor, and mapped types."),
+    Type_0_is_not_assignable_to_type_1_as_implied_by_variance_annotation: diag(2636, DiagnosticCategory.Error, "Type_0_is_not_assignable_to_type_1_as_implied_by_variance_annotation_2636", "Type '{0}' is not assignable to type '{1}' as implied by variance annotation."),
+    Type_parameter_list_cannot_be_empty: diag(1098, DiagnosticCategory.Error, "Type_parameter_list_cannot_be_empty_1098", "Type parameter list cannot be empty."),
+    Type_argument_list_cannot_be_empty: diag(1099, DiagnosticCategory.Error, "Type_argument_list_cannot_be_empty_1099", "Type argument list cannot be empty."),
 }
