@@ -6232,8 +6232,8 @@ export namespace LpcParser {
                 if (!comment) {
                     comment = parseTrailingTagComments(start, getNodePos(), indent, indentText);
                 }
-                const end = comment !== undefined ? getNodePos() : typeExpression.end;
-                return finishNode(factory.createJSDocCallbackTag(tagName, typeExpression, fullName, comment), start.pos, end);
+                // const end = comment !== undefined ? getNodePos() : Math.max(typeExpression.end, getNodePos());
+                return finishNode(factory.createJSDocCallbackTag(tagName, typeExpression, fullName, comment), start);
             }
 
             function parseOverloadTag(start: PositionState, tagName: Identifier, indent: number, indentText: string): JSDocOverloadTag {
