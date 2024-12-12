@@ -319,7 +319,7 @@ exports[`Compiler compiler/structMemberAccess.c Reports correct errors for compi
 
 exports[`Compiler compiler/super1.c Reports correct errors for compiler/super1.c: diags-compiler/super1.c 1`] = `
 "
-Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/super1.c[90m:4[0m
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/super1.c[90m:5[0m
 
 "
 `;
