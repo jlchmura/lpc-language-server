@@ -1817,6 +1817,7 @@ export function isExpressionNode(node: Node): boolean {
         // case SyntaxKind.FalseKeyword:
         // case SyntaxKind.RegularExpressionLiteral:
         case SyntaxKind.ArrayLiteralExpression:
+        case SyntaxKind.SuperAccessExpression:
         case SyntaxKind.ObjectLiteralExpression:
         case SyntaxKind.PropertyAccessExpression:
         case SyntaxKind.ElementAccessExpression:
