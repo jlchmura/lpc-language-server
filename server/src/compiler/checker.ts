@@ -645,20 +645,25 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             bindSourceFile(file, compilerOptions);            
         }
         
-        // we'll use the globals concept to store driver efuns
+        // we'll use the globals concept to store driver efuns        
         for (const file of host.getSourceFiles()) {            
-            const isSefunFile = file.fileName === compilerOptions.sefunFile;
-            if (file.isDefaultLib || isSefunFile) {
-                if (isSefunFile) {
-                    const fileSymbol = getSymbolAtLocation(file, true);
-                    const fileType = getTypeOfSymbol(fileSymbol, CheckMode.TypeOnly) as InterfaceType;
-                    resolveClassOrInterfaceMembers(fileType as InterfaceType);                    
-                    mergeSymbolTable(globals, fileType.members!);
-                } else {
-                    // lib files (non sefun) can't have inherits, so don't bother checking those nodes
-                    mergeSymbolTable(globals, file.locals!);
-                }
+            // const isSefunFile = file.fileName === compilerOptions.sefunFile;
+            if (file.isDefaultLib) {                
+                // lib files (non sefun) can't have inherits, so don't bother checking those nodes
+                mergeSymbolTable(globals, file.locals!);                
             }             
+        }
+
+        // now merge sefuns so that they override globals
+        const sefunFile = host.getSourceFile(compilerOptions.sefunFile);
+        if (sefunFile) {
+            const fileSymbol = getSymbolAtLocation(sefunFile, true);
+            const fileType = getTypeOfSymbol(fileSymbol, CheckMode.TypeOnly) as InterfaceType;
+            resolveClassOrInterfaceMembers(fileType as InterfaceType);
+            // don't merge symbol tables here -- we want to override globals
+            fileType.members.forEach((sefunSymbol, id) => {
+                globals.set(id, sefunSymbol);
+            });
         }
 
         addUndefinedToGlobalsOrErrorOnRedeclaration();

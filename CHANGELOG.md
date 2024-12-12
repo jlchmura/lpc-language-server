@@ -2,6 +2,7 @@
 
 ## 1.1.8
 
+-   Fix: [Symbol is resolving to efun instead of sefun #95](<https://github.com/jlchmura/lpc-language-server/issues/95>)
 -   Added ability to use `@callback` and `@template` tags in function signatures.
 
 ## 1.1.7
