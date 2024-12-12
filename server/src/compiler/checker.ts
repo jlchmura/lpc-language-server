@@ -8725,7 +8725,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     /** If the contextual signature has fewer parameters than the function expression, do not use it */
     function isAritySmaller(signature: Signature, target: SignatureDeclaration) {
         let targetParameterCount = 0;
-        for (; targetParameterCount < target.parameters?.length ?? 0; targetParameterCount++) {
+        for (; targetParameterCount < (target.parameters?.length ?? 0); targetParameterCount++) {
             const param = target.parameters[targetParameterCount];                        
             if (param.initializer || param.dotDotDotToken || isJSDocOptionalParameter(param)) {
                 break;
