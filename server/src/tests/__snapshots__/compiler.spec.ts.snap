@@ -317,7 +317,12 @@ exports[`Compiler compiler/struct2.c Reports correct errors for compiler/struct2
 
 exports[`Compiler compiler/structMemberAccess.c Reports correct errors for compiler/structMemberAccess.c: diags-compiler/structMemberAccess.c 1`] = `""`;
 
-exports[`Compiler compiler/super1.c Reports correct errors for compiler/super1.c: diags-compiler/super1.c 1`] = `""`;
+exports[`Compiler compiler/super1.c Reports correct errors for compiler/super1.c: diags-compiler/super1.c 1`] = `
+"
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/super1.c[90m:4[0m
+
+"
+`;
 
 exports[`Compiler compiler/switch1.c Reports correct errors for compiler/switch1.c: diags-compiler/switch1.c 1`] = `""`;
 
