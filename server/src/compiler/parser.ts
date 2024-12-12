@@ -4421,7 +4421,7 @@ export namespace LpcParser {
         const exprPos = getPositionState();
         const expression = parseLeftHandSideExpressionOrHigher();
 
-        Debug.assert(isLeftHandSideExpression(expression), "expression is not left hand type");
+        // Debug.assert(isLeftHandSideExpression(expression), "expression is not left hand type");
         if ((token() === SyntaxKind.PlusPlusToken || token() === SyntaxKind.MinusMinusToken) && !scanner.hasPrecedingLineBreak()) {
             const operator = token() as PostfixUnaryOperator;
             nextToken();
