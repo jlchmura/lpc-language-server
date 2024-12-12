@@ -8668,6 +8668,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function getIntersectedSignatures(signatures: readonly Signature[]) {
+        if (getStrictOptionValue(compilerOptions, "noImplicitAny")) {
+            console.debug("todo - getIntersectedSignatures");
+        }
         // return getStrictOptionValue(compilerOptions, "noImplicitAny")
         //     ? reduceLeft(
         //         signatures,
@@ -8676,8 +8679,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         //                 : compareTypeParametersIdentical(left.typeParameters, right!.typeParameters) ? combineSignaturesOfIntersectionMembers(left, right!)
         //                 : undefined,
         //     )
-        //     : undefined;
-        console.debug("todo - getIntersectedSignatures");
+        //     : undefined;        
         return undefined;
     }
 
@@ -11966,7 +11968,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // if (!(node.flags & NodeFlags.InWithStatement)) {
             switch (node.kind) {
                 case SyntaxKind.Identifier:
-                    const symbol = getExportSymbolOfValueSymbolIfExported(getResolvedSymbol(node as Identifier));
+                    const symbolFlags = isCallExpression(node.parent) ? SymbolFlags.Function : undefined;
+                    const symbol = getExportSymbolOfValueSymbolIfExported(getResolvedSymbol(node as Identifier, symbolFlags));
                     return getExplicitTypeOfSymbol(symbol, diagnostic);
                 // case SyntaxKind.ThisKeyword:
                 //     return getExplicitThisType(node);
@@ -12329,18 +12332,24 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return links.isExhaustive;
     }
 
-    function computeExhaustiveSwitchStatement(node: SwitchStatement): boolean {        
-        console.warn("todo implement me - computeExhaustiveSwitchStatement");
-        return false;
-        // const type = checkExpressionCached(node.expression);
-        // if (!isLiteralType(type)) {
-        //     return false;
-        // }
-        // const switchTypes = getSwitchClauseTypes(node);
-        // if (!switchTypes.length || some(switchTypes, isNeitherUnitTypeNorNever)) {
-        //     return false;
-        // }
-        // return eachTypeContainedIn(mapType(type, getRegularTypeOfLiteralType), switchTypes);
+    function isNeitherUnitTypeNorNever(type: Type): boolean {
+        return !(type.flags & (TypeFlags.Unit | TypeFlags.Never));
+    }
+
+    function eachTypeContainedIn(source: Type, types: Type[]) {
+        return source.flags & TypeFlags.Union ? !forEach((source as UnionType).types, t => !contains(types, t)) : contains(types, source);
+    }
+
+    function computeExhaustiveSwitchStatement(node: SwitchStatement): boolean {                
+        const type = checkExpressionCached(node.expression);
+        if (!isLiteralType(type)) {
+            return false;
+        }
+        const switchTypes = getSwitchClauseTypes(node);
+        if (!switchTypes.length || some(switchTypes, isNeitherUnitTypeNorNever)) {
+            return false;
+        }
+        return eachTypeContainedIn(mapType(type, getRegularTypeOfLiteralType), switchTypes);
     }
 
     
@@ -31442,7 +31451,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
 
         let callChainFlags: SignatureFlags;
-        let funcType = checkExpression(node.expression);//, undefined, undefined, SymbolFlags.Function);
+        let funcType = checkExpression(node.expression, undefined, undefined, SymbolFlags.Function);
         if (isCallChain(node)) {
             console.debug("todo - call chain");
             // const nonOptionalType = getOptionalExpressionType(funcType, node.expression);

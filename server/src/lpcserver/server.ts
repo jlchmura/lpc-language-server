@@ -311,7 +311,7 @@ export function start(connection: Connection, platform: string) {
             const result: vscode.Location[] = [];
             
             try {                
-                for (const ref of body?.refs) {
+                for (const ref of body?.refs ?? lpc.emptyArray) {
                     // if (!options.includeDeclaration && ref.isDefinition) {
                     //     continue;
                     // }                
