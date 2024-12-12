@@ -78,7 +78,8 @@ array or string
  * 
  * Note, if the second argument is a string, the first parameter must be an int
  * representing the character you are looking for in the provided string.
- *
+ * @example
+ * ```c
  * member_array( "red", ({ "red", "blue", "red", "green", "red", }) ) ;
  * // 0
  * 
@@ -96,7 +97,7 @@ array or string
  * 
  * member_array('Z', "Drink the FluffOS Kool-Aid!") ;
  * // -1
- *
+ * ```
  */
 varargs int member_array( mixed item, mixed * | string arr, void | int start );
 
@@ -107,9 +108,9 @@ varargs int member_array( mixed item, mixed * | string arr, void | int start );
  * 'ob->fun()' or 'f'.  The function is called for each element  in  'arr'
  * with that element as a parameter. A second parameter 'extra' is sent in
  * each call if given.  Principal function:
- * 
+ * ```c
  * foreach (index) arr[index] = ob->fun(arr[index],extra);
- * 
+ * ```
  * The value returned by 'ob->fun(arr[.index.], extra)' replaces the existing
  * element in the array. If 'arr' is not an array, then 0 will be returned.
  *
@@ -147,8 +148,7 @@ mixed element_of(mixed *arr);
  * Returns 1 if 'arg' is an array, otherwise returns 0.
  *
  * int is_array = arrayp( ({ 1, 2, 3, 4 }) ); // 1
- * int is_array = arrayp( "Foo" ); // 0
- *
+ * int is_array = arrayp( "Foo" ); // 0 
  */
 int arrayp( mixed arg );
 

@@ -104,6 +104,7 @@ import {
     JSDocLinkPlain,
     JSDocMemberName,
     JSDocNameReference,
+    JSDocOptionalType,
     JSDocOverloadTag,
     JSDocOverrideTag,
     JSDocParameterTag,
@@ -419,6 +420,9 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createJSDocTemplateTag,
 
         // lazily load factory members for JSDoc tags with similar structure
+        get createJSDocOptionalType() {
+            return getJSDocUnaryTypeCreateFunction<JSDocOptionalType>(SyntaxKind.JSDocOptionalType);
+        },
         get createJSDocTypeTag() {
             return getJSDocTypeLikeTagCreateFunction<JSDocTypeTag>(SyntaxKind.JSDocTypeTag);
         },

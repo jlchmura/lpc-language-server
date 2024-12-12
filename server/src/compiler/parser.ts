@@ -5284,10 +5284,9 @@ export namespace LpcParser {
         if (hasDotDotDot) {            
             type = finishNode(factory.createJSDocVariadicType(type), pos);
         }
-        if (token() === SyntaxKind.EqualsToken) {
-            Debug.fail("TODO: implement optional type");
-            // nextToken();
-            // return finishNode(factory.createJSDocOptionalType(type), pos);
+        if (token() === SyntaxKind.EqualsToken) {            
+            nextToken();
+            return finishNode(factory.createJSDocOptionalType(type), pos);
         }
         return type;
     }

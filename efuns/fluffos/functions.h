@@ -1,15 +1,16 @@
 // functions.h
 
 /**
- * functionp()  -  determine whether or not a given variable is a function
-pointer, and if so what kind
- *
+ * functionp()  -  determine whether or not a given variable is a function pointer, and if so what kind
+ * @param arg - The variable to check
+ * @returns {arg is function} 1 if arg is a function pointer, 0 otherwise
+ * 
  * Return nonzero if 'arg' is a function pointer and zero  (0)  otherwise.
  * Function  pointers are variables of type 'function' as indicated in the
  * documentation for the type 'function', for example:
- * 
+ * ```c
  * f = (: obj, func :);
- * 
+ * ```
  * The return value indicates the type of function pointer using the  val‐
  * ues given in the driver include file "include/function.h".
  * 
@@ -33,13 +34,13 @@ pointer, and if so what kind
  * Examples:
  * 
  * To test if a function variable is an efun pointer:
- * 
+ * ```c
  * if ((functionp(f) & FP_MASK) == FP_EFUN) ...
- * 
+ * ```
  * to test if it has args:
- * 
+ * ```c
  * if (functionp(f) & FP_HAS_ARGUMENTS) ...
- *
+ * ```
  */
 int functionp( mixed arg );
 

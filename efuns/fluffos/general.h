@@ -214,7 +214,7 @@ void parse_add_synonym(string, string, string);
  * actual argument.
  * @template T
  * @param {T} arg - The variable to check
- * @returns {arg as T} - 1 if the variable is null, 0 otherwise
+ * @returns {arg is 0} - 1 if the variable is null, 0 otherwise
  */
 int nullp(mixed arg);
 
