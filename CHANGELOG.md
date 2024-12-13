@@ -3,6 +3,7 @@
 ## 1.1.9
 
 -   Fix: [efun:: prefix reports 9023 and should not #99](https://github.com/jlchmura/lpc-language-server/issues/99)
+-   New: [Feature request: Annotate the type of variables declared in an inherited object](https://github.com/jlchmura/lpc-language-server/issues/102)
 
 ## 1.1.8
 
