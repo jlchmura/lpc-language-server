@@ -519,4 +519,5 @@ export const Diagnostics = {
     Locale_must_be_of_the_form_language_or_language_territory_For_example_0_or_1: diag(6048, DiagnosticCategory.Error, "Locale_must_be_of_the_form_language_or_language_territory_For_example_0_or_1_6048", "Locale must be of the form <language> or <language>-<territory>. For example '{0}' or '{1}'."),
     Unable_to_open_file_0: diag(6050, DiagnosticCategory.Error, "Unable_to_open_file_0_6050", "Unable to open file '{0}'."),
     Corrupted_locale_file_0: diag(6051, DiagnosticCategory.Error, "Corrupted_locale_file_0_6051", "Corrupted locale file {0}."),
+    Version_0: diag(6029, DiagnosticCategory.Message, "Version_0_6029", "Version {0}"),
 }

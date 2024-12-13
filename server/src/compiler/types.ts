@@ -7806,3 +7806,23 @@ export type JSDocTypeReferencingNode =
     | JSDocOptionalType
     | JSDocNullableType
     | JSDocNonNullableType;
+
+/** Return code used by getEmitOutput function to indicate status of the function */
+export enum ExitStatus {
+    // Compiler ran successfully.  Either this was a simple do-nothing compilation (for example,
+    // when -version or -help was provided, or this was a normal compilation, no diagnostics
+    // were produced, and all outputs were generated successfully.
+    Success = 0,
+
+    // Diagnostics were produced and because of them no code was generated.
+    DiagnosticsPresent_OutputsSkipped = 1,
+
+    // Diagnostics were produced and outputs were generated in spite of them.
+    DiagnosticsPresent_OutputsGenerated = 2,
+
+    // When build skipped because passed in project is invalid
+    InvalidProject_OutputsSkipped = 3,
+
+    // When build is skipped because project references form cycle
+    ProjectReferenceCycle_OutputsSkipped = 4,
+}

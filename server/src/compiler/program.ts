@@ -1,5 +1,5 @@
 import path from "path";
-import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne, getRelativePathFromFile, getRelativePathFromDirectory, map, resolvePath, diagnosticCategoryName, getLineAndCharacterOfPosition, convertToRelativePath, BuilderProgram, addRange, explainIfFileIsRedirectAndImpliedFormat, chainDiagnosticMessages, createFileDiagnosticFromMessageChain, createCompilerDiagnosticFromMessageChain, fileIncludeReasonToDiagnostics, createFileDiagnostic, getMatchedFileSpec, createDiagnosticForNodeInSourceFile, FilePreprocessingLibReferenceDiagnostic, getSpellingSuggestion, identity, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ParsedCommandLine, arrayIsEqualTo, forEachEntry, projectReferenceIsEqualTo, compareDataObjects, HasChangedAutomaticTypeDirectiveNames, isJSDocTypeTag, hasJSDocNodes, isJSDoc, isJSDocNode, isJSDocTypeExpression, isLiteralTypeNode, getLiteralText, GetLiteralTextFlags, isStringLiteralLike, isJSDocParameterTag, isJSDocReturnTag, isTypePredicateNode, StringLiteralType, isPropertyAccessExpression, Mutable, ImportCandidateNode, isNewExpression, isTypeNode, getLibRootedFileName, isJSDocPropertyTag, PragmaPseudoMapEntry, setParent, setTextRangePosEnd, PragmaPseudoMap, TextRange, CommentRange, thisObjectPragmaToStringLiteral, emptyMap, getLpcConfigPropArrayElementValue, forEachLpcConfigPropArray, LpcConfigSourceFile, isArrayLiteralExpression, tryCast, isObjectLiteralExpression, forEachPropertyAssignment, getLpcConfigObjectLiteralExpression, getPropertyArrayElementValue, getNameOfScriptTarget, getEmitScriptTarget, setTextRange, isCallExpression, isIdentifier, changesAffectModuleResolution, sourceFileAffectingCompilerOptions, hasChangesInResolutions, moduleResolutionIsEqualTo, changesAffectingProgramStructure, isBinaryExpression, isArrayTypeNode, LiteralTypeNode, LiteralExpression, isJSDocVariableTag, changesAffectLibCompilation, getMatchedIncludeSpec, tryGetLocalizedLibPath, isInExternalFileContext } from "./_namespaces/lpc.js";
+import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne, getRelativePathFromFile, getRelativePathFromDirectory, map, resolvePath, diagnosticCategoryName, getLineAndCharacterOfPosition, convertToRelativePath, BuilderProgram, addRange, explainIfFileIsRedirectAndImpliedFormat, chainDiagnosticMessages, createFileDiagnosticFromMessageChain, createCompilerDiagnosticFromMessageChain, fileIncludeReasonToDiagnostics, createFileDiagnostic, getMatchedFileSpec, createDiagnosticForNodeInSourceFile, FilePreprocessingLibReferenceDiagnostic, getSpellingSuggestion, identity, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ParsedCommandLine, arrayIsEqualTo, forEachEntry, projectReferenceIsEqualTo, compareDataObjects, HasChangedAutomaticTypeDirectiveNames, isJSDocTypeTag, hasJSDocNodes, isJSDoc, isJSDocNode, isJSDocTypeExpression, isLiteralTypeNode, getLiteralText, GetLiteralTextFlags, isStringLiteralLike, isJSDocParameterTag, isJSDocReturnTag, isTypePredicateNode, StringLiteralType, isPropertyAccessExpression, Mutable, ImportCandidateNode, isNewExpression, isTypeNode, getLibRootedFileName, isJSDocPropertyTag, PragmaPseudoMapEntry, setParent, setTextRangePosEnd, PragmaPseudoMap, TextRange, CommentRange, thisObjectPragmaToStringLiteral, emptyMap, getLpcConfigPropArrayElementValue, forEachLpcConfigPropArray, LpcConfigSourceFile, isArrayLiteralExpression, tryCast, isObjectLiteralExpression, forEachPropertyAssignment, getLpcConfigObjectLiteralExpression, getPropertyArrayElementValue, getNameOfScriptTarget, getEmitScriptTarget, setTextRange, isCallExpression, isIdentifier, changesAffectModuleResolution, sourceFileAffectingCompilerOptions, hasChangesInResolutions, moduleResolutionIsEqualTo, changesAffectingProgramStructure, isBinaryExpression, isArrayTypeNode, LiteralTypeNode, LiteralExpression, isJSDocVariableTag, changesAffectLibCompilation, getMatchedIncludeSpec, tryGetLocalizedLibPath, isInExternalFileContext, DiagnosticCategory, forEachAncestorDirectory, getPositionOfLineAndCharacter, SourceFileBase } from "./_namespaces/lpc.js";
 
 interface FileReasonToChainCache {
     fileIncludeReasonDetails: DiagnosticMessageChain | undefined;
@@ -2986,6 +2986,19 @@ const resetEscapeSequence = "\u001b[0m";
 const ellipsis = "...";
 const halfIndent = "  ";
 const indent = "    ";
+function getCategoryFormat(category: DiagnosticCategory): ForegroundColorEscapeSequences {
+    switch (category) {
+        case DiagnosticCategory.Error:
+            return ForegroundColorEscapeSequences.Red;
+        case DiagnosticCategory.Warning:
+            return ForegroundColorEscapeSequences.Yellow;
+        case DiagnosticCategory.Suggestion:
+            return Debug.fail("Should never get an Info diagnostic on the command line.");
+        case DiagnosticCategory.Message:
+            return ForegroundColorEscapeSequences.Blue;
+    }
+}
+
 
 /** @internal */
 export function formatColorAndReset(text: string, formatStyle: string) {
@@ -3102,3 +3115,112 @@ export function isProgramUptoDate(
     }
 }
 
+export function findConfigFile(searchPath: string, fileExists: (fileName: string) => boolean, configName = "lpc-config.json"): string | undefined {
+    return forEachAncestorDirectory(searchPath, ancestor => {
+        const fileName = combinePaths(ancestor, configName);
+        return fileExists(fileName) ? fileName : undefined;
+    });
+}
+
+
+/** @internal */
+export function formatLocation(file: SourceFileBase, start: number, host: FormatDiagnosticsHost, color = formatColorAndReset) {
+    const { line: firstLine, character: firstLineChar } = getLineAndCharacterOfPosition(file, start); // TODO: GH#18217
+    const relativeFileName = host ? convertToRelativePath(file.fileName, host.getCurrentDirectory(), fileName => host.getCanonicalFileName(fileName)) : file.fileName;
+
+    let output = "";
+    output += color(relativeFileName, ForegroundColorEscapeSequences.Cyan);
+    output += ":";
+    output += color(`${firstLine + 1}`, ForegroundColorEscapeSequences.Yellow);
+    output += ":";
+    output += color(`${firstLineChar + 1}`, ForegroundColorEscapeSequences.Yellow);
+    return output;
+}
+
+export function formatDiagnosticsWithColorAndContext(diagnostics: readonly Diagnostic[], host: FormatDiagnosticsHost): string {
+    let output = "";
+    for (const diagnostic of diagnostics) {
+        if (diagnostic.file) {
+            const { file, start } = diagnostic;
+            output += formatLocation(file, start!, host); // TODO: GH#18217
+            output += " - ";
+        }
+
+        output += formatColorAndReset(diagnosticCategoryName(diagnostic), getCategoryFormat(diagnostic.category));
+        output += formatColorAndReset(` TS${diagnostic.code}: `, ForegroundColorEscapeSequences.Grey);
+        output += flattenDiagnosticMessageText(diagnostic.messageText, host.getNewLine());
+
+        if (diagnostic.file && diagnostic.code !== Diagnostics.File_appears_to_be_binary.code) {
+            output += host.getNewLine();
+            output += formatCodeSpan(diagnostic.file, diagnostic.start!, diagnostic.length!, "", getCategoryFormat(diagnostic.category), host); // TODO: GH#18217
+        }
+        if (diagnostic.relatedInformation) {
+            output += host.getNewLine();
+            for (const { file, start, length, messageText } of diagnostic.relatedInformation) {
+                if (file) {
+                    output += host.getNewLine();
+                    output += halfIndent + formatLocation(file, start!, host); // TODO: GH#18217
+                    output += formatCodeSpan(file, start!, length!, indent, ForegroundColorEscapeSequences.Cyan, host); // TODO: GH#18217
+                }
+                output += host.getNewLine();
+                output += indent + flattenDiagnosticMessageText(messageText, host.getNewLine());
+            }
+        }
+        output += host.getNewLine();
+    }
+    return output;
+}
+
+function formatCodeSpan(file: SourceFileBase, start: number, length: number, indent: string, squiggleColor: ForegroundColorEscapeSequences, host: FormatDiagnosticsHost) {
+    const { line: firstLine, character: firstLineChar } = getLineAndCharacterOfPosition(file, start);
+    const { line: lastLine, character: lastLineChar } = getLineAndCharacterOfPosition(file, start + length);
+    const lastLineInFile = getLineAndCharacterOfPosition(file, file.text.length).line;
+
+    const hasMoreThanFiveLines = (lastLine - firstLine) >= 4;
+    let gutterWidth = (lastLine + 1 + "").length;
+    if (hasMoreThanFiveLines) {
+        gutterWidth = Math.max(ellipsis.length, gutterWidth);
+    }
+
+    let context = "";
+    for (let i = firstLine; i <= lastLine; i++) {
+        context += host.getNewLine();
+        // If the error spans over 5 lines, we'll only show the first 2 and last 2 lines,
+        // so we'll skip ahead to the second-to-last line.
+        if (hasMoreThanFiveLines && firstLine + 1 < i && i < lastLine - 1) {
+            context += indent + formatColorAndReset(ellipsis.padStart(gutterWidth), gutterStyleSequence) + gutterSeparator + host.getNewLine();
+            i = lastLine - 1;
+        }
+
+        const lineStart = getPositionOfLineAndCharacter(file, i, 0);
+        const lineEnd = i < lastLineInFile ? getPositionOfLineAndCharacter(file, i + 1, 0) : file.text.length;
+        let lineContent = file.text.slice(lineStart, lineEnd);
+        lineContent = lineContent.trimEnd(); // trim from end
+        lineContent = lineContent.replace(/\t/g, " "); // convert tabs to single spaces
+
+        // Output the gutter and the actual contents of the line.
+        context += indent + formatColorAndReset((i + 1 + "").padStart(gutterWidth), gutterStyleSequence) + gutterSeparator;
+        context += lineContent + host.getNewLine();
+
+        // Output the gutter and the error span for the line using tildes.
+        context += indent + formatColorAndReset("".padStart(gutterWidth), gutterStyleSequence) + gutterSeparator;
+        context += squiggleColor;
+        if (i === firstLine) {
+            // If we're on the last line, then limit it to the last character of the last line.
+            // Otherwise, we'll just squiggle the rest of the line, giving 'slice' no end position.
+            const lastCharForLine = i === lastLine ? lastLineChar : undefined;
+
+            context += lineContent.slice(0, firstLineChar).replace(/\S/g, " ");
+            context += lineContent.slice(firstLineChar, lastCharForLine).replace(/./g, "~");
+        }
+        else if (i === lastLine) {
+            context += lineContent.slice(0, lastLineChar).replace(/./g, "~");
+        }
+        else {
+            // Squiggle the entire line.
+            context += lineContent.replace(/./g, "~");
+        }
+        context += resetEscapeSequence;
+    }
+    return context;
+}

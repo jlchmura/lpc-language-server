@@ -8,3 +8,4 @@ export function resolveConfigFileProjectName(project: string): ResolvedConfigFil
 
     return combinePaths(project, "lpc-config.json") as ResolvedConfigFileName;
 }
+
