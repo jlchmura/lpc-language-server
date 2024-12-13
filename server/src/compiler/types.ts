@@ -4278,6 +4278,7 @@ export const enum InternalSymbolName {
     This = "this",
     InstantiationExpression = "__instantiationExpression", // Instantiation expressions
     ImportAttributes = "__importAttributes",
+    VarDocTags = "__varDocTags",
 }
 
 export type PrefixUnaryOperator =

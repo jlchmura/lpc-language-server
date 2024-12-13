@@ -6757,6 +6757,7 @@ const forEachChildTable: ForEachChildTable = {
             visitNode(cbNode, node.right);
     },
     [SyntaxKind.JSDocParameterTag]: forEachChildInJSDocParameterOrPropertyTag,
+    [SyntaxKind.JSDocVariableTag]: forEachChildInJSDocParameterOrPropertyTag,
     [SyntaxKind.JSDocPropertyTag]: forEachChildInJSDocParameterOrPropertyTag,
     [SyntaxKind.JSDocAuthorTag]: function forEachChildInJSDocAuthorTag<T>(node: JSDocAuthorTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.tagName) ||
@@ -7051,7 +7052,7 @@ function forEachChildInOptionalRestOrJSDocParameterModifier<T>(node: JSDocTypeEx
     return visitNode(cbNode, node.type);
 }
 
-function forEachChildInJSDocParameterOrPropertyTag<T>(node: JSDocParameterTag | JSDocPropertyTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+function forEachChildInJSDocParameterOrPropertyTag<T>(node: JSDocParameterTag | JSDocPropertyTag | JSDocVariableTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
     return visitNode(cbNode, node.tagName) ||
         (node.isNameFirst
             ? visitNode(cbNode, node.name) || visitNode(cbNode, node.typeExpression)

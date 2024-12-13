@@ -216,6 +216,7 @@ import {
     isNamedDeclaration,
     LeftHandSideExpression,
     isSyntaxList,
+    isJSDocTypeAlias,
 } from "./_namespaces/lpc.js";
 
 // Matches the beginning of a triple slash directive
@@ -500,12 +501,12 @@ export function typeToDisplayParts(typechecker: TypeChecker, type: Type, enclosi
 
 /** @internal */
 export function getContainerNode(node: Node): Declaration | undefined {
-    // if (isJSDocTypeAlias(node)) {
-    //     // This doesn't just apply to the node immediately under the comment, but to everything in its parent's scope.
-    //     // node.parent = the JSDoc comment, node.parent.parent = the node having the comment.
-    //     // Then we get parent again in the loop.
-    //     node = node.parent.parent;
-    // }
+    if (isJSDocTypeAlias(node)) {
+        // This doesn't just apply to the node immediately under the comment, but to everything in its parent's scope.
+        // node.parent = the JSDoc comment, node.parent.parent = the node having the comment.
+        // Then we get parent again in the loop.
+        node = node.parent.parent;
+    }
 
     while (true) {
         node = node.parent;
