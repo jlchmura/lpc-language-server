@@ -326,6 +326,8 @@ Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/su
 "
 `;
 
+exports[`Compiler compiler/super2.c Reports correct errors for compiler/super2.c: diags-compiler/super2.c 1`] = `""`;
+
 exports[`Compiler compiler/switch1.c Reports correct errors for compiler/switch1.c: diags-compiler/switch1.c 1`] = `""`;
 
 exports[`Compiler compiler/switch2.c Reports correct errors for compiler/switch2.c: diags-compiler/switch2.c 1`] = `""`;
