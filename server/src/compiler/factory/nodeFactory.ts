@@ -128,6 +128,7 @@ import {
     JSDocTypeLiteral,
     JSDocTypeTag,
     JSDocUnknownTag,
+    JSDocVariableTag,
     JSDocVariadicType,
     KeywordSyntaxKind,
     KeywordToken,
@@ -409,6 +410,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createJSDocLinkPlain,
         createJSDocUnknownTag,
         createJSDocPropertyTag,
+        createJSDocVariableTag,
         createJSDocTypeLiteral,
         createJSDocSeeTag,
         createJSDocImplementsTag,
@@ -2025,6 +2027,16 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     // @api
     function createJSDocPropertyTag(tagName: Identifier | undefined, name: EntityName, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocPropertyTag {
         const node = createBaseJSDocTagDeclaration<JSDocPropertyTag>(SyntaxKind.JSDocPropertyTag, tagName ?? createIdentifier("prop"), comment);
+        node.typeExpression = typeExpression;
+        node.name = name;
+        node.isNameFirst = !!isNameFirst;
+        node.isBracketed = isBracketed;
+        return node;
+    }
+
+    // @api
+    function createJSDocVariableTag(tagName: Identifier | undefined, name: EntityName, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocVariableTag {
+        const node = createBaseJSDocTagDeclaration<JSDocVariableTag>(SyntaxKind.JSDocVariableTag, tagName ?? createIdentifier("var"), comment);
         node.typeExpression = typeExpression;
         node.name = name;
         node.isNameFirst = !!isNameFirst;
