@@ -4254,6 +4254,8 @@ export interface StructDeclaration extends DeclarationStatement, JSDocContainer,
 export type MatchingKeys<TRecord, TMatch, K extends keyof TRecord = keyof TRecord> = K extends (TRecord[K] extends TMatch ? K : never) ? K : never;
 
 export const enum InternalSymbolName {
+    EfunSuperPrefix = "efun",
+    EfunNamespace = "efun::",
     Call = "__call", // Call signatures
     Constructor = "__constructor", // Constructor implementations
     New = "__new", // Constructor signatures

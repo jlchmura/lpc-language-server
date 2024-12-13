@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.9
+
+-   Fix: [efun:: prefix reports 9023 and should not #99](https://github.com/jlchmura/lpc-language-server/issues/99)
+
 ## 1.1.8
 
 -   Fix: [Symbol is resolving to efun instead of sefun #95](https://github.com/jlchmura/lpc-language-server/issues/95)

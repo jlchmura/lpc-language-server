@@ -633,7 +633,7 @@ export function declarationNameToString(name: DeclarationName | QualifiedName | 
 
 /** @internal */
 export function getTextOfNode(node: Node, includeTrivia = false): string {
-    return (isIdentifier(node) ? node.text : undefined) ?? getSourceTextOfNodeFromSourceFile(getSourceFileOfNode(node), node, includeTrivia);
+    return (isIdentifier(node) || isStringLiteral(node) ? node.text : undefined) ?? getSourceTextOfNodeFromSourceFile(getSourceFileOfNode(node), node, includeTrivia);
 }
 
 /** @internal */
@@ -1216,9 +1216,17 @@ export function createNameResolver({
         let grandparent: Node;
         const name = isString(nameArg) ? nameArg : (nameArg as Identifier)?.text;
 
-        const prefix = !isString(nameArg) && isSuperAccessExpression(nameArg.parent) ? nameArg.parent.namespace ?? "*" : undefined;
-
-        // if this has a super accessor prefix, jump right to the sourcefile
+        const prefixNode = !isString(nameArg) && isSuperAccessExpression(nameArg.parent) ? nameArg.parent.namespace : undefined;
+        const prefix = prefixNode ? getTextOfNode(prefixNode) ?? "*" : undefined;
+        
+        if (prefix === InternalSymbolName.EfunSuperPrefix) {
+            // if the prefix is efun, we can bypass all of this
+            const efunNamespace = globals.get(InternalSymbolName.EfunNamespace);
+            if (efunNamespace && (result = lookup(efunNamespace.members, name, meaning))) {
+                return result;
+            }
+        }
+        // otherwise if this has a super accessor prefix, jump right to the sourcefile
         if (prefix) location = getSourceFileOfNode(location);
 
         loop:
@@ -1293,11 +1301,12 @@ export function createNameResolver({
                             break loop;
                         }
                     }
-                                    
+                                         
                     // now check inherited symbols
                     const importTypes = sourceFileSymbol.inherits;                                        
                     const importStack = Array.from(importTypes?.entries() ?? emptyArray);
                     const seenImports = new Set<string>();                    
+                    // efun prefix will bypass this and go directly to globals
                     while (!result && importStack.length) {                        
                         const [importName, importType] = importStack.shift()!;
                         if (seenImports.has(importName)) {
