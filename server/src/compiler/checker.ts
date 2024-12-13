@@ -7482,8 +7482,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function createTypeReference(target: GenericType, typeArguments: readonly Type[] | undefined): TypeReference {
         const id = getTypeListId(typeArguments);        
         // Debug.assertIsDefined(target?.instantiations)
-        let type = target?.instantiations.get(id);
-        if (!type) {
+        let type = target?.instantiations?.get(id);
+        if (target && !type) {
             type = createObjectType(ObjectFlags.Reference, target.symbol) as TypeReference;
             target.instantiations.set(id, type);
             type.objectFlags |= typeArguments ? getPropagatingFlagsOfTypes(typeArguments) : 0;

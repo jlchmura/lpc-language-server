@@ -931,6 +931,7 @@ export const enum SyntaxKind {
     JSDocTypedefTag,
     JSDocSeeTag,
     JSDocPropertyTag,
+    JSDocVariableTag,
     JSDocThrowsTag,
     JSDocSatisfiesTag,
     JSDocImportTag, // Last JSDoc Node
@@ -1657,6 +1658,7 @@ export interface NodeFactory {
     createJSDocOverrideTag(tagName: Identifier | undefined, comment?: string | NodeArray<JSDocComment>): JSDocOverrideTag;
     createJSDocUnknownTag(tagName: Identifier, comment?: string | NodeArray<JSDocComment>): JSDocUnknownTag;
     createJSDocPropertyTag(tagName: Identifier | undefined, name: EntityName, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocPropertyTag;
+    createJSDocVariableTag(tagName: Identifier | undefined, name: EntityName, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocVariableTag;
     createJSDocTypeLiteral(propertyTags?: readonly JSDocPropertyLikeTag[], isArrayType?: boolean): JSDocTypeLiteral;
     createJSDocSeeTag(tagName: Identifier | undefined, name: JSDocNameReference | undefined, comment?: string | NodeArray<JSDocComment>): JSDocSeeTag;
     createJSDocAuthorTag(tagName: Identifier | undefined, comment?: string | NodeArray<JSDocComment>): JSDocAuthorTag;
@@ -2169,6 +2171,7 @@ export type ForEachChildNodes =
     | JSDocMemberName
     | JSDocParameterTag
     | JSDocPropertyTag
+    | JSDocVariableTag
     | JSDocAuthorTag
     | JSDocImplementsTag
     | JSDocAugmentsTag
@@ -3186,6 +3189,7 @@ export type ImportCandidateNode =
     JSDocParameterTag |
     JSDocTypeTag | 
     JSDocPropertyTag |
+    JSDocVariableTag |
     JSDocReturnTag
     ;
 
@@ -5992,7 +5996,7 @@ export type VariableLikeDeclaration =
     | PropertyDeclaration
     | PropertyAssignment    
     | ShorthandPropertyAssignment    
-    // | JSDocPropertyTag
+    | JSDocPropertyTag    
     | JSDocParameterTag;
     
 
@@ -7050,6 +7054,10 @@ export interface JSDocCallbackTag extends JSDocTag, NamedDeclaration, LocalsCont
 
 export interface JSDocPropertyTag extends JSDocPropertyLikeTag {
     readonly kind: SyntaxKind.JSDocPropertyTag;
+}
+
+export interface JSDocVariableTag extends JSDocPropertyLikeTag {
+    readonly kind: SyntaxKind.JSDocVariableTag;
 }
 
 export interface JSDocSatisfiesTag extends JSDocTag {
