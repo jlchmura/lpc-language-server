@@ -1981,12 +1981,11 @@ function reverseAccessKind(a: AccessKind): AccessKind {
 
 /** @internal */
 export function canHaveJSDoc(node: Node): node is HasJSDoc {
-    switch (node.kind) {
-        case SyntaxKind.InlineClosureExpression:
+    switch (node.kind) {        
         case SyntaxKind.BinaryExpression:
         case SyntaxKind.Block:
         case SyntaxKind.BreakStatement:
-        case SyntaxKind.CaseClause:
+        case SyntaxKind.CaseClause:        
         // case SyntaxKind.CallSignature:
         // case SyntaxKind.ClassDeclaration:
         case SyntaxKind.ClassExpression:        
@@ -2000,9 +1999,11 @@ export function canHaveJSDoc(node: Node): node is HasJSDoc {
         case SyntaxKind.ForStatement:
         case SyntaxKind.FunctionDeclaration:
         case SyntaxKind.FunctionExpression:
-        // case SyntaxKind.FunctionType:        
+        case SyntaxKind.FunctionType:        
         case SyntaxKind.Identifier:
-        case SyntaxKind.IfStatement:        
+        case SyntaxKind.IfStatement:   
+        case SyntaxKind.InlineClosureExpression:
+        case SyntaxKind.InheritDeclaration:     
         case SyntaxKind.IndexSignature:        
         case SyntaxKind.JSDocFunctionType:
         case SyntaxKind.JSDocSignature:        
@@ -2014,7 +2015,7 @@ export function canHaveJSDoc(node: Node): node is HasJSDoc {
         case SyntaxKind.PropertyAccessExpression:
         case SyntaxKind.PropertyAssignment:
         case SyntaxKind.PropertyDeclaration:
-        //case SyntaxKind.PropertySignature:
+        case SyntaxKind.PropertySignature:
         case SyntaxKind.ReturnStatement:
         //case SyntaxKind.SemicolonClassElement:        
         case SyntaxKind.ShorthandPropertyAssignment:

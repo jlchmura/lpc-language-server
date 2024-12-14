@@ -3,6 +3,7 @@
 ## 1.1.10
 
 -   Fix: [Prefix unary expr is parsed incorrectly causing lpc2367 to be reported #104](https://github.com/jlchmura/lpc-language-server/issues/104)
+-   Fix: [@var comment tag not working when placed before an inherit #105](https://github.com/jlchmura/lpc-language-server/issues/105)
 -   Fix some errors introduced by #102
 
 ## 1.1.9
