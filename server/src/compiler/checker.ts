@@ -322,12 +322,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         getAliasedSymbol: resolveAlias,
         getSymbolAtLocation: nodeIn => {
             const node = getParseTreeNode(nodeIn);
-            // set ignoreErrors: true because any lookups invoked by the API shouldn't cause any new errors
-            return node ? getSymbolAtLocation(node, /*ignoreErrors*/ true) : undefined;
+            return runWithCurrentFile(node, ()=>{
+                // set ignoreErrors: true because any lookups invoked by the API shouldn't cause any new errors
+                return node ? getSymbolAtLocation(node, /*ignoreErrors*/ true) : undefined;
+            });
         },
         getSignatureFromDeclaration: declarationIn => {
             const declaration = getParseTreeNode(declarationIn, isFunctionLike);
-            return declaration ? getSignatureFromDeclaration(declaration) : undefined;
+            return runWithCurrentFile(declaration, () => {
+                return declaration ? getSignatureFromDeclaration(declaration) : undefined;
+            });
         },
         evaluate,
         typeToTypeNode: nodeBuilder.typeToTypeNode,
@@ -357,38 +361,46 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (!node) {
                 return undefined;
             }
-            if (contextFlags! & ContextFlags.Completions) {
-                return runWithInferenceBlockedFromSourceNode(node, () => getContextualType(node, contextFlags));
-            }
-            return getContextualType(node, contextFlags);
+            return runWithCurrentFile(node, () => {
+                if (contextFlags! & ContextFlags.Completions) {
+                    return runWithInferenceBlockedFromSourceNode(node, () => getContextualType(node, contextFlags));
+                }
+                return getContextualType(node, contextFlags);
+            });
         },
         getSymbolsInScope: (locationIn, meaning) => {
             const location = getParseTreeNode(locationIn);
-            return location ? getSymbolsInScope(location, meaning) : [];
+            return runWithCurrentFile(location, ()=>{
+                return location ? getSymbolsInScope(location, meaning) : [];
+            });
         },
         getTypeOfSymbolAtLocation: (symbol, locationIn) => {
             const location = getParseTreeNode(locationIn);
-            const saveFile = currentFile;
-            currentFile = getSourceFileOfNode(location);
-            const symbolType = location ? getTypeOfSymbolAtLocation(symbol, location) : errorType;
-            currentFile = saveFile;
-            return symbolType;
+            return runWithCurrentFile(location, ()=>{            
+                return location ? getTypeOfSymbolAtLocation(symbol, location) : errorType;
+            });
         },
         isDeclarationVisible,
         getResolvedSignature: (node, candidatesOutArray, argumentCount) => getResolvedSignatureWorker(node, candidatesOutArray, argumentCount, CheckMode.Normal),
         getShorthandAssignmentValueSymbol: nodeIn => {
             const node = getParseTreeNode(nodeIn);
-            return node ? getShorthandAssignmentValueSymbol(node) : undefined;
+            return runWithCurrentFile(node, ()=>{
+                return node ? getShorthandAssignmentValueSymbol(node) : undefined;
+            });
         },
         getContextualTypeForArgumentAtIndex: (nodeIn, argIndex) => {
             const node = getParseTreeNode(nodeIn, isCallLikeExpression);
-            return node && getContextualTypeForArgumentAtIndex(node, argIndex);
+            return runWithCurrentFile(node, ()=>{
+                return node && getContextualTypeForArgumentAtIndex(node, argIndex);
+            });
         },
         isUnknownSymbol: symbol => symbol === unknownSymbol,
         isUndefinedSymbol: symbol => symbol === undefinedSymbol,
         getTypeAtLocation: nodeIn => {
             const node = getParseTreeNode(nodeIn);
-            return node ? runWithCurrentFile(node, () => getTypeOfNode(node)) : errorType;
+            return runWithCurrentFile(node, ()=>{
+                return node ? runWithCurrentFile(node, () => getTypeOfNode(node)) : errorType;
+            });
         },
         getCandidateSignaturesForStringLiteralCompletions,
         runWithCancellationToken: (token, callback) => {
@@ -412,7 +424,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         symbolToTypeParameterDeclarations: nodeBuilder.symbolToTypeParameterDeclarations,
         tryGetThisTypeAt: (nodeIn, includeGlobalThis, container) => {
             const node = getParseTreeNode(nodeIn);
-            return node && tryGetThisTypeAt(node, includeGlobalThis, container);
+            return runWithCurrentFile(node, () => {
+                return node && tryGetThisTypeAt(node, includeGlobalThis, container);
+            });
         },        
         getBaseConstraintOfType,
         getDefaultFromTypeParameter: type => type && type.flags & TypeFlags.TypeParameter ? getDefaultFromTypeParameter(type as TypeParameter) : undefined,
@@ -422,7 +436,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         getAccessibleSymbolChain,
         isValidPropertyAccessForCompletions: (nodeIn, type, property) => {
             const node = getParseTreeNode(nodeIn, isPropertyAccessExpression);
-            return !!node && isValidPropertyAccessForCompletions(node, type, property);
+            return runWithCurrentFile(node, () => {
+                return !!node && isValidPropertyAccessForCompletions(node, type, property);
+            });
         },
         isArgumentsSymbol: symbol => symbol === argumentsSymbol,
         resolveExternalModuleSymbol,
@@ -433,8 +449,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         getExportsOfModule: getExportsOfModuleAsArray,
         resolveExternalModuleName: moduleSpecifierIn => {
             const moduleSpecifier = getParseTreeNode(moduleSpecifierIn, isExpression);
-            const type = checkExpression(moduleSpecifier, CheckMode.TypeOnly);
-            return moduleSpecifier && resolveExternalModuleName(moduleSpecifier, moduleSpecifier, type, /*ignoreErrors*/ true);
+            return runWithCurrentFile(moduleSpecifier, () => {
+                const type = checkExpression(moduleSpecifier, CheckMode.TypeOnly);
+                return moduleSpecifier && resolveExternalModuleName(moduleSpecifier, moduleSpecifier, type, /*ignoreErrors*/ true);
+            });
         },
         getContextualTypeForObjectLiteralElement: nodeIn => {
             console.debug("todo - getContextualTypeForObjectLiteralElement");
@@ -449,7 +467,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         hasEffectiveRestParameter,
         isOptionalParameter: nodeIn => {
             const node = getParseTreeNode(nodeIn, isParameter);
-            return node ? isOptionalParameter(node) : false;
+            return runWithCurrentFile(node, () => {
+                return node ? isOptionalParameter(node) : false;
+            });
         },
         symbolToParameterDeclaration: nodeBuilder.symbolToParameterDeclaration,
         typeParameterToDeclaration: nodeBuilder.typeParameterToDeclaration,
@@ -1965,7 +1985,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // Do this in a finally block so we can ensure that it gets reset back to nothing after
             // this call is done.
             cancellationToken = ct;
-            return getDiagnosticsWorker(sourceFile, nodesToCheck);
+            return runWithCurrentFile(sourceFile, () => {
+                return getDiagnosticsWorker(sourceFile, nodesToCheck);
+            });
         }
         finally {
             cancellationToken = undefined;
@@ -9064,6 +9086,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function getExtractStringType(type: Type) {
+        console.debug("todo - getExtractStringType - is this needed?");
         return stringType;
         // const extractTypeAlias = getGlobalExtractSymbol();
         // return extractTypeAlias ? getTypeAliasInstantiation(extractTypeAlias, [type, stringType]) : stringType;

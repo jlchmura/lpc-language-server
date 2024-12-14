@@ -4368,7 +4368,16 @@ export namespace LpcParser {
     
     function parsePrefixUnaryExpression() {
         const pos = getPositionState();                                
-        return finishNode(factory.createPrefixUnaryExpression(token() as PrefixUnaryOperator, nextTokenAnd(()=>disallowComma(parseExpression))), pos);
+        const operator = token() as PrefixUnaryOperator;
+        let expr = nextTokenAnd(()=>disallowComma(parseSimpleUnaryExpression))
+        // there is one higher precedence operator that can follow a unary operator in LPC
+        // and that is an assignment
+        if (token() == SyntaxKind.EqualsToken) {
+            // this syntax is allow in LPC but is ambiguous -- it should be parenethesized for better readability
+            // TODO: offer a codefix?
+            expr = finishNode(factoryCreateParenthesizedExpression(parseBinaryExpressionRest(OperatorPrecedence.Equality, expr, pos)), pos);            
+        }
+        return finishNode(factory.createPrefixUnaryExpression(operator, expr), pos);
     }
     
     /**
