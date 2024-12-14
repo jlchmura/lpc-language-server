@@ -1362,7 +1362,9 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         result.set("__PORT__", "1");
         result.set("__VERSION__", `"1.0"`);
         result.set("__ARCH__", `"x86_64"`);
+        result.set("MIN_INT",            "-2147483648");
         result.set("MAX_INT",            "2147483647");
+        result.set("MIN_FLOAT",          "0.00000"); 
         result.set("MAX_FLOAT",          "1.0e+20");
         result.set("T_INT",              `"int"`);
         result.set("T_STRING",           `"string"`);
