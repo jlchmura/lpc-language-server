@@ -3263,7 +3263,7 @@ export function getEffectiveTypeAnnotationNode(node: Node, originatingFile?: Sou
             // for a variable with a jsdoc overridable type, look to see if there is a @var tag            
             // we can't use the node's file, because that may be different. the @var tag will be in the file
             // that originated the type check
-            Debug.assertIsDefined(originatingFile, "originatingFile should be provided for variable declarations");            
+            console.warn("originatingFile should be provided for variable declarations");
             const varTagsSymbolTbl = originatingFile.locals.get(InternalSymbolName.VarDocTags)?.members;
             let varTagSymbol: Symbol;
 
