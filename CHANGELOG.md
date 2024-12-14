@@ -1,5 +1,10 @@
 # LPC Language Services Changelog
 
+## 1.1.10
+
+-   Fix: [Prefix unary expr is parsed incorrectly causing lpc2367 to be reported #104](https://github.com/jlchmura/lpc-language-server/issues/104)
+-   Fix some errors introduced by #102
+
 ## 1.1.9
 
 -   Fix: [efun:: prefix reports 9023 and should not #99](https://github.com/jlchmura/lpc-language-server/issues/99)
