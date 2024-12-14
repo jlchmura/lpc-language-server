@@ -1985,7 +1985,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // Do this in a finally block so we can ensure that it gets reset back to nothing after
             // this call is done.
             cancellationToken = ct;
-            return getDiagnosticsWorker(sourceFile, nodesToCheck);
+            return runWithCurrentFile(sourceFile, () => {
+                return getDiagnosticsWorker(sourceFile, nodesToCheck);
+            });
         }
         finally {
             cancellationToken = undefined;
@@ -9084,6 +9086,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function getExtractStringType(type: Type) {
+        console.debug("todo - getExtractStringType - is this needed?");
         return stringType;
         // const extractTypeAlias = getGlobalExtractSymbol();
         // return extractTypeAlias ? getTypeAliasInstantiation(extractTypeAlias, [type, stringType]) : stringType;
