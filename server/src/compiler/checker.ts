@@ -729,11 +729,22 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         validArithmeticType = getUnionType([numberType, globalArrayType]); // valid lhs for arithmetic operations
     }
     
+    /**
+     * Runs the callback with the current file set to the file of the given node.
+     * @param node node to use for current file lookuop
+     * @param callback function to execute
+     * @returns result of the callback
+     */
     function runWithCurrentFile<T>(node: Node, callback: () => T) {
-        const savedCurrentFile = currentFile;
-        currentFile = getSourceFileOfNode(node);
+        let hadCurrentFile = true;
+        if (!currentFile) {
+            hadCurrentFile = false;
+            currentFile = getSourceFileOfNode(node);
+        }
         const result = callback();
-        currentFile = savedCurrentFile;
+        if (!hadCurrentFile) {
+            currentFile = undefined!;
+        }
         return result;
     }
 
