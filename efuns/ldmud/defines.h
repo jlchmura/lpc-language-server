@@ -1,5 +1,4 @@
-// Driver Provided Defines 
-// These are made available to each sourcefile
+// Driver-provided defines that are injected into each file
 
 #define LPC3                        1 /* always defined */
 #define __LDMUD__                   1 /* always defined */
@@ -68,20 +67,3 @@
 #define __OPENSSL__                 0 /* if __TLS__: TLS support provided by OpenSSL */
 #define __GCRYPT__                  0 /* cryptographic routines provided by libgcrypt */
 #define __DEPRECATED__              0 /* support for obsolete and deprecated efuns */
-
-/* ldmud efuns */
-
-/** Used by the type checker for various non-primitive types */
-object __LS__Array;
-object __LS__Mapping;
-object __LS__Object;
-object __LS__Function;
-object __LS__CallableFunction;
-object __LS__NewableFunction;
-object __LS__Int;
-object __LS__ReadonlyArray;
-object __LS__String;
-object __LS__Closure;
-
-#include "efun.h"
-#include "obsolete.h"

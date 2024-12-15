@@ -1,4 +1,0 @@
-{
-    "diagnostics": "off",
-    "exclude": ["./efuns", "./server/src/tests"]
-}

@@ -3091,6 +3091,9 @@ export interface SourceFile extends Declaration, LocalsContainer, HasHeritageCon
      * Array of text ranges that are inactive due to directives
      */
     inactiveCodeRanges?: readonly TextRange[];
+
+    /** Macros that were parsed in this source file (and any includes) */
+    parsedMacros?: ReadonlyMap<string, string>;
 }
 
 export interface JsonSourceFile extends SourceFile {
@@ -5497,9 +5500,7 @@ export type FilePreprocessingDiagnostics = FilePreprocessingLibReferenceDiagnost
 
 export const enum ScriptKind {
     Unknown = 0,
-    LPC = 1,
-    // LDMud = 2,
-    // FluffOS = 3,
+    LPC = 1,    
     External = 5,
     JSON = 6,
     /**

@@ -263,6 +263,19 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 forEach(options.lib, (libFileName, index) => {
                     processRootFile(pathForLibFile(libFileName), /*isDefaultLib*/ true, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.LibFile, index });
                 });
+            }  
+            
+            const libSourceFile = getSourceFile(defaultLibraryFileName);
+            if (libSourceFile && libSourceFile.parsedMacros) {
+                options.configDefines = options.configDefines || {};
+                // add macros from the default lib to the config table
+                // defines from config file always take priority 
+                const macros = libSourceFile.parsedMacros;
+                for (const [key, value] of macros) {
+                    if (!options.configDefines[key]) {
+                        options.configDefines[key] = value;
+                    }                    
+                }
             }
         }
         
@@ -1355,53 +1368,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         const result = new Map<string, string>();        
         if (options.playerFile) result.set("__LPC_CONFIG_LIBFILES_PLAYER", `"${getLibRootedFileName(options.playerFile, options)}"`);
         if (options.masterFile) result.set("__LPC_CONFIG_LIBFILES_MASTER", `"${getLibRootedFileName(options.masterFile, options)}"`);
-        if (options.sefunFile) result.set("__LPC_CONFIG_LIBFILES_SEFUN", `"${getLibRootedFileName(options.sefunFile, options)}"`);
-
-        result.set("__LANG_SVC__", "1");
-        result.set("__MAX_READ_FILE_SIZE__", "1000000");
-        result.set("__PORT__", "1");
-        result.set("__VERSION__", `"1.0"`);
-        result.set("__ARCH__", `"x86_64"`);
-        result.set("MIN_INT",            "-2147483648");
-        result.set("MAX_INT",            "2147483647");
-        result.set("MIN_FLOAT",          "0.00000"); 
-        result.set("MAX_FLOAT",          "1.0e+20");
-        result.set("T_INT",              `"int"`);
-        result.set("T_STRING",           `"string"`);
-        result.set("T_ARRAY",            `"array"`);
-        result.set("T_OBJECT",           `"object"`);
-        result.set("T_MAPPING",          `"mapping"`);
-        result.set("T_FUNCTION",         `"function"`);
-        result.set("T_FLOAT",            `"float"`);
-        result.set("T_BUFFER",           `"buffer"`);
-        result.set("T_CLASS",            `"class"`);
-        result.set("T_INVALID",          `"*invalid*"`);
-        result.set("T_LVALUE",           `"*lvalue*"`);
-        result.set("T_LVALUE_BYTE",      `"*lvalue_byte*"`);
-        result.set("T_LVALUE_RANGE",     `"*lvalue_range*"`);
-        result.set("T_LVALUE_CODEPOINT", `"*lvalue_codepoint*"`);
-        result.set("T_ERROR_HANDLER",    `"*error_handler*"`);
-        result.set("T_FREED",            `"*freed*"`);
-        result.set("T_UNKNOWN",          `"*unknown*"`);
-
-        // TODO - read this out of .h files packaged with extension 
-        // https://github.com/fluffos/fluffos/blob/master/src/include/function.h
-        result.set("FP_LOCAL",          "2");
-        result.set("FP_EFUN",           "3");
-        result.set("FP_SIMUL",          "4");
-        result.set("FP_FUNCTIONAL",     "5");
-        result.set("FP_G_VAR",          "6");
-        result.set("FP_L_VAR",          "7");
-        result.set("FP_ANONYMOUS",      "8");
-        result.set("FP_MASK",           "0x0f");
-        result.set("FP_HAS_ARGUMENTS",  "0x10");
-        result.set("FP_OWNER_DESTED",   "0x20");
-        result.set("FP_NOT_BINDABLE",   "0x40");
-
-        result.set("EESUCCESS",         "0");
-        result.set("EEWOULDBLOCK",      "1");
-        result.set("EECALLBACK",        "2");
-        result.set("EEALREADY",         "3");        
+        if (options.sefunFile) result.set("__LPC_CONFIG_LIBFILES_SEFUN", `"${getLibRootedFileName(options.sefunFile, options)}"`);            
 
         for (const key in options.configDefines || emptyMap) {
             result.set(key, options.configDefines[key]);
