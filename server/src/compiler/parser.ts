@@ -883,18 +883,21 @@ export namespace LpcParser {
         
         sourceFile.imports = inherits?.map(i=>i.inheritClause).filter((i):i is StringLiteral=> isStringLiteral(i));        
         
-        // store parsed macros 
-        const parsedMacros = new Map<string, string>();
-        Object.values(macroTable).forEach(macro => {
-            // exclude built-in macros
-            if (macro.includeFilename != "macro") {
-                const { name, range } = macro;
-                parsedMacros.set(name, range ? macro.getText()?.substring(range.pos, range.end) ?? "" : "");
-            }
-            // wipe out any state data while we're here
-            macro.argsIn = undefined;            
-        });
-        sourceFile.parsedMacros = parsedMacros;
+        // TODO - find a better way to tell the parser that this is a lib file and should store parsed macros
+        if (fileName.endsWith("efuns.fluffos.h") || fileName.endsWith("efuns.ldmud.h")) {
+            // store parsed macros 
+            const parsedMacros = new Map<string, string>();
+            Object.values(macroTable).forEach(macro => {
+                // exclude built-in macros
+                if (macro.includeFilename != "macro") {
+                    const { name, range } = macro;
+                    parsedMacros.set(name, range ? macro.getText()?.substring(range.pos, range.end) ?? "" : "");
+                }
+                // wipe out any state data while we're here
+                macro.argsIn = undefined;            
+            });
+            sourceFile.parsedMacros = parsedMacros;
+        }
 
         if (setParentNodes) {
             fixupParentReferences(sourceFile);
