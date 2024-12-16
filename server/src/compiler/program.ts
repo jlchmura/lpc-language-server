@@ -1805,11 +1805,15 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                     setTextRange(lit, node.inheritClause); // copy the text range
                     imports = append(imports, lit);
                 }
-            // } else if (isIncludeDirective(node)) {
-            //     const firstEl = node.content && first(node.content);
-            //     if (isStringLiteral(firstEl)) {
-            //         imports = append(imports, firstEl);
-            //     }
+            } else if (isIncludeDirective(node)) {
+                // imports have string nodes, but we want to use the resolved filename
+                // so we'll create a fake string literal based on that
+                if (node.resolvedFilename) {
+                    const lit = factory.createStringLiteral(node.resolvedFilename);
+                    setTextRangePosEnd(lit, node.content.pos, node.content.end);
+                    (lit as Mutable<Node>).parent = node; // it will need a parent so that it doesn't break the emitter
+                    imports = append(imports, lit);
+                }                
             } else if (isJSDocNode(node)) {                    
                 if ((isJSDocParameterTag(node) || isJSDocVariableTag(node) || isJSDocTypeTag(node) || isJSDocPropertyTag(node) || isJSDocReturnTag(node)) && node.typeExpression) { 
                     const typeExp = node.typeExpression;

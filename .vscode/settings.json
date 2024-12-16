@@ -20,5 +20,9 @@
         "/**/compiler2/"
     ],
     "typescript.tsdk": "node_modules/typescript/lib",
+    "cSpell.words": [
+        "efun",
+        "sefun"
+    ],
     
 }

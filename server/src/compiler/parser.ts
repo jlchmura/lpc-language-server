@@ -1852,13 +1852,15 @@ export namespace LpcParser {
 
         // TODO - handle circular includes        
         if (resolvedFilename === fileName) { 
-            // skip
+            // skip            
             return false;
         }
-
-        (includeDirective as Mutable<IncludeDirective>).resolvedFilename = resolvedFilename;
-
+        
         if (includeFile?.source?.length > 0) {
+            // store resolved filename and add as an import candidate node
+            (includeDirective as Mutable<IncludeDirective>).resolvedFilename = resolvedFilename;
+            importCandidates.push(includeDirective);
+
             // cache source text
             // as a hack, add an extra newline to any include file - this way we don't have to deal 
             // with includes that end with an eof
@@ -1889,10 +1891,9 @@ export namespace LpcParser {
             nextToken(); 
 
             return true;
-        } else if (!currentIncludeDirective) {
-            // if we're not already in an include directive, then report an error
-            parseErrorAt(includeDirective.content[0].pos, includeDirective.content[includeDirective.content.length - 1].end, includeDirective.resolvedFilename, Diagnostics.Cannot_find_include_file_0, localFilename);
-        }
+        } 
+        
+        // if the include file was not found, that will be reported by the checker as part of semantic analysis
 
         // prime the scanner
         // nextToken(); 

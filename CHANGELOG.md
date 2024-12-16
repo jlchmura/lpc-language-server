@@ -1,5 +1,10 @@
 # LPC Language Services Changelog
 
+## 1.1.11
+
+-   Moved #include resolution error to checker instead of parser
+-   Added #include files to program dependency graph
+
 ## 1.1.10
 
 -   Fix: [Prefix unary expr is parsed incorrectly causing lpc2367 to be reported #104](https://github.com/jlchmura/lpc-language-server/issues/104)
