@@ -161,7 +161,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
 
     const fileHandler = createLpcFileHandler({
         fileExists: fileName => sys.fileExists(fileName),
-        readFile: fileName => sys.readFile(fileName),
+        readFile: fileName => getSourceFromSnapshotOrDisk(fileName),
         getCurrentDirectory: () => sys.getCurrentDirectory(),
         getIncludeDirs
     });
@@ -445,6 +445,16 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             }
         }        
         return globalIncludes;
+    }
+
+    /**
+     * Gets the source text for a file. This will use script snapshot if it is available, or fall back to disk.
+     * Did you really mean to call this?  You probably want `getSourceFile`
+     * @param fileName 
+     * @returns source text
+     */
+    function getSourceFromSnapshotOrDisk(fileName: string): string | undefined {                
+        return host.getSourceTextFromSnapshot(fileName) ?? sys.readFile(fileName);                
     }
 
     function getSourceFile(fileName: string): SourceFile | undefined {
@@ -2321,6 +2331,7 @@ export function createCompilerHostWorker(
         getSourceFile: createGetSourceFile(fileName => compilerHost.readFile(fileName), setParentNodes, options.driverType),
         getDefaultLibLocation,
         getDefaultLibFileName: options => combinePaths(getDefaultLibLocation(), getDefaultLibFileName(options)),
+        getSourceTextFromSnapshot: fileName => system.readFile(fileName),
         writeFile: createWriteFileMeasuringIO(
             (path, data, writeByteOrderMark) => system.writeFile(path, data, writeByteOrderMark),
             path => (compilerHost.createDirectory || system.createDirectory)(path),

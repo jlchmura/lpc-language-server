@@ -154,7 +154,9 @@ export namespace LpcParser {
         // create a fake include directive for each global include and put them on the include stack
         includeFileStack = [];
         forEach(_globalIncludes, include => {            
-            const includeDirective = finishNode(factory.createIncludeDirective([factory.createStringLiteral(include)], false), 0, 0);
+            const includeLiteral = factory.createStringLiteral(include);
+            setTextRangePosEnd(includeLiteral, 0, 0);
+            const includeDirective = finishNode(factory.createIncludeDirective([includeLiteral], false), 0, 0);
             includeFileStack.push(includeDirective);
         });
 
@@ -1939,7 +1941,7 @@ export namespace LpcParser {
         if (directiveContent.length === 0) {
             directiveContent.push(createMissingNode(SyntaxKind.StringLiteral, /*reportAtCurrentPosition*/ true, Diagnostics.Expression_expected));
         }
-                
+                  
         return withJSDoc(finishNode(factory.createIncludeDirective(directiveContent, localFirst), pos), hasJSDoc);
     }
 

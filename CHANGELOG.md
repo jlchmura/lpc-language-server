@@ -2,6 +2,7 @@
 
 ## 1.1.11
 
+-   Enhancement: [Include file handler should read from ScriptSnapshot instead of disk #60](https://github.com/jlchmura/lpc-language-server/issues/60)
 -   Moved #include resolution error to checker instead of parser
 -   Added #include files to program dependency graph
 

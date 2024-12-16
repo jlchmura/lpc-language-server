@@ -1639,6 +1639,7 @@ export function createLanguageService(
         let compilerHost: CompilerHost | undefined = {
             getSourceFile: getOrCreateSourceFile,
             getSourceFileByPath: getOrCreateSourceFileByPath,
+            getSourceTextFromSnapshot: getSourceTextFromSnapshot,
             getCancellationToken: () => cancellationToken,
             getCanonicalFileName,
             useCaseSensitiveFileNames: () => true, //useCaseSensitiveFileNames,
@@ -1836,6 +1837,14 @@ export function createLanguageService(
                 hasSourceFileByPath,
                 newSourceFileByResolvedPath
             );
+        }
+
+        function getSourceTextFromSnapshot(fileName: string): string | undefined {
+            const scriptSnapshot = host.getScriptSnapshot(fileName);
+            if (!scriptSnapshot) {
+                return undefined;
+            }
+            return getSnapshotText(scriptSnapshot);
         }
 
         function getOrCreateSourceFileByPath(
