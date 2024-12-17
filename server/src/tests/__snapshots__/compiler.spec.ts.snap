@@ -236,6 +236,34 @@ Found 1 error in server/src/tests/cases/compiler/jsDocParam.c[90m:4[0m
 
 exports[`Compiler compiler/lambda1.c Reports correct errors for compiler/lambda1.c: diags-compiler/lambda1.c 1`] = `""`;
 
+exports[`Compiler compiler/lpcDocVar1.c Reports correct errors for compiler/lpcDocVar1.c: diags-compiler/lpcDocVar1.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/lpcDocVar1.c[90m:6[0m
+
+"
+`;
+
+exports[`Compiler compiler/lpcDocVar2.c Reports correct errors for compiler/lpcDocVar2.c: diags-compiler/lpcDocVar2.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/lpcDocVar2.c[90m:7[0m
+
+"
+`;
+
+exports[`Compiler compiler/lpcDocVar3.c Reports correct errors for compiler/lpcDocVar3.c: diags-compiler/lpcDocVar3.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/lpcDocVar3.c[90m:6[0m
+
+"
+`;
+
+exports[`Compiler compiler/lpcDocVar4.c Reports correct errors for compiler/lpcDocVar4.c: diags-compiler/lpcDocVar4.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/lpcDocVar4.c[90m:6[0m
+
+"
+`;
+
 exports[`Compiler compiler/macro1.c Reports correct errors for compiler/macro1.c: diags-compiler/macro1.c 1`] = `""`;
 
 exports[`Compiler compiler/macro2.c Reports correct errors for compiler/macro2.c: diags-compiler/macro2.c 1`] = `""`;
