@@ -365,16 +365,18 @@ export function getSourceFileOfNode(node: Node | undefined): SourceFile | undefi
 }
 
 /** @internal */
-export function getSourceFileBaseOfNode(node: Node): SourceFileBase;
+export function getSourceFileOrIncludeOfNode(node: Node): SourceFileBase;
 /** @internal */
-export function getSourceFileBaseOfNode(node: Node | undefined): SourceFileBase | undefined;
+export function getSourceFileOrIncludeOfNode(node: Node | undefined): SourceFileBase | undefined;
 /** @internal */
-export function getSourceFileBaseOfNode(node: Node | undefined): SourceFileBase | undefined {
+export function getSourceFileOrIncludeOfNode(node: Node | undefined): SourceFileBase | undefined {
     const origNode = node;
     // find the sourcefile or the top-level include directive
     while (node && node.kind !== SyntaxKind.SourceFile) {
         // IncludeDirective must have text - otherwise bump up to the sourcefile
-        if (node != origNode && node.kind === SyntaxKind.IncludeDirective && node.parent && node.parent.kind === SyntaxKind.SourceFile && (node as IncludeDirective).text) {
+        if (node.kind === SyntaxKind.IncludeDirective && 
+            node.parent && node.parent.kind === SyntaxKind.SourceFile && 
+            (node as IncludeDirective).text && node != origNode) {
             break;
         }
         node = node.parent;
@@ -649,7 +651,7 @@ export function declarationNameToString(name: DeclarationName | QualifiedName | 
 
 /** @internal */
 export function getTextOfNode(node: Node, includeTrivia = false): string {
-    return (isIdentifier(node) || isStringLiteral(node) ? node.text : undefined) ?? getSourceTextOfNodeFromSourceFile(getSourceFileBaseOfNode(node), node, includeTrivia);
+    return (isIdentifier(node) || isStringLiteral(node) ? node.text : undefined) ?? getSourceTextOfNodeFromSourceFile(getSourceFileOrIncludeOfNode(node), node, includeTrivia);
 }
 
 /** @internal */
@@ -1741,7 +1743,7 @@ export function isTypeNodeKind(kind: SyntaxKind): kind is TypeNodeSyntaxKind {
 
 /** @internal */
 export function createDiagnosticForNode(node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {    
-    const sourceFile = getSourceFileBaseOfNode(node);    
+    const sourceFile = getSourceFileOrIncludeOfNode(node);    
     Debug.assertIsDefined(sourceFile.text);
     return createDiagnosticForNodeInSourceFile(sourceFile, node, message, ...args);
 }
