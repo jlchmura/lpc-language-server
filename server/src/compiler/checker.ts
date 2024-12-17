@@ -28989,14 +28989,18 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             getInitialTypeOfBindingElement(node);
     }
 
+    function checkRightHandSideOfForOf(statement: ForEachStatement): Type {
+        const use = IterationUse.ForOf;//statement.awaitModifier ? IterationUse.ForAwaitOf : IterationUse.ForOf;
+        return checkIteratedTypeOrElementType(use, checkNonNullExpression(statement.expression), undefinedType, statement.expression);
+    }
+
     function getAssignedType(node: Expression): Type {
         const { parent } = node;
         switch (parent.kind) {
             // case SyntaxKind.ForInStatement:
             //     return stringType;
-            case SyntaxKind.ForEachStatement:
-                Debug.fail("implement me");
-                // return checkRightHandSideOfForOf(parent as ForEachStatement) || errorType;
+            case SyntaxKind.ForEachStatement:                
+                return checkRightHandSideOfForOf(parent as ForEachStatement) || errorType;
             case SyntaxKind.BinaryExpression:
                 return getAssignedTypeOfBinaryExpression(parent as BinaryExpression);
             // case SyntaxKind.DeleteExpression:
