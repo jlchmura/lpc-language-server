@@ -825,7 +825,7 @@ export namespace LpcParser {
             return result;
         } catch (e) {
             console.error(e);
-             debugger;
+            debugger;
             clearState();
             throw e;
         }     
@@ -2715,7 +2715,8 @@ export namespace LpcParser {
             return;
         }
 
-        const nodeSourceText = includeFileCache[fileName];//scanner.getFileName()];
+        const nodeFilename = node.originFilename ?? fileName;
+        const nodeSourceText = includeFileCache[nodeFilename];//scanner.getFileName()];
         const pos = skipTrivia(nodeSourceText, node.pos);
 
         // Some known keywords are likely signs of syntax being used improperly.
@@ -2761,7 +2762,7 @@ export namespace LpcParser {
         }
 
         // Otherwise, we know this some kind of unknown word, not just a missing expected semicolon.
-        parseErrorAt(pos, Math.max(pos, node.end), fileName, Diagnostics.Unexpected_keyword_or_identifier);
+        parseErrorAt(pos, Math.max(pos, node.end), nodeFilename, Diagnostics.Unexpected_keyword_or_identifier);
     }
 
     
