@@ -1208,6 +1208,7 @@ export const enum NodeFlags {
     Variable           = 1 << 0,  // Variable declaration       
     ExternalFile       = 1 << 2,  // Included from an external file     
     Synthesized        = 1 << 4,  // Node was synthesized during transformation        
+    IncludeContext     = 1 << 5,  // Node was parsed from an include file
     ExportContext      = 1 << 7,  // Export context (initialized by binding)
     HasImplicitReturn  = 1 << 9,  // If function implicitly returns on one of codepaths (initialized by binding)
     HasExplicitReturn  = 1 << 10,  // If function has explicit reachable return on one of codepaths (initialized by binding)
@@ -4717,7 +4718,7 @@ export interface NodeLinks {
     resolvedType?: Type;                // Cached type of type node
     resolvedSignature?: Signature;      // Cached signature of signature node or call expression
     resolvedSymbol?: Symbol;            // Cached name resolution result
-    resolvedIndexInfo?: IndexInfo;      // Cached indexing info resolution result
+    resolvedIndexInfo?: IndexInfo;      // Cached indexing info resolution result    
     effectsSignature?: Signature;       // Signature with possible control flow effects
     enumMemberValue?: EvaluatorResult;  // Constant value of enum member
     isVisible?: boolean;                // Is this node visible

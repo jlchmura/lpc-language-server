@@ -1859,40 +1859,42 @@ export namespace LpcParser {
         }
         
         if (includeFile?.source?.length > 0) {
-            // store resolved filename and add as an import candidate node
-            (includeDirective as Mutable<IncludeDirective>).resolvedFilename = resolvedFilename;
-            importCandidates.push(includeDirective);
+            doInsideOfContext(NodeFlags.IncludeContext, () => {
+                // store resolved filename and add as an import candidate node
+                (includeDirective as Mutable<IncludeDirective>).resolvedFilename = resolvedFilename;
+                importCandidates.push(includeDirective);
 
-            // cache source text
-            // as a hack, add an extra newline to any include file - this way we don't have to deal 
-            // with includes that end with an eof
-            const includeSourceText = includeFileCache[resolvedFilename] = includeFile.source + "\n";
+                // cache source text
+                // as a hack, add an extra newline to any include file - this way we don't have to deal 
+                // with includes that end with an eof
+                const includeSourceText = includeFileCache[resolvedFilename] = includeFile.source + "\n";
 
-            // create scanner for include            
-            const saveDirective = currentIncludeDirective;
+                // create scanner for include            
+                const saveDirective = currentIncludeDirective;
 
-            scanner.switchStream(
-                resolvedFilename, includeSourceText, 0, includeSourceText.length, 
-                ()=>{
-                    currentIncludeDirective = saveDirective!;
+                scanner.switchStream(
+                    resolvedFilename, includeSourceText, 0, includeSourceText.length, 
+                    ()=>{
+                        currentIncludeDirective = saveDirective!;
 
-                    // if there are more include files in the stack, process the next one 
-                    const nextIncludeDirective = includeFileStack.shift();
-                    if (nextIncludeDirective) {
-                        processIncludeDirective(nextIncludeDirective);
+                        // if there are more include files in the stack, process the next one 
+                        const nextIncludeDirective = includeFileStack.shift();
+                        if (nextIncludeDirective) {
+                            processIncludeDirective(nextIncludeDirective);
+                        }
+
+                        currentToken = scanner.getToken();
+                        return false;
                     }
+                );            
+                
+                currentIncludeDirective ??= includeDirective;                        
+                
+                // prime the scanner
+                nextToken(); 
 
-                    currentToken = scanner.getToken();
-                    return false;
-                }
-            );            
-            
-            currentIncludeDirective ??= includeDirective;                        
-            
-            // prime the scanner
-            nextToken(); 
-
-            return true;
+                return true;
+            });
         } 
         
         // if the include file was not found, that will be reported by the checker as part of semantic analysis

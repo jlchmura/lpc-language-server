@@ -4282,8 +4282,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             const stringLiteral = factory.createStringLiteral(node.resolvedFilename);
             setTextRangePosEnd(stringLiteral, node.content.pos, node.content.end);
 
+            //store sourcefile on links?            
             const module = resolveExternalModuleName(node, stringLiteral, stringType);
             if (module) {
+                // this should go on nodelinks, but we won't have access to that in utilities
                 const sourceFile = cast(first(module.declarations), isSourceFile);
                 node.resolvedSourceFile = sourceFile;
             }
