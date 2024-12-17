@@ -711,7 +711,7 @@ export namespace LpcParser {
                 const saveCurrentMacro = currentMacro;                
                 
                 scanner.switchStream(
-                    macro.includeFilename ?? macro.originFilename, macro.getText(), range.pos, range.end - range.pos,
+                    macro.includeFilename ?? macro.originFilename, macro.getText(), range.pos, range.end - range.pos, true /* revertOnEOF */,
                     () => {
                         // re-enable the macro
                         Debug.assertIsDefined(macro);
@@ -739,7 +739,7 @@ export namespace LpcParser {
                 arg.disabled = true;                
 
                 scanner.switchStream(
-                    "", arg.text, arg.pos, arg.end, 
+                    "", arg.text, arg.pos, arg.end, true /* revertOnEOF */,
                     () => {
                         arg.disabled = false;
                         return false;
@@ -1851,6 +1851,7 @@ export namespace LpcParser {
         const localFilename = includeDirective.content.map((literal) => literal.text).join("");            
         const includeFile = fileHandler.loadIncludeFile(scanner.getFileName(), localFilename, includeDirective.localFirst);
         const resolvedFilename = internIdentifier(includeFile.filename);        
+        let includeResult = false;
 
         // TODO - handle circular includes        
         if (resolvedFilename === fileName) { 
@@ -1858,10 +1859,20 @@ export namespace LpcParser {
             return false;
         }
         
+        // store resolved filename and add as an import candidate node
+        (includeDirective as Mutable<IncludeDirective>).fileName = resolvedFilename;
+        
+        // if the include file was not found, that will be reported by the checker as part of semantic analysis
         if (includeFile?.source?.length > 0) {
+            const saveInactiveRanges = inactiveRanges;
+
+            // store the text inside the sourcefile node
+            (includeDirective as Mutable<IncludeDirective>).text = includeFile.source;
+            
+            // TODO do we need to set .path?
+
             doInsideOfContext(NodeFlags.IncludeContext, () => {
-                // store resolved filename and add as an import candidate node
-                (includeDirective as Mutable<IncludeDirective>).resolvedFilename = resolvedFilename;
+                
                 importCandidates.push(includeDirective);
 
                 // cache source text
@@ -1872,37 +1883,53 @@ export namespace LpcParser {
                 // create scanner for include            
                 const saveDirective = currentIncludeDirective;
 
-                scanner.switchStream(
-                    resolvedFilename, includeSourceText, 0, includeSourceText.length, 
+                const revertStream = scanner.switchStream(
+                    resolvedFilename, includeSourceText, 0, includeSourceText.length, false /* revertOnEOF */,
                     ()=>{
-                        currentIncludeDirective = saveDirective!;
-
-                        // if there are more include files in the stack, process the next one 
-                        const nextIncludeDirective = includeFileStack.shift();
-                        if (nextIncludeDirective) {
-                            processIncludeDirective(nextIncludeDirective);
-                        }
-
+                        currentIncludeDirective = saveDirective!;                        
                         currentToken = scanner.getToken();
                         return false;
                     }
                 );            
                 
-                currentIncludeDirective ??= includeDirective;                        
-                
+                currentIncludeDirective ??= includeDirective;
+
                 // prime the scanner
-                nextToken(); 
+                nextToken();
 
-                return true;
+                // parse statements and store them on the node
+                // this is similar to parseSourceFileWorker                
+                const pos = getPositionState();
+                const statements = parseList(ParsingContext.SourceElements, parseStatement, pos);
+                
+                Debug.assert(token() === SyntaxKind.EndOfFileToken);                
+                const endHasJSDoc = hasPrecedingJSDocComment();
+                const endOfFileToken = withJSDoc(parseTokenNode<EndOfFileToken>(), endHasJSDoc);
+
+                (includeDirective as Mutable<IncludeDirective>).statements = factory.createNodeArray(statements);
+                (includeDirective as Mutable<IncludeDirective>).endOfFileToken = endOfFileToken;                
+                
+                revertStream();
+                                
+                includeResult = true;
             });
+
+            includeDirective.inactiveCodeRanges = inactiveRanges;
+            inactiveRanges = saveInactiveRanges;
         } 
-        
-        // if the include file was not found, that will be reported by the checker as part of semantic analysis
 
-        // prime the scanner
-        // nextToken(); 
+        // if there are more include files in the stack, process the next one 
+        const nextIncludeDirective = includeFileStack.shift();
+        if (nextIncludeDirective) {
+            includeResult ||= processIncludeDirective(nextIncludeDirective);
+        }
 
-        return false;
+        if (includeResult && !inContext(NodeFlags.IncludeContext)) {
+            // now prime the scanner for the next non-include token
+            nextToken();
+        }
+
+        return includeResult;
     }
 
     function parsePragmaDirective(): PragmaDirective {
@@ -2291,8 +2318,8 @@ export namespace LpcParser {
                 
                 setTextRangePosEnd(node, macroState.pos, endToUse);//end ?? rootMacro.end);
                 setNodeMacro(node, rootMacro.name);
-            } else if (currentIncludeDirective) {
-                setTextRangePosEnd(node, currentIncludeDirective.pos, currentIncludeDirective.end);
+            // } else if (currentIncludeDirective) {
+            //     setTextRangePosEnd(node, currentIncludeDirective.pos, currentIncludeDirective.end);
             } else {
                 setTextRangePosEnd(node, pos.pos, end ?? scannerState.end);
             }                                 
@@ -6609,7 +6636,9 @@ const forEachChildTable: ForEachChildTable = {
             visitNode(cbNode, node.body);
     },
     [SyntaxKind.IncludeDirective]: function forEachChildInIncludeDirective<T>(node: IncludeDirective, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
-        return visitNodes(cbNode, cbNodes, node.content);
+        return visitNodes(cbNode, cbNodes, node.content) ||
+            visitNodes(cbNode, cbNodes, node.statements) ||
+            visitNode(cbNode, node.endOfFileToken);
     },
     [SyntaxKind.DefineDirective]: function forEachChildInDefineDirective<T>(node: DefineDirective, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.name) ||

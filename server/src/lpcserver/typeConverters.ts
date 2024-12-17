@@ -1,7 +1,7 @@
 import * as vscode from "vscode-languageserver";
 import * as Proto from "../server/_namespaces/lpc.server.protocol.js";
 import { protocol } from "../server/_namespaces/lpc.server.js";
-import { ScriptElementKind, SymbolDisplayPart, isString } from "../server/_namespaces/lpc.js";
+import { Debug, ScriptElementKind, SymbolDisplayPart, isString } from "../server/_namespaces/lpc.js";
 import { URI } from "vscode-uri";
 import { KindModifiers } from "./protocol.const.js";
 import { IFilePathToResourceConverter, asPlainTextWithLinks, documentationToMarkdown, tagsToMarkdown } from "./textRendering.js";
@@ -270,9 +270,9 @@ export namespace Diagnostic {
 		return d;
 	}
 
-	export function fromRelatedInformation(relatedInformation: protocol.DiagnosticRelatedInformation): vscode.DiagnosticRelatedInformation {
+	export function fromRelatedInformation(relatedInformation: protocol.DiagnosticRelatedInformation): vscode.DiagnosticRelatedInformation {		
 		const d = vscode.DiagnosticRelatedInformation.create(
-			Location.fromFileSpan(relatedInformation.span),
+			relatedInformation.span ? Location.fromFileSpan(relatedInformation.span) : vscode.Location.create("", vscode.Range.create(0,0,0,0)),
 			relatedInformation.message
 		);
 		return d;				
