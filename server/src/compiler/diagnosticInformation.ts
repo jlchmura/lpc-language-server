@@ -30,6 +30,7 @@ export const Diagnostics = {
     When_comparing_types_check_that_the_objectStructure_is_compatible_with_the_target_type: diag(9022, DiagnosticCategory.Message, "When_comparing_types_check_that_the_objectStructure_is_compatible_with_the_target_type_6699", "When comparing types, check that the object structure is compatible with the target type."),
     Super_access_can_only_be_used_in_a_file_that_inherits_from_another_file: diag(9023, DiagnosticCategory.Error, "Super_access_can_only_be_used_in_a_file_that_inherits_from_another_file_9023", "Super access can only be used in a file that inherits from another file."),
     JSDoc_var_tag_should_have_a_type_annotation: diag(9024, DiagnosticCategory.Error, "JSDoc_var_tag_should_have_a_type_annotation_9024", "JSDoc @var tag should have a type annotation."),
+    This_include_contains_one_or_more_errors: diag(9025, DiagnosticCategory.Error, "This_include_contains_one_or_more_errors_9025", "This include contains one or more errors."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    

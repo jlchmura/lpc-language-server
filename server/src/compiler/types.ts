@@ -7152,6 +7152,7 @@ export interface IncludeDirective extends PreprocessorDirective {
     content: NodeArray<StringLiteral>;
     resolvedFilename: string;
     localFirst: boolean;
+    resolvedSourceFile: SourceFile;
 }
 
 

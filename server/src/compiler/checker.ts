@@ -1400,7 +1400,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return symbolLinks[id] ??= new SymbolLinks();
     }
     
-    function createError(location: Node | undefined, message: DiagnosticMessage, ...args: DiagnosticArguments): Diagnostic {
+    function createError(location: Node | undefined, message: DiagnosticMessage, ...args: DiagnosticArguments): Diagnostic {        
         return location
             ? createDiagnosticForNode(location, message, ...args)
             : createCompilerDiagnostic(message, ...args);
@@ -2563,12 +2563,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
         }
         popContextualType();
-        // if (inDestructuringPattern) {
-        //     return createTupleType(elementTypes, elementFlags);
-        // }
-        // if (forceTuple || inConstContext || inTupleContext) {
-        //     return createArrayLiteralType(createTupleType(elementTypes, elementFlags, /*readonly*/ inConstContext && !(contextualType && someType(contextualType, isMutableArrayLikeType))));
-        // }
+        if (inDestructuringPattern) {
+            return createTupleType(elementTypes, elementFlags);
+        }
+        if (forceTuple || inConstContext || inTupleContext) {
+            return createArrayLiteralType(createTupleType(elementTypes, elementFlags, /*readonly*/ inConstContext && !(contextualType && someType(contextualType, isMutableArrayLikeType))));
+        }
         return createArrayLiteralType(createArrayType(
             elementTypes.length ?
                 getUnionType(sameMap(elementTypes, (t, i) => elementFlags[i] & ElementFlags.Variadic ? getIndexedAccessTypeOrUndefined(t, numberType) || anyType : t), UnionReduction.Subtype) :
@@ -2724,10 +2724,6 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     : [Diagnostics.Type_0_is_not_an_array_type_or_does_not_have_a_Symbol_iterator_method_that_returns_an_iterator, true];
             }
 
-            // if (isES2015OrLaterIterable(inputType.symbol?.name)) {
-            //     return [Diagnostics.Type_0_can_only_be_iterated_through_when_using_the_downlevelIteration_flag_or_with_a_target_of_es2015_or_higher, true];
-            // }
-
             return allowsStrings
                 ? [Diagnostics.Type_0_is_not_an_array_type_or_a_string_type, true]
                 : [Diagnostics.Type_0_is_not_an_array_type, true];
@@ -2772,6 +2768,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }    
 
     function getOptionalExpressionType(exprType: Type, expression: Expression) {
+        console.debug("todo - getOptionalExpressionType");
         return exprType;
         // TODO: 
         // return isExpressionOfOptionalChainRoot(expression) ? getNonNullableType(exprType) :
@@ -2782,9 +2779,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function propagateOptionalTypeMarker(type: Type, node: OptionalChain, wasOptional: boolean) {
         return type;// TODO return wasOptional ? isOutermostOptionalChain(node) ? getOptionalType(type) : addOptionalTypeMarker(type) : type;
     }
-
-
-    /** @deprecated no null in LPC */
+    
     function getNonNullableType(type: Type): Type {
         return type;// strictNullChecks ? getAdjustedTypeWithFacts(type, TypeFacts.NEUndefinedOrNull) : type;
     }
@@ -4276,7 +4271,24 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // Grammar checking
         if (!node.resolvedFilename) {
             error(node, Diagnostics.Cannot_find_include_file_0, map(node.content, n => getTextOfNode(n)).join(""));
+        } 
+        else if (!node.resolvedSourceFile) {
+            // try to resolve the source file for this include
+            // this may be a horrible idea
+            // TODO - assess the perf impact of this
+            // It is used in utilities/createDiagnosticForNode()
+
+            // create a fake string literal w/ the include filename
+            const stringLiteral = factory.createStringLiteral(node.resolvedFilename);
+            setTextRangePosEnd(stringLiteral, node.content.pos, node.content.end);
+
+            const module = resolveExternalModuleName(node, stringLiteral, stringType);
+            if (module) {
+                const sourceFile = cast(first(module.declarations), isSourceFile);
+                node.resolvedSourceFile = sourceFile;
+            }
         }
+
     }
 
     function checkInheritDeclaration(node: InheritDeclaration) {
