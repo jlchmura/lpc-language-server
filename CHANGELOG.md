@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.13
+
+-   Improve program file load order so that driver prefines are consistenly available to all files.
+
 ## 1.1.12
 
 -   Fix: Driver predefined macros marked as undefined on initial startup

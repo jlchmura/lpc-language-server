@@ -226,7 +226,27 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 // });
             }
         }
-        
+
+        // before loading any files, load the lib file to get driver defines
+        // the lib file will be loaded in full later        
+        if (rootNames.length && !skipDefaultLib) {            
+            const defaultLibraryFileName = getDefaultLibraryFileName();
+            if (!options.lib && defaultLibraryFileName) {
+                const libSourceFile = getSourceFileWithoutReferences(defaultLibraryFileName, /*isDefaultLib*/ false, { kind: FileIncludeKind.LibFile });                            
+                if (libSourceFile && libSourceFile.parsedMacros) {                
+                    options.configDefines = options.configDefines || {};
+                    // add macros from the default lib to the config table
+                    // defines from config file always take priority 
+                    const macros = libSourceFile.parsedMacros;
+                    for (const [key, value] of macros) {
+                        if (!options.configDefines[key]) {
+                            options.configDefines[key] = value;
+                        }                    
+                    }
+                }
+            }
+        }
+                        
         // check if this program has a master file and if so
         // get an instance of it and compile the get_include_path apply function
         let masterFileIndex = -1;
@@ -243,6 +263,10 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             tracing?.pop();    
         }
 
+        tracing?.push(tracing.Phase.Program, "processRootFiles", { count: rootNames.length });
+        forEach(rootNames, (name, index) => processRootFile(name, /*isDefaultLib*/ false, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.RootFile, index }));
+        tracing?.pop();                
+        
         // Do not process the default library if:
         //  - The '--noLib' flag is used.
         //  - A 'no-default-lib' reference comment is encountered in
@@ -259,26 +283,9 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 forEach(options.lib, (libFileName, index) => {
                     processRootFile(pathForLibFile(libFileName), /*isDefaultLib*/ true, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.LibFile, index });
                 });
-            }  
-            
-            const libSourceFile = getSourceFile(defaultLibraryFileName);
-            if (libSourceFile && libSourceFile.parsedMacros) {                
-                options.configDefines = options.configDefines || {};
-                // add macros from the default lib to the config table
-                // defines from config file always take priority 
-                const macros = libSourceFile.parsedMacros;
-                for (const [key, value] of macros) {
-                    if (!options.configDefines[key]) {
-                        options.configDefines[key] = value;
-                    }                    
-                }
-            }
+            }                          
         }
 
-        tracing?.push(tracing.Phase.Program, "processRootFiles", { count: rootNames.length });
-        forEach(rootNames, (name, index) => processRootFile(name, /*isDefaultLib*/ false, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.RootFile, index }));
-        tracing?.pop();                
-        
         files = stableSort(processingDefaultLibFiles, compareDefaultLibFiles).concat(processingOtherFiles);
         processingDefaultLibFiles = undefined;
         processingOtherFiles = undefined;
@@ -573,6 +580,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
      */
     function getSourceFileWithoutReferences(fileName: string, isDefaultLib: boolean, reason: FileIncludeReason): SourceFile {
         const sourceFileOptions = getCreateSourceFileOptions(fileName, isDefaultLib, /*moduleResolutionCache*/ undefined, host, options);
+        sourceFileOptions.reportParsedDefines = true;
         const file = host.getSourceFile(
             fileName,
             sourceFileOptions,
@@ -1374,8 +1382,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         return filesByName.get(path) || undefined;
     }
 
-    function getConfigDefines(options: CompilerOptions): ReadonlyMap<string,string> {
-        const result = new Map<string, string>();        
+    function getConfigDefines(options: CompilerOptions): ReadonlyMap<string,string> {        
+        const result = new Map<string, string>();
         if (options.playerFile) result.set("__LPC_CONFIG_LIBFILES_PLAYER", `"${getLibRootedFileName(options.playerFile, options)}"`);
         if (options.masterFile) result.set("__LPC_CONFIG_LIBFILES_MASTER", `"${getLibRootedFileName(options.masterFile, options)}"`);
         if (options.sefunFile) result.set("__LPC_CONFIG_LIBFILES_SEFUN", `"${getLibRootedFileName(options.sefunFile, options)}"`);            
@@ -1389,7 +1397,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         return result;
     }
 
-    function getCreateSourceFileOptions(fileName: string, isDefaultLib: boolean, moduleResolutionCache: any | undefined, host: CompilerHost, options: CompilerOptions): CreateSourceFileOptions {        
+    function getCreateSourceFileOptions(fileName: string, isDefaultLib: boolean, moduleResolutionCache: any | undefined, host: CompilerHost, options: CompilerOptions): CreateSourceFileOptions {
         // TODO is this complete?        
         return {
             languageVersion: ScriptTarget.Latest,
