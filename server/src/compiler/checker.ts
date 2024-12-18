@@ -16307,7 +16307,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
             const sig = nodeBuilder.signatureToSignatureDeclaration(signature, sigOutput, enclosingDeclaration, toNodeBuilderFlags(flags) | NodeBuilderFlags.IgnoreErrors | NodeBuilderFlags.WriteTypeParametersInQualifiedName);
             const printer = createPrinterWithRemoveCommentsOmitTrailingSemicolon();
-            const sourceFile = enclosingDeclaration && getSourceFileOfNode(enclosingDeclaration);
+            const sourceFile = enclosingDeclaration && getSourceFileOrIncludeOfNode(enclosingDeclaration);
             printer.writeNode(EmitHint.Unspecified, sig!, /*sourceFile*/ sourceFile, getTrailingSemicolonDeferringWriter(writer)); // TODO: GH#18217
             return writer;
         }
@@ -18534,6 +18534,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (!finalizeBoundary()) {
                 return undefined;
             }
+
+            // here we handle a special case in LPC where the type is a LiteralTypeNode and the type is a BinaryExpression
+            // this happens in jsdoc tags where the type is set to a define which expands to a string concatenation
+            if (isLiteralTypeNode(transformed) && isBinaryExpression(transformed.literal)) {
+                // convert the binary expression to a fake stringliteral and set the type.literal to that
+                const fullString = evaluate(transformed.literal).value as string;
+                (transformed as Mutable<LiteralTypeNode>).literal = factory.createStringLiteral(fullString);
+            }
+
             context.approximateLength += existing.end - existing.pos;
             return transformed;
 
@@ -19283,6 +19292,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 kind === SyntaxKind.FunctionDeclaration ? factory.createFunctionDeclaration(modifiers, options?.name ? cast(options.name, isIdentifier) : factory.createIdentifier(""), parameters, returnTypeNode, /*body*/ undefined) :
                 kind === SyntaxKind.FunctionExpression ? factory.createFunctionExpression(modifiers, options?.name ? cast(options.name, isIdentifier) : factory.createIdentifier(""), parameters, returnTypeNode, factory.createBlock([])) :
                 kind === SyntaxKind.ArrowFunction ? Debug.fail("todo-arrow") : //factory.createArrowFunction(modifiers, typeParameters, parameters, returnTypeNode, /*equalsGreaterThanToken*/ undefined, factory.createBlock([])) :
+                kind === SyntaxKind.JSDocFunctionType ? Debug.fail("todo-jsdoc function") :
                 kind === SyntaxKind.InlineClosureExpression ? factory.createInlineClosure(factory.createBlock([])) :
                 kind === SyntaxKind.FunctionType ? factory.createFunctionTypeNode(typeParameters, parameters, returnTypeNode) :                                
                 Debug.assertNever(kind as never);
