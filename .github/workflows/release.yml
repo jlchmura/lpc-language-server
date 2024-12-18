@@ -53,8 +53,9 @@ jobs:
               uses: ncipollo/release-action@v1.14.0
               with:
                 artifacts: "lpc-*.vsix"
-                bodyFile: "CHANGELOG.md"
+                # bodyFile: "CHANGELOG.md"
                 prerelease: true
+                generateReleaseNotes: true
 
             - name: Publish to Visual Studio Marketplace
               uses: HaaLeo/publish-vscode-extension@v1
