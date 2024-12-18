@@ -6446,9 +6446,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         // Grammar checking
         const hasGrammarError = checkGrammarFunctionLikeDeclaration(node);
-        
-        // TODO?
-        // contextuallyCheckFunctionExpressionOrObjectLiteralMethod(node, checkMode);
+                
+        contextuallyCheckFunctionExpressionOrObjectLiteralMethod(node, checkMode);
 
         return getTypeOfSymbol(getSymbolOfDeclaration(node));
     }
