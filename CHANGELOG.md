@@ -7,7 +7,7 @@
 -   Enhancement: [Include file handler should read from ScriptSnapshot instead of disk #60](https://github.com/jlchmura/lpc-language-server/issues/60)
 -   Moved #include resolution error to checker instead of parser
 -   Added #include files to program dependency graph
--   LPCDoc @var tags now provide additional validation (must have a name, must be an inherited var)
+-   LPCDoc `@var` tags now provide additional validation (must have a name, must be an inherited var)
 -   Improved AST structure for include directives
 -   Improved diagnostic reporting for errors inside include directive nodes
 
