@@ -814,12 +814,13 @@ export namespace LpcParser {
         scriptKind?: ScriptKind,
         setExternalModuleIndicator?: (file: SourceFile) => void,
         jsDocParsingMode = JSDocParsingMode.ParseAll,
-        languageVariant: LanguageVariant = LanguageVariant.LDMud        
+        languageVariant: LanguageVariant = LanguageVariant.LDMud,
+        reportParsedDefines: boolean = false    
     ) {
         initState(fileName, sourceText, globalIncludes, configDefines, languageVersion, syntaxCursor, scriptKind, fileHandler, jsDocParsingMode, languageVariant);
         // console.debug("Parsing source file: " + fileName);        
         try {
-            const result = parseSourceFileWorker(languageVersion, setParentNodes, scriptKind || ScriptKind.LPC, jsDocParsingMode);
+            const result = parseSourceFileWorker(languageVersion, setParentNodes, scriptKind || ScriptKind.LPC, jsDocParsingMode, reportParsedDefines);
             clearState();            
 
             return result;
@@ -831,7 +832,7 @@ export namespace LpcParser {
         }     
     }
 
-    function parseSourceFileWorker(languageVersion: ScriptTarget, setParentNodes: boolean, scriptKind: ScriptKind, jsDocParsingMode: JSDocParsingMode): SourceFile {                
+    function parseSourceFileWorker(languageVersion: ScriptTarget, setParentNodes: boolean, scriptKind: ScriptKind, jsDocParsingMode: JSDocParsingMode, reportParsedDefines: boolean): SourceFile {
               
         // if there is a global include, we want to grab the position state before that happens so that the statement list 
         // is tied to the original file
@@ -884,9 +885,8 @@ export namespace LpcParser {
         }
         
         sourceFile.imports = inherits?.map(i=>i.inheritClause).filter((i):i is StringLiteral=> isStringLiteral(i));        
-        
-        // TODO - find a better way to tell the parser that this is a lib file and should store parsed macros
-        if (fileName.endsWith("efuns.fluffos.h") || fileName.endsWith("efuns.ldmud.h")) {
+                
+        if (reportParsedDefines) {
             // store parsed macros 
             const parsedMacros = new Map<string, string>();
             Object.values(macroTable).forEach(macro => {
@@ -7000,14 +7000,15 @@ export function createSourceFile(fileName: string, sourceText: string, languageV
         jsDocParsingMode,
         globalIncludes,
         configDefines,
-        fileHandler
+        fileHandler,
+        reportParsedDefines: reportParsedDefineds
     } = typeof languageVersionOrOptions === "object" ? languageVersionOrOptions : ({ languageVersion: languageVersionOrOptions } as CreateSourceFileOptions);
 
     const setIndicator = (file: SourceFile) => {
         setExternalModuleIndicator(file);
     };
     
-    result = LpcParser.parseSourceFile(fileName, sourceText, globalIncludes, configDefines, fileHandler, ScriptTarget.LPC, undefined, setParentNodes, undefined, setIndicator, jsDocParsingMode, languageVariant);
+    result = LpcParser.parseSourceFile(fileName, sourceText, globalIncludes, configDefines, fileHandler, ScriptTarget.LPC, undefined, setParentNodes, undefined, setIndicator, jsDocParsingMode, languageVariant, reportParsedDefineds);
 
     performance.mark("afterParse");
     performance.measure("Parse", "beforeParse", "afterParse");
@@ -7031,8 +7032,8 @@ export interface CreateSourceFileOptions {
     setExternalModuleIndicator?: (file: SourceFile) => void;
     /** @internal */ packageJsonLocations?: readonly string[];
     ///** @internal */ packageJsonScope?: PackageJsonInfo;
-    jsDocParsingMode?: JSDocParsingMode;
-
+    jsDocParsingMode?: JSDocParsingMode;    
+    reportParsedDefines?: boolean;
     globalIncludes?: string[];
     /** set of defines provided from lpc-config */
     configDefines?: ReadonlyMap<string, string>;

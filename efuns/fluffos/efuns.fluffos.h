@@ -28,7 +28,7 @@ object __LS__Closure;
 #define MIN_INT                 -2147483648 /* the smallest integer number */
 #define MAX_FLOAT               1.0e+20     /* the largest (positive) float number */
 #define MIN_FLOAT               0.00000     /* the smallest (positive) float number */
-
+#define __LARGEST_PRINTABLE_STRING__ 8192
 #define __CACHE_STATS__         1
 #define __STRING_STATS__        1
 #define __ARRAY_STATS__         1
