@@ -2,33 +2,54 @@ name: Create Github Release
 on:
     push:
       tags:
-        - 'v*'  # Run when a version tag (e.g., v1.0.0) is pushed
-
+        - 'v*'  # Run when a version tag (e.g., v1.0.0) is pushed        
 jobs:
-  build:
-    if: github.ref_type == 'tag'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@master
+    test:
+        if: github.ref_type == 'tag'
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                node-version: [18.x, 20.x]
+                os: [ubuntu-latest, windows-latest, macos-latest]
+                # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+        steps:
+            - uses: actions/checkout@v4
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v3
+              with:
+                node-version: ${{ matrix.node-version }}
+                cache: "npm"
+            - run: npm ci
+            - run: npm run compile --if-present
+            - run: npm test
+    build:
+        needs: test
+        runs-on: ubuntu-latest        
+        steps:
+        #   - name: Checkout repository
+        #     uses: actions/checkout@master
 
-      - name: Install dependencies
-        run: npm ci
+        #   - name: Setup Node.js
+        #     uses: actions/setup-node@v4
+        #     with:
+        #       node-version: 20
 
-      - name: Build
-        run: npm run vsce:package
+        #   - name: Install dependencies
+        #     run: npm ci
 
-      - name: Create Release
-        id: create_release
-        uses: ncipollo/release-action@v1.14.0
-        with:
-          artifacts: "lpc-*.vsix"
-          bodyFile: "CHANGELOG.md"
-          prerelease: true
+            - name: Build
+              run: npm run vsce:package
+    release:
+        needs: build
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - name: Create Release
+              id: create_release
+              uses: ncipollo/release-action@v1.14.0
+              with:
+                artifacts: "lpc-*.vsix"
+                bodyFile: "CHANGELOG.md"
+                prerelease: true
