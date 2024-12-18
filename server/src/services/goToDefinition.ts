@@ -46,12 +46,12 @@ export function getDefinitionAtPosition(program: Program, sourceFile: SourceFile
         case SyntaxKind.StringLiteral:
             const includeParent = findAncestor(node, isIncludeDirective);
             if (includeParent) {
-                const includeFilename = includeParent.resolvedFilename;
+                const includeFilename = includeParent.fileName;
                 return [getDefinitionInfoForFileReference(includeFilename, includeFilename, false)];
             }
         case SyntaxKind.IncludeDirective:
             const includeDirective = node as IncludeDirective;    
-            const includeFilename = includeDirective.resolvedFilename;
+            const includeFilename = includeDirective.fileName;
             return [getDefinitionInfoForFileReference(includeFilename, includeFilename, false)];
     }
 

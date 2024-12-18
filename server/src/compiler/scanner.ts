@@ -92,7 +92,7 @@ export interface Scanner {
     scanJSDocCommentTextToken(inBackticks: boolean): JSDocSyntaxKind | SyntaxKind.JSDocCommentTextToken;
     scan(): SyntaxKind;
 
-    switchStream(newFileName: string, newText: string, start: number, length: number, onRelease?: ()=>boolean): RestoreStateFn;
+    switchStream(newFileName: string, newText: string, start: number, length: number, revertOnEOF?: boolean, onRelease?: ()=>boolean): RestoreStateFn;
 
     getText(): string;
     /** @internal */
@@ -1008,6 +1008,7 @@ export function createScanner(
     var text = textInitial!;
 
     var isSpeculating = false;
+    var revertOnEOF = true;
     var nextState: (...args: any) => boolean | undefined;
     var stateId = 1;
     var nextStateId = 2;
@@ -2016,10 +2017,12 @@ export function createScanner(
 
         while (true) {
             tokenStart = pos;
-            // if we've reached the end of a stream, try reverting to the next scanner state            
+            // if we've reached the end of a stream, try reverting to the next scanner state
+            // when revertOnEOF is true (the default).  include files will set this to false
+            // so that they can consume the EOF token themselves.
             let streamSwitched = false;
             let dontRescan = false;
-            while (pos >= end && nextState) {
+            while (revertOnEOF && pos >= end && nextState) {
                 const saveStateId = stateId;
                 dontRescan = nextState();
                                 
@@ -2960,6 +2963,8 @@ export function createScanner(
         const saveNextState = nextState;
         const saveStateId = stateId;
         const saveText = text;
+        const saveRevertOnEOF = revertOnEOF;
+
         let stateDisposed = false;
         
         return () => {
@@ -2979,14 +2984,16 @@ export function createScanner(
             tokenValue = saveTokenValue;
             tokenFlags = saveTokenFlags;
             stateId = saveStateId;
-            text = saveText;            
+            text = saveText;      
+            revertOnEOF = saveRevertOnEOF;      
             nextState = saveNextState;
         };
     }    
 
-    function switchStream(newFileName: string, newText: string, start: number, length: number, onRelease?: ()=>boolean): RestoreStateFn {
+    function switchStream(newFileName: string, newText: string, start: number, length: number, _revertOnEOF: boolean = true, onRelease?: ()=>boolean): RestoreStateFn {
         const restoreState = captureCachedState();
-        isSpeculating = false;
+        isSpeculating = false;        
+        revertOnEOF = _revertOnEOF;
 
         nextState = function() {
             const saveStateId = stateId;            

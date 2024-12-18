@@ -1,5 +1,5 @@
 import * as vm from "node:vm";
-import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, binarySearchKey, SourceFileLike, isToken, EndOfFileToken, isJSDocCommentContainingNode, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression, createTextSpan, CaseOrDefaultClause, createTextSpanFromBounds, ReturnStatement, createScanner, isQualifiedName, EntityNameOrEntityNameExpression, isCallOrNewExpression, CallLikeExpression, EmitTextWriter, computeLineStarts, last, isWhiteSpaceLike, ScriptTarget, isIdentifierStart, isFunctionDeclaration, HasType, Block, Statement, NodeArray, ClassElement, TypeElement, ObjectLiteralElement, ObjectTypeDeclaration, ObjectLiteralExpression, noop, NewExpression, CommaListExpression, ConditionalExpression, ElementAccessExpression, PartiallyEmittedExpression, InternalEmitFlags, EmitFlags, getLineStarts, getLinesBetweenPositions, HasExpressionInitializer, isStringLiteral, isIntLiteral, StringLiteral, IntLiteral, VariableLikeDeclaration, isBindingElement, BindingElementOfBareOrAccessedRequire, QualifiedName, TypeParameterDeclaration, contains, JSDocTypedefTag, EqualityComparer, equateValues, TypeReferenceNode, isTypeReferenceNode, LateVisibilityPaintedStatement, IndexInfo, PrintHandlers, StringLiteralType, IntLiteralType, flatten, LanguageVariant, combinePaths, map, isRootedDiskPath, getStringComparer, containsPath, every, indexOfAnyCharCode, hasExtension, getDirectoryPath, createGetCanonicalFileName, sort, fileExtensionIsOneOf, findIndex, ReadonlyCollection, equalOwnProperties, FileExtensionInfo, mapDefined, EmitHost, ModuleKind, filter, getNormalizedAbsolutePath, getCommonSourceDirectory, comparePaths, GetCanonicalFileName, SourceFileMayBeEmittedHost, Diagnostics, TypeCheckerHost, ModuleResolutionKind, ResolutionMode, forEachChildRecursively, CommandLineOption, InheritDeclaration, emptyMap, LiteralLikeElementAccessExpression, VariableDeclaration, VariableDeclarationList, isComputedPropertyName, isJSDocParameterTag, BindableStaticNameExpression, getNameOfDeclaration, isVariableStatement, isExpressionStatement, getLeadingCommentRanges, SuperContainer, SuperContainerOrFunctions, CharacterCodes, StringLiteralLike, AnyValidImportOrReExport, tryCast, CloneObjectExpression, TriviaSyntaxKind, concatenate, getTrailingCommentRanges, computeLineOfPosition, AnyImportSyntax, PrologueDirective, startsWith, stringToToken, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, ClassLikeDeclaration, JSDocCallbackTag, TypeAliasDeclaration, isJSDocTypeAlias, isTypeAliasDeclaration, EvaluationResolver, EvaluatorResult, FloatLiteral, isPropertyName, isPrefixUnaryExpression, tokenToString, isJSDocPropertyLikeTag, getJSDocType, ContainerFlags, MethodDeclaration, getContainerFlags, TypePredicate, IdentifierTypePredicate, TypePredicateKind, first, isClassLike, IncludeDirective, hasInitializer, addRange, getJSDocParameterTagsNoCache, getJSDocParameterTags, getJSDocTypeParameterTags, getJSDocTypeParameterTagsNoCache, JSDocArray, isJSDocOverloadTag, isJSDocTypeTag, isJSDocSatisfiesTag, isParenthesizedExpression, HasInferredType, assertType, PropertySignature, JSDocTypeAssertion, getJSDocTypeTag, PrimitiveLiteral, isNumericLiteral, isFunctionExpression, isArrowFunction, ArrowFunction, InheritClauseNodeType, isJSDocTag, isJSDocTypeLiteral, isTypeElement, TypeLiteralNode, UnionOrIntersectionTypeNode, ArrayLiteralExpression, ObjectLiteralExpressionBase, CaseBlock, isClassElement, MethodSignature, CallSignatureDeclaration, IndexSignatureDeclaration, ComputedPropertyName, getSnippetElement, SnippetKind, VariableStatement, singleElementArray, ExpressionWithTypeArguments, getJSDocImplementsTags, HeritageClause, isPropertySignature, isParenthesizedTypeNode, DynamicNamedDeclaration, DynamicNamedBinaryExpression, CommentRange, isWhiteSpaceSingleLine, LineAndCharacter, computeLineAndCharacterOfPosition, TokenFlags, emitNodeAsJsText, createVmHelperContext, HasLocals, ProjectReference, LpcConfigSourceFile, isObjectLiteralExpression, isPropertyAssignment, JSDocParameterTag, getJSDocReturnType, isArray, factory, ThisObjectPragmas, isArrayLiteralExpression, convertToRelativePath, moduleResolutionOptionDeclarations, ResolvedModuleWithFailedLookupLocations, optionsAffectingProgramStructure, ConciseBody, isArrayTypeNode, getSymbolId, ClassDeclaration, DeclarationWithTypeParameters, getJSDocTags, SuperCall, JSDocOverloadTag, getAllJSDocTags, JSDocSatisfiesExpression, getJSDocSatisfiesTag, ParenthesizedTypeNode, isJSDocReturnTag, isSuperAccessExpression, JSDocVariableTag, resolveModuleName, isIncludeDirective } from "./_namespaces/lpc.js";
+import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, SourceFileLike, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, isMemberName, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression, createTextSpan, CaseOrDefaultClause, createTextSpanFromBounds, ReturnStatement, createScanner, isQualifiedName, EntityNameOrEntityNameExpression, isCallOrNewExpression, CallLikeExpression, EmitTextWriter, computeLineStarts, last, isWhiteSpaceLike, ScriptTarget, isIdentifierStart, isFunctionDeclaration, HasType, Block, Statement, NodeArray, ClassElement, TypeElement, ObjectLiteralElement, ObjectTypeDeclaration, ObjectLiteralExpression, noop, NewExpression, CommaListExpression, ConditionalExpression, ElementAccessExpression, PartiallyEmittedExpression, InternalEmitFlags, EmitFlags, getLineStarts, getLinesBetweenPositions, HasExpressionInitializer, isStringLiteral, isIntLiteral, StringLiteral, IntLiteral, VariableLikeDeclaration, isBindingElement, BindingElementOfBareOrAccessedRequire, QualifiedName, TypeParameterDeclaration, contains, JSDocTypedefTag, EqualityComparer, equateValues, TypeReferenceNode, isTypeReferenceNode, LateVisibilityPaintedStatement, IndexInfo, PrintHandlers, StringLiteralType, IntLiteralType, flatten, LanguageVariant, combinePaths, map, isRootedDiskPath, getStringComparer, containsPath, every, indexOfAnyCharCode, hasExtension, getDirectoryPath, createGetCanonicalFileName, sort, fileExtensionIsOneOf, findIndex, ReadonlyCollection, equalOwnProperties, FileExtensionInfo, mapDefined, EmitHost, ModuleKind, filter, getNormalizedAbsolutePath, getCommonSourceDirectory, comparePaths, GetCanonicalFileName, SourceFileMayBeEmittedHost, Diagnostics, TypeCheckerHost, ModuleResolutionKind, ResolutionMode, forEachChildRecursively, CommandLineOption, InheritDeclaration, emptyMap, LiteralLikeElementAccessExpression, VariableDeclaration, VariableDeclarationList, isComputedPropertyName, isJSDocParameterTag, BindableStaticNameExpression, getNameOfDeclaration, isVariableStatement, isExpressionStatement, getLeadingCommentRanges, SuperContainer, SuperContainerOrFunctions, CharacterCodes, StringLiteralLike, AnyValidImportOrReExport, tryCast, CloneObjectExpression, TriviaSyntaxKind, concatenate, getTrailingCommentRanges, computeLineOfPosition, AnyImportSyntax, PrologueDirective, startsWith, stringToToken, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, ClassLikeDeclaration, JSDocCallbackTag, TypeAliasDeclaration, isJSDocTypeAlias, isTypeAliasDeclaration, EvaluationResolver, EvaluatorResult, FloatLiteral, isPropertyName, isPrefixUnaryExpression, tokenToString, isJSDocPropertyLikeTag, getJSDocType, ContainerFlags, MethodDeclaration, getContainerFlags, TypePredicate, IdentifierTypePredicate, TypePredicateKind, first, isClassLike, IncludeDirective, hasInitializer, addRange, getJSDocParameterTagsNoCache, getJSDocParameterTags, getJSDocTypeParameterTags, getJSDocTypeParameterTagsNoCache, JSDocArray, isJSDocOverloadTag, isJSDocTypeTag, isJSDocSatisfiesTag, isParenthesizedExpression, HasInferredType, assertType, PropertySignature, JSDocTypeAssertion, getJSDocTypeTag, PrimitiveLiteral, isNumericLiteral, isFunctionExpression, isArrowFunction, ArrowFunction, InheritClauseNodeType, isJSDocTag, isJSDocTypeLiteral, isTypeElement, TypeLiteralNode, UnionOrIntersectionTypeNode, ArrayLiteralExpression, ObjectLiteralExpressionBase, CaseBlock, isClassElement, MethodSignature, CallSignatureDeclaration, IndexSignatureDeclaration, ComputedPropertyName, getSnippetElement, SnippetKind, VariableStatement, singleElementArray, ExpressionWithTypeArguments, getJSDocImplementsTags, HeritageClause, isPropertySignature, isParenthesizedTypeNode, DynamicNamedDeclaration, DynamicNamedBinaryExpression, CommentRange, isWhiteSpaceSingleLine, LineAndCharacter, computeLineAndCharacterOfPosition, TokenFlags, emitNodeAsJsText, createVmHelperContext, HasLocals, ProjectReference, LpcConfigSourceFile, isObjectLiteralExpression, isPropertyAssignment, JSDocParameterTag, getJSDocReturnType, isArray, factory, ThisObjectPragmas, isArrayLiteralExpression, convertToRelativePath, moduleResolutionOptionDeclarations, ResolvedModuleWithFailedLookupLocations, optionsAffectingProgramStructure, ConciseBody, isArrayTypeNode, getSymbolId, ClassDeclaration, DeclarationWithTypeParameters, getJSDocTags, SuperCall, JSDocOverloadTag, getAllJSDocTags, JSDocSatisfiesExpression, getJSDocSatisfiesTag, ParenthesizedTypeNode, isJSDocReturnTag, isSuperAccessExpression, JSDocVariableTag, SourceFileBase, getBaseFileName } from "./_namespaces/lpc.js";
 
 /** @internal */
 export const resolvingEmptyArray: never[] = [];
@@ -365,7 +365,27 @@ export function getSourceFileOfNode(node: Node | undefined): SourceFile | undefi
 }
 
 /** @internal */
-export function getSourceTextOfNodeFromSourceFile(sourceFile: SourceFile, node: Node, includeTrivia = false): string {
+export function getSourceFileOrIncludeOfNode(node: Node): SourceFileBase;
+/** @internal */
+export function getSourceFileOrIncludeOfNode(node: Node | undefined): SourceFileBase | undefined;
+/** @internal */
+export function getSourceFileOrIncludeOfNode(node: Node | undefined): SourceFileBase | undefined {
+    const origNode = node;
+    // find the sourcefile or the top-level include directive
+    while (node && node.kind !== SyntaxKind.SourceFile) {
+        // IncludeDirective must have text - otherwise bump up to the sourcefile
+        if (node.kind === SyntaxKind.IncludeDirective && 
+            node.parent && node.parent.kind === SyntaxKind.SourceFile && 
+            (node as IncludeDirective).text && node != origNode) {
+            break;
+        }
+        node = node.parent;
+    }    
+    return node as unknown as SourceFileBase;
+}
+
+/** @internal */
+export function getSourceTextOfNodeFromSourceFile(sourceFile: SourceFileBase, node: Node, includeTrivia = false): string {
     return getTextOfNodeFromSourceText(sourceFile.text, node, includeTrivia);
 }
 
@@ -631,21 +651,16 @@ export function declarationNameToString(name: DeclarationName | QualifiedName | 
 
 /** @internal */
 export function getTextOfNode(node: Node, includeTrivia = false): string {
-    return (isIdentifier(node) || isStringLiteral(node) ? node.text : undefined) ?? getSourceTextOfNodeFromSourceFile(getSourceFileOfNode(node), node, includeTrivia);
+    return (isIdentifier(node) || isStringLiteral(node) ? node.text : undefined) ?? getSourceTextOfNodeFromSourceFile(getSourceFileOrIncludeOfNode(node), node, includeTrivia);
 }
 
 /** @internal */
-export function getErrorSpanForNode(sourceFile: SourceFile, node: Node): TextSpan {
+export function getErrorSpanForNode(sourceFile: SourceFileBase, node: Node): TextSpan {
     // if the node came from a macro, move up the parent chain until we find a non-macro node
     while (node.originFilename=="macro" && node.parent) {
         node = node.parent;
     }
-    // if this node was from an include file, switch to the position of the include directive
-    if (node.includeDirEnd !== undefined) {
-        return getSpanOfTokenAtPosition(sourceFile, node.includeDirPos);
-    }
-
-    //return createTextSpan(node.pos, node.end - node.pos);
+        
     let errorNode: Node | undefined = node;
     switch (node.kind) {
         case SyntaxKind.SourceFile: {
@@ -714,7 +729,7 @@ export function getErrorSpanForNode(sourceFile: SourceFile, node: Node): TextSpa
 }
 
 /** @internal */
-export function getSpanOfTokenAtPosition(sourceFile: SourceFile, pos: number): TextSpan {
+export function getSpanOfTokenAtPosition(sourceFile: SourceFileBase, pos: number): TextSpan {
     const scanner = createScanner(sourceFile.languageVersion, /*skipTrivia*/ true, /*shouldSkipNonParsableDirectives*/ false, sourceFile.languageVariant, sourceFile.text, /*onError*/ undefined, pos);
     scanner.scan();
     const start = scanner.getTokenStart();
@@ -722,14 +737,14 @@ export function getSpanOfTokenAtPosition(sourceFile: SourceFile, pos: number): T
 }
 
 /** @internal */
-export function createDiagnosticForNodeInSourceFile(sourceFile: SourceFile, node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {    
+export function createDiagnosticForNodeInSourceFile(sourceFile: SourceFileBase, node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {    
     const span = getErrorSpanForNode(sourceFile, node);
     const d = createFileDiagnostic(sourceFile, span.start, span.length, message, ...args);    
     return d;
 }
 
 /** @internal */
-export function createFileDiagnostic(file: SourceFile, start: number, length: number, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {
+export function createFileDiagnostic(file: SourceFileBase, start: number, length: number, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {
     if (start > file.text.length) start = 0;
     assertDiagnosticLocation(file.text, start, length);
 
@@ -1728,25 +1743,8 @@ export function isTypeNodeKind(kind: SyntaxKind): kind is TypeNodeSyntaxKind {
 
 /** @internal */
 export function createDiagnosticForNode(node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {    
-    const sourceFile = getSourceFileOfNode(node);
-    if (node.originFilename && node.originFilename != sourceFile.fileName) {
-        // find the include directive for this
-        const includeDir = find(sourceFile.importCandidates, i => isIncludeDirective(i) && i.resolvedFilename === node.originFilename) as IncludeDirective;
-        if (includeDir && includeDir.resolvedSourceFile) {
-            const includeFile = includeDir.resolvedSourceFile;
-            const sourceDiag = createDiagnosticForNodeInSourceFile(sourceFile, includeDir, Diagnostics.This_include_contains_one_or_more_errors);
-            
-            // create a clone of the node with the position set to the pos/end in the include file
-            const includeNode = factory.cloneNode(node);
-            setTextRangePosEnd(includeNode, node.originPos, node.originEnd);
-            (includeNode as Mutable<Node>).includeDirPos = undefined!;
-            (includeNode as Mutable<Node>).includeDirEnd = undefined!;            
-
-            // add related diag
-            addRelatedInfo(sourceDiag, createDiagnosticForNodeInSourceFile(includeFile, includeNode, message, ...args));
-            return sourceDiag;
-        }
-    }
+    const sourceFile = getSourceFileOrIncludeOfNode(node);    
+    Debug.assertIsDefined(sourceFile.text);
     return createDiagnosticForNodeInSourceFile(sourceFile, node, message, ...args);
 }
 
@@ -2414,7 +2412,7 @@ export function isDeclarationName(name: Node): boolean {
 }
 
 /** @internal */
-export function createDiagnosticForFileFromMessageChain(sourceFile: SourceFile, messageChain: DiagnosticMessageChain, relatedInformation?: DiagnosticRelatedInformation[]): DiagnosticWithLocation {
+export function createDiagnosticForFileFromMessageChain(sourceFile: SourceFileBase, messageChain: DiagnosticMessageChain, relatedInformation?: DiagnosticRelatedInformation[]): DiagnosticWithLocation {
     return {
         file: sourceFile,
         start: 0,
@@ -2427,14 +2425,14 @@ export function createDiagnosticForFileFromMessageChain(sourceFile: SourceFile, 
 }
 
 /** @internal */
-export function createDiagnosticForNodeFromMessageChain(sourceFile: SourceFile, node: Node, messageChain: DiagnosticMessageChain, relatedInformation?: DiagnosticRelatedInformation[]): DiagnosticWithLocation {
+export function createDiagnosticForNodeFromMessageChain(sourceFile: SourceFileBase, node: Node, messageChain: DiagnosticMessageChain, relatedInformation?: DiagnosticRelatedInformation[]): DiagnosticWithLocation {
     const span = getErrorSpanForNode(sourceFile, node);
     return createFileDiagnosticFromMessageChain(sourceFile, span.start, span.length, messageChain, relatedInformation);
 }
 
 
 /** @internal */
-export function createFileDiagnosticFromMessageChain(file: SourceFile, start: number, length: number, messageChain: DiagnosticMessageChain, relatedInformation?: DiagnosticRelatedInformation[]): DiagnosticWithLocation {
+export function createFileDiagnosticFromMessageChain(file: SourceFileBase, start: number, length: number, messageChain: DiagnosticMessageChain, relatedInformation?: DiagnosticRelatedInformation[]): DiagnosticWithLocation {
     assertDiagnosticLocation(file.text, start, length);
     return {
         file,
@@ -2453,6 +2451,12 @@ export function createFileDiagnosticFromMessageChain(file: SourceFile, start: nu
 export function containsParseError(node: Node): boolean {
     aggregateChildData(node);
     return (node.flags & NodeFlags.ThisNodeOrAnySubNodesHasError) !== 0;
+}
+
+// Returns true if this node is inside an included file branch of the AST
+/** @internal */
+export function isInIncludeContext(node: Node): boolean {
+    return (node.flags & NodeFlags.IncludeContext) !== 0;
 }
 
 function aggregateChildData(node: Node): void {
@@ -2624,12 +2628,7 @@ export function isJSDocNode(node: Node): boolean {
 
 /** @internal */
 export function getTokenPosOfNode(node: Node, sourceFile?: SourceFileLike, includeJsDoc?: boolean): number {
-    
-    // if this node was part of an include, then just use the include's position
-    if (node.includeDirPos !== undefined) {
-        return node.includeDirPos;
-    }
-
+       
     // With nodes that have no width (i.e. 'Missing' nodes), we actually *don't*
     // want to skip trivia because this will launch us forward to the next token.
     if (nodeIsMissing(node)) {
@@ -5710,7 +5709,7 @@ export function rangeOfNode(node: Node): TextRange {
 }
 
 /** @internal */
-export function rangeOfTypeParameters(sourceFile: SourceFile, typeParameters: NodeArray<TypeParameterDeclaration>): TextRange {
+export function rangeOfTypeParameters(sourceFile: SourceFileBase, typeParameters: NodeArray<TypeParameterDeclaration>): TextRange {
     // Include the `<>`
     const pos = typeParameters.pos - 1;
     const end = Math.min(sourceFile.text.length, skipTrivia(sourceFile.text, typeParameters.end) + 1);

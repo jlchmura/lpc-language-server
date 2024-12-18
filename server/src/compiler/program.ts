@@ -1384,6 +1384,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             result.set(key, options.configDefines[key]);
         }
 
+        result.set("__LANG_SVC__", "1");
+
         return result;
     }
 
@@ -1818,8 +1820,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             } else if (isIncludeDirective(node)) {
                 // imports have string nodes, but we want to use the resolved filename
                 // so we'll create a fake string literal based on that
-                if (node.resolvedFilename) {
-                    const lit = factory.createStringLiteral(node.resolvedFilename);
+                if (node.fileName) {
+                    const lit = factory.createStringLiteral(node.fileName);
                     setTextRangePosEnd(lit, node.content.pos, node.content.end);
                     (lit as Mutable<Node>).parent = node; // it will need a parent so that it doesn't break the emitter
                     imports = append(imports, lit);

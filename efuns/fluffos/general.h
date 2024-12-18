@@ -250,9 +250,10 @@ varargs string map( string x, function f, mixed extra... );
 varargs mixed* map( mixed* x, string fun, object ob, mixed extra... );
 
 /**
- * @template T
+ * @template T, Y
  * @callback mapCallback
- * @returns {T} The map callback return value
+ * @param {T} element The element to map
+ * @returns {Y} The map callback return value
  */
 
 /**
@@ -264,10 +265,11 @@ varargs mixed* map( mixed* x, string fun, object ob, mixed extra... );
  * the  function,  and replaces the character with the return value if the
  * return value is a non-zero integer.
  * @template T
+ * @template Y
  * @param x The array to map 
- * @param {mapCallback<T>} f The callback function to apply to each element
+ * @param {mapCallback<T,Y>} f The callback function to apply to each element
  * @param extra Extra arguments to pass to the callback function
- * @returns {T*} An array of the mapped values
+ * @returns {Y*} An array of the mapped values
  */
 varargs mixed* map( mixed* x, function f, mixed extra... );
 

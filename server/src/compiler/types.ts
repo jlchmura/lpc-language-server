@@ -1824,14 +1824,14 @@ export interface DiagnosticCollection {
 export interface DiagnosticRelatedInformation {
     category: DiagnosticCategory;
     code: number;
-    file: SourceFile | undefined;
+    file: SourceFileBase | undefined;
     start: number | undefined;
     length: number | undefined;
     messageText: string | DiagnosticMessageChain;
 }
 
 export interface DiagnosticWithLocation extends Diagnostic {
-    file: SourceFile;
+    file: SourceFileBase;
     start: number;
     length: number;
 }
@@ -2945,11 +2945,26 @@ export interface LineAndCharacter {
 export interface SourceFileLike {
     readonly text: string;
     readonly fileName: string;
-    /** @internal */
-    lineMap?: readonly number[];
-    /** @internal */
-    getPositionOfLineAndCharacter?(line: number, character: number, allowEdits?: true): number;        
-    inactiveCodeRanges?: readonly TextRange[];
+    
+    /** @internal */ inactiveCodeRanges?: readonly TextRange[];
+    /** @internal */ lineMap?: readonly number[];
+    /** @internal */ getPositionOfLineAndCharacter?(line: number, character: number, allowEdits?: true): number;            
+}
+
+export type SourceFileBaseSyntaxKind = SyntaxKind.SourceFile | SyntaxKind.IncludeDirective;
+
+export interface SourceFileBase {
+    readonly kind: SourceFileBaseSyntaxKind;
+    readonly text: string;
+    readonly fileName: string;
+
+    /** @internal */ path: Path;
+    /** @internal */ inactiveCodeRanges?: readonly TextRange[];
+    /** @internal */ lineMap?: readonly number[];
+    /** @internal */ getPositionOfLineAndCharacter?(line: number, character: number, allowEdits?: true): number;            
+
+    languageVersion: ScriptTarget;
+    languageVariant: LanguageVariant;
 }
 
 export interface HasHeritageContainer {
@@ -2967,7 +2982,7 @@ export interface PragmaContext extends ReadonlyPragmaContext {
 
 
 // Source files are declarations when they are external modules.
-export interface SourceFile extends Declaration, LocalsContainer, HasHeritageContainer {
+export interface SourceFile extends Declaration, LocalsContainer, HasHeritageContainer, SourceFileBase {
     readonly kind: SyntaxKind.SourceFile;
     readonly statements: NodeArray<Statement>;
     readonly endOfFileToken: Token<SyntaxKind.EndOfFileToken>;
@@ -5830,7 +5845,7 @@ export interface Printer {
      * Prints a bundle of source files as-is, without any emit transformations.
      */
     printBundle(bundle: Bundle): string;
-    /** @internal */ writeNode(hint: EmitHint, node: Node, sourceFile: SourceFile | undefined, writer: EmitTextWriter): void;
+    /** @internal */ writeNode(hint: EmitHint, node: Node, sourceFile: SourceFileBase | undefined, writer: EmitTextWriter): void;
     /** @internal */ writeList<T extends Node>(format: ListFormat, list: NodeArray<T> | undefined, sourceFile: SourceFile | undefined, writer: EmitTextWriter): void;
     /** @internal */ writeFile(sourceFile: SourceFile, writer: EmitTextWriter, sourceMapGenerator: SourceMapGenerator | undefined): void;
     /** @internal */ writeBundle(bundle: Bundle, writer: EmitTextWriter, sourceMapGenerator: SourceMapGenerator | undefined): void;
@@ -5943,6 +5958,11 @@ export interface SourceMapSource {
     text: string;
     /** @internal */ lineMap: readonly number[];
     skipTrivia?: (pos: number) => number;
+
+
+    /** @internal */ path?: Path;
+    /** @internal */ languageVersion?: ScriptTarget;
+    /** @internal */ languageVariant?: LanguageVariant;
 }
 
 /** @internal */
@@ -7148,12 +7168,17 @@ export interface PragmaDirective extends PreprocessorDirective {
     expression: NodeArray<Identifier>;
 }
 
-export interface IncludeDirective extends PreprocessorDirective {
+export interface IncludeDirective extends PreprocessorDirective, SourceFileBase {
     kind: SyntaxKind.IncludeDirective;
     content: NodeArray<StringLiteral>;
-    resolvedFilename: string;
-    localFirst: boolean;
-    resolvedSourceFile: SourceFile;
+    readonly fileName: string;
+    readonly localFirst: boolean;
+    readonly statements: NodeArray<Statement>;
+    readonly endOfFileToken: Token<SyntaxKind.EndOfFileToken>;
+
+    // some sourcefile-like properties
+    readonly text: string;
+    inactiveCodeRanges?: readonly TextRange[];
 }
 
 
