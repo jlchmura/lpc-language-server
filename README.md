@@ -6,8 +6,8 @@ Currently supports [LDMud](https://www.ldmud.eu/) and [FluffOS](https://www.fluf
 
 Install from the VS Code Marketplace: https://marketplace.visualstudio.com/items?itemName=jlchmura.lpc
 
-**NOTE: v1.1.x IS A PRERELEASE VERSION WITH BREAKING CHANGES**
-If you were a previous use of the 1.0.x version, please see [config-changes.md](config-changes.md)
+**Attention v1.0 Users**
+If you are updating from the 1.0.x version, please see [config-changes.md](config-changes.md) for required changes to your `lpc-config.json` file.
 
 
 ## Features
