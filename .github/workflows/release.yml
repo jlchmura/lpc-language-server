@@ -23,7 +23,7 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: npm run compile
+        run: npm run vsce:package
 
       - name: Create Release
         id: create_release
