@@ -24,7 +24,7 @@ If you were a previous use of the 1.0.x version, please see [config-changes.md](
 -   Code outline
 -   Code navigation
 
-### Doc Comments
+### LPCDoc Comments
 
 LPC Language Services uses [JSDoc-style](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html) comments to provide additional context during hover and signature help.
 

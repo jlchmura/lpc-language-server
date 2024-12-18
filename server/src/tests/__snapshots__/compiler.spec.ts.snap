@@ -325,6 +325,15 @@ exports[`Compiler compiler/operatorDoubleBang.c Reports correct errors for compi
 
 exports[`Compiler compiler/operatorLogical.c Reports correct errors for compiler/operatorLogical.c: diags-compiler/operatorLogical.c 1`] = `""`;
 
+exports[`Compiler compiler/predefined1.c Reports correct errors for compiler/predefined1.c: diags-compiler/predefined1.c 1`] = `""`;
+
+exports[`Compiler compiler/predefined2.c Reports correct errors for compiler/predefined2.c: diags-compiler/predefined2.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/predefined2.c[90m:5[0m
+
+"
+`;
+
 exports[`Compiler compiler/preproc_conditional.c Reports correct errors for compiler/preproc_conditional.c: diags-compiler/preproc_conditional.c 1`] = `""`;
 
 exports[`Compiler compiler/preproc_conditional_macro.c Reports correct errors for compiler/preproc_conditional_macro.c: diags-compiler/preproc_conditional_macro.c 1`] = `

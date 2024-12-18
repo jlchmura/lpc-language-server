@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.12
+
+-   Fix: Driver predefined macros marked as undefined on initial startup
+
 ## 1.1.11
 
 -   Fix: [Hover text garbled when type annotation uses a macro #110](https://github.com/jlchmura/lpc-language-server/issues/110)

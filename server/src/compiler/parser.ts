@@ -898,7 +898,8 @@ export namespace LpcParser {
                 // wipe out any state data while we're here
                 macro.argsIn = undefined;            
             });
-            sourceFile.parsedMacros = parsedMacros;
+            
+            sourceFile.parsedMacros = parsedMacros;            
         }
 
         if (setParentNodes) {

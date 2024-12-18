@@ -243,10 +243,6 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             tracing?.pop();    
         }
 
-        tracing?.push(tracing.Phase.Program, "processRootFiles", { count: rootNames.length });
-        forEach(rootNames, (name, index) => processRootFile(name, /*isDefaultLib*/ false, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.RootFile, index }));
-        tracing?.pop();
-        
         // Do not process the default library if:
         //  - The '--noLib' flag is used.
         //  - A 'no-default-lib' reference comment is encountered in
@@ -266,7 +262,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             }  
             
             const libSourceFile = getSourceFile(defaultLibraryFileName);
-            if (libSourceFile && libSourceFile.parsedMacros) {
+            if (libSourceFile && libSourceFile.parsedMacros) {                
                 options.configDefines = options.configDefines || {};
                 // add macros from the default lib to the config table
                 // defines from config file always take priority 
@@ -278,6 +274,10 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 }
             }
         }
+
+        tracing?.push(tracing.Phase.Program, "processRootFiles", { count: rootNames.length });
+        forEach(rootNames, (name, index) => processRootFile(name, /*isDefaultLib*/ false, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.RootFile, index }));
+        tracing?.pop();                
         
         files = stableSort(processingDefaultLibFiles, compareDefaultLibFiles).concat(processingOtherFiles);
         processingDefaultLibFiles = undefined;
