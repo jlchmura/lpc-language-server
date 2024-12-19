@@ -180,7 +180,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     if (oldProgram && host.onAllFilesNeedReparse && changesAffectLibCompilation(oldProgram.getCompilerOptions(), options)) {                
         // if the config of certain lib files changes, we need to force everything to be reparsed.        
         // this is more than just not reusing the structure of the old program
-        const oldSourceFiles = oldProgram.getSourceFiles().map(sf => sf.fileName);
+        const oldSourceFiles = oldProgram.getSourceFiles().filter(sf => !sf.isDefaultLib).map(sf => sf.fileName);
         host.onAllFilesNeedReparse(oldSourceFiles);        
     }
 

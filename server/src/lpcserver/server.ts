@@ -235,7 +235,8 @@ export function start(connection: Connection, platform: string, args: string[]) 
                 const docSet = new Set(allDocs);                
                 const getErrDocs = Array.from(docSet);
                 // add a slight delay to let the config update
-                executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: 50, files: getErrDocs});
+                // delay longer than ensure project delay in editorService
+                executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: 2550, files: getErrDocs});
             }
         });
                 

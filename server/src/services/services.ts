@@ -1762,7 +1762,9 @@ export function createLanguageService(
 
         // Make sure all the nodes in the program are both bound, and have their parent
         // pointers set property.
-        program.getTypeChecker();
+        if (program.getRootFileNames().length) {
+            program.getTypeChecker();
+        }
         return;
 
         function getOrCreateSourceFile(
