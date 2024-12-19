@@ -331,7 +331,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
                     // if (!options.includeDeclaration && ref.isDefinition) {
                     //     continue;
                     // }                
-                    const location = typeConverters.Location.fromTextSpan(URI.parse(ref.file), ref);
+                    const location = typeConverters.Location.fromTextSpan(URI.file(ref.file), ref);
                     result.push(location);
                 }                
             } catch(e) {                
@@ -356,7 +356,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
             const renameInfo = result.info;
             if (!renameInfo.canRename) {
                 return undefined;
-            } 
+            }             
             return typeConverters.Range.fromTextSpan(renameInfo.triggerSpan);             
         });
 
@@ -380,7 +380,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
 
             if (renameInfo.fileToRename) {
                 lpc.Debug.fail("todo - file rename");
-            }
+            }            
 
             return typeConverters.WorkspaceEdit.fromRenames(result.locs, requestParams.newName);
         });
@@ -498,7 +498,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
                     return [];
                 }
                 const def = vscode.LocationLink.create(
-                    result.file,
+                    URI.file(result.file).toString(),
                     {
                         start: locationToLspPosition(result.start),
                         end: locationToLspPosition(result.end),
