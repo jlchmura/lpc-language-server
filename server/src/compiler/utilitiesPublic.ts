@@ -1445,3 +1445,4 @@ export function validateLocaleAndSetLanguage(
     //     return true;
     // }
 }
+
