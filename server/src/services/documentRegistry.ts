@@ -551,7 +551,8 @@ export function createDocumentRegistryInternal(
                     scriptSnapshot.getChangeRange(
                         entry.sourceFile.scriptSnapshot
                     ),
-                    languageVariant
+                    languageVariant,
+                    sourceFileOptions.reportParsedDefines
                 );
                 if (externalCache) {
                     externalCache.setDocument(

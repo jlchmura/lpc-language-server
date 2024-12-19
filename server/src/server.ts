@@ -14,4 +14,4 @@ const connection = createConnection(ProposedFeatures.all);
 // server.start();
 
 // start server2
-start(connection, require("os").platform());
+start(connection, require("os").platform(), process.argv);

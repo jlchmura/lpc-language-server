@@ -207,6 +207,7 @@ import {
     PragmaMap,
     factory,
     setTextRangePosEnd,
+    ResolvedProjectReference,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 import { computeSuggestionDiagnostics } from "./suggestionDiagnostics.js";
@@ -1677,7 +1678,8 @@ export function createLanguageService(
                 );
             },
             onReleaseOldSourceFile,
-            //onReleaseParsedCommandLine,
+            onReleaseParsedCommandLine,
+            onAllFilesNeedReparse,
             //hasInvalidatedResolutions,
             //hasInvalidatedLibResolutions,
             //hasChangedAutomaticTypeDirectiveNames,
@@ -1824,19 +1826,36 @@ export function createLanguageService(
             );
         }
 
+        function onAllFilesNeedReparse(fileNames: string[]): void {
+            if (host.onAllFilesNeedReparse) {
+                host.onAllFilesNeedReparse(fileNames);
+            }
+        }
+
+        function onReleaseParsedCommandLine(configFileName: string, oldResolvedRef: ResolvedProjectReference | undefined, oldOptions: CompilerOptions) {
+            if (host.getParsedCommandLine) {
+                host.onReleaseParsedCommandLine?.(configFileName, oldResolvedRef, oldOptions);
+            }
+            else if (oldResolvedRef) {
+                onReleaseOldSourceFile(oldResolvedRef.sourceFile, oldOptions);
+            }
+        }
+        
         function onReleaseOldSourceFile(
             oldSourceFile: SourceFile,
             oldOptions: CompilerOptions,
-            hasSourceFileByPath: boolean,
-            newSourceFileByResolvedPath: SourceFile | undefined
+            hasSourceFileByPath?: boolean,
+            newSourceFileByResolvedPath?: SourceFile | undefined
         ) {
             releaseOldSourceFile(oldSourceFile, oldOptions);
-            host.onReleaseOldSourceFile?.(
-                oldSourceFile,
-                oldOptions,
-                hasSourceFileByPath,
-                newSourceFileByResolvedPath
-            );
+            if (hasSourceFileByPath) {
+                host.onReleaseOldSourceFile?.(
+                    oldSourceFile,
+                    oldOptions,
+                    hasSourceFileByPath,
+                    newSourceFileByResolvedPath
+                );
+            }
         }
 
         function getSourceTextFromSnapshot(fileName: string): string | undefined {
@@ -2163,6 +2182,7 @@ export function updateLanguageServiceSourceFile(
     version: string,
     textChangeRange: TextChangeRange | undefined,    
     languageVariant: LanguageVariant,
+    reportParsedDefines: boolean,
     aggressiveChecks?: boolean
 ): SourceFile {
     // If we were given a text change range, and our version or open-ness changed, then
@@ -2235,7 +2255,9 @@ export function updateLanguageServiceSourceFile(
         setExternalModuleIndicator: sourceFile.setExternalModuleIndicator,
         jsDocParsingMode: sourceFile.jsDocParsingMode,
         globalIncludes,
-        fileHandler
+        fileHandler,
+        reportParsedDefines,
+        configDefines
     };
     // Otherwise, just create a new source file.
     return createLanguageServiceSourceFile(
@@ -2441,7 +2463,7 @@ class SyntaxTreeCache {
             // This is the same file, just a newer version. Incrementally parse the file.
             const editRange = scriptSnapshot.getChangeRange(this.currentFileScriptSnapshot!);
                         
-            sourceFile = updateLanguageServiceSourceFile(this.currentSourceFile!, options.globalIncludes, options.configDefines, options.fileHandler, scriptSnapshot, version, editRange, languageVariant);
+            sourceFile = updateLanguageServiceSourceFile(this.currentSourceFile!, options.globalIncludes, options.configDefines, options.fileHandler, scriptSnapshot, version, editRange, languageVariant, false);
         }
 
         if (sourceFile) {

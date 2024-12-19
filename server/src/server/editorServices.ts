@@ -406,6 +406,7 @@ export class ProjectService {
 
         const { fileName } = originalLocation;
         const scriptInfo = this.getScriptInfo(fileName);
+        
         if (!scriptInfo && !this.host.fileExists(fileName)) return undefined;
 
         const originalFileInfo: OriginalFileInfo = { fileName: toNormalizedPath(fileName), path: this.toPath(fileName) };
@@ -1150,7 +1151,7 @@ export class ProjectService {
         // }
         // project.canConfigFileJsonReportNoInputFiles = canJsonReportNoInputFiles(parsedCommandLine.raw);
         project.setProjectErrors(parsedCommandLine.options.configFile!.parseDiagnostics);
-        // project.updateReferences(parsedCommandLine.projectReferences);
+        project.updateReferences(parsedCommandLine.projectReferences);
         // const lastFileExceededProgramSize = this.getFilenameForExceededTotalSizeLimitForNonTsFiles(project.canonicalConfigFilePath, compilerOptions, parsedCommandLine.fileNames, fileNamePropertyReader);
         // if (lastFileExceededProgramSize) {
         //     project.disableLanguageService(lastFileExceededProgramSize);
@@ -1173,9 +1174,9 @@ export class ProjectService {
         project.setWatchOptions(watchOptions);
         // VS only set the CompileOnSaveEnabled option in the request if the option was changed recently
         // therefore if it is undefined, it should not be updated.
-        // if (compileOnSave !== undefined) {
-        //     project.compileOnSaveEnabled = compileOnSave;
-        // }
+        if (compileOnSave !== undefined) {
+            project.compileOnSaveEnabled = compileOnSave;
+        }
         this.addFilesToNonInferredProject(project, newUncheckedFiles, propertyReader, newTypeAcquisition);
     }
 

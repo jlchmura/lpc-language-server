@@ -390,6 +390,10 @@ export class ScriptInfo {
         return this.textStorage.getSnapshot();
     }
 
+    public incrementVersion() {
+        this.textStorage.version++;
+    }
+
     private ensureRealPath() {
         if (this.realpath === undefined) {
             // Default is just the path
