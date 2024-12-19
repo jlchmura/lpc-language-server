@@ -2018,7 +2018,7 @@ export namespace LpcParser {
     }
 
     function createBuiltInMacro(name: string, text: string): Macro {
-        return { name, includeFilename: "macro", posInOrigin: 0, endInOrigin: 0, getText: () => text, range: {pos: 0, end: text.length} };
+        return { name, includeFilename: "macro", posInOrigin: 0, endInOrigin: 0, getText: () => text, range: {pos: 0, end: text?.length} };
     }
 
     function createMacro(directive: DefineDirective, macroSourceFilename: string): Macro {        

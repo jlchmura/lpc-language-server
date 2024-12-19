@@ -70,7 +70,7 @@ export namespace WorkspaceEdit {
 	) {
 		const edit: vscode.WorkspaceEdit = { changes: {} };
 		for (const spanGroup of locations) {
-			const resource = spanGroup.file;
+			const resource = URI.file(spanGroup.file).toString();
 			for (const textSpan of spanGroup.locs) {
 				edit.changes[resource] = edit.changes[resource] || [];
 				edit.changes[resource].push(vscode.TextEdit.replace(
