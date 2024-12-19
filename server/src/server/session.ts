@@ -693,7 +693,7 @@ export class Session<TMessage = string> implements EventSender {
         updateProjectIfDirty(project);
         
         const options = project.getCompilerOptions();
-        const driverType = options?.driverType == LanguageVariant.LDMud ? "LDMud" : "FluffOS";
+        const driverType = options?.driverType == LanguageVariant.FluffOS ? "FluffOS" : "LDMud";
 
         const projectInfo = {
             configFileName: project.getProjectName(),
