@@ -94,8 +94,6 @@ export function getFileNamesFromConfigSpecs(
         }
     }
 
-    
-
     // const { files } = configFileSpecs;
     // if (files) {
     //     const literalFiles = flatten([files.simul_efun, files.master, files.global_include, files.player, files.init_files || []]).filter(f => !!f);
@@ -1126,7 +1124,7 @@ export const commonOptionsWithBuild: CommandLineOption[] = [
         isCommandLineOnly: true,
         description: Diagnostics.Set_the_language_of_the_messaging_from_TypeScript_This_does_not_affect_emit,
         defaultValueDescription: Diagnostics.Platform_specific,
-    },
+    },    
 ];
 
 const commandOptionsWithoutBuild: CommandLineOption[] = [

@@ -1,5 +1,5 @@
 import path from "path";
-import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne, getRelativePathFromFile, getRelativePathFromDirectory, map, resolvePath, diagnosticCategoryName, getLineAndCharacterOfPosition, convertToRelativePath, BuilderProgram, addRange, explainIfFileIsRedirectAndImpliedFormat, chainDiagnosticMessages, createFileDiagnosticFromMessageChain, createCompilerDiagnosticFromMessageChain, fileIncludeReasonToDiagnostics, createFileDiagnostic, getMatchedFileSpec, createDiagnosticForNodeInSourceFile, FilePreprocessingLibReferenceDiagnostic, getSpellingSuggestion, identity, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ParsedCommandLine, arrayIsEqualTo, forEachEntry, projectReferenceIsEqualTo, compareDataObjects, HasChangedAutomaticTypeDirectiveNames, isJSDocTypeTag, hasJSDocNodes, isJSDoc, isJSDocNode, isJSDocTypeExpression, isLiteralTypeNode, getLiteralText, GetLiteralTextFlags, isStringLiteralLike, isJSDocParameterTag, isJSDocReturnTag, isTypePredicateNode, StringLiteralType, isPropertyAccessExpression, Mutable, ImportCandidateNode, isNewExpression, isTypeNode, getLibRootedFileName, isJSDocPropertyTag, PragmaPseudoMapEntry, setParent, setTextRangePosEnd, PragmaPseudoMap, TextRange, CommentRange, thisObjectPragmaToStringLiteral, emptyMap, getLpcConfigPropArrayElementValue, forEachLpcConfigPropArray, LpcConfigSourceFile, isArrayLiteralExpression, tryCast, isObjectLiteralExpression, forEachPropertyAssignment, getLpcConfigObjectLiteralExpression, getPropertyArrayElementValue, getNameOfScriptTarget, getEmitScriptTarget, setTextRange, isCallExpression, isIdentifier, changesAffectModuleResolution, sourceFileAffectingCompilerOptions, hasChangesInResolutions, moduleResolutionIsEqualTo, changesAffectingProgramStructure, isBinaryExpression, isArrayTypeNode, LiteralTypeNode, LiteralExpression, isJSDocVariableTag } from "./_namespaces/lpc.js";
+import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne, getRelativePathFromFile, getRelativePathFromDirectory, map, resolvePath, diagnosticCategoryName, getLineAndCharacterOfPosition, convertToRelativePath, BuilderProgram, addRange, explainIfFileIsRedirectAndImpliedFormat, chainDiagnosticMessages, createFileDiagnosticFromMessageChain, createCompilerDiagnosticFromMessageChain, fileIncludeReasonToDiagnostics, createFileDiagnostic, getMatchedFileSpec, createDiagnosticForNodeInSourceFile, FilePreprocessingLibReferenceDiagnostic, getSpellingSuggestion, identity, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ParsedCommandLine, arrayIsEqualTo, forEachEntry, projectReferenceIsEqualTo, compareDataObjects, HasChangedAutomaticTypeDirectiveNames, isJSDocTypeTag, hasJSDocNodes, isJSDoc, isJSDocNode, isJSDocTypeExpression, isLiteralTypeNode, getLiteralText, GetLiteralTextFlags, isStringLiteralLike, isJSDocParameterTag, isJSDocReturnTag, isTypePredicateNode, StringLiteralType, isPropertyAccessExpression, Mutable, ImportCandidateNode, isNewExpression, isTypeNode, getLibRootedFileName, isJSDocPropertyTag, PragmaPseudoMapEntry, setParent, setTextRangePosEnd, PragmaPseudoMap, TextRange, CommentRange, thisObjectPragmaToStringLiteral, emptyMap, getLpcConfigPropArrayElementValue, forEachLpcConfigPropArray, LpcConfigSourceFile, isArrayLiteralExpression, tryCast, isObjectLiteralExpression, forEachPropertyAssignment, getLpcConfigObjectLiteralExpression, getPropertyArrayElementValue, getNameOfScriptTarget, getEmitScriptTarget, setTextRange, isCallExpression, isIdentifier, changesAffectModuleResolution, sourceFileAffectingCompilerOptions, hasChangesInResolutions, moduleResolutionIsEqualTo, changesAffectingProgramStructure, isBinaryExpression, isArrayTypeNode, LiteralTypeNode, LiteralExpression, isJSDocVariableTag, changesAffectLibCompilation } from "./_namespaces/lpc.js";
 
 interface FileReasonToChainCache {
     fileIncludeReasonDetails: DiagnosticMessageChain | undefined;
@@ -177,6 +177,13 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     const readFile = host.readFile.bind(host) as typeof host.readFile;
     const shouldCreateNewSourceFile = shouldProgramCreateNewSourceFiles(oldProgram, options);
     
+    if (oldProgram && host.onAllFilesNeedReparse && changesAffectLibCompilation(oldProgram.getCompilerOptions(), options)) {                
+        // if the config of certain lib files changes, we need to force everything to be reparsed.        
+        // this is more than just not reusing the structure of the old program
+        const oldSourceFiles = oldProgram.getSourceFiles().map(sf => sf.fileName);
+        host.onAllFilesNeedReparse(oldSourceFiles);        
+    }
+
     const hasInvalidatedLibResolutions = host.hasInvalidatedLibResolutions || returnFalse;
     let actualResolveLibrary: (libraryName: string, resolveFrom: string, options: CompilerOptions, libFileName: string) => ResolvedModuleWithFailedLookupLocations;
     
@@ -188,12 +195,12 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     let structureIsReused: StructureIsReused;
     tracing?.push(tracing.Phase.Program, "tryReuseStructureFromOldProgram", {});
     structureIsReused = tryReuseStructureFromOldProgram();
-    tracing?.pop();
+    tracing?.pop();    
 
     if (structureIsReused !== StructureIsReused.Completely) {
         processingDefaultLibFiles = [];
         processingOtherFiles = [];
-
+        
         if (projectReferences) {
             if (!resolvedProjectReferences) {
                 resolvedProjectReferences = projectReferences.map(parseProjectReferenceConfigFile);
@@ -316,19 +323,19 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     }
 
     // Release commandlines that new program does not use
-    // if (oldProgram && host.onReleaseParsedCommandLine) {
-    //     forEachProjectReference(
-    //         oldProgram.getProjectReferences(),
-    //         oldProgram.getResolvedProjectReferences(),
-    //         (oldResolvedRef, parent, index) => {
-    //             const oldReference = parent?.commandLine.projectReferences![index] || oldProgram!.getProjectReferences()![index];
-    //             const oldRefPath = resolveProjectReferencePath(oldReference);
-    //             if (!projectReferenceRedirects?.has(toPath(oldRefPath))) {
-    //                 host.onReleaseParsedCommandLine!(oldRefPath, oldResolvedRef, oldProgram!.getCompilerOptions());
-    //             }
-    //         },
-    //     );
-    // }
+    if (oldProgram && host.onReleaseParsedCommandLine) {
+        forEachProjectReference(
+            oldProgram.getProjectReferences(),
+            oldProgram.getResolvedProjectReferences(),
+            (oldResolvedRef, parent, index) => {
+                const oldReference = parent?.commandLine.projectReferences![index] || oldProgram!.getProjectReferences()![index];
+                const oldRefPath = resolveProjectReferencePath(oldReference);
+                if (!projectReferenceRedirects?.has(toPath(oldRefPath))) {
+                    host.onReleaseParsedCommandLine!(oldRefPath, oldResolvedRef, oldProgram!.getCompilerOptions());
+                }
+            },
+        );
+    }
 
     // unconditionally set oldProgram to undefined to prevent it from being captured in closure
     oldProgram = undefined;
@@ -2361,6 +2368,7 @@ export function createCompilerHostWorker(
         readDirectory: (path, extensions, include, exclude, depth) => system.readDirectory(path, extensions, include, exclude, depth),
         createDirectory: d => system.createDirectory(d),
         createHash: maybeBind(system, system.createHash),
+        onAllFilesNeedReparse: (fileNames: string[]) => noop,
     };
     return compilerHost;
 }
@@ -2489,8 +2497,12 @@ function shouldProgramCreateNewSourceFiles(program: Program | undefined, newOpti
     if (!program) return false;
     // If any compiler options change, we can't reuse old source file even if version match
     // The change in options like these could result in change in syntax tree or `sourceFile.bindDiagnostics`.
-    return optionsHaveChanges(program.getCompilerOptions(), newOptions, sourceFileAffectingCompilerOptions);
+    const oldOptions = program.getCompilerOptions();
+    return optionsHaveChanges(oldOptions, newOptions, sourceFileAffectingCompilerOptions) || 
+        changesAffectLibCompilation(oldOptions, newOptions);
 }
+
+
 
 /** @internal */
 export function forEachResolvedProjectReference<T>(

@@ -318,6 +318,13 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         );
     }
     
+    onAllFilesNeedReparse(fileNames: string[]): void {
+        this.writeLog(`Reparse ${fileNames.length} files triggered for project: ${this.getProjectName()}`);
+        fileNames.forEach(fileName => {
+            this.getScriptInfo(fileName)?.incrementVersion();
+        });        
+    }
+
     getScriptFileNames() {
         if (!this.rootFilesMap.size) {
             return lpc.emptyArray;

@@ -46,9 +46,7 @@
         "type": "git",
         "url": "https://github.com/jlchmura/lpc-language-server"
     },
-    "activationEvents": [
-        "onLanguage:lpc",
-        "onLanguage:jsonc",
+    "activationEvents": [        
         "workspaceContains:**/*.c",
         "workspaceContains:lpc-config.json"
     ],

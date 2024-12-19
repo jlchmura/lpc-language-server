@@ -2,7 +2,7 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
-
+import * as jsonc from "jsonc-parser";
 import * as vscode from "vscode";
 import * as path from "path";
 import {
@@ -33,7 +33,7 @@ const progress = new ProgressIndicator();
 const _disposables: vscode.Disposable[] = [];
 let _isDisposed = false;
 
-export function activate(context: ExtensionContext) {
+export async function activate(context: ExtensionContext) {
     // The server is implemented in node
     const serverModule = context.asAbsolutePath(
         path.join("out", "server", "src", "server.js")
@@ -42,12 +42,26 @@ export function activate(context: ExtensionContext) {
     // get location of efuns folder and pass to server as an argument
     const efunDir = context.asAbsolutePath("efuns");
 
+    const possibleConfigFiles = await vscode.workspace.findFiles("**/lpc-config.json");
+    let defaultDriverType: "ldmud" | "fluffos" = "ldmud";
+
+    if (possibleConfigFiles.length > 0) {
+        try {
+            const configBuffer = await vscode.workspace.fs.readFile(possibleConfigFiles[0]);
+            // convert uint8 array to string
+            const configString = Buffer.from(configBuffer).toString();                                   
+            const config = jsonc.parse(configString);         
+
+            defaultDriverType = config?.driver?.type ?? "ldmud";            
+        } catch {}
+    }
+
     let debugOptions = {
         execArgv: ["--nolazy", "--enable-source-maps", "--inspect"]
     };
 
-    const serverArgs = [efunDir, "--serverMode", "semantic"];
-    const syntaxServerArgs = [efunDir, "--serverMode", "syntactic"];
+    const serverArgs = [efunDir, "--driverType", defaultDriverType, "--serverMode", "semantic"];
+    const syntaxServerArgs = [efunDir, "--driverType", defaultDriverType, "--serverMode", "syntactic"];
 
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
@@ -70,7 +84,10 @@ export function activate(context: ExtensionContext) {
     syntaxServerOptions.run.args = syntaxServerArgs;
     syntaxServerOptions.debug.args = syntaxServerArgs;
 
-    const docSel = [{ scheme: "file", language: "lpc" }];
+    const docSel = [
+        // lpc files
+        { scheme: "file", language: "lpc" },        
+    ];
 
     // Options to control the language client
     const clientOptions: LanguageClientOptions = {
@@ -117,6 +134,7 @@ export function activate(context: ExtensionContext) {
         )
     );
 
+    
     client.onNotification("lpc/initialized", () => {
         clientInitialized=true;
         // don't initialize providers until the server says its ready

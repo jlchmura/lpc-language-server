@@ -82,12 +82,12 @@ function parseServerMode(): lpc.LanguageServiceMode | undefined {
     }
 }
 
-export function start(connection: Connection, platform: string) {
+export function start(connection: Connection, platform: string, args: string[]) {
     const serverMode = parseServerMode() ?? lpc.LanguageServiceMode.Semantic;
     
     logger.info(`Starting TS Server`);
-    //logger.info(`Version: ${lpc.version}`);
-    // logger.info(`Arguments: ${args.join(" ")}`);
+    logger.info(`Version: ${lpc.version}`);
+    logger.info(`Arguments: ${args.join(" ")}`);
     logger.info(`Platform: ${platform} NodeVersion: ${process.version} CaseSensitive: ${lpc.sys.useCaseSensitiveFileNames}`);
     logger.info(`ServerMode: ${serverMode}`);
 
@@ -149,9 +149,11 @@ export function start(connection: Connection, platform: string) {
             serverMode
         });                              
         
-        // send blank options for now
-        // TODO: the extension should send these
-        session.setCompilerOptionsForInferredProjects({options:{}});
+        const inferredOptions: protocol.InferredProjectCompilerOptions = {};        
+        const driverTypeArg = lpc.server.findArgument("--driverType");
+        inferredOptions.driverType = driverTypeArg === "fluffos" ? lpc.LanguageVariant.FluffOS : lpc.LanguageVariant.LDMud;        
+
+        session.setCompilerOptionsForInferredProjects({options:inferredOptions});
 
         session.onOutput.on("message", (msg: lpc.server.protocol.Message) => {
             if (msg.type === "event") {
@@ -226,6 +228,16 @@ export function start(connection: Connection, platform: string) {
             const filename = fromUri(e.document.uri);
             executeRequest<protocol.Request>(protocol.CommandTypes.Close, {file: filename});            
         });
+
+        connection.onDidChangeWatchedFiles(e => {            
+            if (e.changes.length > 0 && serverMode !== lpc.LanguageServiceMode.Syntactic) {                    
+                const allDocs = documents.all().map(d => fromUri(d.uri));
+                const docSet = new Set(allDocs);                
+                const getErrDocs = Array.from(docSet);
+                // add a slight delay to let the config update
+                executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: 50, files: getErrDocs});
+            }
+        });
                 
         connection.onDidChangeTextDocument((e: vscode.DidChangeTextDocumentParams) => {
             try {                
@@ -263,7 +275,7 @@ export function start(connection: Connection, platform: string) {
                         endLine,
                         endOffset,
                         insertString: lspChange.text,
-                     });
+                    });
                 }
                 
                 if (serverMode !== lpc.LanguageServiceMode.Syntactic) {                    

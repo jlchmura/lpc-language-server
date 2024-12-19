@@ -683,7 +683,8 @@ export interface LanguageServiceHost
     /** @internal */ getPackageJsonAutoImportProvider?(): Program | undefined;
     // /** @internal */ sendPerformanceEvent?(kind: PerformanceEvent["kind"], durationMs: number): void;
     getParsedCommandLine?(fileName: string): ParsedCommandLine | undefined;
-    // /** @internal */ onReleaseParsedCommandLine?(configFileName: string, oldResolvedRef: ResolvedProjectReference | undefined, optionOptions: CompilerOptions): void;
+    onAllFilesNeedReparse?(fileNames: string[]): void;
+    /** @internal */ onReleaseParsedCommandLine?(configFileName: string, oldResolvedRef: ResolvedProjectReference | undefined, optionOptions: CompilerOptions): void;
     /** @internal */ onReleaseOldSourceFile?(
         oldSourceFile: SourceFile,
         oldOptions: CompilerOptions,
