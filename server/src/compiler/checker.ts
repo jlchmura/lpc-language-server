@@ -29642,7 +29642,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     if (isMatchingReference(reference, predicateArgument)) {
                         // TODO - In LPC, should we always return the type predicate type?  Even if its not compatible?
                         // a better way to do this might be to adjust the isRelated tests in getNarrowType 
-                        console.debug("TODO - narrowTypeByTypePredicate is assumedTrue");
+                        // console.debug("TODO - narrowTypeByTypePredicate is assumedTrue");
                         // return assumeTrue ? predicate.type : type;                        
                         return getNarrowedType(type, predicate.type, assumeTrue, /*checkDerived*/ false);
                     }
