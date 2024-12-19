@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { addRange, append, arrayFrom, CachedDirectoryStructureHost, clearMap, closeFileWatcher, combinePaths, CompilerHost, CompilerOptions, createLanguageService, createLpcFileHandler, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, filter, flatMap, forEach, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, isExternalModuleNameRelative, isString, JSDocParsingMode, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, parsePackageName, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, resolutionExtensionIsTSOrJson, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, SourceMapper, StringLiteralLike, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition, updateErrorForNoInputFiles, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
+import { addRange, append, arrayFrom, CachedDirectoryStructureHost, clearMap, closeFileWatcher, combinePaths, CompilerHost, CompilerOptions, createCacheableExportInfoMap, createLanguageService, createLpcFileHandler, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, filter, flatMap, forEach, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, isExternalModuleNameRelative, isString, JSDocParsingMode, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, parsePackageName, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, resolutionExtensionIsTSOrJson, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, SourceMapper, StringLiteralLike, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, TypeAcquisition, updateErrorForNoInputFiles, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
 import { asNormalizedPath, emptyArray, Errors, HostCancellationToken, LogLevel, NormalizedPath, ProjectService, ScriptInfo, updateProjectIfDirty } from "./_namespaces/lpc.server.js";
 
 
@@ -390,9 +390,33 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         this.markAsDirty();
     }
 
+    
+    /** @internal */
+    getCachedExportInfoMap() {
+        return this.exportMapCache ||= createCacheableExportInfoMap(this);
+    }
+
+    /** @internal */
+    clearCachedExportInfoMap() {
+        this.exportMapCache?.clear();
+    }
+    
     /** @internal */
     clearSourceMapperCache() {
         //this.languageService.clearSourceMapperCache();
+    }
+
+    /** @internal */
+    getPackageJsonAutoImportProvider(): Program | undefined {
+        console.debug("todo - getPackageJsonAutoImportProvider");
+        return undefined;
+    }
+
+    /** @internal */
+    getGlobalTypingsCacheLocation() {
+        console.debug("todo - getGlobalTypingsCacheLocation");
+        return undefined;
+        // return this.getGlobalCache();
     }
 
     getLanguageService(ensureSynchronized = true): LanguageService {

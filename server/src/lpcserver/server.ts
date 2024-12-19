@@ -266,8 +266,12 @@ export function start(connection: Connection, platform: string) {
                      });
                 }
                 
-                if (serverMode !== lpc.LanguageServiceMode.Syntactic) {
-                    executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: DIAG_DELAY, files: [filename]});
+                if (serverMode !== lpc.LanguageServiceMode.Syntactic) {                    
+                    const allDocs = documents.all().map(d => fromUri(d.uri));
+                    const docSet = new Set(allDocs);
+                    docSet.add(filename);
+                    const getErrDocs = Array.from(docSet);
+                    executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: DIAG_DELAY, files: getErrDocs});
                 }
             } catch(ex) {
                 console.error(ex);

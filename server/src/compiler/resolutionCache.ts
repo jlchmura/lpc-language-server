@@ -72,6 +72,14 @@ export interface ResolutionWithFailedLookupLocations {
 export interface CachedResolvedModuleWithFailedLookupLocations extends ResolvedModuleWithFailedLookupLocations, ResolutionWithFailedLookupLocations {
 }
 
+/** @internal */
+export interface FileWatcherOfAffectingLocation {
+    /** watcher for the lookup */
+    watcher: FileWatcher;
+    resolutions: number;
+    files: number;
+    symlinks: Set<string> | undefined;
+}
 
 /** @internal */
 export function createResolutionCache(resolutionHost: ResolutionCacheHost, rootDirForResolution: string, logChangesWhenResolvingModule: boolean): ResolutionCache {
@@ -124,7 +132,7 @@ export function createResolutionCache(resolutionHost: ResolutionCacheHost, rootD
     // );
 
     const directoryWatchesOfFailedLookups = new Map<Path, DirectoryWatchesOfFailedLookup>();
-    // const fileWatchesOfAffectingLocations = new Map<string, FileWatcherOfAffectingLocation>();
+    const fileWatchesOfAffectingLocations = new Map<string, FileWatcherOfAffectingLocation>();
     const rootDir = getRootDirectoryOfResolutionCache(rootDirForResolution, getCurrentDirectory);
     const rootPath = resolutionHost.toPath(rootDir);
     const rootPathComponents = getPathComponents(rootPath);
@@ -292,22 +300,22 @@ export function createResolutionCache(resolutionHost: ResolutionCacheHost, rootD
         nonRelativeExternalModuleResolutions.forEach(watchFailedLookupLocationOfNonRelativeModuleResolutions);
         nonRelativeExternalModuleResolutions.clear();
         // Update file watches
-        if (newProgram !== oldProgram) {
+        if (newProgram !== oldProgram) {            
             // cleanupLibResolutionWatching(newProgram);
-            // newProgram?.getSourceFiles().forEach(newFile => {
-            //     const expected = isExternalOrCommonJsModule(newFile) ? newFile.packageJsonLocations?.length ?? 0 : 0;
-            //     const existing = impliedFormatPackageJsons.get(newFile.resolvedPath) ?? emptyArray;
-            //     for (let i = existing.length; i < expected; i++) {
-            //         createFileWatcherOfAffectingLocation(newFile.packageJsonLocations![i], /*forResolution*/ false);
-            //     }
-            //     if (existing.length > expected) {
-            //         for (let i = expected; i < existing.length; i++) {
-            //             fileWatchesOfAffectingLocations.get(existing[i])!.files--;
-            //         }
-            //     }
-            //     if (expected) impliedFormatPackageJsons.set(newFile.resolvedPath, newFile.packageJsonLocations!);
-            //     else impliedFormatPackageJsons.delete(newFile.resolvedPath);
-            // });
+            newProgram?.getSourceFiles().forEach(newFile => {
+                const expected = 0;// isExternalOrCommonJsModule(newFile) ? newFile.packageJsonLocations?.length ?? 0 : 0;
+                const existing = impliedFormatPackageJsons.get(newFile.resolvedPath) ?? emptyArray;
+                for (let i = existing.length; i < expected; i++) {
+                    // createFileWatcherOfAffectingLocation(newFile.packageJsonLocations![i], /*forResolution*/ false);
+                }
+                if (existing.length > expected) {
+                    for (let i = expected; i < existing.length; i++) {
+                        fileWatchesOfAffectingLocations.get(existing[i])!.files--;
+                    }
+                }
+                // if (expected) impliedFormatPackageJsons.set(newFile.resolvedPath, newFile.packageJsonLocations!);
+                else impliedFormatPackageJsons.delete(newFile.resolvedPath);
+            });
             // impliedFormatPackageJsons.forEach((existing, path) => {
             //     const newFile = newProgram?.getSourceFileByPath(path);
             //     if (!newFile || newFile.resolvedPath !== path) {
@@ -316,11 +324,11 @@ export function createResolutionCache(resolutionHost: ResolutionCacheHost, rootD
             //     }
             // });
         }
-        // directoryWatchesOfFailedLookups.forEach(closeDirectoryWatchesOfFailedLookup);
-        // fileWatchesOfAffectingLocations.forEach(closeFileWatcherOfAffectingLocation);
+        directoryWatchesOfFailedLookups.forEach(closeDirectoryWatchesOfFailedLookup);
+        fileWatchesOfAffectingLocations.forEach(closeFileWatcherOfAffectingLocation);
         // packageDirWatchers.forEach(closePackageDirWatcher);
-        hasChangedAutomaticTypeDirectiveNames = false;
-        // moduleResolutionCache.isReadonly = true;
+        // hasChangedAutomaticTypeDirectiveNames = false;
+        moduleResolutionCache.isReadonly = true;
         // typeReferenceDirectiveResolutionCache.isReadonly = true;
         // libraryResolutionCache.isReadonly = true;
         // moduleResolutionCache.getPackageJsonInfoCache().isReadonly = true;
@@ -340,12 +348,12 @@ export function createResolutionCache(resolutionHost: ResolutionCacheHost, rootD
         }
     }
 
-    // function closeFileWatcherOfAffectingLocation(watcher: FileWatcherOfAffectingLocation, path: string) {
-    //     if (watcher.files === 0 && watcher.resolutions === 0 && !watcher.symlinks?.size) {
-    //         fileWatchesOfAffectingLocations.delete(path);
-    //         watcher.watcher.close();
-    //     }
-    // }
+    function closeFileWatcherOfAffectingLocation(watcher: FileWatcherOfAffectingLocation, path: string) {
+        if (watcher.files === 0 && watcher.resolutions === 0 && !watcher.symlinks?.size) {
+            fileWatchesOfAffectingLocations.delete(path);
+            watcher.watcher.close();
+        }
+    }
 
     interface ResolveNamesWithLocalCacheInput<Entry, SourceFile, T extends ResolutionWithFailedLookupLocations, R extends ResolutionWithResolvedFileName> {
         entries: readonly Entry[];

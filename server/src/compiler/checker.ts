@@ -7577,7 +7577,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         let type = target?.instantiations?.get(id);
         if (target && !type) {
             type = createObjectType(ObjectFlags.Reference, target.symbol) as TypeReference;
-            target.instantiations.set(id, type);
+            target.instantiations?.set(id, type);
             type.objectFlags |= typeArguments ? getPropagatingFlagsOfTypes(typeArguments) : 0;
             type.target = target;
             type.resolvedTypeArguments = typeArguments;
