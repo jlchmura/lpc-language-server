@@ -89,21 +89,22 @@ function parseServerMode(): lpc.LanguageServiceMode | undefined {
 
 export function start(connection: Connection, platform: string, args: string[]) {
     const serverMode = parseServerMode() ?? lpc.LanguageServiceMode.Semantic;
+    const logPrefix = serverMode === lpc.LanguageServiceMode.Syntactic ? "Syntactic: " : "";
+    logger.info(`${logPrefix}Starting TS Server`);
+    logger.info(`${logPrefix}Version: ${lpc.version}`);
+    logger.info(`${logPrefix}Arguments: ${args.join(" ")}`);
+    logger.info(`${logPrefix}Platform: ${platform} NodeVersion: ${process.version} CaseSensitive: ${lpc.sys.useCaseSensitiveFileNames}`);
+    logger.info(`${logPrefix}ServerMode: ${serverMode}`)
     
-    logger.info(`Starting TS Server`);
-    logger.info(`Version: ${lpc.version}`);
-    logger.info(`Arguments: ${args.join(" ")}`);
-    logger.info(`Platform: ${platform} NodeVersion: ${process.version} CaseSensitive: ${lpc.sys.useCaseSensitiveFileNames}`);
-    logger.info(`ServerMode: ${serverMode}`)
-    
-    const locale = parseLocale();
-    logger.info(`Locale: ${parseLocale()}`);    
+    const locale = parseLocale();    
+    logger.info(`${logPrefix}Locale: ${parseLocale()}`);    
+    if (locale) lpc.validateLocaleAndSetLanguage(locale, lpc.sys);
 
     if (serverMode === lpc.LanguageServiceMode.Syntactic) {
         logger.info("No further log entries will be generated for syntactic server");
         logger.close();
     }
-
+    
     lpc.setStackTraceLimit();    
 
     if (lpc.Debug.isDebugging) {        

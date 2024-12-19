@@ -34,6 +34,7 @@ export const Diagnostics = {
     LPCDoc_var_tags_must_be_in_their_own_LPCDoc_comment: diag(9026, DiagnosticCategory.Error, "LPCDoc_var_tags_must_be_in_their_own_LPCDoc_comment_9026", "LPCDoc @var tags must be in their own LPCDoc comment."),
     LPCDoc_var_tags_can_only_annotate_inherited_variables_0_is_a_local_variable: diag(9027, DiagnosticCategory.Error, "LPCDoc_var_tags_can_only_annotate_inherited_variables_0_is_a_local_variable_9027", "LPCDoc @var tags can only annotate inherited variables. '{0}' is a local variable."),
     LPCDoc_var_tag_should_provide_a_variable_name: diag(9028, DiagnosticCategory.Error, "LPCDoc_var_tag_should_provide_a_variable_name_9028", "LPCDoc @var tag should provide a variable name."),
+    Locale_0_is_not_supported: diag(9029, DiagnosticCategory.Error, "Locale_0_is_not_supported_9029", "Locale '{0}' is not supported."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    
@@ -513,4 +514,7 @@ export const Diagnostics = {
     Type_parameter_list_cannot_be_empty: diag(1098, DiagnosticCategory.Error, "Type_parameter_list_cannot_be_empty_1098", "Type parameter list cannot be empty."),
     Type_argument_list_cannot_be_empty: diag(1099, DiagnosticCategory.Error, "Type_argument_list_cannot_be_empty_1099", "Type argument list cannot be empty."),
     JSDoc_types_can_only_be_used_inside_documentation_comments: diag(8020, DiagnosticCategory.Error, "JSDoc_types_can_only_be_used_inside_documentation_comments_8020", "LPCDoc types can only be used inside documentation comments."),
+    Locale_must_be_of_the_form_language_or_language_territory_For_example_0_or_1: diag(6048, DiagnosticCategory.Error, "Locale_must_be_of_the_form_language_or_language_territory_For_example_0_or_1_6048", "Locale must be of the form <language> or <language>-<territory>. For example '{0}' or '{1}'."),
+    Unable_to_open_file_0: diag(6050, DiagnosticCategory.Error, "Unable_to_open_file_0_6050", "Unable to open file '{0}'."),
+    Corrupted_locale_file_0: diag(6051, DiagnosticCategory.Error, "Corrupted_locale_file_0_6051", "Corrupted locale file {0}."),
 }

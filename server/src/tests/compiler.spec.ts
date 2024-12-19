@@ -67,7 +67,7 @@ describe("Compiler", () => {
             const expectedErrorCount = +(testOptions["errors"] ?? "0");
 
             const compilerHost = lpc.createCompilerHost(compilerOptions);
-            compilerHost.getDefaultLibFileName = () => lpc.combinePaths(root, lpc.getDefaultLibFileName(compilerOptions));
+            compilerHost.getDefaultLibFileName = () => lpc.combinePaths(root, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
 
             const createProgramOptions: lpc.CreateProgramOptions = {
                 host: compilerHost,
