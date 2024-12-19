@@ -1,0 +1,28 @@
+{
+    //使用此配置需将文件名改为 lpc-config.json
+    "driver": {
+        "type": "fluffos"
+    },
+    "libFiles": {
+        "mudlidDir":"./",
+        "master": "/adm/single/master.c",
+        "simul_efun": "/adm/single/simul_efun.c",
+        "global_include": "/include/globals.h",
+        "player": "/clone/user/user.c"
+    },
+    "libInclude": [
+        "/include"
+        //"/mudcore/include" 如果引入了泥芯配置文件需添加此配置
+    ],
+    "diagnostics" : "off",
+    "exclude": [
+        ".verysync",
+        ".vs",
+        ".vscode",
+        "curl",
+        ".git"
+    ],
+    "include": ["./"]
+    
+
+}
