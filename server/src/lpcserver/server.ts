@@ -228,6 +228,16 @@ export function start(connection: Connection, platform: string, args: string[]) 
             const filename = fromUri(e.document.uri);
             executeRequest<protocol.Request>(protocol.CommandTypes.Close, {file: filename});            
         });
+
+        connection.onDidChangeWatchedFiles(e => {            
+            if (e.changes.length > 0 && serverMode !== lpc.LanguageServiceMode.Syntactic) {                    
+                const allDocs = documents.all().map(d => fromUri(d.uri));
+                const docSet = new Set(allDocs);                
+                const getErrDocs = Array.from(docSet);
+                // add a slight delay to let the config update
+                executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: 50, files: getErrDocs});
+            }
+        });
                 
         connection.onDidChangeTextDocument((e: vscode.DidChangeTextDocumentParams) => {
             try {                
@@ -265,7 +275,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
                         endLine,
                         endOffset,
                         insertString: lspChange.text,
-                     });
+                    });
                 }
                 
                 if (serverMode !== lpc.LanguageServiceMode.Syntactic) {                    

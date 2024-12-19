@@ -52,8 +52,7 @@ export async function activate(context: ExtensionContext) {
             const configString = Buffer.from(configBuffer).toString();                                   
             const config = jsonc.parse(configString);         
 
-            defaultDriverType = config?.driver?.type ?? "ldmud";
-            console.info("Setting default driver type based on lpc-config.json: ", defaultDriverType);            
+            defaultDriverType = config?.driver?.type ?? "ldmud";            
         } catch {}
     }
 
@@ -85,7 +84,10 @@ export async function activate(context: ExtensionContext) {
     syntaxServerOptions.run.args = syntaxServerArgs;
     syntaxServerOptions.debug.args = syntaxServerArgs;
 
-    const docSel = [{ scheme: "file", language: "lpc" }];
+    const docSel = [
+        // lpc files
+        { scheme: "file", language: "lpc" },        
+    ];
 
     // Options to control the language client
     const clientOptions: LanguageClientOptions = {
