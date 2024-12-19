@@ -3,6 +3,7 @@
 ## 1.1.13
 
 -   Fix: Project info incorrectly reported driver type as FluffOS (see [FluffOS - Maybe classes aren't being parsed properly anymore #113](https://github.com/jlchmura/lpc-language-server/issues/113))
+-   Fix: [Unable to open when going to definition on windows #118](https://github.com/jlchmura/lpc-language-server/issues/118)
 -   Improve program file load order so that driver prefines are consistenly available to all files.
 -   Source files will now reparse when config options that impact compilation are changed.
 
