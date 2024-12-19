@@ -65,6 +65,11 @@ class LspSession extends lpc.server.Session {
     }
 }
 
+function parseLocale(): string | undefined {
+    const locale = lpc.server.findArgument("--locale");
+    return locale;
+}
+
 
 function parseServerMode(): lpc.LanguageServiceMode | undefined {
     const mode = lpc.server.findArgument("--serverMode");
@@ -89,7 +94,10 @@ export function start(connection: Connection, platform: string, args: string[]) 
     logger.info(`Version: ${lpc.version}`);
     logger.info(`Arguments: ${args.join(" ")}`);
     logger.info(`Platform: ${platform} NodeVersion: ${process.version} CaseSensitive: ${lpc.sys.useCaseSensitiveFileNames}`);
-    logger.info(`ServerMode: ${serverMode}`);
+    logger.info(`ServerMode: ${serverMode}`)
+    
+    const locale = parseLocale();
+    logger.info(`Locale: ${parseLocale()}`);    
 
     if (serverMode === lpc.LanguageServiceMode.Syntactic) {
         logger.info("No further log entries will be generated for syntactic server");

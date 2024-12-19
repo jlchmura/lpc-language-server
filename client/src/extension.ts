@@ -60,7 +60,12 @@ export async function activate(context: ExtensionContext) {
         execArgv: ["--nolazy", "--enable-source-maps", "--inspect"]
     };
 
-    const serverArgs = [efunDir, "--driverType", defaultDriverType, "--serverMode", "semantic"];
+    const serverArgs = [
+        efunDir, 
+        "--driverType", defaultDriverType, 
+        "--serverMode", "semantic",
+        "--locale", vscode.env.language,
+    ];
     const syntaxServerArgs = [efunDir, "--driverType", defaultDriverType, "--serverMode", "syntactic"];
 
     // If the extension is launched in debug mode then the debug server options are used
