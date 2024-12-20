@@ -2,6 +2,7 @@
 
 ## 1.1.14
 
+-   Fix: [.h file incorrectly marks code as disabled #122](https://github.com/jlchmura/lpc-language-server/issues/122)
 -   Set default max heap size to 3072 and added the `LPC.languageServer.maxLpcServerMemory` configuration option to change.
 -   Detect and report circular `#include` references.
 
