@@ -34,6 +34,7 @@ export const Diagnostics = {
     LPCDoc_var_tags_must_be_in_their_own_LPCDoc_comment: diag(9026, DiagnosticCategory.Error, "LPCDoc_var_tags_must_be_in_their_own_LPCDoc_comment_9026", "LPCDoc @var tags must be in their own LPCDoc comment."),
     LPCDoc_var_tags_can_only_annotate_inherited_variables_0_is_a_local_variable: diag(9027, DiagnosticCategory.Error, "LPCDoc_var_tags_can_only_annotate_inherited_variables_0_is_a_local_variable_9027", "LPCDoc @var tags can only annotate inherited variables. '{0}' is a local variable."),
     LPCDoc_var_tag_should_provide_a_variable_name: diag(9028, DiagnosticCategory.Error, "LPCDoc_var_tag_should_provide_a_variable_name_9028", "LPCDoc @var tag should provide a variable name."),
+    Circular_include_detected_0_to_1: diag(9029, DiagnosticCategory.Error, "Circular_include_detected_0_to_1_9029", "Circular include detected '{0}' -> '{1}'."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    

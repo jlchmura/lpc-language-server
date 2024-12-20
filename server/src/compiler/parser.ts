@@ -17,6 +17,8 @@ const enum SignatureFlags {
 
 const MAX_STRING_INTERN_LEN = 8;
 
+type IncludeGraph = Map<string, Set<string>>;
+
 export namespace LpcParser {
     // Share a single scanner across all calls to parse a source file.  This helps speed things
     // up by avoiding the cost of creating/compiling scanners over and over again.
@@ -63,6 +65,7 @@ export namespace LpcParser {
     var identifiers: Map<string, string>;    
     var identifierCount: number;
     var includeFileCache: MapLike<string>;
+    var includeGraph: IncludeGraph;
     var inherits: InheritDeclaration[];    
     var inactiveRanges: TextRange[];
     var importCandidates: ImportCandidateNode[];
@@ -165,6 +168,7 @@ export namespace LpcParser {
                 
         includeFileCache = {};
         includeFileCache[fileName] = sourceText;
+        includeGraph = new Map();
         currentIncludeDirective = undefined!;        
 
         parseDiagnostics = [];
@@ -211,6 +215,8 @@ export namespace LpcParser {
         inherits = undefined!;
         topLevel = true;   
         includeFileCache = undefined!;                
+        includeGraph.clear();
+        includeGraph = undefined!;
         conditionalStack = undefined!;
         isCodeExecutable = Ternary.Unknown;
         inactiveRanges = undefined!;
@@ -1848,12 +1854,12 @@ export namespace LpcParser {
     }
 
     function processIncludeDirective(includeDirective: IncludeDirective): boolean {                
-        
+        const currentFile = scanner.getFileName() ?? fileName;
         const localFilename = includeDirective.content.map((literal) => literal.text).join("");            
         const includeFile = fileHandler.loadIncludeFile(scanner.getFileName(), localFilename, includeDirective.localFirst);
         const resolvedFilename = internIdentifier(includeFile.filename);        
         let includeResult = false;
-
+        
         // TODO - handle circular includes        
         if (resolvedFilename === fileName) { 
             // skip            
@@ -1865,6 +1871,21 @@ export namespace LpcParser {
         
         // if the include file was not found, that will be reported by the checker as part of semantic analysis
         if (includeFile?.source?.length > 0) {
+            if (!includeGraph.has(currentFile)) {
+                includeGraph.set(currentFile, new Set());
+            }
+        
+            const includes = includeGraph.get(currentFile)!;
+            includes.add(resolvedFilename);
+        
+            // Check for circular includes
+            if (hasCircularDependency(includeGraph, currentFile)) {
+                console.error(`Circular include detected: ${currentFile} -> ${resolvedFilename}`);
+                // report the error at the top-level include
+                parseErrorAtRange(currentIncludeDirective ?? includeDirective, fileName, Diagnostics.Circular_include_detected_0_to_1, currentFile, resolvedFilename);
+                return false;
+            }
+            
             const saveInactiveRanges = inactiveRanges;
 
             // store the text inside the sourcefile node
@@ -1929,6 +1950,36 @@ export namespace LpcParser {
         }
 
         return includeResult;
+    }
+
+    function hasCircularDependency(includeGraph: IncludeGraph, startFile: string): boolean {
+        const visited = new Set<string>();
+        const stack = new Set<string>();
+    
+        function visit(file: string): boolean {
+            if (stack.has(file)) {
+                return true; // Circular dependency detected
+            }
+    
+            if (visited.has(file)) {
+                return false;
+            }
+    
+            visited.add(file);
+            stack.add(file);
+    
+            const includes = includeGraph.get(file) || new Set();
+            for (const include of includes) {
+                if (visit(include)) {
+                    return true;
+                }
+            }
+    
+            stack.delete(file);
+            return false;
+        }
+    
+        return visit(startFile);
     }
 
     function parsePragmaDirective(): PragmaDirective {
