@@ -239,7 +239,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         if (rootNames.length && !skipDefaultLib) {            
             const defaultLibraryFileName = getDefaultLibraryFileName();
             if (!options.lib && defaultLibraryFileName) {
-                const libSourceFile = getSourceFileWithoutReferences(defaultLibraryFileName, /*isDefaultLib*/ false, { kind: FileIncludeKind.LibFile });                            
+                const libSourceFile = getSourceFileWithoutReferences(defaultLibraryFileName, /*isDefaultLib*/ true, { kind: FileIncludeKind.LibFile });                            
                 if (libSourceFile && libSourceFile.parsedMacros) {                
                     options.configDefines = options.configDefines || {};
                     // add macros from the default lib to the config table
