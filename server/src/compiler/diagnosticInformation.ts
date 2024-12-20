@@ -449,6 +449,7 @@ export const Diagnostics = {
     Referenced_via_0_from_file_1: diag(1400, DiagnosticCategory.Message, "Referenced_via_0_from_file_1_1400", "Referenced via '{0}' from file '{1}'"),
     Library_referenced_via_0_from_file_1: diag(1405, DiagnosticCategory.Message, "Library_referenced_via_0_from_file_1_1405", "Library referenced via '{0}' from file '{1}'"),
     File_is_matched_by_files_list_specified_here: diag(1410, DiagnosticCategory.Message, "File_is_matched_by_files_list_specified_here_1410", "File is matched by 'files' list specified here."),
+    File_is_matched_by_include_pattern_specified_here: diag(1408, DiagnosticCategory.Message, "File_is_matched_by_include_pattern_specified_here_1408", "File is matched by include pattern specified here."),
     File_is_output_from_referenced_project_specified_here: diag(1413, DiagnosticCategory.Message, "File_is_output_from_referenced_project_specified_here_1413", "File is output from referenced project specified here."),
     File_is_source_from_referenced_project_specified_here: diag(1416, DiagnosticCategory.Message, "File_is_source_from_referenced_project_specified_here_1416", "File is source from referenced project specified here."),
     File_is_entry_point_of_type_library_specified_here: diag(1419, DiagnosticCategory.Message, "File_is_entry_point_of_type_library_specified_here_1419", "File is entry point of type library specified here."),
