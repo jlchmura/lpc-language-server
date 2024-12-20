@@ -10,6 +10,7 @@ import { convertNavTree } from "./utils.js";
 import * as typeConverters from './typeConverters';
 import { KindModifiers } from "./protocol.const.js";
 import { CompletionEntryDetails, SignatureHelp } from "./typeConverters";
+import { getHeapStatistics } from "v8";
 
 const logger = new Logger(undefined, true, lpc.server.LogLevel.normal);
 const DIAG_DELAY = 0;
@@ -90,6 +91,9 @@ export function start(connection: Connection, platform: string, args: string[]) 
     logger.info(`Arguments: ${args.join(" ")}`);
     logger.info(`Platform: ${platform} NodeVersion: ${process.version} CaseSensitive: ${lpc.sys.useCaseSensitiveFileNames}`);
     logger.info(`ServerMode: ${serverMode}`);
+    try {
+        logger.info(`Heap Limit: ${Math.round(getHeapStatistics().heap_size_limit / 1024 / 1024)} MB`);    
+    } catch {}
 
     if (serverMode === lpc.LanguageServiceMode.Syntactic) {
         logger.info("No further log entries will be generated for syntactic server");
