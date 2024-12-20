@@ -54,7 +54,7 @@ jobs:
               with:
                 artifacts: "lpc-*.vsix"
                 # bodyFile: "CHANGELOG.md"
-                prerelease: true
+                prerelease: false
                 generateReleaseNotes: true
 
             - name: Publish to Visual Studio Marketplace
