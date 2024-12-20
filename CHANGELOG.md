@@ -3,6 +3,7 @@
 ## 1.1.14
 
 -   Set default max heap size to 3072 and added the `LPC.languageServer.maxLpcServerMemory` configuration option to change.
+-   Detect and report circular `#include` references.
 
 ## 1.1.13
 
