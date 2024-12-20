@@ -1514,8 +1514,11 @@ export function createScanner(
         const quoteChar = charCodeUnchecked(pos);
         pos++;
         let result = "";
+        // const sliceStart = pos;
         let start = pos;
+        // let offset = 0;
         while (true) {
+            // offset = 0;
             if (pos >= end) {
                 result += text.substring(start, pos);
                 tokenFlags |= TokenFlags.Unterminated;
@@ -1526,6 +1529,7 @@ export function createScanner(
             if (ch === quoteChar || (quoteChar === CharacterCodes.lessThan && ch === CharacterCodes.greaterThan)) {
                 result += text.substring(start, pos);
                 pos++;
+                // offset = 1;
                 break;
             }
             if (ch === CharacterCodes.backslash && !jsxAttributeString) {
@@ -1542,8 +1546,11 @@ export function createScanner(
                 error(Diagnostics.Unterminated_string_literal);
                 break;
             }
+            // offset = 1;
             pos++;
         }
+
+        // return text.substring(sliceStart, pos - offset);        
         return result;
     }
 

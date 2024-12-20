@@ -1,5 +1,5 @@
 import { clear, closeFileWatcherOf, computeLineAndCharacterOfPosition, computeLineStarts, computePositionOfLineAndCharacter, contains, createTextSpanFromBounds, Debug, directorySeparator, DocumentPositionMapper, DocumentRegistryBucketKeyWithMode, FileWatcher, FileWatcherEventKind, forEach, FormatCodeSettings, getBaseFileName, getLineInfo, getSnapshotText, hasLPCFileExtension, IScriptSnapshot, isString, LineInfo, missingFileModifiedTime, orderedRemoveItem, Path, ScriptKind, ScriptSnapshot, some, SourceFile, SourceFileLike, TextSpan, UserPreferences } from "./_namespaces/lpc";
-import { AbsolutePositionAndLineText, ConfiguredProject, Errors, isBackgroundProject, isConfiguredProject, isInferredProject, isProjectDeferredClose, maxFileSize, NormalizedPath, Project, protocol, ScriptVersionCache, ServerHost } from "./_namespaces/lpc.server";
+import { AbsolutePositionAndLineText, Errors, isBackgroundProject, isConfiguredProject, isInferredProject, isProjectDeferredClose, maxFileSize, NormalizedPath, Project, protocol, ScriptVersionCache, ServerHost } from "./_namespaces/lpc.server";
 
 /** @internal */
 export class TextStorage {

@@ -15,7 +15,7 @@ const enum SignatureFlags {
     JSDoc = 1 << 5,
 }
 
-const MAX_STRING_INTERN_LEN = 8;
+const MAX_STRING_INTERN_LEN = 6;
 
 type IncludeGraph = Map<string, Set<string>>;
 

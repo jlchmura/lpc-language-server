@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.14
+
+-   Set default max heap size to 3072 and added the `LPC.languageServer.maxLpcServerMemory` configuration option to change.
+
 ## 1.1.13
 
 -   Fix: Project info incorrectly reported driver type as FluffOS (see [FluffOS - Maybe classes aren't being parsed properly anymore #113](https://github.com/jlchmura/lpc-language-server/issues/113))
