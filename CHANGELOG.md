@@ -1,11 +1,15 @@
 # LPC Language Services Changelog
 
+## 1.1.15
+
+-   [Add localization support #43](https://github.com/jlchmura/lpc-language-server/issues/43) - Thanks to @serenez for contributing.
+-   Remove duplicate import nodes from dependency graph - speeds up recompilation when editing files.
+
 ## 1.1.14
 
 -   Fix: [.h file incorrectly marks code as disabled #122](https://github.com/jlchmura/lpc-language-server/issues/122)
 -   Set default max heap size to 3072 and added the `LPC.languageServer.maxLpcServerMemory` configuration option to change.
 -   Detect and report circular `#include` references.
--   Remove duplicate import nodes from dependency graph - speeds up recompilation when editing files.
 
 ## 1.1.13
 

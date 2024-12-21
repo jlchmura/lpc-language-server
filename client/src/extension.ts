@@ -70,7 +70,7 @@ export async function activate(context: ExtensionContext) {
         efunDir, 
         "--driverType", defaultDriverType, 
         "--serverMode", "semantic",
-        "--locale", vscode.env.language,
+        "--locale", configuration.locale ?? vscode.env.language,
     ];
     const syntaxServerArgs = [efunDir, "--driverType", defaultDriverType, "--serverMode", "syntactic"];
 
