@@ -116,6 +116,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     let skipDefaultLib = options.noLib;
     const getDefaultLibraryFileName = memoize(() => host.getDefaultLibFileName(options));
 
+    let configDefines: ReadonlyMap<string, string> | undefined;
+
     /**
      * map with
      * - SourceFile if present
@@ -234,6 +236,9 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             }
         }
 
+        // get initial defines based on config - these are needed by the lib files which get parsed next
+        configDefines = getConfigDefines(options);
+
         // before loading any files, load the lib file to get driver defines
         // the lib file will be loaded in full later        
         if (rootNames.length && !skipDefaultLib) {            
@@ -253,6 +258,9 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 }
             }
         }
+
+        // rebuild defines including driver defines which were provided by the lib files
+        configDefines = getConfigDefines(options);
                         
         // check if this program has a master file and if so
         // get an instance of it and compile the get_include_path apply function
@@ -1407,8 +1415,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         return {
             languageVersion: ScriptTarget.Latest,
             globalIncludes: (isDefaultLib ? undefined : options.globalIncludeFiles) || emptyArray,
-            fileHandler: fileHandler,
-            configDefines: getConfigDefines(options),
+            fileHandler,
+            configDefines,
         };
         
         // It's a _little odd_ that we can't set `impliedNodeFormat` until the program step - but it's the first and only time we have a resolution cache
@@ -2343,9 +2351,7 @@ export function createCompilerHostWorker(
     function getDefaultLibLocation(): string {
         return getDirectoryPath(normalizePath(system.getExecutingFilePath()));
     }
-    
-    
-    
+                
     const newLine = getNewLineCharacter(options);
     const realpath = system.realpath && ((path: string) => system.realpath!(path));    
     

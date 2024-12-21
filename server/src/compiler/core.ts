@@ -397,6 +397,9 @@ function toLowerCase(x: string) {
 // But to avoid having to do string building for most common cases, also ignore
 // a-z, 0-9, \u0131, \u00DF, \, /, ., : and space
 const fileNameLowerCaseRegExp = /[^\u0130\u0131\u00DFa-z0-9\\/:\-_. ]+/g;
+
+const fileNameLowerCaseCache = new Map<string, string>();
+
 /**
  * Case insensitive file systems have descripencies in how they handle some characters (eg. turkish Upper case I with dot on top - \u0130)
  * This function is used in places where we want to make file name as a key on these systems
@@ -410,10 +413,13 @@ const fileNameLowerCaseRegExp = /[^\u0130\u0131\u00DFa-z0-9\\/:\-_. ]+/g;
  *
  * @internal
  */
-export function toFileNameLowerCase(x: string) {
-    return fileNameLowerCaseRegExp.test(x) ?
-        x.replace(fileNameLowerCaseRegExp, toLowerCase) :
-        x;
+export function toFileNameLowerCase(x: string) {    
+    let result = fileNameLowerCaseCache.get(x);
+    if (result === undefined) {
+        result = fileNameLowerCaseRegExp.test(x) ? x.replace(fileNameLowerCaseRegExp, toLowerCase) : x;
+        fileNameLowerCaseCache.set(x, result);
+    }
+    return result;
 }
 
 /** @internal */
