@@ -1758,13 +1758,14 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     }
 
     function collectExternalModuleReferences(file: SourceFile): void {
-        // if (file.imports) {
-        //     return;
-        // }
+        if (file.imports) {
+            return;
+        }
 
         const isExternalModuleFile = isExternalModule(file);
 
         // file.imports may not be undefined if there exists dynamic import
+        const seenImports = new Set<string>();
         let imports: StringLiteral[] | undefined;
         let moduleAugmentations: (StringLiteral | Identifier)[] | undefined;
         let ambientModules: string[] | undefined;
@@ -1793,43 +1794,43 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 imports = append(imports, stringLiteral);
             }
         }
-
-        for (const node of file.statements) {
-            collectModuleReferences(file, node, /*inAmbientModule*/ false);
-        }
-
-        // TODO - adjust parser to add jssdoc nodes to importCandidates
+        
         for (const node of file.importCandidates) {
             collectModuleReferences(file, node, /*inAmbientModule*/ false);
         }
  
         collectDynamicImportOrRequireOrJsDocImportCalls(file);        
 
-        if (file.imports?.length > 0) {
-            file.imports = [...file.imports, ...(imports || emptyArray)];
-        } else {
-            file.imports = imports || emptyArray;
-        }
+        file.imports = imports || emptyArray;        
         
         //file.moduleAugmentations = moduleAugmentations || emptyArray;
         file.ambientModuleNames = ambientModules || emptyArray;
 
-        return;
+        return;        
 
+        // this will do its best to dedupe the imports
+        function pushIfNotSeen(moduleName: StringLiteral): void {
+            if (!seenImports.has(moduleName.text)) {
+                seenImports.add(moduleName.text);
+                imports = append(imports, moduleName);
+            }
+        }
+        
         function collectModuleReferences(file: SourceFile, node: Node, inAmbientModule: boolean): void {            
             if (isCloneObjectExpression(node) && node.arguments?.length >= 1 && isStringLiteral(node.arguments[0])) {
-                setParentRecursive(node, /*incremental*/ false); // we need parent data on imports before the program is fully bound, so we ensure it's set here
-                imports = append(imports, node.arguments[0]);
+                setParentRecursive(node, /*incremental*/ false); // we need parent data on imports before the program is fully bound, so we ensure it's set here                
+                pushIfNotSeen(node.arguments[0]);                
             } else if (isInheritDeclaration(node)) {
                 if (isStringLiteral(node.inheritClause)) {
                     setParentRecursive(node, /*incremental*/ false); // we need parent data on imports before the program is fully bound, so we ensure it's set here
-                    imports = append(imports, node.inheritClause);
+                    pushIfNotSeen(node.inheritClause);                    
                 } else {
                     // do a quick traversal to join strings together
                     const parts = getStringLiteralsTextRecursively(node.inheritClause);                                                
                     const lit = factory.createStringLiteral(parts.join(""));
+                    (lit as Mutable<Node>).flags &= ~NodeFlags.Synthesized;
                     setTextRange(lit, node.inheritClause); // copy the text range
-                    imports = append(imports, lit);
+                    pushIfNotSeen(lit);                    
                 }
             } else if (isIncludeDirective(node)) {
                 // imports have string nodes, but we want to use the resolved filename
@@ -1837,8 +1838,9 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 if (node.fileName) {
                     const lit = factory.createStringLiteral(node.fileName);
                     setTextRangePosEnd(lit, node.content.pos, node.content.end);
+                    (lit as Mutable<Node>).flags &= ~NodeFlags.Synthesized;
                     (lit as Mutable<Node>).parent = node; // it will need a parent so that it doesn't break the emitter
-                    imports = append(imports, lit);
+                    pushIfNotSeen(lit);
                 }                
             } else if (isJSDocNode(node)) {                    
                 if ((isJSDocParameterTag(node) || isJSDocVariableTag(node) || isJSDocTypeTag(node) || isJSDocPropertyTag(node) || isJSDocReturnTag(node)) && node.typeExpression) { 
@@ -1847,13 +1849,14 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                     if (jsDocType) {
                         const docTypeLiteral = isLiteralTypeNode(jsDocType) ? jsDocType.literal : isArrayTypeNode(jsDocType) && jsDocType.elementType && isLiteralTypeNode(jsDocType.elementType) ? jsDocType.elementType.literal : undefined;
                         if (docTypeLiteral && isStringLiteral(docTypeLiteral)) {
-                            imports = append(imports, docTypeLiteral);
+                            pushIfNotSeen(docTypeLiteral);                            
                         } else if (docTypeLiteral && isBinaryExpression(docTypeLiteral)) {
                             const parts = getStringLiteralsTextRecursively(docTypeLiteral);
                             if (parts.length) {                       
                                 const lit = factory.createStringLiteral(parts.join(""));
+                                (lit as Mutable<Node>).flags &= ~NodeFlags.Synthesized;
                                 (lit as Mutable<Node>).parent = node; // it will need a parent so that it doesn't break the emitter
-                                imports = append(imports, lit);
+                                pushIfNotSeen(lit);                                
                             }   
                         }                        
                     }                                                
@@ -1863,23 +1866,26 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 
                 if (parts.length) {                       
                     const lit = factory.createStringLiteral(parts.join(""));
+                    (lit as Mutable<Node>).flags &= ~NodeFlags.Synthesized;
                     (lit as Mutable<Node>).parent = node; // it will need a parent so that it doesn't break the emitter
-                    imports = append(imports, lit);
+                    pushIfNotSeen(lit);
                 }                    
             } else if (isNewExpression(node) && !node.expression && node.arguments?.length) {
                 const newArg = first(node.arguments);
                 const parts = getStringLiteralsTextRecursively(newArg);
                 if (parts.length) {                       
                     const lit = factory.createStringLiteral(parts.join(""));
+                    (lit as Mutable<Node>).flags &= ~NodeFlags.Synthesized;
                     (lit as Mutable<Node>).parent = node; // it will need a parent so that it doesn't break the emitter
-                    imports = append(imports, lit);
+                    pushIfNotSeen(lit);
                 }
             } else if (isCallExpression(node) && isIdentifier(node.expression) && node.expression.text === "base_name") {
                 // the base_name efun should add the file's own name to the imports
                 const baseName = getLibRootedFileName(file.fileName, options);                                    
                 const lit = factory.createStringLiteral(baseName);
+                (lit as Mutable<Node>).flags &= ~NodeFlags.Synthesized;
                 (lit as Mutable<Node>).parent = node; // it will need a parent so that it doesn't break the emitter
-                imports = append(imports, lit);                
+                pushIfNotSeen(lit);
             }
         }
                     
