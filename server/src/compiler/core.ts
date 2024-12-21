@@ -1573,6 +1573,14 @@ export function getUILocale() {
     return uiLocale;
 }
 
+/** @internal */
+export function setUILocale(value: string | undefined) {
+    if (uiLocale !== value) {
+        uiLocale = value;
+        uiComparerCaseSensitive = undefined;
+    }
+}
+
 /**
  * Compare two strings in a using the case-sensitive sort behavior of the UI locale.
  *

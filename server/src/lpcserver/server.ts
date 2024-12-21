@@ -66,6 +66,11 @@ class LspSession extends lpc.server.Session {
     }
 }
 
+function parseLocale(): string | undefined {
+    const locale = lpc.server.findArgument("--locale");
+    return locale;
+}
+
 
 function parseServerMode(): lpc.LanguageServiceMode | undefined {
     const mode = lpc.server.findArgument("--serverMode");
@@ -85,21 +90,26 @@ function parseServerMode(): lpc.LanguageServiceMode | undefined {
 
 export function start(connection: Connection, platform: string, args: string[]) {
     const serverMode = parseServerMode() ?? lpc.LanguageServiceMode.Semantic;
+    const logPrefix = serverMode === lpc.LanguageServiceMode.Syntactic ? "Syntactic: " : "";
+    logger.info(`${logPrefix}Starting TS Server`);
+    logger.info(`${logPrefix}Version: ${lpc.version}`);
+    logger.info(`${logPrefix}Arguments: ${args.join(" ")}`);
+    logger.info(`${logPrefix}Platform: ${platform} NodeVersion: ${process.version} CaseSensitive: ${lpc.sys.useCaseSensitiveFileNames}`);
+    logger.info(`${logPrefix}ServerMode: ${serverMode}`)
     
-    logger.info(`Starting TS Server`);
-    logger.info(`Version: ${lpc.version}`);
-    logger.info(`Arguments: ${args.join(" ")}`);
-    logger.info(`Platform: ${platform} NodeVersion: ${process.version} CaseSensitive: ${lpc.sys.useCaseSensitiveFileNames}`);
-    logger.info(`ServerMode: ${serverMode}`);
+    const locale = parseLocale();    
+    logger.info(`${logPrefix}Locale: ${parseLocale()}`);    
+    if (locale) lpc.validateLocaleAndSetLanguage(locale, lpc.sys);
+    
     try {
-        logger.info(`Heap Limit: ${Math.round(getHeapStatistics().heap_size_limit / 1024 / 1024)} MB`);    
+        logger.info(`${logPrefix}Heap Limit: ${Math.round(getHeapStatistics().heap_size_limit / 1024 / 1024)} MB`);    
     } catch {}
 
     if (serverMode === lpc.LanguageServiceMode.Syntactic) {
         logger.info("No further log entries will be generated for syntactic server");
         logger.close();
     }
-
+    
     lpc.setStackTraceLimit();    
 
     if (lpc.Debug.isDebugging) {        
