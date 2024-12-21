@@ -1,5 +1,12 @@
 # LPC Language Services Changelog
 
+## 1.1.14
+
+-   Fix: [.h file incorrectly marks code as disabled #122](https://github.com/jlchmura/lpc-language-server/issues/122)
+-   Set default max heap size to 3072 and added the `LPC.languageServer.maxLpcServerMemory` configuration option to change.
+-   Detect and report circular `#include` references.
+-   Remove duplicate import nodes from dependency graph - speeds up recompilation when editing files.
+
 ## 1.1.13
 
 -   Fix: Project info incorrectly reported driver type as FluffOS (see [FluffOS - Maybe classes aren't being parsed properly anymore #113](https://github.com/jlchmura/lpc-language-server/issues/113))

@@ -1,7 +1,7 @@
 {
     "name": "lpc",
     "displayName": "LPC",
-    "version": "1.1.13",
+    "version": "1.1.14",
     "galleryBanner": {
         "color": "#000000",
         "theme": "dark"
@@ -154,7 +154,33 @@
                     ]
                 }
             }
-        ]
+        ],
+        "configuration": {
+            "properties": {
+                "LPC.locale": {
+                    "type": "string",
+                    "default": "auto",
+                    "enum": [
+                        "auto",  
+                        "en",                      
+                        "zh-CN"
+                    ],
+                    "enumDescriptions": [
+                        "Use VS Code's configured display language",                                    
+                        "English",                                    
+                        "中文(简体)"                                    
+                    ],
+                    "markdownDescription": "Sets the locale used to report LPC errors. Defaults to use VS Code's locale.",
+                    "scope": "window"
+                },
+                "LPC.languageServer.maxLpcServerMemory": {
+                    "type": "number",
+                    "default": 3072,
+                    "description": "The maximum amount of memory (in MB) to allocate to the LPC language server process.",
+                    "scope": "window"
+                }
+            }
+        }
     },
     "keywords": [
         "LPC",

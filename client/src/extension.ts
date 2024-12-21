@@ -25,6 +25,7 @@ import {
 import { ProgressIndicator } from "./ProgressIndicator";
 import { DocumentSelector } from "./documentSelector";
 import { LanguageDescription, isLpcConfigFileName, standardLanguageDescriptions } from "./configuration/languageDescription";
+import { NodeServiceConfigurationProvider } from "./configuration/configuration.node";
 
 let clientInitialized = false;
 let client: LanguageClient;
@@ -34,10 +35,15 @@ const _disposables: vscode.Disposable[] = [];
 let _isDisposed = false;
 
 export async function activate(context: ExtensionContext) {
+    const serviceConfigurationProvider = new NodeServiceConfigurationProvider();
+    const configuration = serviceConfigurationProvider.loadFromWorkspace();
+
     // The server is implemented in node
     const serverModule = context.asAbsolutePath(
         path.join("out", "server", "src", "server.js")
-    );    
+    );
+
+    const maxServerMemory = configuration.maxLpcServerMemory;
 
     // get location of efuns folder and pass to server as an argument
     const efunDir = context.asAbsolutePath("efuns");
@@ -57,7 +63,7 @@ export async function activate(context: ExtensionContext) {
     }
 
     let debugOptions = {
-        execArgv: ["--nolazy", "--enable-source-maps", "--inspect"]
+        execArgv: ["--nolazy", "--enable-source-maps", "--inspect", "--max-old-space-size=" + maxServerMemory]
     };
 
     const serverArgs = [
@@ -74,7 +80,7 @@ export async function activate(context: ExtensionContext) {
         run: {
             module: serverModule,
             transport: TransportKind.ipc,
-            options: { execArgv: ["--enable-source-maps"] },
+            options: { execArgv: ["--enable-source-maps", "--max-old-space-size=" + maxServerMemory] },
             args: serverArgs,
         },
         debug: {

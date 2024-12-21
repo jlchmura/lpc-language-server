@@ -1,5 +1,5 @@
 import path from "path";
-import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne, getRelativePathFromFile, getRelativePathFromDirectory, map, resolvePath, diagnosticCategoryName, getLineAndCharacterOfPosition, convertToRelativePath, BuilderProgram, addRange, explainIfFileIsRedirectAndImpliedFormat, chainDiagnosticMessages, createFileDiagnosticFromMessageChain, createCompilerDiagnosticFromMessageChain, fileIncludeReasonToDiagnostics, createFileDiagnostic, getMatchedFileSpec, createDiagnosticForNodeInSourceFile, FilePreprocessingLibReferenceDiagnostic, getSpellingSuggestion, identity, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ParsedCommandLine, arrayIsEqualTo, forEachEntry, projectReferenceIsEqualTo, compareDataObjects, HasChangedAutomaticTypeDirectiveNames, isJSDocTypeTag, hasJSDocNodes, isJSDoc, isJSDocNode, isJSDocTypeExpression, isLiteralTypeNode, getLiteralText, GetLiteralTextFlags, isStringLiteralLike, isJSDocParameterTag, isJSDocReturnTag, isTypePredicateNode, StringLiteralType, isPropertyAccessExpression, Mutable, ImportCandidateNode, isNewExpression, isTypeNode, getLibRootedFileName, isJSDocPropertyTag, PragmaPseudoMapEntry, setParent, setTextRangePosEnd, PragmaPseudoMap, TextRange, CommentRange, thisObjectPragmaToStringLiteral, emptyMap, getLpcConfigPropArrayElementValue, forEachLpcConfigPropArray, LpcConfigSourceFile, isArrayLiteralExpression, tryCast, isObjectLiteralExpression, forEachPropertyAssignment, getLpcConfigObjectLiteralExpression, getPropertyArrayElementValue, getNameOfScriptTarget, getEmitScriptTarget, setTextRange, isCallExpression, isIdentifier, changesAffectModuleResolution, sourceFileAffectingCompilerOptions, hasChangesInResolutions, moduleResolutionIsEqualTo, changesAffectingProgramStructure, isBinaryExpression, isArrayTypeNode, LiteralTypeNode, LiteralExpression, isJSDocVariableTag, changesAffectLibCompilation, getDefaultLibFolder, getUILocale, firstOrUndefined, find, tryGetLocalizedLibPath } from "./_namespaces/lpc.js";
+import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne, getRelativePathFromFile, getRelativePathFromDirectory, map, resolvePath, diagnosticCategoryName, getLineAndCharacterOfPosition, convertToRelativePath, BuilderProgram, addRange, explainIfFileIsRedirectAndImpliedFormat, chainDiagnosticMessages, createFileDiagnosticFromMessageChain, createCompilerDiagnosticFromMessageChain, fileIncludeReasonToDiagnostics, createFileDiagnostic, getMatchedFileSpec, createDiagnosticForNodeInSourceFile, FilePreprocessingLibReferenceDiagnostic, getSpellingSuggestion, identity, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ParsedCommandLine, arrayIsEqualTo, forEachEntry, projectReferenceIsEqualTo, compareDataObjects, HasChangedAutomaticTypeDirectiveNames, isJSDocTypeTag, hasJSDocNodes, isJSDoc, isJSDocNode, isJSDocTypeExpression, isLiteralTypeNode, getLiteralText, GetLiteralTextFlags, isStringLiteralLike, isJSDocParameterTag, isJSDocReturnTag, isTypePredicateNode, StringLiteralType, isPropertyAccessExpression, Mutable, ImportCandidateNode, isNewExpression, isTypeNode, getLibRootedFileName, isJSDocPropertyTag, PragmaPseudoMapEntry, setParent, setTextRangePosEnd, PragmaPseudoMap, TextRange, CommentRange, thisObjectPragmaToStringLiteral, emptyMap, getLpcConfigPropArrayElementValue, forEachLpcConfigPropArray, LpcConfigSourceFile, isArrayLiteralExpression, tryCast, isObjectLiteralExpression, forEachPropertyAssignment, getLpcConfigObjectLiteralExpression, getPropertyArrayElementValue, getNameOfScriptTarget, getEmitScriptTarget, setTextRange, isCallExpression, isIdentifier, changesAffectModuleResolution, sourceFileAffectingCompilerOptions, hasChangesInResolutions, moduleResolutionIsEqualTo, changesAffectingProgramStructure, isBinaryExpression, isArrayTypeNode, LiteralTypeNode, LiteralExpression, isJSDocVariableTag, changesAffectLibCompilation, getMatchedIncludeSpec, tryGetLocalizedLibPath } from "./_namespaces/lpc.js";
 
 interface FileReasonToChainCache {
     fileIncludeReasonDetails: DiagnosticMessageChain | undefined;
@@ -239,7 +239,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         if (rootNames.length && !skipDefaultLib) {            
             const defaultLibraryFileName = getDefaultLibraryFileName();
             if (!options.lib && defaultLibraryFileName) {
-                const libSourceFile = getSourceFileWithoutReferences(defaultLibraryFileName, /*isDefaultLib*/ false, { kind: FileIncludeKind.LibFile });                            
+                const libSourceFile = getSourceFileWithoutReferences(defaultLibraryFileName, /*isDefaultLib*/ true, { kind: FileIncludeKind.LibFile });                            
                 if (libSourceFile && libSourceFile.parsedMacros) {                
                     options.configDefines = options.configDefines || {};
                     // add macros from the default lib to the config table
@@ -894,12 +894,11 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                     message = Diagnostics.File_is_matched_by_files_list_specified_here;
                     break;
                 }
-                console.debug("todo - matchedByFiles");
-                // const matchedByInclude = getMatchedIncludeSpec(program, fileName);
-                // // Could be additional files specified as roots
-                // if (!matchedByInclude || !isString(matchedByInclude)) return undefined;
-                // configFileNode = getTsConfigPropArrayElementValue(options.configFile, "include", matchedByInclude);
-                // message = Diagnostics.File_is_matched_by_include_pattern_specified_here;
+                const matchedByInclude = getMatchedIncludeSpec(program, fileName);
+                // Could be additional files specified as roots
+                if (!matchedByInclude || !isString(matchedByInclude)) return undefined;
+                configFileNode = getLpcConfigPropArrayElementValue(options.configFile, "include", matchedByInclude);
+                message = Diagnostics.File_is_matched_by_include_pattern_specified_here;
                 break;
             case FileIncludeKind.SourceFromProjectReference:
             case FileIncludeKind.OutputFromProjectReference:
@@ -1758,13 +1757,14 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     }
 
     function collectExternalModuleReferences(file: SourceFile): void {
-        // if (file.imports) {
-        //     return;
-        // }
+        if (file.imports) {
+            return;
+        }
 
         const isExternalModuleFile = isExternalModule(file);
 
         // file.imports may not be undefined if there exists dynamic import
+        const seenImports = new Set<string>();
         let imports: StringLiteral[] | undefined;
         let moduleAugmentations: (StringLiteral | Identifier)[] | undefined;
         let ambientModules: string[] | undefined;
@@ -1793,43 +1793,43 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 imports = append(imports, stringLiteral);
             }
         }
-
-        for (const node of file.statements) {
-            collectModuleReferences(file, node, /*inAmbientModule*/ false);
-        }
-
-        // TODO - adjust parser to add jssdoc nodes to importCandidates
+        
         for (const node of file.importCandidates) {
             collectModuleReferences(file, node, /*inAmbientModule*/ false);
         }
  
         collectDynamicImportOrRequireOrJsDocImportCalls(file);        
 
-        if (file.imports?.length > 0) {
-            file.imports = [...file.imports, ...(imports || emptyArray)];
-        } else {
-            file.imports = imports || emptyArray;
-        }
+        file.imports = imports || emptyArray;        
         
         //file.moduleAugmentations = moduleAugmentations || emptyArray;
         file.ambientModuleNames = ambientModules || emptyArray;
 
-        return;
+        return;        
 
+        // this will do its best to dedupe the imports
+        function pushIfNotSeen(moduleName: StringLiteral): void {
+            if (!seenImports.has(moduleName.text)) {
+                seenImports.add(moduleName.text);
+                imports = append(imports, moduleName);
+            }
+        }
+        
         function collectModuleReferences(file: SourceFile, node: Node, inAmbientModule: boolean): void {            
             if (isCloneObjectExpression(node) && node.arguments?.length >= 1 && isStringLiteral(node.arguments[0])) {
-                setParentRecursive(node, /*incremental*/ false); // we need parent data on imports before the program is fully bound, so we ensure it's set here
-                imports = append(imports, node.arguments[0]);
+                setParentRecursive(node, /*incremental*/ false); // we need parent data on imports before the program is fully bound, so we ensure it's set here                
+                pushIfNotSeen(node.arguments[0]);                
             } else if (isInheritDeclaration(node)) {
                 if (isStringLiteral(node.inheritClause)) {
                     setParentRecursive(node, /*incremental*/ false); // we need parent data on imports before the program is fully bound, so we ensure it's set here
-                    imports = append(imports, node.inheritClause);
+                    pushIfNotSeen(node.inheritClause);                    
                 } else {
                     // do a quick traversal to join strings together
                     const parts = getStringLiteralsTextRecursively(node.inheritClause);                                                
                     const lit = factory.createStringLiteral(parts.join(""));
+                    (lit as Mutable<Node>).flags &= ~NodeFlags.Synthesized;
                     setTextRange(lit, node.inheritClause); // copy the text range
-                    imports = append(imports, lit);
+                    pushIfNotSeen(lit);                    
                 }
             } else if (isIncludeDirective(node)) {
                 // imports have string nodes, but we want to use the resolved filename
@@ -1837,8 +1837,9 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 if (node.fileName) {
                     const lit = factory.createStringLiteral(node.fileName);
                     setTextRangePosEnd(lit, node.content.pos, node.content.end);
+                    (lit as Mutable<Node>).flags &= ~NodeFlags.Synthesized;
                     (lit as Mutable<Node>).parent = node; // it will need a parent so that it doesn't break the emitter
-                    imports = append(imports, lit);
+                    pushIfNotSeen(lit);
                 }                
             } else if (isJSDocNode(node)) {                    
                 if ((isJSDocParameterTag(node) || isJSDocVariableTag(node) || isJSDocTypeTag(node) || isJSDocPropertyTag(node) || isJSDocReturnTag(node)) && node.typeExpression) { 
@@ -1847,13 +1848,14 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                     if (jsDocType) {
                         const docTypeLiteral = isLiteralTypeNode(jsDocType) ? jsDocType.literal : isArrayTypeNode(jsDocType) && jsDocType.elementType && isLiteralTypeNode(jsDocType.elementType) ? jsDocType.elementType.literal : undefined;
                         if (docTypeLiteral && isStringLiteral(docTypeLiteral)) {
-                            imports = append(imports, docTypeLiteral);
+                            pushIfNotSeen(docTypeLiteral);                            
                         } else if (docTypeLiteral && isBinaryExpression(docTypeLiteral)) {
                             const parts = getStringLiteralsTextRecursively(docTypeLiteral);
                             if (parts.length) {                       
                                 const lit = factory.createStringLiteral(parts.join(""));
+                                (lit as Mutable<Node>).flags &= ~NodeFlags.Synthesized;
                                 (lit as Mutable<Node>).parent = node; // it will need a parent so that it doesn't break the emitter
-                                imports = append(imports, lit);
+                                pushIfNotSeen(lit);                                
                             }   
                         }                        
                     }                                                
@@ -1863,23 +1865,26 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 
                 if (parts.length) {                       
                     const lit = factory.createStringLiteral(parts.join(""));
+                    (lit as Mutable<Node>).flags &= ~NodeFlags.Synthesized;
                     (lit as Mutable<Node>).parent = node; // it will need a parent so that it doesn't break the emitter
-                    imports = append(imports, lit);
+                    pushIfNotSeen(lit);
                 }                    
             } else if (isNewExpression(node) && !node.expression && node.arguments?.length) {
                 const newArg = first(node.arguments);
                 const parts = getStringLiteralsTextRecursively(newArg);
                 if (parts.length) {                       
                     const lit = factory.createStringLiteral(parts.join(""));
+                    (lit as Mutable<Node>).flags &= ~NodeFlags.Synthesized;
                     (lit as Mutable<Node>).parent = node; // it will need a parent so that it doesn't break the emitter
-                    imports = append(imports, lit);
+                    pushIfNotSeen(lit);
                 }
             } else if (isCallExpression(node) && isIdentifier(node.expression) && node.expression.text === "base_name") {
                 // the base_name efun should add the file's own name to the imports
                 const baseName = getLibRootedFileName(file.fileName, options);                                    
                 const lit = factory.createStringLiteral(baseName);
+                (lit as Mutable<Node>).flags &= ~NodeFlags.Synthesized;
                 (lit as Mutable<Node>).parent = node; // it will need a parent so that it doesn't break the emitter
-                imports = append(imports, lit);                
+                pushIfNotSeen(lit);
             }
         }
                     

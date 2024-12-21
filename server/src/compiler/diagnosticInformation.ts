@@ -34,7 +34,8 @@ export const Diagnostics = {
     LPCDoc_var_tags_must_be_in_their_own_LPCDoc_comment: diag(9026, DiagnosticCategory.Error, "LPCDoc_var_tags_must_be_in_their_own_LPCDoc_comment_9026", "LPCDoc @var tags must be in their own LPCDoc comment."),
     LPCDoc_var_tags_can_only_annotate_inherited_variables_0_is_a_local_variable: diag(9027, DiagnosticCategory.Error, "LPCDoc_var_tags_can_only_annotate_inherited_variables_0_is_a_local_variable_9027", "LPCDoc @var tags can only annotate inherited variables. '{0}' is a local variable."),
     LPCDoc_var_tag_should_provide_a_variable_name: diag(9028, DiagnosticCategory.Error, "LPCDoc_var_tag_should_provide_a_variable_name_9028", "LPCDoc @var tag should provide a variable name."),
-    Locale_0_is_not_supported: diag(9029, DiagnosticCategory.Error, "Locale_0_is_not_supported_9029", "Locale '{0}' is not supported."),
+    Circular_include_detected_0_to_1: diag(9029, DiagnosticCategory.Error, "Circular_include_detected_0_to_1_9029", "Circular include detected '{0}' -> '{1}'."),
+    Locale_0_is_not_supported: diag(9030, DiagnosticCategory.Error, "Locale_0_is_not_supported_9030", "Locale '{0}' is not supported."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    
@@ -450,6 +451,7 @@ export const Diagnostics = {
     Referenced_via_0_from_file_1: diag(1400, DiagnosticCategory.Message, "Referenced_via_0_from_file_1_1400", "Referenced via '{0}' from file '{1}'"),
     Library_referenced_via_0_from_file_1: diag(1405, DiagnosticCategory.Message, "Library_referenced_via_0_from_file_1_1405", "Library referenced via '{0}' from file '{1}'"),
     File_is_matched_by_files_list_specified_here: diag(1410, DiagnosticCategory.Message, "File_is_matched_by_files_list_specified_here_1410", "File is matched by 'files' list specified here."),
+    File_is_matched_by_include_pattern_specified_here: diag(1408, DiagnosticCategory.Message, "File_is_matched_by_include_pattern_specified_here_1408", "File is matched by include pattern specified here."),
     File_is_output_from_referenced_project_specified_here: diag(1413, DiagnosticCategory.Message, "File_is_output_from_referenced_project_specified_here_1413", "File is output from referenced project specified here."),
     File_is_source_from_referenced_project_specified_here: diag(1416, DiagnosticCategory.Message, "File_is_source_from_referenced_project_specified_here_1416", "File is source from referenced project specified here."),
     File_is_entry_point_of_type_library_specified_here: diag(1419, DiagnosticCategory.Message, "File_is_entry_point_of_type_library_specified_here_1419", "File is entry point of type library specified here."),

@@ -1168,7 +1168,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
      * This version of `createDiagnosticForNode` uses the binder's context to account for this, and always yields correct diagnostics even in these situations.
      */
     function createDiagnosticForNode(node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {        
-        return createDiagnosticForNodeInSourceFile(getSourceFileOfNode(node) || file, node, message, ...args);
+        return createDiagnosticForNodeInSourceFile(getSourceFileOrIncludeOfNode(node) || file, node, message, ...args);
     }
 
     function bindReturnOrThrow(node: ReturnStatement /*| ThrowStatement*/): void {
