@@ -3303,7 +3303,7 @@ export const enum SymbolFlags {
 
     // Block-scoped declarations are not allowed to be re-declared
     // they can not merge with anything in the value space
-    BlockScopedVariableExcludes = Value,
+    BlockScopedVariableExcludes = Value | Define,
 
     ParameterExcludes = Value,
     PropertyExcludes = None,
