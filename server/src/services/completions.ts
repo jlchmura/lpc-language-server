@@ -1,3 +1,4 @@
+import { pushIfDefined } from "../utils.js";
 import { StringCompletions } from "./_namespaces/lpc.Completions.js";
 import {
     BinaryExpression,
@@ -155,6 +156,7 @@ import {
     getPropertyNameForPropertyNameNode,
     getQuotePreference,
     getReplacementSpanForContextToken,
+    getSourceFileOfNode,
     getSwitchedType,
     getSymbolId,
     getSynthesizedDeepClone,
@@ -183,6 +185,7 @@ import {
     isConstructorDeclaration,
     isContextualKeyword,
     isDeclarationName,
+    isDefineDirective,
     isDeprecatedDeclaration,
     isEntityName,
     isEqualityOperatorKind,
@@ -2485,12 +2488,12 @@ export function getCompletionEntriesFromSymbols(
         }
 
         // expressions are value space (which includes the value namespaces)
-        return !!(allFlags & SymbolFlags.Value);
+        return !!(allFlags & (SymbolFlags.ValueOrDefine));
     }
 
     function symbolAppearsToBeTypeOnly(symbol: Symbol): boolean {
         const flags = getCombinedLocalAndExportSymbolFlags(skipAlias(symbol, typeChecker));
-        return !(flags & SymbolFlags.Value) && (!isInJSFile(symbol.declarations?.[0]) || !!(flags & SymbolFlags.Type));
+        return !(flags & SymbolFlags.ValueOrDefine) && (!isInJSFile(symbol.declarations?.[0]) || !!(flags & SymbolFlags.Type));
     }
 }
 
@@ -3167,6 +3170,9 @@ function getCompletionData(
         return createModuleSpecifierResolutionHost(isFromPackageJson ? host.getPackageJsonAutoImportProvider!()! : program, host);
     });
 
+    // always add macros
+    getMacroSymbols();
+
     if (isRightOfDot || isRightOfQuestionDot) {
         getTypeScriptMemberSymbols();
     }    
@@ -3255,6 +3261,20 @@ function getCompletionData(
         //     return tag.class;
         // }
         return undefined;
+    }
+
+
+    function getMacroSymbols(): void {
+        // defines are always bound to the source file
+        const file = getSourceFileOfNode(node);
+                
+        if (isSourceFile(file) && file.statements) {
+            forEach(file.statements, statement => {
+                if (isDefineDirective(statement)) {
+                    pushIfDefined(symbols, typeChecker.getSymbolAtLocation(statement));
+                }
+            });
+        }
     }
 
     function getTypeScriptMemberSymbols(): void {
@@ -4841,6 +4861,7 @@ function getKeywordCompletions(keywordFilter: KeywordCompletionFilters, filterOu
         (_keywordCompletions[index] = getTypescriptKeywordCompletions(keywordFilter)
             .filter(entry => !isTypeScriptOnlyKeyword(stringToToken(entry.name)!)));
 }
+
 
 function getTypescriptKeywordCompletions(keywordFilter: KeywordCompletionFilters): readonly CompletionEntry[] {
     return _keywordCompletions[keywordFilter] || (_keywordCompletions[keywordFilter] = allKeywordsCompletions().filter(entry => {

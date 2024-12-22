@@ -97,7 +97,8 @@ export namespace CompletionKind {
 			case ScriptElementKind.alias:
 			case ScriptElementKind.parameterElement:
 				return vscode.CompletionItemKind.Variable;
-
+			case ScriptElementKind.define:
+				return vscode.CompletionItemKind.Enum;
 			case ScriptElementKind.memberVariableElement:			
 				return vscode.CompletionItemKind.Field;
 

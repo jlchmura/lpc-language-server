@@ -1039,7 +1039,7 @@ export function getNodeKind(node: Node): ScriptElementKind {
         //     return ScriptElementKind.callSignatureElement;
         // case SyntaxKind.Constructor:
         // case SyntaxKind.ClassStaticBlockDeclaration:
-        //     return ScriptElementKind.constructorImplementationElement;
+        //     return ScriptElementKind.constructorImplementationElement;        
         case SyntaxKind.TypeParameter:
             return ScriptElementKind.typeParameterElement;
         // case SyntaxKind.EnumMember:
@@ -1047,7 +1047,7 @@ export function getNodeKind(node: Node): ScriptElementKind {
         case SyntaxKind.Parameter:
             return hasSyntacticModifier(node, ModifierFlags.ParameterPropertyModifier) ? ScriptElementKind.memberVariableElement : ScriptElementKind.parameterElement;
         case SyntaxKind.DefineDirective:
-            return ScriptElementKind.enumElement;
+            return ScriptElementKind.define;
         case SyntaxKind.ExportSpecifier:
         // case SyntaxKind.ImportEqualsDeclaration:
         // case SyntaxKind.ImportSpecifier:

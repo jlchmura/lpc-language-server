@@ -100,6 +100,7 @@ export function getSymbolKind(
             ? ScriptElementKind.localClassElement
             : ScriptElementKind.classElement;
     }
+    if (flags & SymbolFlags.Define) return ScriptElementKind.define;
     if (flags & SymbolFlags.Enum) return ScriptElementKind.enumElement;
     if (flags & SymbolFlags.TypeAlias) return ScriptElementKind.typeElement;
     if (flags & SymbolFlags.Interface)

@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.16
+
+-   Performance improvements
+
 ## 1.1.15
 
 -   [Add localization support #43](https://github.com/jlchmura/lpc-language-server/issues/43) - Thanks to @serenez for contributing.
