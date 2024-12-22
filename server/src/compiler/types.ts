@@ -7192,7 +7192,7 @@ export interface DefineDirective extends PreprocessorDirective, Declaration {
     
     name: Identifier;    
     arguments?: NodeArray<ParameterDeclaration>;
-    range: TextRange;    
+    range: TextRange;
 }
 
 export interface MacroParameter extends ReadonlyTextRange, IncludedFileRange {
