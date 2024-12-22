@@ -26,6 +26,7 @@ import {
     ContextFlags,
     Debug,
     Declaration,
+    DefineDirective,
     Diagnostics,
     DotDotDotToken,
     EmitFlags,
@@ -157,6 +158,8 @@ import {
     getQuotePreference,
     getReplacementSpanForContextToken,
     getSourceFileOfNode,
+    getSourceFileOrIncludeOfNode,
+    getSourceTextOfNodeFromSourceFile,
     getSwitchedType,
     getSymbolId,
     getSynthesizedDeepClone,
@@ -1625,6 +1628,14 @@ function createCompletionEntry(
         data = originToCompletionEntryData(origin);
         hasAction = !importStatementCompletion;
     }
+
+    // if (symbol.flags & SymbolFlags.Define) {
+    //     const defineNode = symbol.declarations?.[0] as DefineDirective;
+    //     if (defineNode) {
+    //         const sourceFile = getSourceFileOrIncludeOfNode(defineNode);
+    //         sourceDisplay = getSourceTextOfNodeFromSourceFile(sourceFile, defineNode, true);
+    //     }
+    // }
 
     const parentNamedImportOrExport = findAncestor(location, isNamedImportsOrExports);
     // if (parentNamedImportOrExport?.kind === SyntaxKind.NamedImports) {

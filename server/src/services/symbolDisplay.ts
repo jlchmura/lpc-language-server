@@ -7,6 +7,7 @@ import {
     contains,
     createPrinterWithRemoveComments,
     Debug,
+    DefineDirective,
     displayPart,    
     find,
     first,    
@@ -19,6 +20,8 @@ import {
     getObjectFlags,
     getParseTreeNode,
     getSourceFileOfNode,    
+    getSourceFileOrIncludeOfNode,    
+    getSourceTextOfNodeFromSourceFile,    
     isBindingElement,
     isCallExpression,
     isCallExpressionTarget,
@@ -925,6 +928,15 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
     // if (location.kind === SyntaxKind.ThisKeyword && !isThisExpression) {
     //     return { displayParts: [keywordPart(SyntaxKind.ThisKeyword)], documentation: [], symbolKind: ScriptElementKind.primitiveType, tags: undefined };
     // }
+
+    if (symbolFlags & SymbolFlags.Define) {
+        const defineNode = symbol.declarations?.[0] as DefineDirective;
+        if (defineNode) {
+            const sourceFile = getSourceFileOrIncludeOfNode(defineNode);
+            const sourceText = getSourceTextOfNodeFromSourceFile(sourceFile, defineNode, true);
+            displayParts.push(textPart(sourceText));
+        }    
+    }
 
     // Class at constructor site need to be shown as constructor apart from property,method, vars
     if (symbolKind !== ScriptElementKind.unknown || symbolFlags & SymbolFlags.Class || symbolFlags & SymbolFlags.Alias) {
