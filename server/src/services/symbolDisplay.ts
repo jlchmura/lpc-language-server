@@ -22,6 +22,7 @@ import {
     getSourceFileOfNode,    
     getSourceFileOrIncludeOfNode,    
     getSourceTextOfNodeFromSourceFile,    
+    getSourceTextOfRangeFromSourceFile,    
     isBindingElement,
     isCallExpression,
     isCallExpressionTarget,
@@ -933,8 +934,15 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
         const defineNode = symbol.declarations?.[0] as DefineDirective;
         if (defineNode) {
             const sourceFile = getSourceFileOrIncludeOfNode(defineNode);
-            const sourceText = getSourceTextOfNodeFromSourceFile(sourceFile, defineNode, true);
+            const sourceText = getSourceTextOfNodeFromSourceFile(sourceFile, defineNode, false);
+
+            // displayParts.push(punctuationPart(SyntaxKind.HashToken));
+            // displayParts.push(displayPart("define", SymbolDisplayPartKind.keyword));            
+            // displayParts.push(spacePart());
+            // displayParts.push(displayPart(defineNode.name.text, SymbolDisplayPartKind.enumName));            
+            // displayParts.push(spacePart());
             displayParts.push(textPart(sourceText));
+            tags = symbol.getContextualJsDocTags(defineNode, typeChecker);
         }    
     }
 

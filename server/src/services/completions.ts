@@ -3180,14 +3180,14 @@ function getCompletionData(
     const getModuleSpecifierResolutionHost = memoizeOne((isFromPackageJson: boolean) => {
         return createModuleSpecifierResolutionHost(isFromPackageJson ? host.getPackageJsonAutoImportProvider!()! : program, host);
     });
-
-    // always add macros
-    getMacroSymbols();
-
+    
     if (isRightOfDot || isRightOfQuestionDot) {
         getTypeScriptMemberSymbols();
     }    
     else {
+        // always add macros
+        getMacroSymbols();
+
         // For JavaScript or TypeScript, if we're not after a dot, then just try to get the
         // global symbols in scope.  These results should be valid for either language as
         // the set of symbols that can be referenced from this location.        
