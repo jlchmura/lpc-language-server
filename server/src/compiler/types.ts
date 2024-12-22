@@ -3285,11 +3285,13 @@ export const enum SymbolFlags {
     Transient               = 1 << 25,  // Transient symbol (created during type check)
     Assignment              = 1 << 26,  // Assignment treated as declaration (eg `this.prop = 1`)
     ModuleExports           = 1 << 27,  // Symbol for CommonJS `module` of `module.exports`
+    Define                  = 1 << 28,  // Define macro
     All = -1,
 
     Enum = RegularEnum | ConstEnum,
     Variable = FunctionScopedVariable | BlockScopedVariable,
     Value = Variable | Property | EnumMember | ObjectLiteral | Function | Class | Enum | ValueModule | Method | GetAccessor | SetAccessor,
+    ValueOrDefine = Value | Define,
     Type = Class | Interface | Enum | EnumMember | TypeLiteral | TypeParameter | TypeAlias,
     Namespace = ValueModule | NamespaceModule | Enum,
     Module = ValueModule | NamespaceModule,
@@ -3307,6 +3309,7 @@ export const enum SymbolFlags {
     PropertyExcludes = None,
     EnumMemberExcludes = Value | Type,
     FunctionExcludes = Value & ~(Function | ValueModule | Class),
+    DefineExcludes = Value & ~(Define | ValueModule),
     ClassExcludes = (Value | Type) & ~(ValueModule | Interface | Function), // class-interface mergability done in checker.ts
     InterfaceExcludes = Type & ~(Interface | Class),
     RegularEnumExcludes = (Value | Type) & ~(RegularEnum | ValueModule), // regular enums merge only with regular enums and modules
@@ -5090,6 +5093,7 @@ export interface Program extends ScriptReferenceHost {
      * Gets a type checker that can be used to semantically analyze source files in the program.
      */
     getTypeChecker(): TypeChecker;
+    getConfigDefines(): ReadonlyMap<string, string>;
 
     // /** @internal */ getCommonSourceDirectory(): string;
 
@@ -7183,7 +7187,7 @@ export interface IncludeDirective extends PreprocessorDirective, SourceFileBase 
 }
 
 
-export interface DefineDirective extends PreprocessorDirective {
+export interface DefineDirective extends PreprocessorDirective, Declaration {
     kind: SyntaxKind.DefineDirective;
     
     name: Identifier;    

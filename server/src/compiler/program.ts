@@ -426,7 +426,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         structureIsReused,
         // writeFile,
         getIncludeDirs,
-        masterIncludeApply
+        masterIncludeApply,
+        getConfigDefines: () => configDefines,
     };
 
     //onProgramCreateComplete();
@@ -593,7 +594,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
      * @returns 
      */
     function getSourceFileWithoutReferences(fileName: string, isDefaultLib: boolean, reason: FileIncludeReason): SourceFile {
-        const sourceFileOptions = getCreateSourceFileOptions(fileName, isDefaultLib, /*moduleResolutionCache*/ undefined, host, options);
+        const sourceFileOptions = getCreateSourceFileOptions(fileName, isDefaultLib, /*moduleResolutionCache*/ undefined, host, options, configDefines);
         sourceFileOptions.reportParsedDefines = true;
         const file = host.getSourceFile(
             fileName,
@@ -1304,7 +1305,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // }
 
         // We haven't looked for this file, do so now and cache result
-        const sourceFileOptions = getCreateSourceFileOptions(fileName, isDefaultLib, /*moduleResolutionCache*/ undefined, host, options);
+        const sourceFileOptions = getCreateSourceFileOptions(fileName, isDefaultLib, /*moduleResolutionCache*/ undefined, host, options, configDefines);
         const file = host.getSourceFile(
             fileName,
             sourceFileOptions,
@@ -1410,7 +1411,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         return result;
     }
 
-    function getCreateSourceFileOptions(fileName: string, isDefaultLib: boolean, moduleResolutionCache: any | undefined, host: CompilerHost, options: CompilerOptions): CreateSourceFileOptions {
+    function getCreateSourceFileOptions(fileName: string, isDefaultLib: boolean, moduleResolutionCache: any | undefined, host: CompilerHost, options: CompilerOptions, configDefines: ReadonlyMap<string,string>): CreateSourceFileOptions {
         // TODO is this complete?        
         return {
             languageVersion: ScriptTarget.Latest,
@@ -2104,7 +2105,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         const seenPackageNames = new Map<string, SeenPackageName>();
         
         for (const oldSourceFile of oldSourceFiles) {
-            const sourceFileOptions = getCreateSourceFileOptions(oldSourceFile.fileName, false, moduleResolutionCache, host, options);
+            const sourceFileOptions = getCreateSourceFileOptions(oldSourceFile.fileName, false, moduleResolutionCache, host, options, oldProgram.getConfigDefines());            
             let newSourceFile = host.getSourceFileByPath
                 ? host.getSourceFileByPath(oldSourceFile.fileName, oldSourceFile.resolvedPath, sourceFileOptions, /*onError*/ undefined, shouldCreateNewSourceFile)
                 : host.getSourceFile(oldSourceFile.fileName, sourceFileOptions, /*onError*/ undefined, shouldCreateNewSourceFile); // TODO: GH#18217
@@ -2305,6 +2306,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // resolvedTypeReferenceDirectiveNames = oldProgram.resolvedTypeReferenceDirectiveNames;
         resolvedLibReferences = oldProgram.resolvedLibReferences;
         packageMap = oldProgram.getCurrentPackagesMap();
+        configDefines = oldProgram.getConfigDefines();
 
         return StructureIsReused.Completely;
     }

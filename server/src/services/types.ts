@@ -313,9 +313,8 @@ export const enum ScriptElementKind {
     constElement = "const",
 
     letElement = "let",
-
+    define = "define",
     directory = "directory",
-
     externalModuleName = "external module name",
 
     /**

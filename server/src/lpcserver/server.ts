@@ -563,7 +563,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
 
                     const item: vscode.CompletionItem = {
                         label: entry.name || (entry.insertText ?? ''),
-                        kind: typeConverters.CompletionKind.fromKind(entry.kind),                    
+                        kind: typeConverters.CompletionKind.fromKind(entry.kind),
                         detail: typeConverters.CompletionKind.getDetails(entry),                                        
                         sortText: entry.sortText,
                         insertText: entry.insertText,

@@ -1,3 +1,4 @@
+import { pushIfDefined } from "../utils.js";
 import { StringCompletions } from "./_namespaces/lpc.Completions.js";
 import {
     BinaryExpression,
@@ -25,6 +26,7 @@ import {
     ContextFlags,
     Debug,
     Declaration,
+    DefineDirective,
     Diagnostics,
     DotDotDotToken,
     EmitFlags,
@@ -155,6 +157,9 @@ import {
     getPropertyNameForPropertyNameNode,
     getQuotePreference,
     getReplacementSpanForContextToken,
+    getSourceFileOfNode,
+    getSourceFileOrIncludeOfNode,
+    getSourceTextOfNodeFromSourceFile,
     getSwitchedType,
     getSymbolId,
     getSynthesizedDeepClone,
@@ -183,6 +188,7 @@ import {
     isConstructorDeclaration,
     isContextualKeyword,
     isDeclarationName,
+    isDefineDirective,
     isDeprecatedDeclaration,
     isEntityName,
     isEqualityOperatorKind,
@@ -1623,6 +1629,14 @@ function createCompletionEntry(
         hasAction = !importStatementCompletion;
     }
 
+    // if (symbol.flags & SymbolFlags.Define) {
+    //     const defineNode = symbol.declarations?.[0] as DefineDirective;
+    //     if (defineNode) {
+    //         const sourceFile = getSourceFileOrIncludeOfNode(defineNode);
+    //         sourceDisplay = getSourceTextOfNodeFromSourceFile(sourceFile, defineNode, true);
+    //     }
+    // }
+
     const parentNamedImportOrExport = findAncestor(location, isNamedImportsOrExports);
     // if (parentNamedImportOrExport?.kind === SyntaxKind.NamedImports) {
     //     const possibleToken = stringToToken(name);
@@ -2485,12 +2499,12 @@ export function getCompletionEntriesFromSymbols(
         }
 
         // expressions are value space (which includes the value namespaces)
-        return !!(allFlags & SymbolFlags.Value);
+        return !!(allFlags & (SymbolFlags.ValueOrDefine));
     }
 
     function symbolAppearsToBeTypeOnly(symbol: Symbol): boolean {
         const flags = getCombinedLocalAndExportSymbolFlags(skipAlias(symbol, typeChecker));
-        return !(flags & SymbolFlags.Value) && (!isInJSFile(symbol.declarations?.[0]) || !!(flags & SymbolFlags.Type));
+        return !(flags & SymbolFlags.ValueOrDefine) && (!isInJSFile(symbol.declarations?.[0]) || !!(flags & SymbolFlags.Type));
     }
 }
 
@@ -3167,6 +3181,9 @@ function getCompletionData(
         return createModuleSpecifierResolutionHost(isFromPackageJson ? host.getPackageJsonAutoImportProvider!()! : program, host);
     });
 
+    // always add macros
+    getMacroSymbols();
+
     if (isRightOfDot || isRightOfQuestionDot) {
         getTypeScriptMemberSymbols();
     }    
@@ -3255,6 +3272,20 @@ function getCompletionData(
         //     return tag.class;
         // }
         return undefined;
+    }
+
+
+    function getMacroSymbols(): void {
+        // defines are always bound to the source file
+        const file = getSourceFileOfNode(node);
+                
+        if (isSourceFile(file) && file.statements) {
+            forEach(file.statements, statement => {
+                if (isDefineDirective(statement)) {
+                    pushIfDefined(symbols, typeChecker.getSymbolAtLocation(statement));
+                }
+            });
+        }
     }
 
     function getTypeScriptMemberSymbols(): void {
@@ -4841,6 +4872,7 @@ function getKeywordCompletions(keywordFilter: KeywordCompletionFilters, filterOu
         (_keywordCompletions[index] = getTypescriptKeywordCompletions(keywordFilter)
             .filter(entry => !isTypeScriptOnlyKeyword(stringToToken(entry.name)!)));
 }
+
 
 function getTypescriptKeywordCompletions(keywordFilter: KeywordCompletionFilters): readonly CompletionEntry[] {
     return _keywordCompletions[keywordFilter] || (_keywordCompletions[keywordFilter] = allKeywordsCompletions().filter(entry => {

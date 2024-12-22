@@ -11,6 +11,7 @@ const getSymbolKind = (kind: string): ls.SymbolKind => {
 		case PConst.Kind.module: return ls.SymbolKind.Module;
 		case PConst.Kind.class: return ls.SymbolKind.Class;
 		case PConst.Kind.enum: return ls.SymbolKind.Enum;
+        case PConst.Kind.define: return ls.SymbolKind.Enum;
 		case PConst.Kind.interface: return ls.SymbolKind.Interface;
 		case PConst.Kind.method: return ls.SymbolKind.Method;
 		case PConst.Kind.memberVariable: return ls.SymbolKind.Property;
