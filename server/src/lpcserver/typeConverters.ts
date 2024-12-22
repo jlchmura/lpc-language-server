@@ -176,7 +176,7 @@ export namespace CompletionEntryDetails {
 		baseUri: URI
 	): vscode.CompletionItem {
 		const item = vscode.CompletionItem.create(entry.name);
-		item.detail = entry.displayParts.map(part => part.text).join('');						
+		item.detail = entry.displayParts.map(part => part.text).join('');								
 		item.documentation = {
 			kind: "markdown",
 			value: DisplayPart.documentationToMarkdown(entry.documentation, entry.tags, baseUri)

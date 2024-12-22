@@ -2282,7 +2282,14 @@ function getSymbolAtLocationForQuickInfo(node: Node, checker: TypeChecker): Symb
     //         return first(properties);
     //     }
     // }
-    return checker.getSymbolAtLocation(node);
+    if (node.macro) {
+        const macroNode = checker.resolveName(node.macro, node.parent, SymbolFlags.Define, false);
+        if (macroNode) {
+            return macroNode;
+        }
+    }
+    const symbol = checker.getSymbolAtLocation(node);    
+    return symbol;
 }
 
 /** @internal */
