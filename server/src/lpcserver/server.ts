@@ -92,7 +92,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
     const serverMode = parseServerMode() ?? lpc.LanguageServiceMode.Semantic;
     const logPrefix = serverMode === lpc.LanguageServiceMode.Syntactic ? "Syntactic: " : "";
     logger.info(`${logPrefix}Starting TS Server`);
-    logger.info(`${logPrefix}Version: ${lpc.version}`);
+    // logger.info(`${logPrefix}Version: ${lpc.version}`); // removing for now because I keep forgetting to update this const
     logger.info(`${logPrefix}Arguments: ${args.join(" ")}`);
     logger.info(`${logPrefix}Platform: ${platform} NodeVersion: ${process.version} CaseSensitive: ${lpc.sys.useCaseSensitiveFileNames}`);
     logger.info(`${logPrefix}ServerMode: ${serverMode}`)
