@@ -2004,6 +2004,7 @@ export function canHaveJSDoc(node: Node): node is HasJSDoc {
         // case SyntaxKind.ClassDeclaration:
         case SyntaxKind.ClassExpression:        
         case SyntaxKind.ContinueStatement:        
+        case SyntaxKind.DefineDirective:
         case SyntaxKind.DoWhileStatement:
         case SyntaxKind.ElementAccessExpression:
         case SyntaxKind.EmptyStatement:
@@ -5630,6 +5631,7 @@ export function getJSDocCommentRanges(node: Node, text: string) {
             node.kind === SyntaxKind.ArrowFunction ||
             node.kind === SyntaxKind.ParenthesizedExpression ||
             node.kind === SyntaxKind.VariableDeclaration ||
+            node.kind === SyntaxKind.DefineDirective ||
             node.kind === SyntaxKind.ExportSpecifier) ?
         concatenate(getTrailingCommentRanges(text, node.originPos), getLeadingCommentRanges(text, node.originPos)) :
         getLeadingCommentRanges(text, node.originPos);

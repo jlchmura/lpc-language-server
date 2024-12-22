@@ -933,8 +933,10 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
         const defineNode = symbol.declarations?.[0] as DefineDirective;
         if (defineNode) {
             const sourceFile = getSourceFileOrIncludeOfNode(defineNode);
-            const sourceText = getSourceTextOfNodeFromSourceFile(sourceFile, defineNode, true);
+            const sourceText = getSourceTextOfNodeFromSourceFile(sourceFile, defineNode, false);
             displayParts.push(textPart(sourceText));
+
+            tags = symbol.getContextualJsDocTags(defineNode, typeChecker);
         }    
     }
 
