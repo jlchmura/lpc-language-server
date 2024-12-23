@@ -23991,7 +23991,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // }
             
         
-        const resultDiagnostic = createDiagnosticForNodeFromMessageChain(getSourceFileOrIncludeOfNode(propNode), propNode, errorInfo);
+        const resultDiagnostic = createDiagnosticForNodeFromMessageChain(getSourceFileOrIncludeOfNode(propNode, false), propNode, errorInfo);
         if (relatedInfo) {
             addRelatedInfo(resultDiagnostic, relatedInfo);
         }

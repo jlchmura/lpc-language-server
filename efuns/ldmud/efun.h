@@ -5561,7 +5561,8 @@ string load_name(string obj);
  * Return true if ob is a living object (that is,
  * enable_commands() has been called from inside the ob).
  * ob may be 0.
- *
+ * @param ob the object to check
+ * @returns {ob is __LPC_CONFIG_LIBFILES_PLAYER} 1 if ob is a living object, 0 otherwise
  * @example 
  * living(this_player())
  *

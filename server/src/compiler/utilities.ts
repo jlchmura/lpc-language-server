@@ -365,17 +365,17 @@ export function getSourceFileOfNode(node: Node | undefined): SourceFile | undefi
 }
 
 /** @internal */
-export function getSourceFileOrIncludeOfNode(node: Node): SourceFileBase;
+export function getSourceFileOrIncludeOfNode(node: Node, topLevelInclude?: boolean): SourceFileBase;
 /** @internal */
-export function getSourceFileOrIncludeOfNode(node: Node | undefined): SourceFileBase | undefined;
+export function getSourceFileOrIncludeOfNode(node: Node | undefined, topLevelInclude?: boolean): SourceFileBase | undefined;
 /** @internal */
-export function getSourceFileOrIncludeOfNode(node: Node | undefined): SourceFileBase | undefined {
+export function getSourceFileOrIncludeOfNode(node: Node | undefined, topLevelInclude = true): SourceFileBase | undefined {
     const origNode = node;
     // find the sourcefile or the top-level include directive
     while (node && node.kind !== SyntaxKind.SourceFile) {
         // IncludeDirective must have text - otherwise bump up to the sourcefile
         if (node.kind === SyntaxKind.IncludeDirective && 
-            node.parent && node.parent.kind === SyntaxKind.SourceFile && 
+            (!topLevelInclude || (node.parent && node.parent.kind === SyntaxKind.SourceFile)) && 
             (node as IncludeDirective).text && node != origNode) {
             break;
         }
