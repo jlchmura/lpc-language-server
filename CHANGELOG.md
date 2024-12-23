@@ -3,6 +3,7 @@
 ## 1.1.16
 
 -   Fix: [Completion provider does not return defines #127](https://github.com/jlchmura/lpc-language-server/issues/127)
+-   Fix: Syntax highlighting should allow whitespace after property access tokens
 -   Performance improvements
 
 ## 1.1.15
