@@ -28,7 +28,7 @@
             "include": "#disabled"
         },
         {
-            "include": "#dot_access"
+            "include": "#property_access"
         },
         {
             "include": "#parens"
@@ -355,8 +355,11 @@
                             "name": "punctuation.definition.parameters.lpc"
                         }
                     },
-                    "match": "(?x)\n\t\t\t\t\t\t\t(?: (?= \\s )  (?:(?<=else|new|return) | (?<!\\w)) (\\s+))?\n\t\t\t\t\t\t\t(?:\\b\\w+->)?  # Added this part to match 'object->'\n\t\t\t\t\t\t\t(\\b\n\t\t\t\t\t\t\t(?!(while|for|do|if|else|foreach|switch|\n\t\t\t\t\t\t\t\tcatch|return|\n\t\t\t\t\t\t\t\tmapping|mixed|int|float|class|function|\n\t\t\t\t\t\t\t\tstring|object)\\s*\\()\n\t\t\t\t\t\t\t(?: `\\(\\)                  |\n\t\t\t\t\t\t\t\t`[-<.>^|&*~/+%=!\\[\\]]+ |\n\t\t\t\t\t\t\t\t`[[:alnum:]_]            |\n\t\t\t\t\t\t\t\t[[:alpha:]_][[:alnum:]_]*+\\b\n\t\t\t\t\t\t\t)++    # actual name\n\t\t\t\t\t\t\t)\n\t\t\t\t\t\t\t\\s*(\\()",
-                    "name": "meta.function-call.lpc"
+                    "match": "(?x)\n\t\t\t\t\t\t\t(?: (?= \\s )  (?:(?<=else|new|return) | (?<!\\w)) (\\s+))?\n\t\t\t\t\t\t\t(\\b\n\t\t\t\t\t\t\t(?!(while|for|do|if|else|foreach|switch|\n\t\t\t\t\t\t\t\tcatch|return|\n\t\t\t\t\t\t\t\tmapping|mixed|int|float|class|function|\n\t\t\t\t\t\t\t\tstring|object)\\s*\\()\n\t\t\t\t\t\t\t(?: `\\(\\)                  |\n\t\t\t\t\t\t\t\t`[-<.>^|&*~/+%=!\\[\\]]+ |\n\t\t\t\t\t\t\t\t`[[:alnum:]_]            |\n\t\t\t\t\t\t\t\t[[:alpha:]_][[:alnum:]_]*+\\b\n\t\t\t\t\t\t\t)++    # actual name\n\t\t\t\t\t\t\t)\n\t\t\t\t\t\t\t\\s*(\\()",
+                    "name": "meta.function-call.lpc",
+                    "patterns": [
+                        { "include": "#property_access" }
+                    ]
                 },
                 {
                     "include": "#block"
@@ -634,7 +637,7 @@
                 }
             ]
         },
-        "dot_access": {
+        "property_access": {
             "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\s*(\\.|->)\\s*[a-zA-Z_][a-zA-Z0-9_]*\\b",
             "captures": {
                 "1": {
