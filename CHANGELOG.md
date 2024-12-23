@@ -7,7 +7,8 @@
 -   Fixed a bug that could cause @ string blocks to cause the parser to run out of memory.
 -   Performance improvements
 -   Various grammar improvements with indenting, highlighting, and bracketing
--   Fenced code markdown blocks now format as LPC code.
+-   Fenced code markdown blocks now highlight using LPC syntax.
+-   Cleaned up server logging (removed TS reference, removed version number)
 
 ## 1.1.15
 
