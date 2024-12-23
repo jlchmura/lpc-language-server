@@ -1280,8 +1280,7 @@ export namespace LpcParser {
 
     function isStartOfStatement(): boolean {
         switch (token()) {
-            case SyntaxKind.OpenParenAsteriskToken:
-            case SyntaxKind.AtToken:
+            case SyntaxKind.OpenParenAsteriskToken:            
             case SyntaxKind.SemicolonToken:
             case SyntaxKind.OpenBraceToken:
             case SyntaxKind.InheritKeyword:
@@ -1353,6 +1352,8 @@ export namespace LpcParser {
                 // When these don't start a declaration, they may be the start of a class member if an identifier
                 // immediately follows. Otherwise they're an identifier in an expression statement.
                 return isStartOfDeclaration() || !lookAhead(nextTokenIsIdentifierOrKeywordOnSameLine);
+            case SyntaxKind.AtToken:
+                return inContext(NodeFlags.JSDoc);
             default:
                 return isDirective() || isStartOfExpression();
         }
@@ -2898,12 +2899,13 @@ export namespace LpcParser {
             case SyntaxKind.LessThanToken:
             // case SyntaxKind.AwaitKeyword:
             // case SyntaxKind.YieldKeyword:
-            // case SyntaxKind.PrivateIdentifier:
-            case SyntaxKind.AtToken:
+            // case SyntaxKind.PrivateIdentifier:            
                 // Yield/await always starts an expression.  Either it is an identifier (in which case
                 // it is definitely an expression).  Or it's a keyword (either because we're in
                 // a generator or async function, or in strict mode (or both)) and it started a yield or await expression.
                 return true;
+            case SyntaxKind.AtToken:
+                return inContext(NodeFlags.JSDoc);
             default:
                 // Error tolerance.  If we see the start of some binary operator, we consider
                 // that the start of an expression.  That way we'll parse out a missing identifier,
@@ -5147,7 +5149,7 @@ export namespace LpcParser {
             case SyntaxKind.StringLiteral:
             case SyntaxKind.StringArrayLiteral:
             case SyntaxKind.BytesLiteral:            
-                return parseLiteralNode();           
+                return parseLiteralNode();                
             case SyntaxKind.StringizedIdentifier:
                 return parseStringizedIdentifier();
             case SyntaxKind.SuperKeyword:

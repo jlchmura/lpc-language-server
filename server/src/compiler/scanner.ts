@@ -1480,12 +1480,12 @@ export function createScanner(
         let lastLineBreakPos = pos;
         let lastWsPos = pos;
         let lastLineTextOnly = "";
-
+        
         while (true) {
             if (pos >= end) {
                 result += text.substring(start, pos);
                 tokenFlags |= TokenFlags.Unterminated;
-                error(Diagnostics.Unterminated_string_literal);
+                error(Diagnostics.Unterminated_string_literal, lastNonWsPos, 1);
                 break;
             }
 

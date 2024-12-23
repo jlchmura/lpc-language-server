@@ -34,6 +34,20 @@ exports[`Compiler compiler/atBlock2.c Reports correct errors for compiler/atBloc
 
 exports[`Compiler compiler/atBlock3.c Reports correct errors for compiler/atBlock3.c: diags-compiler/atBlock3.c 1`] = `""`;
 
+exports[`Compiler compiler/atBlock4.c Reports correct errors for compiler/atBlock4.c: diags-compiler/atBlock4.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/atBlock4.c[90m:5[0m
+
+"
+`;
+
+exports[`Compiler compiler/atBlock5.c Reports correct errors for compiler/atBlock5.c: diags-compiler/atBlock5.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/atBlock5.c[90m:5[0m
+
+"
+`;
+
 exports[`Compiler compiler/badBreak.c Reports correct errors for compiler/badBreak.c: diags-compiler/badBreak.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/badBreak.c[90m:3[0m
