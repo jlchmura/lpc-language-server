@@ -4290,8 +4290,8 @@ int object_time(object ob);
 
 /**
  * object_name
- *
- * Get the name of an object <ob> or, if no argument is given, of
+ * @param ob The object to get the name of.
+ * @returns the name of an object `ob` or, if no argument is given, of
  * the current object.
  * 
  * As a special case, if <ob> is 0, the function returns 0.
@@ -4313,15 +4313,12 @@ int object_time(object ob);
  *
  * @example 
  * find_object(object_name(ob)) == ob
- * 
- * This is guaranteed to be true for all objects ob that are not
- * destructed.
+ * // This is guaranteed to be true for all objects ob that are not
+ * // destructed.
  *
- * @since 0 is accepted as argument since 3.2.9.
- *
+ * @since 0 is accepted as argument since 3.2.9. 
  */
 string object_name();
-
 string object_name(object ob);
 
 /**
