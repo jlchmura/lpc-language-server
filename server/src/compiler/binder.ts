@@ -605,7 +605,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 //updateStrictModeStatementList((node as SourceFile).statements);
                 return bindSourceFileIfExternalModule();
             case SyntaxKind.DefineDirective:
-                bindDefineDirective(node as DefineDirective);   
+                return bindDefineDirective(node as DefineDirective);   
             case SyntaxKind.StructDeclaration:
                 return bindBlockScopedDeclaration(node as Declaration, SymbolFlags.TypeAlias, SymbolFlags.TypeAliasExcludes);
             case SyntaxKind.VariableDeclaration:
@@ -1134,11 +1134,13 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         }
 
         addDeclarationToSymbol(symbol, node, includes);
-        if (symbol.parent) {
-            Debug.assert(symbol.parent === parent, "Existing symbol parent should match new one");
-        }
-        else {
-            symbol.parent = parent;
+        if (!isDefineDirective(node)) {
+            if (symbol.parent) {
+                Debug.assert(symbol.parent === parent, "Existing symbol parent should match new one");
+            }
+            else {
+                symbol.parent = parent;
+            }
         }
 
         return symbol;
