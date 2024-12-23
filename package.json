@@ -83,6 +83,13 @@
                 "language": "lpc",
                 "scopeName": "source.lpc.lang-server",
                 "path": "./syntaxes/lpc.tmLanguage.json"
+            },
+            {
+                "scopeName": "documentation.injection.lpc",
+                "path": "./syntaxes/lpcdoc.injection.tmLanguage.json",
+                "injectTo": [
+                    "source.lpc.lang-server"
+                ]
             }
         ],
         "commands": [],

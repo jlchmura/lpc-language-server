@@ -1,0 +1,83 @@
+{
+	"injectionSelector": "L:comment.block.documentation",
+	"patterns": [
+		{
+			"include": "#lpcdocbody"
+		}
+	],
+	"repository": {
+        "fenced_code_block_lpc": {
+			"begin": "(^|\\G)(\\s*)(`{3,}|~{3,})\\s*(?i:(lpc)?((\\s+|:|,|\\{|\\?)[^`]*)?$)",
+			"name": "markup.fenced_code.block.markdown",
+			"end": "(^|\\G)(\\2|\\s{0,3})(\\3)\\s*$",
+			"beginCaptures": {
+				"3": {
+					"name": "punctuation.definition.markdown"
+				},
+				"4": {
+					"name": "fenced_code.block.language.markdown"
+				},
+				"5": {
+					"name": "fenced_code.block.language.attributes.markdown"
+				}
+			},
+			"endCaptures": {
+				"3": {
+					"name": "punctuation.definition.markdown"
+				}
+			},
+			"patterns": [
+				{
+					"begin": "(^|\\G)(\\s*)(.*)",
+					"while": "(^|\\G)(?!\\s*([`~]{3,})\\s*$)",
+					"contentName": "meta.embedded.block.lpc",
+					"patterns": [
+						{
+							"include": "source.lpc.lang-server"
+						}
+					]
+				}
+			]
+		},
+		"lpcdocbody": {
+			"begin": "(?<=/\\*\\*)([^*]|\\*(?!/))*$",
+			"while": "(^|\\G)\\s*\\*(?!/)(?=([^*]|[*](?!/))*$)",
+			"patterns": [
+                {
+                    "include": "#fenced_code_block_lpc"
+                },
+                {
+					"include": "text.html.markdown#fenced_code_block"
+				},
+                {
+                    "include": "#example"
+                },
+				{
+					"include": "source.lpc.lang-server#docblock"
+				},
+                {
+					"include": "text.html.markdown#inline"
+				}
+			]
+		},
+        "example": {
+			"begin": "((@)example)\\s+(?=([^*]|[*](?!/))*$).*$",
+			"while": "(^|\\G)\\s(?!@)(?=([^*]|[*](?!/))*$)",
+			"beginCaptures": {
+				"1": {
+					"name": "storage.type.class.lpcdoc"
+				},
+				"2": {
+					"name": "punctuation.definition.block.tag.lpcdoc"
+				}
+			},
+			"contentName": "meta.embedded.block.example.source.lpc",
+			"patterns": [
+				{
+					"include": "source.lpc.lang-server"
+				}
+			]
+		}
+	},
+	"scopeName": "documentation.injection.lpc"
+}

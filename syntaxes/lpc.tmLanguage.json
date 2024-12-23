@@ -1,6 +1,5 @@
 {
     "fileTypes": ["c", "h", "lpc"],
-    "firstLineMatch": "(-[*]-( [Mm]ode:)? [Ll][Pp][Cc] -[*]-|^#!/.*\\blpc\\b)",
     "foldingStartMarker": "(?x)\n     /\\*\\*(?!\\*)\n    |^(?![^{]*?//|[^{]*?/\\*(?!.*?\\*/.*?\\{)).*?\n    \\{\\s*($|//|/\\*(?!.*?\\*/.*\\S))\n    |(^\\s*//\\s*(\\{\\{\\{))",
     "foldingStopMarker": "(?<!\\*)\\n\\*\\*/|^\\s*\\}|//\\s*\\}\\}\\}$",
     "keyEquivalent": "^~C",
@@ -799,7 +798,7 @@
 							"match": "[^\\s@*](?:[^*]|\\*[^/])*",
 							"captures": {
 								"0": {
-									"name": "source.embedded.ts"
+									"name": "source.embedded.lpc"
 								}
 							}
 						}
