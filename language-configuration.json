@@ -43,6 +43,12 @@
 			"pattern": "^((.*=>\\s*)|((.*[^\\w]+|\\s*)(if|while|for)\\s*\\(.*\\)\\s*))$"
 		}
     },
+    "folding": {
+		"markers": {
+			"start": "^\\s*//\\s*#?region\\b",
+			"end": "^\\s*//\\s*#?endregion\\b"
+		}
+	},
     "onEnterRules": [
 		{
 			// e.g. /** | */
@@ -99,6 +105,26 @@
 				"indent": "none",
 				"removeText": 1
 			},
+		},
+        {
+			"beforeText": {
+				"pattern": "^\\s*(\\bcase\\s.+:|\\bdefault:)$"
+			},
+			"afterText": {
+				"pattern": "^(?!\\s*(\\bcase\\b|\\bdefault\\b))"
+			},
+			"action": {
+				"indent": "indent"
+			}
+		},
+        {
+			// Decrease indentation after single line if/else if/else, for, or while
+			"previousLineText": "^\\s*(((else ?)?if|for|while)\\s*\\(.*\\)\\s*|else\\s*)$",
+			// But make sure line doesn't have braces or is not another if statement
+			"beforeText": "^\\s+([^{i\\s]|i(?!f\\b))",
+			"action": {
+				"indent": "outdent"
+			}
 		}
     ]
 }

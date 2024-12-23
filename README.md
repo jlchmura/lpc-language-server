@@ -20,9 +20,10 @@ If you are updating from the 1.0.x version, please see [config-changes.md](confi
     -   Go to definitions (f12)
     -   Go to implementations (ctrl/cmd+f12)
     -   Go to symbol (cltr/cmd+o)
-- Symbol rename (f2)
+-   Symbol rename (f2)
 -   Code outline
 -   Code navigation
+-   Folding (with support for `// #region` blocks)
 
 ### LPCDoc Comments
 
