@@ -2338,7 +2338,7 @@ export function createCompilerHostWorker(
     system: System = sys,
 ): CompilerHost {
     // const existingDirectories = new Map<string, boolean>();
-    const getCanonicalFileName = createGetCanonicalFileName(true);//system.useCaseSensitiveFileNames);
+    const getCanonicalFileName = createGetCanonicalFileName(system.useCaseSensitiveFileNames);
     // function directoryExists(directoryPath: string): boolean {
     //     if (existingDirectories.has(directoryPath)) {
     //         return true;

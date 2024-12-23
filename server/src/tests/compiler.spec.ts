@@ -56,22 +56,23 @@ describe("Compiler", () => {
         const testCaseName = "compiler/" + lpc.getBaseFileName(testCaseFile);
         describe(testCaseName, () => {                  
             const fileContent = lpc.sys.readFile(testCaseFile);
-            const testOptions = extractCompilerSettings(fileContent);            
+            const testOptions = extractCompilerSettings(fileContent);
 
             // setup options & hosts
             const compilerOptions: lpc.CompilerOptions = {
                 driverType: lpc.driverTypeToLanguageVariant(testOptions["driver"]),
-                diagnostics: true
+                diagnostics: true                                
             };
 
             const expectedErrorCount = +(testOptions["errors"] ?? "0");
+            const extraFiles = (testOptions["files"]?.split(",") ?? lpc.emptyArray).map(f => lpc.combinePaths(lpc.getDirectoryPath(testCaseFile), f.trim()));
 
             const compilerHost = lpc.createCompilerHost(compilerOptions);
             compilerHost.getDefaultLibFileName = () => lpc.combinePaths(root, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
 
             const createProgramOptions: lpc.CreateProgramOptions = {
                 host: compilerHost,
-                rootNames: [testCaseFile],
+                rootNames: [testCaseFile, ...extraFiles],
                 options: compilerOptions,                
                 oldProgram: undefined,                
             };

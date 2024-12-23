@@ -87,6 +87,12 @@ exports[`Compiler compiler/buffer1.c Reports correct errors for compiler/buffer1
 
 exports[`Compiler compiler/bytes1.c Reports correct errors for compiler/bytes1.c: diags-compiler/bytes1.c 1`] = `""`;
 
+exports[`Compiler compiler/callOther1.c Reports correct errors for compiler/callOther1.c: diags-compiler/callOther1.c 1`] = `""`;
+
+exports[`Compiler compiler/callOther2.c Reports correct errors for compiler/callOther2.c: diags-compiler/callOther2.c 1`] = `""`;
+
+exports[`Compiler compiler/callOther3.c Reports correct errors for compiler/callOther3.c: diags-compiler/callOther3.c 1`] = `""`;
+
 exports[`Compiler compiler/catchBlock.c Reports correct errors for compiler/catchBlock.c: diags-compiler/catchBlock.c 1`] = `""`;
 
 exports[`Compiler compiler/catchExpr1.c Reports correct errors for compiler/catchExpr1.c: diags-compiler/catchExpr1.c 1`] = `""`;
@@ -96,6 +102,15 @@ exports[`Compiler compiler/class1.c Reports correct errors for compiler/class1.c
 exports[`Compiler compiler/class2.c Reports correct errors for compiler/class2.c: diags-compiler/class2.c 1`] = `
 "
 Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/class2.c[90m:5[0m
+
+"
+`;
+
+exports[`Compiler compiler/clone_object1.c Reports correct errors for compiler/clone_object1.c: diags-compiler/clone_object1.c 1`] = `""`;
+
+exports[`Compiler compiler/clone_object2.c Reports correct errors for compiler/clone_object2.c: diags-compiler/clone_object2.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/clone_object2.c[90m:4[0m
 
 "
 `;
@@ -235,6 +250,8 @@ exports[`Compiler compiler/if3.c Reports correct errors for compiler/if3.c: diag
 
 exports[`Compiler compiler/ifelse.c Reports correct errors for compiler/ifelse.c: diags-compiler/ifelse.c 1`] = `""`;
 
+exports[`Compiler compiler/include1.c Reports correct errors for compiler/include1.c: diags-compiler/include1.c 1`] = `""`;
+
 exports[`Compiler compiler/indexAccess.c Reports correct errors for compiler/indexAccess.c: diags-compiler/indexAccess.c 1`] = `""`;
 
 exports[`Compiler compiler/intLiteral1.c Reports correct errors for compiler/intLiteral1.c: diags-compiler/intLiteral1.c 1`] = `""`;
@@ -277,6 +294,24 @@ Found 1 error in server/src/tests/cases/compiler/lpcDocVar4.c[90m:6[0m
 
 "
 `;
+
+exports[`Compiler compiler/lpcDocVar5.c Reports correct errors for compiler/lpcDocVar5.c: diags-compiler/lpcDocVar5.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/lpcDocVar5.c[90m:6[0m
+
+"
+`;
+
+exports[`Compiler compiler/lpcDocVar6.c Reports correct errors for compiler/lpcDocVar6.c: diags-compiler/lpcDocVar6.c 1`] = `""`;
+
+exports[`Compiler compiler/lpcDocVar7.c Reports correct errors for compiler/lpcDocVar7.c: diags-compiler/lpcDocVar7.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/lpcDocVar7.c[90m:4[0m
+
+"
+`;
+
+exports[`Compiler compiler/lpcDocVarTagBase.c Reports correct errors for compiler/lpcDocVarTagBase.c: diags-compiler/lpcDocVarTagBase.c 1`] = `""`;
 
 exports[`Compiler compiler/macro1.c Reports correct errors for compiler/macro1.c: diags-compiler/macro1.c 1`] = `""`;
 
@@ -332,6 +367,8 @@ exports[`Compiler compiler/new2.c Reports correct errors for compiler/new2.c: di
 exports[`Compiler compiler/new3.c Reports correct errors for compiler/new3.c: diags-compiler/new3.c 1`] = `""`;
 
 exports[`Compiler compiler/new4.c Reports correct errors for compiler/new4.c: diags-compiler/new4.c 1`] = `""`;
+
+exports[`Compiler compiler/object.c Reports correct errors for compiler/object.c: diags-compiler/object.c 1`] = `""`;
 
 exports[`Compiler compiler/operatorBitwise.c Reports correct errors for compiler/operatorBitwise.c: diags-compiler/operatorBitwise.c 1`] = `""`;
 
@@ -402,6 +439,13 @@ exports[`Compiler compiler/typeInference2.c Reports correct errors for compiler/
 exports[`Compiler compiler/typeInference3.c Reports correct errors for compiler/typeInference3.c: diags-compiler/typeInference3.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/typeInference3.c[90m:4[0m
+
+"
+`;
+
+exports[`Compiler compiler/typePredicate1.c Reports correct errors for compiler/typePredicate1.c: diags-compiler/typePredicate1.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/typePredicate1.c[90m:7[0m
 
 "
 `;
