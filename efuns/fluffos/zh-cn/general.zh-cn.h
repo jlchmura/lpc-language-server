@@ -260,7 +260,7 @@ varargs mixed* map( mixed* x, string fun, object ob, mixed extra... );
  * 函数，如果返回值是非零整数，则用返回值替换该字符。
  * @template T
  * @template Y
- * @param x 要映射的数组 
+ * @param {T*} x 要映射的数组 
  * @param {mapCallback<T,Y>} f 要应用于每个元素的回调函数
  * @param extra 传递给回调函数的额外参数
  * @returns {Y*} 映射值的数组
