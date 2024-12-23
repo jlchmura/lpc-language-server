@@ -30512,6 +30512,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // If a discriminant property is available, use that to reduce the type.
                 const discriminant = keyPropertyName && getTypeOfPropertyOfType(c, keyPropertyName);
                 const matching = discriminant && getConstituentTypeForKeyType(type as UnionType, discriminant);
+
+                // in LPC - skip the directlyRelated checks if there is no discriminant.
+                if (!discriminant && !strickObjectTypes) {
+                    return candidate;
+                }
+
                 // For each constituent t in the current type, if t and and c are directly related, pick the most
                 // specific of the two. When t and c are related in both directions, we prefer c for type predicates
                 // because that is the asserted type, but t for `instanceof` because generics aren't reflected in
@@ -31711,7 +31717,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const typeNode = nodeBuilder.typeToTypeNode(type, enclosingDeclaration, toNodeBuilderFlags(flags) | NodeBuilderFlags.IgnoreErrors | (noTruncation ? NodeBuilderFlags.NoTruncation : 0));
         if (typeNode === undefined) {
             console.warn("expected a type node but didn't get one");
-            return "";
+            return "<never>";
         }
         // The unresolved type gets a synthesized comment on `any` to hint to users that it's not a plain `any`.
         // Otherwise, we always strip comments out.

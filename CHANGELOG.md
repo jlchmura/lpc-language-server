@@ -4,6 +4,7 @@
 
 -   Fix: [Completion provider does not return defines #127](https://github.com/jlchmura/lpc-language-server/issues/127)
 -   Fix: Syntax highlighting should allow whitespace after property access tokens
+-   Fix: LPCDoc type predicates not working
 -   Fixed a bug that could cause @ string blocks to cause the parser to run out of memory.
 -   Performance improvements
 -   Various grammar improvements with indenting, highlighting, and bracketing

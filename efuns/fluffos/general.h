@@ -266,7 +266,7 @@ varargs mixed* map( mixed* x, string fun, object ob, mixed extra... );
  * return value is a non-zero integer.
  * @template T
  * @template Y
- * @param x The array to map 
+ * @param {T*} x The array to map 
  * @param {mapCallback<T,Y>} f The callback function to apply to each element
  * @param extra Extra arguments to pass to the callback function
  * @returns {Y*} An array of the mapped values
