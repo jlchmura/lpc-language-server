@@ -24710,7 +24710,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function canSkipStrictObjectCheck(source: Type, target: Type) {
         const canSkipStrictCheck = !strickObjectTypes && 
-                !(getObjectFlags(source) & ObjectFlags.Anonymous && getObjectFlags(target) & ObjectFlags.Anonymous) &&
+                // TODO: JC - disabling this requirement until I'm sure I want to use it
+                // !(getObjectFlags(source) & ObjectFlags.Anonymous && getObjectFlags(target) & ObjectFlags.Anonymous) &&
                 !(isGlobalType(source) && isGlobalType(target));
         return canSkipStrictCheck;
     }
