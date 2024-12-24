@@ -1,2 +1,2 @@
-*.c linguist-language=lpc
-*.h linguist-language=lpc
+*.c linguist-language=LPC
+*.h linguist-language=LPC
