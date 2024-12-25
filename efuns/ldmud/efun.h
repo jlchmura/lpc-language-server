@@ -8498,7 +8498,7 @@ int db_affected_rows(int handle);
 
 /**
  * ctime
- *
+ * @param clock The number of seconds since Jan, 1st, 1970, 0.00.
  * Interpret the argument clock as number of seconds since Jan,
  * 1st, 1970, 0.00 and convert it to a nice date and time string.
  * If clock is not specified, time() is used as default.
@@ -8511,14 +8511,13 @@ int db_affected_rows(int handle);
  * @example 
  * write(ctime()+"\n");
  * 
- * This will print out something like "Fri Jul 17 19:13:33 1992".
+ * // This will print out something like "Fri Jul 17 19:13:33 1992".
  *
  * @since LDMud 3.2.9 introduced the second form.
  *
  */
-string ctime(int clock);
-
-string ctime(int *uclock);
+varargs string ctime(int clock);
+varargs string ctime(int *uclock);
 
 /**
  * crypt
