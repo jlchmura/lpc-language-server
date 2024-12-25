@@ -2031,7 +2031,13 @@ export namespace LpcParser {
         const posIdentifier = getPositionState();
         const identifierStart = scanner.getTokenStart();        
         const identifierText = internIdentifier(scanner.getTokenValue());
-        const identifier = token() === SyntaxKind.Identifier ? parseIdentifier() : parseKeywordAndNoDot();
+        let identifier = token() === SyntaxKind.Identifier ? parseIdentifier() : parseKeywordAndNoDot();
+
+        if ((identifier as Node).kind === SyntaxKind.NewLineTrivia) {
+            parseErrorAtPosition(posIdentifier.pos, posIdentifier.pos, pos.fileName, Diagnostics.Identifier_expected);
+            identifier = createMissingNode(SyntaxKind.Identifier, false);
+        }
+
         let args: NodeArray<ParameterDeclaration> | undefined;
                 
         const identifierEnd = identifierStart + identifierText.length;
@@ -2353,9 +2359,7 @@ export namespace LpcParser {
 
             (node as Mutable<T>).includeDirPos = currentIncludeDirective?.pos;// ?? pos.macro?.posInOrigin;
             (node as Mutable<T>).includeDirEnd = currentIncludeDirective?.end;// ?? pos.macro?.endInOrigin;
-            (node as Mutable<T>).originFilename = scannerState.fileName?.length > 0 ? scannerState.fileName : fileName;
-            (node as Mutable<T>).originPos = pos.pos;
-            (node as Mutable<T>).originEnd = end ?? scannerState.end;
+            (node as Mutable<T>).originFilename = scannerState.fileName?.length > 0 ? scannerState.fileName : fileName;            
             
             const rootMacro = pos.macro ? getRootMacro(pos.macro) : undefined;            
             const macroState = rootMacro?.pos;
@@ -2825,8 +2829,8 @@ export namespace LpcParser {
         const saveSourceText = sourceText;
         sourceText = includeFileCache[node.originFilename] ?? sourceText;
         let restoreScannerState: ()=>boolean | undefined;
-        if (scanner.getFileName() != node.originFilename) {
-            restoreScannerState = scanner.switchStream(node.originFilename, sourceText, node.originPos, node.originEnd);
+        if (scanner.getFileName() != node.originFilename) {            
+            restoreScannerState = scanner.switchStream(node.originFilename, sourceText, node.pos, node.end);
         }
         const jsDoc = mapDefined(getJSDocCommentRanges(node, sourceText), comment => JSDocParser.parseJSDocComment(node, comment.pos, comment.end - comment.pos));
         if (jsDoc.length) node.jsDoc = jsDoc;

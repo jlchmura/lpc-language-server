@@ -290,7 +290,8 @@ function createDefinitionInfoFromName(checker: TypeChecker, declaration: Declara
     if (!textSpan) {
         const name = getNameOfDeclaration(declaration) || declaration;
         if (declaration.originFilename) {
-            textSpan = createTextSpanFromBounds(declaration.originPos, declaration.originEnd);
+            // TODO - can this be removed?
+            textSpan = createTextSpanFromBounds(declaration.pos, declaration.end);
         } else {
             textSpan = createTextSpanFromNode(name, sourceFile);        
         }
