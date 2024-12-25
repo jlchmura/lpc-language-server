@@ -176,6 +176,13 @@ exports[`Compiler compiler/defaultArgs3.c Reports correct errors for compiler/de
 
 exports[`Compiler compiler/define1.c Reports correct errors for compiler/define1.c: diags-compiler/define1.c 1`] = `""`;
 
+exports[`Compiler compiler/define2.c Reports correct errors for compiler/define2.c: diags-compiler/define2.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/define2.c[90m:1[0m
+
+"
+`;
+
 exports[`Compiler compiler/doWhile.c Reports correct errors for compiler/doWhile.c: diags-compiler/doWhile.c 1`] = `""`;
 
 exports[`Compiler compiler/expr1.c Reports correct errors for compiler/expr1.c: diags-compiler/expr1.c 1`] = `""`;
