@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.17
+
+-   Performance improvement: reduced memory consumption by 17%
+
 ## 1.1.16
 
 -   Fix: [Completion provider does not return defines #127](https://github.com/jlchmura/lpc-language-server/issues/127)

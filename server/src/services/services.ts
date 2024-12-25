@@ -552,12 +552,12 @@ function createChildren(
     }
 
     scanner.setText((sourceFile || node.getSourceFile()).text);
-    let pos = node.includeDirPos ?? node.pos;
+    let pos = node.pos;
     Debug.assertIsDefined(pos);
     const processNode = (child: Node) => {
-        addSyntheticNodes(children, pos, child.includeDirPos ?? child.pos, node, sourceFile.inactiveCodeRanges);
+        addSyntheticNodes(children, pos, child.pos, node, sourceFile.inactiveCodeRanges);
         children.push(child);        
-        pos = child.includeDirEnd ?? child.end;
+        pos = child.end;
         Debug.assertIsDefined(pos);
     };
     const processNodes = (nodes: NodeArray<Node>) => {                
@@ -588,7 +588,7 @@ function createChildren(
     // For syntactic classifications, all trivia are classified together, including jsdoc comments.
     // For that to work, the jsdoc comments should still be the leading trivia of the first child.
     // Restoring the scanner position ensures that.
-    pos = node.includeDirPos ?? node.pos;
+    pos = node.pos;
     node.forEachChild(processNode, processNodes);
     if (pos >= 0) {
         // if pos is -1 then children had an empty syntax list
@@ -1000,9 +1000,9 @@ function createSyntaxList(nodes: NodeArray<Node>, parent: Node, skipRanges: read
     for (const node of nodes) {
         // TODO - disable hover on macros for now
         // if (!node.macro && (!node.originFilename || node.originFilename === sourceFilename)) {
-            addSyntheticNodes(children, pos, node.includeDirPos ?? node.pos, parent, skipRanges);
+            addSyntheticNodes(children, pos, node.pos, parent, skipRanges);
             children.push(node);
-            pos = node.includeDirEnd ?? node.end;            
+            pos = node.end;            
         // }
     }
     

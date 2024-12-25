@@ -27,25 +27,18 @@ export interface TextRange {
 export interface ReadonlyTextRange {
     readonly pos: number;
     readonly end: number;
-    readonly macro?: string;
-    readonly isComplete?: boolean;
+    readonly macro?: string;    
 }
 
-export interface IncludedFileRange {
+export interface MacroIncludedFileRange {
     posInOrigin?: number;
     endInOrigin?: number;
     originFilename?: string;
 }
 
-export interface ReadonlyIncludedFileRange {
-    /** position of the original include directive that resulted in this node */
-    readonly includeDirPos?: number;
-    /** end position of the original include directive that resulted in this nod */
-    readonly includeDirEnd?: number;    
-}
 
 /** Base Node */
-export interface Node extends ReadonlyTextRange, ReadonlyIncludedFileRange {
+export interface Node extends ReadonlyTextRange {
     readonly kind: SyntaxKind;
     readonly flags: NodeFlags;
     /** @internal */ modifierFlagsCache: ModifierFlags;
@@ -2315,13 +2308,15 @@ export type HasChildren =
 
 export interface NodeArray<T extends Node> extends ReadonlyArray<T>, ReadonlyTextRange {
     readonly hasTrailingComma: boolean;
-    /** @internal */ transformFlags: TransformFlags; // Flags for transforms, possibly undefined
+    /** @internal */ transformFlags: TransformFlags; // Flags for transforms, possibly undefined    
+    readonly isComplete?: boolean;
 }
 
 /** @internal */
 export interface MutableNodeArray<T extends Node> extends Array<T>, TextRange {
     hasTrailingComma: boolean;
     /** @internal */ transformFlags: TransformFlags; // Flags for transforms, possibly undefined
+    isComplete?: boolean;
 }
 
 // TODO(rbuckton): Constraint 'TKind' to 'TokenSyntaxKind'
@@ -2959,6 +2954,10 @@ export interface SourceFileBase {
     /** @internal */ inactiveCodeRanges?: readonly TextRange[];
     /** @internal */ lineMap?: readonly number[];
     /** @internal */ getPositionOfLineAndCharacter?(line: number, character: number, allowEdits?: true): number;            
+
+    // File-level diagnostics reported by the parser (includes diagnostics about /// references
+    // as well as code diagnostics).
+    /** @internal */ parseDiagnostics: DiagnosticWithLocation[];    
 
     languageVersion: ScriptTarget;
     languageVariant: LanguageVariant;
@@ -7192,7 +7191,7 @@ export interface DefineDirective extends PreprocessorDirective, Declaration {
     range: TextRange;
 }
 
-export interface MacroParameter extends ReadonlyTextRange, IncludedFileRange {
+export interface MacroParameter extends ReadonlyTextRange, MacroIncludedFileRange {
     disabled?: boolean;
     /** get the sourcetext that contains the arg value range */
     text: string;
@@ -7208,7 +7207,7 @@ export interface PositionState {
 }
 
 
-export interface Macro extends IncludedFileRange {
+export interface Macro extends MacroIncludedFileRange {
     // directive: DefineDirective;
     name: string;
     includeDirPos?: number;
