@@ -674,7 +674,7 @@ export function getTextOfNode(node: Node, includeTrivia = false): string {
 /** @internal */
 export function getErrorSpanForNode(sourceFile: SourceFileBase, node: Node): TextSpan {
     // if the node came from a macro, move up the parent chain until we find a non-macro node
-    while (node.originFilename=="macro" && node.parent) {
+    while (isInMacroContext(node) && node.parent) {
         node = node.parent;
     }
         
@@ -2475,6 +2475,14 @@ export function containsParseError(node: Node): boolean {
 /** @internal */
 export function isInIncludeContext(node: Node): boolean {
     return (node.flags & NodeFlags.IncludeContext) !== 0;
+}
+
+export function isInMacroContext(node: Node): boolean {
+    return (node.flags & NodeFlags.MacroContext) !== 0;
+}
+
+export function isInExternalFileContext(node: Node): boolean {
+    return (node.flags & NodeFlags.IncludeOrMacro) !== 0;   
 }
 
 function aggregateChildData(node: Node): void {

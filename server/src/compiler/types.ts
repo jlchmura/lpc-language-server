@@ -41,9 +41,7 @@ export interface ReadonlyIncludedFileRange {
     /** position of the original include directive that resulted in this node */
     readonly includeDirPos?: number;
     /** end position of the original include directive that resulted in this nod */
-    readonly includeDirEnd?: number;
-    /** filename containing this node (i.e. the include filename, not the original sourcefile filename) */
-    readonly originFilename?: string;    
+    readonly includeDirEnd?: number;    
 }
 
 /** Base Node */
@@ -1205,6 +1203,7 @@ export const enum NodeFlags {
     ExternalFile       = 1 << 2,  // Included from an external file     
     Synthesized        = 1 << 4,  // Node was synthesized during transformation        
     IncludeContext     = 1 << 5,  // Node was parsed from an include file
+    MacroContext       = 1 << 6,  // Node was parsed as a result of a macro expansion
     ExportContext      = 1 << 7,  // Export context (initialized by binding)
     HasImplicitReturn  = 1 << 9,  // If function implicitly returns on one of codepaths (initialized by binding)
     HasExplicitReturn  = 1 << 10,  // If function has explicit reachable return on one of codepaths (initialized by binding)
@@ -1237,6 +1236,8 @@ export const enum NodeFlags {
     // The following flags repurpose other NodeFlags as different meanings for Identifier nodes
     /** @internal */ IdentifierHasExtendedUnicodeEscape = 1 << 8, // Indicates whether the identifier contains an extended unicode escape sequence
     /** @internal */ IdentifierIsInJSDocNamespace = HasAsyncFunctions, // Indicates whether the identifier is part of a JSDoc namespace
+
+    IncludeOrMacro = IncludeContext | MacroContext // Indicates the node is in an include or macro context
 }
 
 export const enum EmitFlags {

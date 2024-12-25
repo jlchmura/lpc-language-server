@@ -83,6 +83,7 @@ import {
     isFunctionDeclaration,
     isFunctionExpression,
     isIdentifier,
+    isInExternalFileContext,
     isInlineClosureExpression,
     isIntLiteral,
     isJSDocTypeAlias,
@@ -937,15 +938,13 @@ function primaryNavBarMenuItems(root: NavigationBarNode): NavigationBarNode[] {
 }
 
 function convertToTree(n: NavigationBarNode): NavigationTree {
-    const rootFilename = isSourceFile(n.node) ? n.node.fileName : n.node.originFilename;
-
     return {
         text: getItemName(n.node, n.name),
         kind: getNodeKind(n.node),
         kindModifiers: getModifiers(n.node),
         spans: getSpans(n),
         nameSpan: n.name && getNodeSpan(n.name),        
-        childItems: map(filter(n.children, x=>x.node.originFilename==rootFilename && x.node.pos < x.node.end), convertToTree),
+        childItems: map(filter(n.children, x=> !isInExternalFileContext(x.node) && x.node.pos < x.node.end), convertToTree),
         // childItems: map(n.children, convertToTree),
     };
 }

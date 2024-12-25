@@ -15,7 +15,9 @@ import {
     isCallExpression,
     isFunctionDeclaration,
     isIdentifier,    
+    isInExternalFileContext,    
     isInfinityOrNaNString,    
+    isInIncludeContext,    
     isPropertyAccessExpression,
     isQualifiedName,
     isSourceFile,
@@ -128,7 +130,7 @@ function collectTokens(program: Program, sourceFile: SourceFile, span: TextSpan,
     const checkDisabled = sourceFile.inactiveCodeRanges.length > 0;
     
     function isFromFile(node: Node) {
-        return isSourceFile(node) || node.originFilename === sourceFile.fileName;
+        return isSourceFile(node) || !isInExternalFileContext(node);
     }
 
     function visit(node: Node) {

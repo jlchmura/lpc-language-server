@@ -243,8 +243,7 @@ class TokenOrIdentifierObject<TKind extends SyntaxKind> implements Node {
     public symbol!: Symbol;
     public jsDocComments?: JSDoc[];
     public id?: number;
-    public emitNode?: EmitNode | undefined;
-    public originFilename?: string;
+    public emitNode?: EmitNode | undefined;    
     public posInOrigin?: number;
     public endInOrigin?: number;
 
@@ -998,7 +997,6 @@ function createSyntaxList(nodes: NodeArray<Node>, parent: Node, skipRanges: read
     ) as any as SyntaxList;
     const children: Node[] = [];
     let pos = nodes.pos;
-    const sourceFilename = isSourceFile(parent) ? parent.fileName : parent.originFilename;
     for (const node of nodes) {
         // TODO - disable hover on macros for now
         // if (!node.macro && (!node.originFilename || node.originFilename === sourceFilename)) {

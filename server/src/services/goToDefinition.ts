@@ -1,4 +1,4 @@
-import { Symbol, createTextSpanFromBounds, Declaration, DefinitionInfo, emptyArray, FileReference, findAncestor, forEach, FunctionLikeDeclaration, getTouchingPropertyName, isDefaultClause, isFunctionLikeDeclaration, isSwitchStatement, Node, Program, ScriptElementKind, SignatureDeclaration, SourceFile, SwitchStatement, SymbolFlags, SyntaxKind, TypeChecker, SymbolDisplay, getNameOfDeclaration, createTextSpanFromNode, NodeFlags, hasInitializer, HasInitializer, hasEffectiveModifier, ModifierFlags, FindAllReferences, TextSpan, concatenate, every, mapDefined, tryCast, isFunctionLike, isAssignmentExpression, isCallLikeExpression, canHaveSymbol, filter, some, map, find, isCallOrNewExpressionTarget, isNameOfFunctionDeclaration, CallLikeExpression, isRightSideOfPropertyAccess, getInvokedExpression, isPropertyName, isBindingElement, isNewExpressionTarget, textRangeContainsPositionInclusive, IncludeDirective, getTouchingToken, ResolvedModuleWithFailedLookupLocations, getDirectoryPath, resolvePath, isStringLiteral, getPreEmitDiagnostics, Debug, isIncludeDirective, last } from "./_namespaces/lpc";
+import { Symbol, createTextSpanFromBounds, Declaration, DefinitionInfo, emptyArray, FileReference, findAncestor, forEach, FunctionLikeDeclaration, getTouchingPropertyName, isDefaultClause, isFunctionLikeDeclaration, isSwitchStatement, Node, Program, ScriptElementKind, SignatureDeclaration, SourceFile, SwitchStatement, SymbolFlags, SyntaxKind, TypeChecker, SymbolDisplay, getNameOfDeclaration, createTextSpanFromNode, NodeFlags, hasInitializer, HasInitializer, hasEffectiveModifier, ModifierFlags, FindAllReferences, TextSpan, concatenate, every, mapDefined, tryCast, isFunctionLike, isAssignmentExpression, isCallLikeExpression, canHaveSymbol, filter, some, map, find, isCallOrNewExpressionTarget, isNameOfFunctionDeclaration, CallLikeExpression, isRightSideOfPropertyAccess, getInvokedExpression, isPropertyName, isBindingElement, isNewExpressionTarget, textRangeContainsPositionInclusive, IncludeDirective, getTouchingToken, ResolvedModuleWithFailedLookupLocations, getDirectoryPath, resolvePath, isStringLiteral, getPreEmitDiagnostics, Debug, isIncludeDirective, last, isInExternalFileContext, getSourceFileOrIncludeOfNode } from "./_namespaces/lpc";
 import { isContextWithStartAndEndNode } from "./_namespaces/lpc.FindAllReferences";
 
 /** @internal */
@@ -286,15 +286,10 @@ function createDefinitionFromSignatureDeclaration(typeChecker: TypeChecker, decl
 /** Creates a DefinitionInfo directly from the name of a declaration. */
 function createDefinitionInfoFromName(checker: TypeChecker, declaration: Declaration, symbolKind: ScriptElementKind, symbolName: string, containerName: string, unverified?: boolean, failedAliasResolution?: boolean, textSpan?: TextSpan): DefinitionInfo {
     const sourceFile = declaration.getSourceFile();
-    const fileName = declaration.originFilename || sourceFile.fileName;    
+    const fileName = (isInExternalFileContext(declaration) ? getSourceFileOrIncludeOfNode(declaration).fileName : undefined) || sourceFile.fileName;    
     if (!textSpan) {
         const name = getNameOfDeclaration(declaration) || declaration;
-        if (declaration.originFilename) {
-            // TODO - can this be removed?
-            textSpan = createTextSpanFromBounds(declaration.pos, declaration.end);
-        } else {
-            textSpan = createTextSpanFromNode(name, sourceFile);        
-        }
+        textSpan = createTextSpanFromNode(name, sourceFile);                
     }
     return {
         fileName,
