@@ -208,6 +208,7 @@ import {
     factory,
     setTextRangePosEnd,
     ResolvedProjectReference,
+    CheckLpcDirective,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 import { computeSuggestionDiagnostics } from "./suggestionDiagnostics.js";
@@ -642,6 +643,7 @@ class SourceFileObject extends NodeObject<SyntaxKind.SourceFile> implements Sour
     public pragmas!: PragmaMap;
     public localJsxFactory: EntityName | undefined;
     public localJsxNamespace: string | undefined;
+    public checkLpcDirective: CheckLpcDirective | undefined;
 
     constructor(kind: SyntaxKind.SourceFile, pos: number, end: number) {
         super(kind, pos, end);

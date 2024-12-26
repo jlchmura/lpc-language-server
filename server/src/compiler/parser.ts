@@ -17,6 +17,24 @@ const enum SignatureFlags {
 
 const MAX_STRING_INTERN_LEN = 8;
 
+const macroAllocator = () => Macro as any;
+function Macro(this: Macro, name: string, fileName: string, getText: () => string, range: TextRange) {
+    this.name = name;
+    this.includeFilename = fileName;
+    this.includeDirPos = undefined;
+    this.includeDirEnd = undefined;
+    this.disabled = false;
+    this.pos = undefined;
+    this.end = undefined;
+    this.argsIn = undefined;
+    this.range = range;
+    this.arguments = undefined;
+    this.getText = getText;
+    this.originFilename = undefined;
+    this.posInOrigin = undefined;
+    this.endInOrigin = undefined;
+}
+
 type IncludeGraph = Map<string, Set<string>>;
 
 export namespace LpcParser {
@@ -32,10 +50,11 @@ export namespace LpcParser {
     var disallowInAndDecoratorContext = NodeFlags.DisallowInContext;//| NodeFlags.DecoratorContext;
             
     // capture constructors in 'initializeState' to avoid null checks
-    var NodeConstructor: new (kind: SyntaxKind, pos: number, end: number) => Node; // prettier-ignore
-    var TokenConstructor: new (kind: SyntaxKind, pos: number, end: number) => Node; // prettier-ignore
-    var IdentifierConstructor: new (kind: SyntaxKind.Identifier, pos: number, end: number) => Identifier; // prettier-ignore    
-    var SourceFileConstructor: new (kind: SyntaxKind.SourceFile, pos: number, end: number) => SourceFile; // prettier-ignore
+    var NodeConstructor: new (kind: SyntaxKind, pos: number, end: number) => Node; 
+    var TokenConstructor: new (kind: SyntaxKind, pos: number, end: number) => Node; 
+    var IdentifierConstructor: new (kind: SyntaxKind.Identifier, pos: number, end: number) => Identifier;     
+    var SourceFileConstructor: new (kind: SyntaxKind.SourceFile, pos: number, end: number) => SourceFile; 
+    var MacroConstructor: new (name: string, fileName: string, getText: () => string, range: TextRange) => Macro; 
 
     var fileName: string;
     var fileHandler: LpcFileHandler;
@@ -136,6 +155,7 @@ export namespace LpcParser {
         TokenConstructor = objectAllocator.getTokenConstructor();
         IdentifierConstructor = objectAllocator.getIdentifierConstructor();        
         SourceFileConstructor = objectAllocator.getSourceFileConstructor();
+        MacroConstructor = macroAllocator();
         
         fileName = _fileName;
         fileHandler = _fileHandler;
@@ -2084,6 +2104,12 @@ export namespace LpcParser {
         }
 
         return macroNode;        
+    }    
+
+    function createMacroBase(name: string, macroSourceFilename: string, getMacroText: () => string, range: TextRange): Macro {
+        const macro = new MacroConstructor(name, macroSourceFilename, getMacroText, range);
+        Debug.attachMacroDebugInfo(macro);
+        return macro;
     }
 
     function createBuiltInMacro(name: string, text: string): Macro {
@@ -2091,29 +2117,7 @@ export namespace LpcParser {
         const tempNode = setTextRangePosEnd(factory.createBlock([], /*multiLine*/ false), 0, text.length);        
         return createMacroBase(name, "builtin", () => text, tempNode);        
     }
-
-    function createMacroBase(name: string, fileName: string, getText: () => string, range: TextRange): Macro {
-        const macro: Macro = {
-            name: name,
-            includeFilename: fileName, 
-            includeDirPos: undefined,
-            includeDirEnd: undefined,
-            disabled: false,
-            pos: undefined,
-            end: undefined,
-            argsIn: undefined,
-            // includeDirPos: directive.includeDirPos, 
-            // includeDirEnd: directive.includeDirEnd,
-            range: range,
-            arguments: undefined,
-            getText: getText,
-        }; 
-
-        Debug.attachMacroDebugInfo(macro);
-
-        return macro;
-    }
-
+       
     function createMacro(directive: DefineDirective, macroSourceFilename: string): Macro {        
         function getMacroText(): string {            
             Debug.assertIsDefined(directive.range, "Cannot expand macro for a define without content");

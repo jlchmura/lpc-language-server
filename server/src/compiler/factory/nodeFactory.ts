@@ -501,6 +501,12 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.transformFlags |= propagateChildrenFlags(node.statements) |
             propagateChildFlags(node.endOfFileToken);
 
+        node.heritageClauses = undefined;
+        node.inactiveCodeRanges = undefined;
+        node.importCandidates = undefined;
+        node.jsDocParsingMode = undefined;
+        node.parsedMacros = undefined;
+
         node.locals = undefined; // initialized by binder (LocalsContainer)
         node.nextContainer = undefined; // initialized by binder (LocalsContainer)
         node.endFlowNode = undefined;
@@ -517,6 +523,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.setExternalModuleIndicator = undefined;
         node.pragmas = undefined!;
         // node.checkJsDirective = undefined;
+        node.checkLpcDirective = undefined!;
         node.referencedFiles = undefined!;
         node.typeReferenceDirectives = undefined!;
         node.libReferenceDirectives = undefined!;

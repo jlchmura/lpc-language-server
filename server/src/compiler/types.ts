@@ -3161,7 +3161,7 @@ export interface CheckLpcDirective extends TextRange {
 export interface ReadonlyPragmaContext {
     languageVersion: ScriptTarget;
     pragmas?: ReadonlyPragmaMap;
-    checkLpcDirective?: CheckLpcDirective;    
+    checkLpcDirective: CheckLpcDirective;    
     referencedFiles: readonly FileReference[];
     typeReferenceDirectives: readonly FileReference[];
     libReferenceDirectives: readonly FileReference[];
