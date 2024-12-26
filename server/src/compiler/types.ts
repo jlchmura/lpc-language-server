@@ -3109,7 +3109,7 @@ export interface SourceFile extends Declaration, LocalsContainer, HasHeritageCon
 
     /** When a node is parsed as a result of a macro expansion, a link from the node 
      * to the original macro definition is stored here. */     
-    nodeMacroMap?: ReadonlyMap<Node, DefineDirective>;
+    nodeMacroMap?: ReadonlyMap<Node, string>;
 }
 
 export interface JsonSourceFile extends SourceFile {

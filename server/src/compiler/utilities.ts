@@ -1235,8 +1235,9 @@ export function createNameResolver({
                 return result;
             }
         }
-        // otherwise if this has a super accessor prefix, jump right to the sourcefile
-        if (prefix) location = getSourceFileOfNode(location);
+        
+        // if this has a super accessor prefix, or is a define lookup, jump right to the sourcefile        
+        if (prefix || meaning & SymbolFlags.Define) location = getSourceFileOfNode(location);
 
         loop:
         while (location) {

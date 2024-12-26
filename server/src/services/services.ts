@@ -2264,19 +2264,11 @@ function getSymbolAtLocationForQuickInfo(node: Node, checker: TypeChecker): Symb
     //     if (properties && properties.length === 1) {
     //         return first(properties);
     //     }
-    // }
-    // if (node.macro) {
-    //     const macroNode = checker.resolveName(node.macro, node.parent, SymbolFlags.Define, false);
-    //     if (macroNode) {
-    //         return macroNode;
-    //     }
-    // }
+    // }  
     if (node.flags & NodeFlags.MacroContext) {
-        const file = node.getSourceFile();
-        if (file.nodeMacroMap?.has(node)) {
-            const macroSymbol = checker.getSymbolAtLocation(file.nodeMacroMap.get(node));
-            return macroSymbol;
-        }
+        // the macro name for each node is stored in a map on the sourcefile
+        const macroName = node.getSourceFile()?.nodeMacroMap.get(node);
+        return macroName && checker.resolveName(macroName, node.parent, SymbolFlags.Define, false);                    
     }
 
     const symbol = checker.getSymbolAtLocation(node);    

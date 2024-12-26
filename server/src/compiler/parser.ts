@@ -93,7 +93,7 @@ export namespace LpcParser {
     var inactiveRanges: TextRange[];
     var importCandidates: ImportCandidateNode[];
     var nodeFileMap: Map<Node, string>;
-    var nodeMacroMap: Map<Node, DefineDirective>;
+    var nodeMacroMap: Map<Node, string>;
 
     // TODO(jakebailey): This type is a lie; this value actually contains the result
     // of ORing a bunch of `1 << ParsingContext.XYZ`.
@@ -172,7 +172,7 @@ export namespace LpcParser {
         let fileDir = getDirectoryPath(fileName);
         if (!fileDir.endsWith("/")) fileDir = fileDir + "/";
         
-        nodeMacroMap = new Map<Node, DefineDirective>();
+        nodeMacroMap = new Map<Node, string>();
         macroTable = new Map<string,Macro>();
         macroTable.set("__DIR__", createBuiltInMacro("__DIR__", `"${fileDir}"`));
         macroTable.set("__FILE__", createBuiltInMacro("__FILE__", `"${fileName}"`));
@@ -890,7 +890,11 @@ export namespace LpcParser {
         }
         
         const statements = parseList(ParsingContext.SourceElements, parseStatement, pos);
-                
+        if (includeDir) {
+            // if a global include was passed in, then we need to add it back to the stack
+            (statements as MutableNodeArray<Statement>).unshift(includeDir);
+        }
+
         Debug.assert(token() === SyntaxKind.EndOfFileToken);
         // Debug.assert(!currentMacro);                
 
@@ -2123,7 +2127,8 @@ export namespace LpcParser {
     function createBuiltInMacro(name: string, text: string): Macro {
         // although we only need a range, store the position in a fake node so that v8 doesn't deoptimize the Node object
         const tempNode = setTextRangePosEnd(factory.createBlock([], /*multiLine*/ false), 0, text.length);        
-        return createMacroBase(name, "builtin", () => text, tempNode);        
+        const macro = createMacroBase(name, "builtin", () => text, tempNode);        
+        return macro;
     }
        
     function createMacro(directive: DefineDirective, macroSourceFilename: string): Macro {        
@@ -2399,24 +2404,24 @@ export namespace LpcParser {
             const scannerState = scanner.getState(pos.stateId);            
             Debug.assertIsDefined(scannerState, "Scanner state must be defined");
             Debug.assert(scannerState.fileName == pos.fileName, "Scanner state filename does not match position state filename");
-            // Debug.assert(!pos.speculating, "Cannot finish node while speculating");
-
+            
             nodeFileMap.set(node, scannerState.fileName?.length > 0 ? scannerState.fileName : fileName);
 
             const rootMacro = pos.macro ? getRootMacro(pos.macro) : undefined;            
             const macroState = rootMacro?.pos;
+            
+            if (rootMacro) {
+                // always store a link to the root macro
+                setNodeFlags(node, node.flags | (NodeFlags.Synthesized | NodeFlags.MacroContext));
+                nodeMacroMap.set(node, rootMacro.name);                
+            }
+
             if (macroState && macroState.fileName === fileName) {
-                // const macroEndState = scanner.getState(macroState.stateId);
+                // use the macro end pos, if we're in a macro
                 const currentState = getPositionState();
                 const endToUse = Math.max((currentState.fileName === fileName && !currentState.macro) ? currentState.pos : 0, rootMacro.end);
                 
-                setTextRangePosEnd(node, macroState.pos, endToUse);//end ?? rootMacro.end);               
-                setNodeFlags(node, (node.flags || 0) | (NodeFlags.Synthesized | NodeFlags.MacroContext));
-                if (rootMacro.directive) {
-                    nodeMacroMap.set(node, rootMacro.directive);
-                }
-            // } else if (currentIncludeDirective) {
-            //     setTextRangePosEnd(node, currentIncludeDirective.pos, currentIncludeDirective.end);
+                setTextRangePosEnd(node, macroState.pos, endToUse);//end ?? rootMacro.end);                                           
             } else {
                 setTextRangePosEnd(node, pos.pos, end ?? scannerState.end);
             }                                 
