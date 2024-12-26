@@ -2088,8 +2088,30 @@ export namespace LpcParser {
 
     function createBuiltInMacro(name: string, text: string): Macro {
         // although we only need a range, store the position in a fake node so that v8 doesn't deoptimize the Node object
-        const tempNode = setTextRangePosEnd(factory.createBlock([], /*multiLine*/ false), 0, text.length);
-        return { name, includeFilename: "macro", posInOrigin: 0, endInOrigin: 0, getText: () => text, range: tempNode };
+        const tempNode = setTextRangePosEnd(factory.createBlock([], /*multiLine*/ false), 0, text.length);        
+        return createMacroBase(name, "builtin", () => text, tempNode);        
+    }
+
+    function createMacroBase(name: string, fileName: string, getText: () => string, range: TextRange): Macro {
+        const macro: Macro = {
+            name: name,
+            includeFilename: fileName, 
+            includeDirPos: undefined,
+            includeDirEnd: undefined,
+            disabled: false,
+            pos: undefined,
+            end: undefined,
+            argsIn: undefined,
+            // includeDirPos: directive.includeDirPos, 
+            // includeDirEnd: directive.includeDirEnd,
+            range: range,
+            arguments: undefined,
+            getText: getText,
+        }; 
+
+        Debug.attachMacroDebugInfo(macro);
+
+        return macro;
     }
 
     function createMacro(directive: DefineDirective, macroSourceFilename: string): Macro {        
@@ -2099,18 +2121,9 @@ export namespace LpcParser {
             return includeFileCache.get(macroSourceFilename) ?? "";
         }   
 
-        const macro = {
-            name: directive.name.text,
-            includeFilename: getNodeOriginFileName(directive), 
-            // includeDirPos: directive.includeDirPos, 
-            // includeDirEnd: directive.includeDirEnd,
-            range: directive.range,
-            arguments: directive.arguments,
-            getText: getMacroText 
-        };           
-        
-        Debug.attachMacroDebugInfo(macro);
-        
+        const macro = createMacroBase(directive.name.text, macroSourceFilename, getMacroText, directive.range);
+        macro.arguments = directive.arguments;
+                        
         return macro;
     }    
 

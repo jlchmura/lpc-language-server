@@ -949,6 +949,11 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.type = type;
         node.body = body;
                 
+        node.transformFlags |= propagateNameFlags(node.name) |
+            propagateChildFlags(node.type) |
+            propagateChildrenFlags(node.parameters) |
+            propagateChildFlags(node.body);
+
         node.typeArguments = undefined; // used in quick info
         node.jsDoc = undefined;         // initialized by parser (JsDocContainer)
         node.locals = undefined;        // initialized by binder (LocalsContainer)
