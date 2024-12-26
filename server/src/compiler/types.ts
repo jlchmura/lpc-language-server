@@ -1373,7 +1373,9 @@ export const enum TransformFlags {
     None = 0,
     ContainsRestOrSpread,
     ContainsFluffOS,
-    ContainsLDMud
+    ContainsLDMud,
+    ContainsHoistedDeclarationOrCompletion,
+    ContainsUpdateExpressionForIdentifier
 }
 
 export type KeywordTypeSyntaxKind =

@@ -62,7 +62,7 @@ export interface Scanner {
     getTokenValue(): string;
     getStateId(): number;
     getState(id: number): SavedStatePos | undefined;
-    getStateEndings(): MapLike<SavedStatePos>;
+    getStateEndings(): SavedStatePos[];
     releaseState(): void;
     resetSavedStates(): void;
     hasUnicodeEscape(): boolean;
@@ -139,6 +139,10 @@ interface SavedStatePos {
     fileName: string;
     end: number;
     isSpeculative?: boolean;
+}
+
+function createPosState(end: number, fileName: string, isSpeculative: boolean = false): SavedStatePos {
+    return { fileName, end, isSpeculative };
 }
 
 /** @internal */
@@ -1012,7 +1016,7 @@ export function createScanner(
     var nextState: (...args: any) => boolean | undefined;
     var stateId = 1;
     var nextStateId = 2;
-    var stateEndings: MapLike<SavedStatePos> = {};    
+    var stateEndings: SavedStatePos[] = [];
 
     // Current position (end position of text of current token)
     var pos: number;
@@ -1056,7 +1060,7 @@ export function createScanner(
         getStateId: () => stateId,
         getState,
         releaseState: ()=> { Debug.assertIsDefined(nextState); nextState?.(); },
-        resetSavedStates: () => { nextState = undefined; nextStateId = 2; stateId = 1; stateEndings = {} },
+        resetSavedStates: () => { nextState = undefined; nextStateId = 2; stateId = 1; stateEndings = [] },
         hasUnicodeEscape: () => (tokenFlags & TokenFlags.UnicodeEscape) !== 0,
         hasExtendedUnicodeEscape: () => (tokenFlags & TokenFlags.ExtendedUnicodeEscape) !== 0,
         hasPrecedingLineBreak: () => (tokenFlags & TokenFlags.PrecedingLineBreak) !== 0,
@@ -2017,10 +2021,7 @@ export function createScanner(
         asteriskSeen = false;
 
         // Debug.assert(!stateEndings[stateId] || stateEndings[stateId].end <= pos, "State ending cannot be after the current position");
-        stateEndings[stateId] = {
-            end: pos,
-            fileName
-        };
+        stateEndings[stateId] = createPosState(pos, fileName);
 
         while (true) {
             tokenStart = pos;
@@ -2033,7 +2034,7 @@ export function createScanner(
                 const saveStateId = stateId;
                 dontRescan = nextState();
                                 
-                stateEndings[stateId] ??= { end: pos, fileName };
+                stateEndings[stateId] ??= createPosState(pos, fileName);
                 stateEndings[stateId].end = pos;
                 // Debug.assert(stateId !== saveStateId, "Scanner state must change");
                 streamSwitched = true;
@@ -2812,10 +2813,7 @@ export function createScanner(
         tokenFlags = TokenFlags.None;
 
         Debug.assert(!stateEndings[stateId] || stateEndings[stateId].end <= pos, "State ending cannot be after the current position");
-        stateEndings[stateId] = {
-            end: pos,
-            fileName
-        };
+        stateEndings[stateId] = createPosState(pos, fileName);
         
         if (pos >= end) {
             return token = SyntaxKind.EndOfFileToken;
@@ -2847,10 +2845,7 @@ export function createScanner(
         tokenFlags = TokenFlags.None;
 
         // Debug.assert(!stateEndings[stateId] || stateEndings[stateId].end <= pos, "State ending cannot be after the current position");
-        stateEndings[stateId] = {
-            end: pos,
-            fileName
-        };
+        stateEndings[stateId] = createPosState(pos, fileName);
 
         if (pos >= end) {
             return token = SyntaxKind.EndOfFileToken;
@@ -3013,16 +3008,13 @@ export function createScanner(
         setText(newText, start, length);
         fileName = newFileName;
 
-        stateEndings[stateId] = {
-            end: pos, 
-            fileName
-        };
+        stateEndings[stateId] = createPosState(pos, fileName);
 
         return nextState;
     }    
 
     function speculationHelper<T>(callback: () => T, isLookahead: boolean): T {                
-        const saveStateCache = {...stateEndings};
+        const saveStateCache = [...stateEndings];
         const saveStateId = stateId;
         const saveNextId = nextStateId;
         const saveNextState = nextState;
@@ -3113,7 +3105,7 @@ export function createScanner(
         // save state, do a scan, then restore state
         const saveStateId = stateId;
         const saveNextId = nextStateId;
-        const saveStateCache = {...stateEndings};
+        const saveStateCache = [...stateEndings];
         const restoreState = captureCachedState();
         const scanStateId = stateId;     
         isSpeculating = false;
@@ -3121,7 +3113,7 @@ export function createScanner(
         fileName = "";
 
         // initialize the state ending
-        stateEndings[stateId] = { end: start, fileName };
+        stateEndings[stateId] = createPosState(start, fileName);
         
         setText(text, start, length);
         const result = callback();
@@ -3203,7 +3195,7 @@ export function createScanner(
         tokenValue = undefined!;
         tokenFlags = TokenFlags.None;        
         if (resetEnding) {
-            stateEndings[stateId] = { end: position, fileName };        
+            stateEndings[stateId] = createPosState(position, fileName);
         }
     }
 

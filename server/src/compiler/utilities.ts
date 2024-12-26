@@ -59,7 +59,7 @@ function Symbol(this: Symbol, flags: SymbolFlags, name: string) {
     this.mergeId = 0;
     this.parent = undefined;
     this.members = undefined;
-    this.exports = undefined;
+    this.exports = undefined;    
     this.exportSymbol = undefined;
     this.constEnumOnlyModule = undefined;
     this.isReferenced = undefined;
@@ -67,40 +67,26 @@ function Symbol(this: Symbol, flags: SymbolFlags, name: string) {
     (this as any).links = undefined; // used by TransientSymbol
 }
 
-// function Type(this: Type, checker: TypeChecker, flags: TypeFlags) {
-//     // Note: if modifying this, be sure to update TypeObject in src/services/services.ts
-//     this.flags = flags;
-//     if (Debug.isDebugging || tracing) {
-//         this.checker = checker;
-//     }
-// }
-
-// function Signature(this: Signature, checker: TypeChecker, flags: SignatureFlags) {
-//     // Note: if modifying this, be sure to update SignatureObject in src/services/services.ts
-//     this.flags = flags;
-//     if (Debug.isDebugging) {
-//         this.checker = checker;
-//     }
-// }
-
 function Node(this: Mutable<Node>, kind: SyntaxKind, pos: number, end: number) {
     // Note: if modifying this, be sure to update NodeObject in src/services/services.ts
     this.pos = pos;
     this.end = end;
+    this.macro = undefined;
     this.kind = kind;
     this.id = 0;
     this.flags = NodeFlags.None;
     this.modifierFlagsCache = ModifierFlags.None;
-    this.transformFlags = TransformFlags.None;
+    this.transformFlags = TransformFlags.None;    
     this.parent = undefined!;
     this.original = undefined;
-    this.emitNode = undefined;
+    this.emitNode = undefined;    
 }
 
 function Token(this: Mutable<Node>, kind: SyntaxKind, pos: number, end: number) {
     // Note: if modifying this, be sure to update TokenOrIdentifierObject in src/services/services.ts
     this.pos = pos;
-    this.end = end;
+    this.end = end;    
+    this.macro = undefined;
     this.kind = kind;
     this.id = 0;
     this.flags = NodeFlags.None;
@@ -113,6 +99,7 @@ function Identifier(this: Mutable<Node>, kind: SyntaxKind, pos: number, end: num
     // Note: if modifying this, be sure to update TokenOrIdentifierObject in src/services/services.ts
     this.pos = pos;
     this.end = end;
+    this.macro = undefined;
     this.kind = kind;
     this.id = 0;
     this.flags = NodeFlags.None;
