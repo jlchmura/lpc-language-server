@@ -9940,10 +9940,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const parameters = new Set<string>();
         const excludedParameters = new Set<number>();
         forEach(node.parameters, ({ name }, index) => {
-            if (isIdentifier(name)) {
+            if (name && isIdentifier(name)) {
                 parameters.add(name.text);
             }
-            if (isBindingPattern(name)) {
+            if (name && isBindingPattern(name)) {
                 excludedParameters.add(index);
             }
         });
