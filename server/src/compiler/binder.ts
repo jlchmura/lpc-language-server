@@ -5,9 +5,11 @@ const binder = /* @__PURE__ */ createBinder();
 /** @internal */
 export function bindSourceFile(file: SourceFile, options: CompilerOptions) {
     performance.mark("beforeBind");    
+    // console.debug("Binding file " + file.fileName);
     binder(file, options);    
     performance.mark("afterBind");
     performance.measure("Bind", "beforeBind", "afterBind");
+    // console.debug("DONE binding file " + file.fileName);
 }
 
 interface ActiveLabel {

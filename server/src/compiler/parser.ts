@@ -851,18 +851,20 @@ export namespace LpcParser {
         languageVariant: LanguageVariant = LanguageVariant.LDMud,
         reportParsedDefines: boolean = false    
     ) {
+        // console.debug("Start parsing source file: " + fileName);
         initState(fileName, sourceText, globalIncludes, configDefines, languageVersion, syntaxCursor, scriptKind, fileHandler, jsDocParsingMode, languageVariant);
         // console.debug("Parsing source file: " + fileName);        
         try {
             const result = parseSourceFileWorker(languageVersion, setParentNodes, scriptKind || ScriptKind.LPC, jsDocParsingMode, reportParsedDefines);
             clearState();            
 
+            // console.debug("DONE parsing source file: " + fileName);
             return result;
         } catch (e) {
             console.error(e);            
             clearState();
             throw e;
-        }     
+        } 
     }
 
     function parseSourceFileWorker(languageVersion: ScriptTarget, setParentNodes: boolean, scriptKind: ScriptKind, jsDocParsingMode: JSDocParsingMode, reportParsedDefines: boolean): SourceFile {

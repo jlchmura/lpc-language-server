@@ -12,7 +12,19 @@ import { KindModifiers } from "./protocol.const.js";
 import { CompletionEntryDetails, SignatureHelp } from "./typeConverters";
 import { getHeapStatistics } from "v8";
 
+// generate a unique 5 digit it
+// const randomId = Math.floor(Math.random() * 90000) + 10000;
+// const logFilename = `lpc-server-${randomId}.log`;
 const logger = new Logger(undefined, true, lpc.server.LogLevel.normal);
+// const origLog = console.log;
+// console.log = (...args) => { logger.info(args.length === 1 ? args[0] : args.join(", ")); origLog(...args); };
+// const origErr = console.error;
+// console.error = (...args) => { logger.err(args.length === 1 ? args[0] : args.join(", ")); origErr(...args); };
+// const origInfo = console.info;
+// console.info = (...args) => { logger.info(args.length === 1 ? args[0] : args.join(", ")); origInfo(...args); };
+// const origDebug = console.debug;
+// console.debug = (...args) => { logger.info(args.length === 1 ? args[0] : args.join(", ")); origDebug(...args); };
+
 const DIAG_DELAY = 0;
 
 // see https://github.com/microsoft/vscode/blob/2e93ebce771522202158ee335d2c36d10ce086ea/extensions/typescript-language-features/src/tsServer/server.ts#L495 
