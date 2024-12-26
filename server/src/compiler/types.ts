@@ -20,14 +20,12 @@ export type SymbolTable = Map<string, Symbol>;
 
 export interface TextRange {
     pos: number;
-    end: number;
-    macro?: string;
+    end: number;    
 }
 
 export interface ReadonlyTextRange {
     readonly pos: number;
-    readonly end: number;
-    readonly macro?: string;    
+    readonly end: number;    
 }
 
 export interface MacroIncludedFileRange {
@@ -3108,6 +3106,10 @@ export interface SourceFile extends Declaration, LocalsContainer, HasHeritageCon
 
     /** Macros that were parsed in this source file (and any includes) */
     parsedMacros?: ReadonlyMap<string, string>;
+
+    /** When a node is parsed as a result of a macro expansion, a link from the node 
+     * to the original macro definition is stored here. */     
+    nodeMacroMap?: ReadonlyMap<Node, DefineDirective>;
 }
 
 export interface JsonSourceFile extends SourceFile {
@@ -7210,7 +7212,7 @@ export interface PositionState {
 
 
 export interface Macro extends MacroIncludedFileRange {
-    // directive: DefineDirective;
+    directive: DefineDirective;
     name: string;
     includeDirPos?: number;
     includeDirEnd?: number;
@@ -7222,7 +7224,7 @@ export interface Macro extends MacroIncludedFileRange {
     arguments?: NodeArray<ParameterDeclaration>;
     argsIn?: MapLike<MacroParameter>;    
     pos?: PositionState
-    end?: number;
+    end?: number;    
 }
 
 export interface UndefDirective extends PreprocessorDirective {

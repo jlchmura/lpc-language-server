@@ -534,6 +534,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.classifiableNames = undefined;
         node.impliedNodeFormat = undefined;
 
+        node.nodeMacroMap = undefined;
+
         return node;
     }
 

@@ -71,7 +71,6 @@ function Node(this: Mutable<Node>, kind: SyntaxKind, pos: number, end: number) {
     // Note: if modifying this, be sure to update NodeObject in src/services/services.ts
     this.pos = pos;
     this.end = end;
-    this.macro = undefined;
     this.kind = kind;
     this.id = 0;
     this.flags = NodeFlags.None;
@@ -86,7 +85,6 @@ function Token(this: Mutable<Node>, kind: SyntaxKind, pos: number, end: number) 
     // Note: if modifying this, be sure to update TokenOrIdentifierObject in src/services/services.ts
     this.pos = pos;
     this.end = end;    
-    this.macro = undefined;
     this.kind = kind;
     this.id = 0;
     this.flags = NodeFlags.None;
@@ -99,7 +97,6 @@ function Identifier(this: Mutable<Node>, kind: SyntaxKind, pos: number, end: num
     // Note: if modifying this, be sure to update TokenOrIdentifierObject in src/services/services.ts
     this.pos = pos;
     this.end = end;
-    this.macro = undefined;
     this.kind = kind;
     this.id = 0;
     this.flags = NodeFlags.None;
@@ -129,11 +126,6 @@ export function setTextRangeEnd<T extends ReadonlyTextRange>(range: T, end: numb
  */
 export function setTextRangePosEnd<T extends ReadonlyTextRange>(range: T, pos: number, end: number) {
     return setTextRangeEnd(setTextRangePos(range, pos), end);
-}
-
-export function setNodeMacro<T extends ReadonlyTextRange>(range: T, macro: string) {
-    (range as Mutable<TextRange>).macro = macro;
-    return range;
 }
 
 /**

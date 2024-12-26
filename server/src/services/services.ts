@@ -245,8 +245,7 @@ class TokenOrIdentifierObject<TKind extends SyntaxKind> implements Node {
     public jsDocComments?: JSDoc[];
     public id?: number;
     public emitNode?: EmitNode | undefined;    
-    public macro?: string;
-
+    
     constructor(kind: TKind, pos: number, end: number) {
         // Note: if modifying this, be sure to update Token and Identifier in src/compiler/utilities.ts
         this.pos = pos;
@@ -257,7 +256,6 @@ class TokenOrIdentifierObject<TKind extends SyntaxKind> implements Node {
         this.transformFlags = TransformFlags.None;
         this.parent = undefined!;
         this.emitNode = undefined;
-        this.macro = undefined;
     }
 
     public getSourceFile(): SourceFile {
@@ -379,7 +377,6 @@ class NodeObject<TKind extends SyntaxKind> implements Node {
     public kind: TKind;
     public pos: number;
     public end: number;
-    public macro?: string;
     public flags: NodeFlags;
     public modifierFlagsCache: ModifierFlags;
     public transformFlags: TransformFlags;
@@ -394,7 +391,6 @@ class NodeObject<TKind extends SyntaxKind> implements Node {
         // Note: if modifying this, be sure to update Node in src/compiler/utilities.ts
         this.pos = pos;
         this.end = end;
-        this.macro = undefined;
         this.kind = kind;
         this.id = 0;
         this.flags = NodeFlags.None;
@@ -2269,12 +2265,20 @@ function getSymbolAtLocationForQuickInfo(node: Node, checker: TypeChecker): Symb
     //         return first(properties);
     //     }
     // }
-    if (node.macro) {
-        const macroNode = checker.resolveName(node.macro, node.parent, SymbolFlags.Define, false);
-        if (macroNode) {
-            return macroNode;
+    // if (node.macro) {
+    //     const macroNode = checker.resolveName(node.macro, node.parent, SymbolFlags.Define, false);
+    //     if (macroNode) {
+    //         return macroNode;
+    //     }
+    // }
+    if (node.flags & NodeFlags.MacroContext) {
+        const file = node.getSourceFile();
+        if (file.nodeMacroMap?.has(node)) {
+            const macroSymbol = checker.getSymbolAtLocation(file.nodeMacroMap.get(node));
+            return macroSymbol;
         }
     }
+
     const symbol = checker.getSymbolAtLocation(node);    
     return symbol;
 }
