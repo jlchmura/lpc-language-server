@@ -63,6 +63,18 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch CLI",
+            "skipFiles": ["<node_internals>/**"],
+            "program": "${workspaceFolder}/out/server/src/bin/lpc.js",
+            "args": ["", "--project", "../nightmare-residuum/lib"],
+            "preLaunchTask": "compile",
+            "sourceMaps": true,
+            "outFiles": ["${workspaceFolder}/out/**/*.js"],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Launch Parse Docs",
             "skipFiles": ["<node_internals>/**"],
             "program": "${workspaceFolder}/out/server/src/parse-ld-docs.js",

@@ -1,5 +1,4 @@
 import * as lpc from "../lpc/lpc.js";
-import { ConfiguredProject } from "../server/project.js";
 
 // This file actually uses arguments passed on commandline and executes it
 
@@ -26,22 +25,30 @@ lpc.sys.write(`Version ${lpc.version}\n`);
 lpc.sys.write(`Searching for config file... ${lpc.sys.getCurrentDirectory()}\n`);
 
 const toCanonicalFileName = lpc.createGetCanonicalFileName(lpc.sys.useCaseSensitiveFileNames);
-const projectFolder = lpc.server.findArgument("--project");
-const configFileName = lpc.findConfigFile(projectFolder || lpc.sys.getCurrentDirectory(), lpc.sys.fileExists);
+const projectFolderArg = lpc.server.findArgument("--project");
+const projectFolder = lpc.isDiskPathRoot(projectFolderArg) ? projectFolderArg : lpc.normalizePath(lpc.combinePaths(lpc.sys.getCurrentDirectory(), projectFolderArg));
+const configFileName = lpc.normalizePath(lpc.findConfigFile(projectFolder || lpc.sys.getCurrentDirectory(), lpc.sys.fileExists));
 const canonicalConfigFilePath = (toCanonicalFileName(configFileName)) as lpc.server.NormalizedPath;
 
-lpc.sys.write(`Using config file: ${canonicalConfigFilePath}\n`);
+if (!configFileName) {
+    lpc.sys.write("No config file found.\n");
+    process.exit(1);    
+}
 
-const parsedConfig = lpc.getParsedCommandLineOfConfigFile(configFileName, {}, {
-    ...lpc.sys,
-    getCurrentDirectory: () => lpc.sys.getCurrentDirectory(),
-    onUnRecoverableConfigFileDiagnostic: (d)=>{console.error(d);},
-});
+lpc.sys.write(`Using config file: ${canonicalConfigFilePath}\n`);
+const configFile = lpc.parseJsonText(configFileName, lpc.sys.readFile(configFileName));
+const parsedConfig = lpc.parseLpcSourceFileConfigFileContent(configFile, lpc.sys, lpc.getDirectoryPath(configFileName), /*existingOptions*/ undefined, configFileName);
+// const parsedConfig = lpc.getParsedCommandLineOfConfigFile(configFileName, {}, {
+//     ...lpc.sys,
+//     getCurrentDirectory: () => lpc.sys.getCurrentDirectory(),
+//     onUnRecoverableConfigFileDiagnostic: (d)=>{console.error(d);},
+// });
 
 const compilerOptions = parsedConfig.options;
 const compilerHost = lpc.createCompilerHost(compilerOptions);
 compilerHost.getDefaultLibFileName = () => lpc.combinePaths(projectFolder, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
 
+lpc.sys.write(`Driver type: ${lpc.DriverTypeMap[compilerOptions.driverType]}\n`);
 lpc.sys.write(`Found ${parsedConfig.fileNames.length} files.\n`);
 
 const createProgramOptions: lpc.CreateProgramOptions = {
@@ -89,7 +96,8 @@ const program = lpc.createProgram(createProgramOptions);
 
 const diags: lpc.DiagnosticWithLocation[] = [];
 
-program.getRootFileNames().forEach(f => {
+const rootFiles = program.getRootFileNames();
+rootFiles.forEach(f => {
     const sourceFile = program.getSourceFile(f);
     const parseDiags = sourceFile.parseDiagnostics;
     diags.push(...parseDiags);
@@ -104,6 +112,11 @@ program.getRootFileNames().forEach(f => {
     });
 });
 
-lpc.sys.write("\n");
-const diagTxt = lpc.getErrorSummaryText(diags.length, lpc.getFilesInErrorForSummary(diags), "\n", compilerHost);
-lpc.sys.write(diagTxt);    
+if (diags.length) {
+    lpc.sys.write("\n");
+    const diagTxt = lpc.getErrorSummaryText(diags.length, lpc.getFilesInErrorForSummary(diags), "\n", compilerHost);
+    lpc.sys.write(diagTxt);    
+} else if (rootFiles.length) {
+    lpc.sys.write(lpc.formatColorAndReset("✓ ", lpc.ForegroundColorEscapeSequences.Green));
+    lpc.sys.write(lpc.formatColorAndReset("No errors found.\n", lpc.ForegroundColorEscapeSequences.Grey));
+}

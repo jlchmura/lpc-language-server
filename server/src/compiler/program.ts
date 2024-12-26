@@ -2979,6 +2979,7 @@ export enum ForegroundColorEscapeSequences {
     Yellow = "\u001b[93m",
     Blue = "\u001b[94m",
     Cyan = "\u001b[96m",
+    Green = "\u001b[92m",
 }
 const gutterStyleSequence = "\u001b[7m";
 const gutterSeparator = " ";

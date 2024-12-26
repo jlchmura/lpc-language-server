@@ -4935,6 +4935,12 @@ export const enum LanguageVariant {
     Standard
 }
 
+export const DriverTypeMap = [
+    "LDMud",
+    "FluffOS",
+    "Standard"
+]
+
 export const enum JSDocParsingMode {
     /**
      * Always parse JSDoc comments and include them in the AST.
