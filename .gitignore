@@ -14,3 +14,4 @@ coverage
 *.heapsnapshot
 vscode-profile-*.*
 tsconfig.tsbuildinfo
+isolate*.log

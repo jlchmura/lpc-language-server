@@ -208,6 +208,7 @@ import {
     factory,
     setTextRangePosEnd,
     ResolvedProjectReference,
+    CheckLpcDirective,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 import { computeSuggestionDiagnostics } from "./suggestionDiagnostics.js";
@@ -235,7 +236,7 @@ function getServicesObjectAllocator(): ObjectAllocator {
 class TokenOrIdentifierObject<TKind extends SyntaxKind> implements Node {
     public kind: TKind;
     public pos: number;
-    public end: number;
+    public end: number;    
     public flags: NodeFlags;
     public modifierFlagsCache!: ModifierFlags;
     public transformFlags: TransformFlags;
@@ -244,8 +245,7 @@ class TokenOrIdentifierObject<TKind extends SyntaxKind> implements Node {
     public jsDocComments?: JSDoc[];
     public id?: number;
     public emitNode?: EmitNode | undefined;    
-    public posInOrigin?: number;
-    public endInOrigin?: number;
+    public macro?: string;
 
     constructor(kind: TKind, pos: number, end: number) {
         // Note: if modifying this, be sure to update Token and Identifier in src/compiler/utilities.ts
@@ -257,6 +257,7 @@ class TokenOrIdentifierObject<TKind extends SyntaxKind> implements Node {
         this.transformFlags = TransformFlags.None;
         this.parent = undefined!;
         this.emitNode = undefined;
+        this.macro = undefined;
     }
 
     public getSourceFile(): SourceFile {
@@ -278,12 +279,8 @@ class TokenOrIdentifierObject<TKind extends SyntaxKind> implements Node {
         return this.end;
     }
 
-    public getWidth(sourceFile?: SourceFile): number {
-        if (!!this.posInOrigin) {
-            return this.endInOrigin - this.posInOrigin;
-        } else {
-            return this.getEnd() - this.getStart(sourceFile);
-        }
+    public getWidth(sourceFile?: SourceFile): number {        
+        return this.getEnd() - this.getStart(sourceFile);        
     }
 
     public getFullWidth(): number {
@@ -339,10 +336,7 @@ class TokenOrIdentifierObject<TKind extends SyntaxKind> implements Node {
     }
 }
 
-class IdentifierObject
-    extends TokenOrIdentifierObject<SyntaxKind.Identifier>
-    implements Identifier
-{
+class IdentifierObject extends TokenOrIdentifierObject<SyntaxKind.Identifier> implements Identifier {
     public text!: string;
     declare _LpcjsDocContainerBrand: any;
     declare _primaryExpressionBrand: any;
@@ -359,10 +353,7 @@ class IdentifierObject
     }
 }
 
-class TokenObject<TKind extends SyntaxKind>
-    extends TokenOrIdentifierObject<TKind>
-    implements Token<TKind>
-{
+class TokenObject<TKind extends SyntaxKind> extends TokenOrIdentifierObject<TKind> implements Token<TKind> {
     constructor(kind: TKind, pos: number, end: number) {
         super(kind, pos, end);
     }
@@ -388,6 +379,7 @@ class NodeObject<TKind extends SyntaxKind> implements Node {
     public kind: TKind;
     public pos: number;
     public end: number;
+    public macro?: string;
     public flags: NodeFlags;
     public modifierFlagsCache: ModifierFlags;
     public transformFlags: TransformFlags;
@@ -402,11 +394,12 @@ class NodeObject<TKind extends SyntaxKind> implements Node {
         // Note: if modifying this, be sure to update Node in src/compiler/utilities.ts
         this.pos = pos;
         this.end = end;
+        this.macro = undefined;
         this.kind = kind;
         this.id = 0;
         this.flags = NodeFlags.None;
         this.modifierFlagsCache = ModifierFlags.None;
-        this.transformFlags = TransformFlags.None;
+        this.transformFlags = TransformFlags.None;        
         this.parent = undefined!;
         this.original = undefined;
         this.emitNode = undefined;
@@ -599,10 +592,7 @@ function createChildren(
     return children;
 }
 
-class SourceFileObject
-    extends NodeObject<SyntaxKind.SourceFile>
-    implements SourceFile
-{
+class SourceFileObject extends NodeObject<SyntaxKind.SourceFile> implements SourceFile {
     declare _declarationBrand: any;
     declare _localsContainerBrand: any;
     declare _hasHeritageBrand: any;
@@ -617,7 +607,7 @@ class SourceFileObject
     public statements!: NodeArray<Statement>;
     public endOfFileToken!: Token<SyntaxKind.EndOfFileToken>;
 
-    public amdDependencies!: { name: string; path: string }[];
+    // public amdDependencies!: { name: string; path: string }[];
     public moduleName!: string;
     public referencedFiles!: FileReference[];
     public typeReferenceDirectives!: FileReference[];
@@ -653,22 +643,21 @@ class SourceFileObject
     public pragmas!: PragmaMap;
     public localJsxFactory: EntityName | undefined;
     public localJsxNamespace: string | undefined;
+    public checkLpcDirective: CheckLpcDirective | undefined;
 
     constructor(kind: SyntaxKind.SourceFile, pos: number, end: number) {
         super(kind, pos, end);
     }
-    renamedDependencies?: ReadonlyMap<string, string>;
-    classifiableNames?: ReadonlySet<string>;
-    inherits: NodeArray<InheritDeclaration>;
-    endFlowNode?: FlowNode;
-    localSymbol?: Symbol;
-    locals?: SymbolTable;
-    nextContainer?: HasLocals;
 
-    public update(
-        newText: string,
-        textChangeRange: TextChangeRange
-    ): SourceFile {
+    // renamedDependencies?: ReadonlyMap<string, string>;
+    // classifiableNames?: ReadonlySet<string>;
+    // inherits: NodeArray<InheritDeclaration>;
+    // endFlowNode?: FlowNode;
+    // localSymbol?: Symbol;
+    // locals?: SymbolTable;
+    // nextContainer?: HasLocals;
+
+    public update(newText: string, textChangeRange: TextChangeRange): SourceFile {
         Debug.fail("not implemented");
         //return updateSourceFile(this, newText, textChangeRange);
     }
@@ -1049,8 +1038,8 @@ class SymbolObject implements Symbol {
         this.id = 0;
         this.mergeId = 0;
         this.parent = undefined;
-        this.members = undefined;
-        this.exports = undefined;
+        this.members = undefined;        
+        this.exports = undefined;        
         this.exportSymbol = undefined;
         this.constEnumOnlyModule = undefined;
         this.isReferenced = undefined;

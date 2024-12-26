@@ -27,6 +27,7 @@ export class Logger implements Logger {
     close() {
         if (this.fd >= 0) {
             fs.close(this.fd, noop);
+            this.fd = -1;
         }
     }
     getLogFileName(): string | undefined {

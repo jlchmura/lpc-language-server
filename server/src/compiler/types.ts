@@ -1373,7 +1373,9 @@ export const enum TransformFlags {
     None = 0,
     ContainsRestOrSpread,
     ContainsFluffOS,
-    ContainsLDMud
+    ContainsLDMud,
+    ContainsHoistedDeclarationOrCompletion,
+    ContainsUpdateExpressionForIdentifier
 }
 
 export type KeywordTypeSyntaxKind =
@@ -3159,7 +3161,7 @@ export interface CheckLpcDirective extends TextRange {
 export interface ReadonlyPragmaContext {
     languageVersion: ScriptTarget;
     pragmas?: ReadonlyPragmaMap;
-    checkLpcDirective?: CheckLpcDirective;    
+    checkLpcDirective: CheckLpcDirective;    
     referencedFiles: readonly FileReference[];
     typeReferenceDirectives: readonly FileReference[];
     libReferenceDirectives: readonly FileReference[];

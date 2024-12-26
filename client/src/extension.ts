@@ -62,8 +62,19 @@ export async function activate(context: ExtensionContext) {
         } catch {}
     }
 
-    let debugOptions = {
-        execArgv: ["--nolazy", "--enable-source-maps", "--inspect", "--max-old-space-size=" + maxServerMemory]
+    let debugOptions = {        
+        execArgv: [
+            // "--prof",
+            // "--log-deopt",
+            // "--log-ic",
+            // "--log-maps",
+            // "--log-maps-details",
+            // "--log-internal-timer-events",
+            // "--log-code",
+            // "--log-source-code",
+            // "--detailed-line-info",
+            // "--logfile=../lpc-language-server/v8.log",
+            "--nolazy", "--enable-source-maps", "--inspect", "--max-old-space-size=" + maxServerMemory],
     };
 
     const serverArgs = [
@@ -112,13 +123,30 @@ export async function activate(context: ExtensionContext) {
             fileEvents: workspace.createFileSystemWatcher("**/lpc-config.json"),            
         },
         diagnosticCollectionName: "LPC",
-    };
+    };    
 
     // Create the language client and start the client.
     client = new LanguageClient(
         "lpc",
         "LPC Language Server",
-        serverOptions,
+        {
+            options: {
+                env: [ "NODE_ENV=production" ],                
+            },
+            run: serverOptions.run,
+            debug: serverOptions.debug
+            // debug: {
+            //     ...serverOptions.debug,
+            //     options: {
+            //         ...serverOptions.debug.options,
+            //         env: [ "NODE_ENV=production" ],
+            //         execArgv: [
+            //             ...serverOptions.debug.options.execArgv,
+            //             "--prof",
+            //         ],
+            //     }
+            // }
+        },
         clientOptions
     );
 
