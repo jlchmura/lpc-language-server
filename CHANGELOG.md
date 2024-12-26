@@ -3,6 +3,7 @@
 ## 1.1.17
 
 -   Performance improvement: reduced memory consumption by 17%
+-   Code cleanup and v8-specific code optimizations
 
 ## 1.1.16
 
