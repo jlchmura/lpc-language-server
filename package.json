@@ -12,7 +12,7 @@
     "icon": "lpc-icon.png",
     "scripts": {
         "start": "npm run compile:bin && NODE_OPTIONS='--enable-source-maps' node out/server/src/bin.js test.c",
-        "start:bin": "npm run compile && NODE_OPTIONS='--enable-source-maps' node out/server/src/bin/lpc.js --project ../infinity-lib",
+        "start:bin": "npm run compile && NODE_OPTIONS='--enable-source-maps' node out/server/src/bin/lpc.js",
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -b && node ./build.mjs && npm run copy",
         "compile:bin": "tsc -b && npm run copy && node ./build.bin.mjs",
