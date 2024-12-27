@@ -22,6 +22,7 @@ efuns/
 !out/client/src/extension.js
 !out/client/src/extension.js.map
 !out/server/src/efuns/**/*
+!out/lib/**/*
 jest.config.ts
 tests/
 coverage/
@@ -29,4 +30,5 @@ lpc-config.json
 *.heapsnapshot
 vscode-profile-*.*
 build*.mjs
+build*.js
 scripts/
