@@ -4752,8 +4752,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 const moduleSymbol = resolveExternalModuleName(node, specifier, undefined);
                 const objectSymbol = resolveExternalObjectSymbol(moduleSymbol, specifier, /*dontResolveAlias*/ true);
                 if (objectSymbol && isSourceFile(objectSymbol.valueDeclaration)) {                
-                    const objectType = getTypeOfSymbol(objectSymbol);                    
-                    links.resolvedType = objectType;// isArrayTypeNode(node.parent) ? createArrayType(objectType) : objectType;                
+                    const objectType = getTypeOfSymbol(objectSymbol);
+                    const isVarTag = isJSDocVariableTag(node.parent.parent);                    
+                    links.resolvedType = objectType;// isArrayTypeNode(node.parent) ? createArrayType(objectType) : objectType;                                    
                 } 
             }
 
@@ -4762,6 +4763,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
         }
         
+        if (links.resolvedType && node.parent && isJSDocVariableTag(node.parent.parent)) {
+            links.resolvedType.flags |= TypeFlags.LpcDocVariable;
+        }
+
         return links.resolvedType;
     }
     
@@ -9868,7 +9873,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // check to make sure an inherited variable exists
         if (!lastErr) {
             if (!nodeIsMissing(node.name)) {
-                const name = isIdentifier(node.name) ? node.name : node.name.right;
+                const name = isIdentifier(node.name) ? node.name : node.name.right;                
                 const varSymbol = resolveName(node.name, name, SymbolFlags.Variable, Diagnostics.Cannot_find_name_0, false, true);
                 if (varSymbol) {
                     const varSourceFile = getSourceFileOfNode(varSymbol.valueDeclaration);
@@ -22260,13 +22265,33 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function getTypeOfVariableOrParameterOrProperty(symbol: Symbol): Type {
         const links = getSymbolLinks(symbol);
+
+        if (links.localVarType && currentFile) {
+            // once we have one LpcDocVariable type, then we need to cache everything else
+            // even if they aren't from @var tags
+            let type = links.localVarType.get(currentFile?.fileName)
+            if (!type) {
+                type = getTypeOfVariableOrParameterOrPropertyWorker(symbol);
+                links.localVarType.set(currentFile?.fileName, type);                
+            }         
+            return type;
+        }
+
         if (!links.type) {            
             const type = getTypeOfVariableOrParameterOrPropertyWorker(symbol);
+
+            // if the type came from an lpc doc var tag, that can't be cached for the
+            // entire symbol - it has to be file specific
+            if (type?.flags & TypeFlags.LpcDocVariable && currentFile) {
+                (links.localVarType ||= new Map()).set(currentFile.fileName, type);
+                return type;
+            }
+
             // For a contextually typed parameter it is possible that a type has already
             // been assigned (in assignTypeToParameterAndFixTypeParameters), and we want
             // to preserve this type. In fact, we need to _prefer_ that type, but it won't
             // be assigned until contextual typing is complete, so we need to defer in
-            // cases where contextual typing may take place.
+            // cases where contextual typing may take place.                        
             if (!links.type && !isParameterOfContextSensitiveSignature(symbol)) {
                 links.type = type;
             }
@@ -22690,7 +22715,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             || isIntLiteral(declaration)
             || isFloatLiteral(declaration)
             // || isClassDeclaration(declaration)
-            // || isFunctionDeclaration(declaration)
+            || isFunctionDeclaration(declaration)
             // || (isMethodDeclaration(declaration) && !isObjectLiteralMethod(declaration))
             // || isMethodSignature(declaration)
             || isSourceFile(declaration)
@@ -26107,7 +26132,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
             if (isLiteralType(source) && !typeCouldHaveTopLevelSingletonTypes(target)) {
                 generalizedSource = getBaseTypeOfLiteralType(source);
-                Debug.assert(!isTypeAssignableTo(generalizedSource, target), "generalized source shouldn't be assignable");
+                // Debug.assert(!isTypeAssignableTo(generalizedSource, target), "generalized source shouldn't be assignable");
                 generalizedSourceType = getTypeNameForErrorDisplay(generalizedSource);
             }
 
