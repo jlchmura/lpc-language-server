@@ -2126,7 +2126,7 @@ export namespace LpcParser {
 
     function createBuiltInMacro(name: string, text: string): Macro {
         // although we only need a range, store the position in a fake node so that v8 doesn't deoptimize the Node object
-        const tempNode = setTextRangePosEnd(factory.createBlock([], /*multiLine*/ false), 0, text.length);        
+        const tempNode = setTextRangePosEnd(factory.createBlock([], /*multiLine*/ false), 0, text?.length || 0);
         const macro = createMacroBase(name, "builtin", () => text, tempNode);        
         return macro;
     }
