@@ -1,3 +1,4 @@
 #!/usr/bin/env node
-require("../out/lib/lpc.js").bin;
+require("../out/lib/cli.js");
+
 

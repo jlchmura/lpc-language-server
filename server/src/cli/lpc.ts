@@ -1,5 +1,4 @@
 import * as lpc from "../lpc/lpc.js";
-import readline from "node:readline";
 
 // This file actually uses arguments passed on commandline and executes it
 

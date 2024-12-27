@@ -1,2 +1,4 @@
 #!/usr/bin/env node
-require("../out/server/src/server.js");
+require("../out/lib/server.js");
+
+

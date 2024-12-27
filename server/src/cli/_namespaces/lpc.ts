@@ -1,0 +1,1 @@
+export * from "../../compiler/_namespaces/lpc.js";
