@@ -545,8 +545,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
                 )    
                 return [def];
             } catch(e) {
-                console.error(e);
-                debugger;
+                console.error('onDefinition error', e);                
             }
         });
 

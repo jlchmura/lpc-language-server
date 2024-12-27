@@ -1,4 +1,3 @@
-import * as path from "path";
 import { URI } from "vscode-uri";
 
 /**
@@ -14,21 +13,6 @@ export function normalizeFileExtension(filename: string) {
     }
 
     return filename;
-}
-
-export function toLibPath(filename: string, workspaceRoot: string) {
-    // Normalize paths to avoid issues with different slashes
-    const normalizedFullPath = path.normalize(filename);
-    const normalizedBasePath = path.normalize(workspaceRoot);
-
-    // Get the relative path
-    let relativePath = path.relative(normalizedBasePath, normalizedFullPath);
-
-    // Replace backslashes with forward slashes
-    relativePath = relativePath.replace(/\\/g, "/");
-
-    // Ensure the path starts with a forward slash
-    return "/" + relativePath;
 }
 
 export function normalizeFilename(filename: string) {

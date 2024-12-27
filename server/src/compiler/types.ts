@@ -1079,6 +1079,7 @@ export const enum TypeFlags {
     Reserved1       = 1 << 29,  // Used by union/intersection type construction
     /** @internal */
     Reserved2       = 1 << 30,  // Used by union/intersection type construction
+    LpcDocVariable  = 1 << 31,  // Used by types assigned from jsdoc @var tags
 
     /** @internal */
     AnyOrUnknown = Any | Unknown,
@@ -1745,6 +1746,7 @@ export interface CompilerOptions {
     diagnostics?: boolean;
     libIncludeDirs?: string[];
     globalIncludeFiles?: string[];    
+    resolvedGlobalIncludeFiles?: string[];
 
     [option: string]: CompilerOptionsValue | LpcConfigSourceFile | undefined;
 }
@@ -4521,6 +4523,7 @@ export interface SymbolLinks {
     aliasTarget?: Symbol,                       // Resolved (non-alias) target of an alias
     target?: Symbol;                            // Original version of an instantiated symbol
     type?: Type;                                // Type of value symbol
+    localVarType?: Map<string, Type>;           // File-specific overrides of var types (using @var LPCDoc tag)
     writeType?: Type;                           // Type of value symbol in write contexts
     nameType?: Type;                            // Type associated with a late-bound symbol
     uniqueESSymbolType?: Type;                  // UniqueESSymbol type for a symbol
@@ -4934,6 +4937,12 @@ export const enum LanguageVariant {
     FluffOS,
     Standard
 }
+
+export const DriverTypeMap = [
+    "LDMud",
+    "FluffOS",
+    "Standard"
+]
 
 export const enum JSDocParsingMode {
     /**
@@ -7806,3 +7815,23 @@ export type JSDocTypeReferencingNode =
     | JSDocOptionalType
     | JSDocNullableType
     | JSDocNonNullableType;
+
+/** Return code used by getEmitOutput function to indicate status of the function */
+export enum ExitStatus {
+    // Compiler ran successfully.  Either this was a simple do-nothing compilation (for example,
+    // when -version or -help was provided, or this was a normal compilation, no diagnostics
+    // were produced, and all outputs were generated successfully.
+    Success = 0,
+
+    // Diagnostics were produced and because of them no code was generated.
+    DiagnosticsPresent_OutputsSkipped = 1,
+
+    // Diagnostics were produced and outputs were generated in spite of them.
+    DiagnosticsPresent_OutputsGenerated = 2,
+
+    // When build skipped because passed in project is invalid
+    InvalidProject_OutputsSkipped = 3,
+
+    // When build is skipped because project references form cycle
+    ProjectReferenceCycle_OutputsSkipped = 4,
+}

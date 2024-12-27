@@ -1,4 +1,4 @@
-import { AlternateModeDiagnostics, append, arrayFrom, ArrayLiteralExpression, arrayToMap, assign, combinePaths, CommandLineOption, CommandLineOptionOfCustomType, CommandLineOptionOfListType, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createDiagnosticForNodeInSourceFile, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DidYouMeanOptionsDiagnostics, directorySeparator, driverTypeToLanguageVariant, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Expression, extend, Extension, FileExtensionInfo, fileExtensionIs, filter, filterMutate, find, firstOrUndefined, flatten, forEach, forEachLpcConfigPropArray, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getOwnKeys, getRegexFromPattern, getRegularExpressionForWildcard, getSpellingSuggestion, getTextOfPropertyName, hasExtension, hasProperty, isArray, isArrayLiteralExpression, isComputedNonLiteralName, isImplicitGlob, isObjectLiteralExpression, isRootedDiskPath, isString, isStringDoubleQuoted, isStringLiteral, JsonSourceFile, length, LpcConfigOnlyOption, LpcConfigSourceFile, map, MapLike, Node, NodeArray, normalizePath, normalizeSlashes, NumericLiteral, ObjectLiteralExpression, OptionsNameMap, ParseConfigHost, ParsedCommandLine, ParsedLpcConfig, Path, PrefixUnaryExpression, ProjectReference, PropertyAssignment, PropertyName, removeTrailingDirectorySeparator, startsWith, StringLiteral, SyntaxKind, toFileNameLowerCase, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
+import { AlternateModeDiagnostics, append, arrayFrom, ArrayLiteralExpression, arrayToMap, assign, cast, combinePaths, CommandLineOption, CommandLineOptionOfCustomType, CommandLineOptionOfListType, CompilerOptions, CompilerOptionsValue, ConfigFileSpecs, containsPath, createCompilerDiagnostic, createDiagnosticForNodeInSourceFile, createGetCanonicalFileName, Debug, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DidYouMeanOptionsDiagnostics, directorySeparator, driverTypeToLanguageVariant, emptyArray, endsWith, ensureTrailingDirectorySeparator, every, Expression, extend, Extension, FileExtensionInfo, fileExtensionIs, filter, filterMutate, find, firstOrUndefined, flatten, forEach, forEachLpcConfigPropArray, getBaseFileName, getDirectoryPath, getNormalizedAbsolutePath, getOwnKeys, getRegexFromPattern, getRegularExpressionForWildcard, getSpellingSuggestion, getTextOfPropertyName, hasExtension, hasProperty, isArray, isArrayLiteralExpression, isComputedNonLiteralName, isImplicitGlob, isObjectLiteralExpression, isRootedDiskPath, isString, isStringDoubleQuoted, isStringLiteral, JsonSourceFile, length, LpcConfigOnlyOption, LpcConfigSourceFile, map, MapLike, Node, NodeArray, normalizePath, normalizeSlashes, NumericLiteral, ObjectLiteralExpression, OptionsNameMap, ParseConfigHost, ParsedCommandLine, ParsedLpcConfig, parseJsonText, Path, PrefixUnaryExpression, ProjectReference, PropertyAssignment, PropertyName, removeTrailingDirectorySeparator, startsWith, StringLiteral, SyntaxKind, toFileNameLowerCase, toPath, tracing, TypeAcquisition, WatchDirectoryFlags, WatchOptions } from "./_namespaces/lpc";
 import { trimStart } from "../utils";
 
 export const libEntries: [string, string][] = [
@@ -242,12 +242,22 @@ function parseLpcConfigFileContentWorker(
 
     options.driverType = driverTypeToLanguageVariant(raw?.driver?.type);    
 
-    if (raw?.libFiles?.global_include) {
-        options.globalIncludeFiles = [raw?.libFiles?.global_include];        
-    }
-
     if (raw?.libInclude && isArray(raw.libInclude)) {
         options.libIncludeDirs = map(raw.libInclude as string[], dir => normalizePath(combinePaths(libRootPath, trimStart(dir,"/"))));
+    }
+
+    if (raw?.libFiles?.global_include) {
+        options.globalIncludeFiles = [raw?.libFiles?.global_include];        
+        // try to resolve each file
+        options.resolvedGlobalIncludeFiles = options.globalIncludeFiles.map(file => {
+            const resolved = forEach(options.libIncludeDirs, libDir => {
+                const filePath = normalizePath(combinePaths(libDir, file));
+                if (host.fileExists(filePath)) {
+                    return filePath;
+                }   
+            });
+            return resolved;
+        });
     }
 
     options.diagnostics = raw?.diagnostics === "on" || raw?.diagnostics === true;
@@ -2091,4 +2101,44 @@ export function updateErrorForNoInputFiles(fileNames: string[], configFileName: 
         filterMutate(configParseDiagnostics, error => !isErrorNoInputFiles(error));
     }
     return existingErrors !== configParseDiagnostics.length;
+}
+
+/** @internal */
+export function getDiagnosticText(message: DiagnosticMessage, ...args: any[]): string {
+    return cast(createCompilerDiagnostic(message, ...args).messageText, isString);
+}
+
+/**
+ * Reads the config file, reports errors if any and exits if the config file cannot be found
+ */
+export function getParsedCommandLineOfConfigFile(
+    configFileName: string,
+    optionsToExtend: CompilerOptions | undefined,
+    host: ParseConfigFileHost,
+    extendedConfigCache?: Map<string, ExtendedConfigCacheEntry>,
+    watchOptionsToExtend?: WatchOptions,
+    extraFileExtensions?: readonly FileExtensionInfo[],
+): ParsedCommandLine | undefined {
+    const configFileText = tryReadFile(configFileName, fileName => host.readFile(fileName));
+    if (!isString(configFileText)) {
+        host.onUnRecoverableConfigFileDiagnostic(configFileText);
+        return undefined;
+    }
+
+    const result = parseJsonText(configFileName, configFileText);
+    const cwd = host.getCurrentDirectory();
+    result.path = toPath(configFileName, cwd, createGetCanonicalFileName(host.useCaseSensitiveFileNames));
+    result.resolvedPath = result.path;
+    result.originalFileName = result.fileName;
+    return parseJsonSourceFileConfigFileContent(
+        result,
+        host,
+        getNormalizedAbsolutePath(getDirectoryPath(configFileName), cwd),
+        optionsToExtend,
+        getNormalizedAbsolutePath(configFileName, cwd),
+        /*resolutionStack*/ undefined,
+        extraFileExtensions,
+        extendedConfigCache,
+        watchOptionsToExtend,
+    );
 }

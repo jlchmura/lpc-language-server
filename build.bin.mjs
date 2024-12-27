@@ -1,7 +1,7 @@
 import * as esbuild from 'esbuild'
 
 await esbuild.build({
-  entryPoints: ['server/src/bin.ts'],  
+  entryPoints: ['server/src/bin.ts', 'server/src/bin/lpc.ts'],  
   bundle: true,  
   banner: { js: "// Copyright 2024 John L Chmura\n" },
   outdir: 'out/server/src',

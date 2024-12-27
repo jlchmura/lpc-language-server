@@ -36,6 +36,7 @@ export const Diagnostics = {
     LPCDoc_var_tag_should_provide_a_variable_name: diag(9028, DiagnosticCategory.Error, "LPCDoc_var_tag_should_provide_a_variable_name_9028", "LPCDoc @var tag should provide a variable name."),
     Circular_include_detected_0_to_1: diag(9029, DiagnosticCategory.Error, "Circular_include_detected_0_to_1_9029", "Circular include detected '{0}' -> '{1}'."),
     Locale_0_is_not_supported: diag(9030, DiagnosticCategory.Error, "Locale_0_is_not_supported_9030", "Locale '{0}' is not supported."),
+    No_errors: diag(9031, DiagnosticCategory.Message, "No_errors_9031", "No errors - That is some happy LPC."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    
@@ -519,4 +520,5 @@ export const Diagnostics = {
     Locale_must_be_of_the_form_language_or_language_territory_For_example_0_or_1: diag(6048, DiagnosticCategory.Error, "Locale_must_be_of_the_form_language_or_language_territory_For_example_0_or_1_6048", "Locale must be of the form <language> or <language>-<territory>. For example '{0}' or '{1}'."),
     Unable_to_open_file_0: diag(6050, DiagnosticCategory.Error, "Unable_to_open_file_0_6050", "Unable to open file '{0}'."),
     Corrupted_locale_file_0: diag(6051, DiagnosticCategory.Error, "Corrupted_locale_file_0_6051", "Corrupted locale file {0}."),
+    Version_0: diag(6029, DiagnosticCategory.Message, "Version_0_6029", "Version {0}"),
 }
