@@ -1745,6 +1745,7 @@ export interface CompilerOptions {
     diagnostics?: boolean;
     libIncludeDirs?: string[];
     globalIncludeFiles?: string[];    
+    resolvedGlobalIncludeFiles?: string[];
 
     [option: string]: CompilerOptionsValue | LpcConfigSourceFile | undefined;
 }

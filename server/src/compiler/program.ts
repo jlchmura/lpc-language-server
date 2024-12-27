@@ -1415,7 +1415,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         // TODO is this complete?        
         return {
             languageVersion: ScriptTarget.Latest,
-            globalIncludes: (isDefaultLib ? undefined : options.globalIncludeFiles) || emptyArray,
+            // don't pass global include if this is a lib dir, or the filename is one of the global includes
+            globalIncludes: (isDefaultLib || options.resolvedGlobalIncludeFiles.some(gi => gi == fileName) ? undefined : options.globalIncludeFiles) || emptyArray,
             fileHandler,
             configDefines,
         };

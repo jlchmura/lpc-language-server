@@ -242,12 +242,22 @@ function parseLpcConfigFileContentWorker(
 
     options.driverType = driverTypeToLanguageVariant(raw?.driver?.type);    
 
-    if (raw?.libFiles?.global_include) {
-        options.globalIncludeFiles = [raw?.libFiles?.global_include];        
-    }
-
     if (raw?.libInclude && isArray(raw.libInclude)) {
         options.libIncludeDirs = map(raw.libInclude as string[], dir => normalizePath(combinePaths(libRootPath, trimStart(dir,"/"))));
+    }
+
+    if (raw?.libFiles?.global_include) {
+        options.globalIncludeFiles = [raw?.libFiles?.global_include];        
+        // try to resolve each file
+        options.resolvedGlobalIncludeFiles = options.globalIncludeFiles.map(file => {
+            const resolved = forEach(options.libIncludeDirs, libDir => {
+                const filePath = normalizePath(combinePaths(libDir, file));
+                if (host.fileExists(filePath)) {
+                    return filePath;
+                }   
+            });
+            return resolved;
+        });
     }
 
     options.diagnostics = raw?.diagnostics === "on" || raw?.diagnostics === true;

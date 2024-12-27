@@ -46,10 +46,11 @@ const parsedConfig = lpc.parseLpcSourceFileConfigFileContent(configFile, lpc.sys
 
 const compilerOptions = parsedConfig.options;
 const compilerHost = lpc.createCompilerHost(compilerOptions);
-compilerHost.getDefaultLibFileName = () => lpc.combinePaths(projectFolder, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
+compilerHost.getDefaultLibFileName = () => lpc.combinePaths(lpc.sys.getCurrentDirectory(), lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
 
 lpc.sys.write(`Driver type: ${lpc.DriverTypeMap[compilerOptions.driverType]}\n`);
 lpc.sys.write(`Found ${parsedConfig.fileNames.length} files.\n`);
+lpc.sys.write(`Efun Definitions: ${compilerHost.getDefaultLibFileName(compilerOptions)}\n`);
 
 const createProgramOptions: lpc.CreateProgramOptions = {
     host: compilerHost,
