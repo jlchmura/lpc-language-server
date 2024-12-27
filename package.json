@@ -95,11 +95,29 @@
                 ]
             }
         ],
-        "commands": [],
+        "commands": [],       
+        "taskDefinitions": [
+            {
+                "type": "LPC",
+                "required": [
+                    "lpc-config"
+                ],
+                "properties": {
+                    "lpc-config": {
+                        "type": "string",
+                        "description": "The path to the lpc-config.json file"
+                    },
+                    "option": {
+                        "type": "string"
+                    }
+                },
+                "when": "shellExecutionSupported"
+            }
+        ],
         "problemPatterns": [
             {
                 "name": "lpc",
-                "regexp": "^([^\\s].*)[\\(:](\\d+)[,:](\\d+)(?:\\):\\s+|\\s+-\\s+)(error|warning|info)\\s+lpc(\\d+)\\s*:\\s*(.*)$",
+                "regexp": "^([^\\s].*)[\\(:](\\d+)[,:](\\d+)(?:\\):\\s+|\\s+-\\s+)(error|warning|info)\\s+LPC(\\d+)\\s*:\\s*(.*)$",
                 "file": 1,
                 "line": 2,
                 "column": 3,
@@ -113,7 +131,7 @@
                 "name": "lpc",
                 "label": "%lpc.problemMatchers.lpc.label%",
                 "owner": "lpc",
-                "source": "lpc",
+                "source": "LPC",
                 "applyTo": "closedDocuments",
                 "fileLocation": [
                     "relative",

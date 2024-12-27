@@ -2,9 +2,11 @@
 
 ## 1.1.17
 
+-   Fix: LPCDoc `@var` tag types were incorrectly linked to the original symbol
 -   Performance improvement: reduced memory consumption by 17%
 -   Code cleanup and v8-specific code optimizations
 -   Macro hover now shown for global and pre-defined macros
+-   New: VSCode build task - Run the `LPC: Build` task to validate all files in your project.
 
 ## 1.1.16
 

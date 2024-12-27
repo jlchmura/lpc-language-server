@@ -172,7 +172,6 @@ export async function activate(context: ExtensionContext) {
             }
         )
     );
-
     
     client.onNotification("lpc/initialized", () => {
         clientInitialized=true;
@@ -194,7 +193,7 @@ export async function activate(context: ExtensionContext) {
     });
     client.onNotification("lpc/info", (params) => {
         window.showWarningMessage(params);
-    });    
+    });        
     
     function _register<T extends vscode.Disposable>(value: T): T {
 		if (_isDisposed) {
@@ -212,6 +211,7 @@ export async function activate(context: ExtensionContext) {
         await Promise.all([
             import("./languageFeatures/semanticTokens").then(provider => _register(provider.register(selector, client))),
             import("./languageFeatures/jsDocCompletions").then(provider => _register(provider.register(selector, language, syntaxClient))),
+            import("./task/taskProvider").then(provider => _register(provider.register(context, client))),
         ]);
     }
     
