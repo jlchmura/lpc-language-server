@@ -119,6 +119,19 @@ if (diags.length) {
     const diagTxt = lpc.getErrorSummaryText(diags.length, lpc.getFilesInErrorForSummary(diags), "\n", compilerHost);
     lpc.sys.write(diagTxt);    
 } else if (rootFiles.length) {
-    lpc.sys.write(lpc.formatColorAndReset("✓ ", lpc.ForegroundColorEscapeSequences.Green));
-    lpc.sys.write(lpc.formatColorAndReset("No errors found.\n", lpc.ForegroundColorEscapeSequences.Grey));
+    lpc.sys.write(lpc.formatColorAndReset("\n✓ ", lpc.ForegroundColorEscapeSequences.Green));
+
+    const messages = [
+        "Your code is so fresh and so clean, clean.",
+        "May the source be with you.",
+        "Time to grab a coffee.",
+        "It's a feature, not a bug!",
+        "You are a coding wizard.",
+        "Your code is all that and a bag of chips.",
+        "You must be the Fresh Prince of Code-Air.",
+        "Party on, dudes."
+    ];
+    const message = messages[Math.floor(Math.random() * messages.length)];
+
+    lpc.sys.write(lpc.formatColorAndReset(`No errors found. ${message}\n\n`, lpc.ForegroundColorEscapeSequences.Grey));
 }
