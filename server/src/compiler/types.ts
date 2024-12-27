@@ -1079,6 +1079,7 @@ export const enum TypeFlags {
     Reserved1       = 1 << 29,  // Used by union/intersection type construction
     /** @internal */
     Reserved2       = 1 << 30,  // Used by union/intersection type construction
+    LpcDocVariable  = 1 << 31,  // Used by types assigned from jsdoc @var tags
 
     /** @internal */
     AnyOrUnknown = Any | Unknown,
@@ -4522,6 +4523,7 @@ export interface SymbolLinks {
     aliasTarget?: Symbol,                       // Resolved (non-alias) target of an alias
     target?: Symbol;                            // Original version of an instantiated symbol
     type?: Type;                                // Type of value symbol
+    localVarType?: Map<string, Type>;           // File-specific overrides of var types (using @var LPCDoc tag)
     writeType?: Type;                           // Type of value symbol in write contexts
     nameType?: Type;                            // Type associated with a late-bound symbol
     uniqueESSymbolType?: Type;                  // UniqueESSymbol type for a symbol

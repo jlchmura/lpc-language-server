@@ -11,10 +11,10 @@
         "skipLibCheck": true,
         "declaration": true,
         "declarationMap": true,
+        "declarationDir": "out",
         "composite": false,
         "strictBindCallApply": false,
-        "noImplicitOverride": false,
-        "declarationDir": "out",
+        "noImplicitOverride": false,        
     },
     "include": ["src"], 
     "exclude": ["node_modules", ".vscode-test", "tests"]

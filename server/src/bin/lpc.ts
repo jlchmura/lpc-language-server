@@ -1,4 +1,5 @@
 import * as lpc from "../lpc/lpc.js";
+import readline from "node:readline";
 
 // This file actually uses arguments passed on commandline and executes it
 
@@ -27,7 +28,7 @@ lpc.sys.write(`Searching for config file... ${lpc.sys.getCurrentDirectory()}\n`)
 const toCanonicalFileName = lpc.createGetCanonicalFileName(lpc.sys.useCaseSensitiveFileNames);
 const projectFolderArg = lpc.server.findArgument("--project");
 const projectFolder = lpc.isDiskPathRoot(projectFolderArg) ? projectFolderArg : lpc.normalizePath(lpc.combinePaths(lpc.sys.getCurrentDirectory(), projectFolderArg));
-const configFileName = lpc.normalizePath(lpc.findConfigFile(projectFolder || lpc.sys.getCurrentDirectory(), lpc.sys.fileExists));
+const configFileName = lpc.findConfigFile(projectFolder || lpc.sys.getCurrentDirectory(), lpc.sys.fileExists);
 const canonicalConfigFilePath = (toCanonicalFileName(configFileName)) as lpc.server.NormalizedPath;
 
 if (!configFileName) {
@@ -46,11 +47,12 @@ const parsedConfig = lpc.parseLpcSourceFileConfigFileContent(configFile, lpc.sys
 
 const compilerOptions = parsedConfig.options;
 const compilerHost = lpc.createCompilerHost(compilerOptions);
-compilerHost.getDefaultLibFileName = () => lpc.combinePaths(lpc.sys.getCurrentDirectory(), lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
+const execPath = lpc.getDirectoryPath(process.argv[1]);
+compilerHost.getDefaultLibFileName = () => lpc.combinePaths(execPath, "../", lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
 
 lpc.sys.write(`Driver type: ${lpc.DriverTypeMap[compilerOptions.driverType]}\n`);
 lpc.sys.write(`Found ${parsedConfig.fileNames.length} files.\n`);
-lpc.sys.write(`Efun Definitions: ${compilerHost.getDefaultLibFileName(compilerOptions)}\n`);
+lpc.sys.write(`Efun Definitions: ${lpc.normalizePath(compilerHost.getDefaultLibFileName(compilerOptions))}\n`);
 
 const createProgramOptions: lpc.CreateProgramOptions = {
     host: compilerHost,
@@ -96,21 +98,21 @@ const reportDiagnostic = updateReportDiagnostic(
 const program = lpc.createProgram(createProgramOptions);
 
 const diags: lpc.DiagnosticWithLocation[] = [];
-
 const rootFiles = program.getRootFileNames();
+
 rootFiles.forEach(f => {
-    const sourceFile = program.getSourceFile(f);
-    const parseDiags = sourceFile.parseDiagnostics;
+    const sourceFile = program.getSourceFile(f);    
+    const parseDiags = program.getSyntacticDiagnostics(sourceFile);
     diags.push(...parseDiags);
     
     if (compilerOptions.diagnostics) {
         const semanticDiags = program.getSemanticDiagnostics(sourceFile);
         diags.push(...semanticDiags);
-    }
+    }        
+});
 
-    diags.forEach(d => {
-        reportDiagnostic(d);
-    });
+lpc.sortAndDeduplicateDiagnostics(diags).forEach(d => {
+    reportDiagnostic(d);
 });
 
 if (diags.length) {

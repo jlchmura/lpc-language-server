@@ -1416,7 +1416,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         return {
             languageVersion: ScriptTarget.Latest,
             // don't pass global include if this is a lib dir, or the filename is one of the global includes
-            globalIncludes: (isDefaultLib || options.resolvedGlobalIncludeFiles.some(gi => gi == fileName) ? undefined : options.globalIncludeFiles) || emptyArray,
+            globalIncludes: (isDefaultLib || options.resolvedGlobalIncludeFiles?.some(gi => gi == fileName) ? undefined : options.globalIncludeFiles) || emptyArray,
             fileHandler,
             configDefines,
         };
@@ -2961,7 +2961,7 @@ export interface FormatDiagnosticsHost {
 
 
 export function formatDiagnostic(diagnostic: Diagnostic, host: FormatDiagnosticsHost): string {
-    const errorMessage = `${diagnosticCategoryName(diagnostic)} TS${diagnostic.code}: ${flattenDiagnosticMessageText(diagnostic.messageText, host.getNewLine())}${host.getNewLine()}`;
+    const errorMessage = `${diagnosticCategoryName(diagnostic)} LPC${diagnostic.code}: ${flattenDiagnosticMessageText(diagnostic.messageText, host.getNewLine())}${host.getNewLine()}`;
 
     if (diagnostic.file) {
         const { line, character } = getLineAndCharacterOfPosition(diagnostic.file, diagnostic.start!); // TODO: GH#18217
@@ -3150,7 +3150,7 @@ export function formatDiagnosticsWithColorAndContext(diagnostics: readonly Diagn
         }
 
         output += formatColorAndReset(diagnosticCategoryName(diagnostic), getCategoryFormat(diagnostic.category));
-        output += formatColorAndReset(` TS${diagnostic.code}: `, ForegroundColorEscapeSequences.Grey);
+        output += formatColorAndReset(` LPC${diagnostic.code}: `, ForegroundColorEscapeSequences.Grey);
         output += flattenDiagnosticMessageText(diagnostic.messageText, host.getNewLine());
 
         if (diagnostic.file && diagnostic.code !== Diagnostics.File_appears_to_be_binary.code) {
