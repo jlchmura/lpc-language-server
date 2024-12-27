@@ -26,7 +26,7 @@ lpc.sys.write(`Searching for config file... ${lpc.sys.getCurrentDirectory()}\n`)
 
 const toCanonicalFileName = lpc.createGetCanonicalFileName(lpc.sys.useCaseSensitiveFileNames);
 const projectFolderArg = lpc.server.findArgument("--project");
-const projectFolder = lpc.isDiskPathRoot(projectFolderArg) ? projectFolderArg : lpc.normalizePath(lpc.combinePaths(lpc.sys.getCurrentDirectory(), projectFolderArg));
+const projectFolder = lpc.isDiskPathRoot(projectFolderArg) ? lpc.getBaseFileName(projectFolderArg) : lpc.normalizePath(lpc.combinePaths(lpc.sys.getCurrentDirectory(), projectFolderArg));
 const configFileName = lpc.findConfigFile(projectFolder || lpc.sys.getCurrentDirectory(), lpc.sys.fileExists);
 const canonicalConfigFilePath = (toCanonicalFileName(configFileName)) as lpc.server.NormalizedPath;
 

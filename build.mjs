@@ -7,6 +7,8 @@ await esbuild.build({
   external: ['vscode'],
   platform: 'node',
   format: 'cjs',
-  sourcemap: 'both',
+  sourcemap: 'linked',
+  treeShaking: true,
+  minify: true,
   mainFields: ['module', 'main'],  //  needed for jsonc-parse until they fix https://github.com/microsoft/node-jsonc-parser/issues/57
 });
