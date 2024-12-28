@@ -26,8 +26,10 @@ export async function run(): Promise<void> {
       // core.setOutput('time', new Date().toTimeString())
       
       // redirect lpc output to core.info
-      lpc.sys.write = (message: string) => {        
-        if (problemMatcher.test(message)) {
+      lpc.sys.write = (message: string) => {
+        // strip ansi color from message
+        const noColorMessage = message.replace(/\x1b\[[0-9;]*m/g, '');        
+        if (problemMatcher.test(noColorMessage)) {
           hadError = true;
           core.error(message); 
         } else {        
