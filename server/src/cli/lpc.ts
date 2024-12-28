@@ -21,4 +21,10 @@ if (lpc.sys.setBlocking) {
     lpc.sys.setBlocking();
 }
 
+// our console output is still verbose, so mask console output
+console.log = lpc.noop;
+console.debug = lpc.noop;
+console.info = lpc.noop;
+console.warn = lpc.noop;
+
 lpc.executeCommandLine(lpc.sys, lpc.sys.args);

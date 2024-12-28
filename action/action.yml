@@ -1,0 +1,16 @@
+name: 'LPC Build'
+description: 'Builds LPC code'
+author: 'jlchmura'
+
+branding:
+  icon: 'cpu'
+  color: 'yellow'
+
+inputs:
+  lpc-config:  # confg file location
+    description: 'Location of the lpc-config.json file'
+    required: true
+    default: 'lpc-config.json'
+runs:
+  using: 'node20'
+  main: 'src/index.js'

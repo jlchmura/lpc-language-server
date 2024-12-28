@@ -1,9 +1,14 @@
 import { BuildOptions, BuilderProgram, CompilerOptions, CreateProgramOptions, Debug, Diagnostic, DiagnosticReporter, DiagnosticWithLocation, Diagnostics, DriverTypeMap, ExitStatus, ForegroundColorEscapeSequences, ParsedCommandLine, Program, System, WatchOptions, combinePaths, createCompilerHost, createDiagnosticReporter, createGetCanonicalFileName, createProgram, findArgument, findConfigFile, formatColorAndReset, getBaseFileName, getDefaultLibFileName, getDefaultLibFolder, getDiagnosticText, getDirectoryPath, getErrorSummaryText, getFilesInErrorForSummary, isDiskPathRoot, noop, normalizePath, parseJsonText, parseLpcSourceFileConfigFileContent, sortAndDeduplicateDiagnostics, version } from "./_namespaces/lpc";
 
 
-/** @internal */
+
 export type ExecuteCommandLineCallbacks = (program: Program | BuilderProgram | ParsedCommandLine) => void;
-/** @internal */
+
+/**
+ * Executes a CLI build.
+ * @param system 
+ * @param commandLineArgs 
+ */
 export function executeCommandLine(
     system: System,
     commandLineArgs: readonly string[],
@@ -46,12 +51,6 @@ export function executeCommandLine(
         options: compilerOptions,                
         oldProgram: undefined,                
     };
-
-    // our console output is still verbose, so mask console output
-    console.log = noop;
-    console.debug = noop;
-    console.info = noop;
-    console.warn = noop;
 
     function defaultIsPretty(sys: System) {
         return !!sys.writeOutputIsTTY && sys.writeOutputIsTTY() && !sys.getEnvironmentVariable("NO_COLOR");

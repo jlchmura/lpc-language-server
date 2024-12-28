@@ -7,17 +7,28 @@ import * as lpc from "lpc";
  */
 export async function run(): Promise<void> {
     try {
-      const ms: string = core.getInput('milliseconds')
-  
-      // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-      core.debug(`Waiting ${ms} milliseconds ...`)
-  
-      // Log the current timestamp, wait, then log the new timestamp
-      core.debug(new Date().toTimeString())
-      core.debug(new Date().toTimeString())
-  
+      // trap the console output - since lpc is so chatty
+      console.log = () => {};
+      console.debug = () => {};
+      console.info = () => {};
+      console.warn = () => {};
+
       // Set outputs for other workflow steps to use
-      core.setOutput('time', new Date().toTimeString())
+      // core.setOutput('time', new Date().toTimeString())
+      
+      // redirect lpc output to core.info
+      lpc.sys.write = (message: string) => {
+        core.info(message);
+      }      
+
+      const lpcConfig = core.getInput('lpc-config');
+      if (!lpcConfig) {
+        core.setFailed("No lpc-config input provided");
+        return;
+      }
+
+      lpc.executeCommandLine(lpc.sys, ["--project", lpcConfig]);
+      
     } catch (error) {
       // Fail the workflow run if an error occurs
       if (error instanceof Error) core.setFailed(error.message)
