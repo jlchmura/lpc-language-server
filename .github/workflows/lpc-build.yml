@@ -7,6 +7,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Build LPC Code
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
+        
       - name: Build
         id: build
         uses: jlchmura/lpc-language-server/action@action-test
