@@ -2,3 +2,5 @@
 *.h linguist-language=LPC
 *.js linguist-language=TypeScript
 **/*.json linguist-language=jsonc
+
+action/dist/** -diff linguist-generated=true
