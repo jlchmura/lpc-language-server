@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import * as lpc from "lpc";
 
-const problemMatcher = `^([^\\s].*)[\\(:](\\d+)[,:](\\d+)(?:\\):\\s+|\\s+-\\s+)(error|warning|info)\\s+LPC(\\d+)\\s*:\\s*(.*)$`;
+const problemMatcher = /^([^\s].*)[\(:](\d+)[,:](\d+)(?:\):\s+|\s+-\s+)(error|warning|info)\s+LPC(\d+)\s*:\s*(.*)$/;
 
 /**
  * The main function for the action.
@@ -26,8 +26,8 @@ export async function run(): Promise<void> {
       // core.setOutput('time', new Date().toTimeString())
       
       // redirect lpc output to core.info
-      lpc.sys.write = (message: string) => {
-        if (message.match(problemMatcher)) {
+      lpc.sys.write = (message: string) => {        
+        if (problemMatcher.test(message)) {
           hadError = true;
           core.error(message); 
         } else {        
