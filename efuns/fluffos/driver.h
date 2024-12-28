@@ -30,11 +30,6 @@
 #define FP_OWNER_DESTED   0x20
 #define FP_NOT_BINDABLE   0x40
 
-#define EESUCCESS         0
-#define EEWOULDBLOCK      1
-#define EECALLBACK        2
-#define EEALREADY         3
-
 // src/include/localtime.h
 /*
  * Definitions for localtime() efun
