@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 import * as lpc from "lpc";
 import ansiStyles from "ansi-styles";
+import { GitHub } from '@actions/github/lib/utils';
 
 const problemMatcher = /^([^\s].*)[\(:](\d+)[,:](\d+)(?:\):\s+|\s+-\s+)(error|warning|info)\s+LPC(\d+)\s*:\s*(.*)$/;
 
@@ -34,15 +35,15 @@ export async function run(): Promise<void> {
         if (match) {
           hadError = true;                   
           core.error(cleanedMessage, {
-            file: core.toPlatformPath(lpc.sys.getCurrentDirectory() + match[1]),
+            file: core.toPlatformPath(match[1]),
             startLine: parseInt(match[2]),
             startColumn: parseInt(match[3]),                        
-            title: `LPC${match[5]}: ${match[6]}`
+            title: `LPC${match[5]}: ${match[6]}`            
           }); 
         } else {        
           core.info(cleanedMessage);
         }
-      }      
+      }            
 
       const lpcConfig = core.getInput('lpc-config');
       if (!lpcConfig) {
