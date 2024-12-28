@@ -9,5 +9,5 @@ jobs:
         id: build
         uses: jlchmura/lpc-language-server/action@action-test
         with:
-          lpc-config: ./efuns/ldmud/lpc-config.json
+          lpc-config: ${{ github.workspace }}/efuns/ldmud/lpc-config.json
           
