@@ -1,22 +1,20 @@
 {    
     "compilerOptions": {
         "rootDir": ".",
-        "outDir": "../out/local",
+        "outDir": "../out/local-action",
         "pretty": true,
-        "sourceRoot": "./src",
-        "rootDirs": ["src"],
-        "baseUrl": "./",
 
         "lib": ["es2020"],        
         "target": "es2020",
         "module": "ESNext",
         "moduleResolution": "Node",
         
-        "declaration": false,        
+        "declaration": true,        
+        "declarationMap": true,        
         "sourceMap": true,
         "composite": false,
-        "stripInternal": true,
-        
+        // "emitDeclarationOnly": true,
+
         "skipLibCheck": true,
 
         "esModuleInterop": true,

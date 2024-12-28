@@ -1,2 +1,4 @@
 *.c linguist-language=LPC
 *.h linguist-language=LPC
+*.js linguist-language=TypeScript
+**/*.json linguist-language=jsonc

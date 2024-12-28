@@ -1,3 +1,4 @@
+const ts = require("typescript");
 const esbuild = require("esbuild");
 const path = require("path");
 const { dependencies, peerDependencies } = require('./package.json');
@@ -8,22 +9,16 @@ const external = Object.keys(dependencies)
   .concat(Object.keys(serverDeps || []))
   .concat(Object.keys(serverPeers || []));
 
-new (require('npm-dts').Generator)({
-  // entry: 'server/src/lpc/lpc.ts',
-  output: '../out/lib/lpc.d.ts',  
-  force: true,
-  root: path.resolve(process.cwd(), "server"),  
-}).generate();
-
-
 // LIB - CJS
 esbuild.build({
-  entryPoints: ['server/src/lpc/_namespaces/lpc.ts'],  
+  entryPoints: ['server/src/lpc/lpc.ts'],  
   bundle: true, 
   banner: { js: "// Copyright 2024 John L Chmura\n" },
   outfile: 'out/lib/lpc.js',  
   target: ["es2020"],
   external: Object.keys(dependencies).concat(Object.keys(peerDependencies || [])),
+  packages: "external",
+  sourcesContent: false,
   platform: 'node',
   format: 'cjs',
   sourcemap: 'linked',

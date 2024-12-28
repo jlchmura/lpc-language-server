@@ -33,3 +33,4 @@ vscode-profile-*.*
 build*.mjs
 build*.js
 scripts/
+lib/
