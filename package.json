@@ -20,6 +20,7 @@
         "compile": "tsc -b && node ./build.mjs && npm run copy",
         "compile:lib": "tsc -b && tsc -p ./server/tsconfig.lib.json && npm run copy && node ./build.lib.js",
         "package:lib": "ncp ./out/local-dts/src ./lib && ncp ./out/lib ./lib/src && ncp ./efuns ./lib/src/efuns",
+        "lib": "npm run compile:lib && npm run package:lib",
         "watch": "npm run compile -- --sourcemap --watch",
         "lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
         "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",

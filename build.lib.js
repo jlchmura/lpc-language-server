@@ -68,7 +68,7 @@ esbuild.build({
   banner: { js: "// Copyright 2024 John L Chmura\n" },
   outfile: 'action/dist/index.js',
   target: ["es2020"],
-  external: Object.keys(dependencies).concat(Object.keys(peerDependencies || [])),
+  // external: Object.keys(dependencies).concat(Object.keys(peerDependencies || [])),
   platform: 'node',
   format: 'cjs',
   sourcemap: 'linked',
