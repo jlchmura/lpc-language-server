@@ -1,0 +1,13 @@
+on: [push]
+
+jobs:
+  lpc_build:
+    runs-on: ubuntu-latest
+    name: Build LPC Code
+    steps:
+      - name: Build
+        id: build
+        uses: jlchmura/lpc-language-server/action@action-test
+        with:
+          lpc-config: ./efuns/ldmud/lpc-config.json
+          
