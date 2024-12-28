@@ -8,10 +8,15 @@ import * as lpc from "lpc";
 export async function run(): Promise<void> {
     try {
       // trap the console output - since lpc is so chatty
-      console.log = () => {};
+      // console.log = () => {};
       console.debug = () => {};
-      console.info = () => {};
-      console.warn = () => {};
+      // console.info = () => {};
+      // console.warn = () => {};
+
+      console.log = (msg) => { core.info(msg) };
+      console.info = (msg) => { core.info(msg) };
+      console.warn = (msg) => { core.warning(msg) };
+
 
       // Set outputs for other workflow steps to use
       // core.setOutput('time', new Date().toTimeString())
@@ -27,7 +32,8 @@ export async function run(): Promise<void> {
         return;
       }
 
-      lpc.executeCommandLine(lpc.sys, ["--project", lpcConfig]);
+      core.info(`Running lpc build with config: ${lpcConfig}`);      
+      lpc.executeCommandLine(lpc.sys, ["--project", core.toPlatformPath(lpcConfig)]);
       
     } catch (error) {
       // Fail the workflow run if an error occurs
