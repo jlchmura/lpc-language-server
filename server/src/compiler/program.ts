@@ -93,8 +93,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
 
     const host = createProgramOptions.host || createCompilerHost(options);
     //const configParsingHost = parseConfigHostFromCompilerHostLike(host);
-
-    //let skipDefaultLib = options.noLib;
+    
     // const getDefaultLibraryFileName = memoize(() => host.getDefaultLibFileName(options));
     const defaultLibraryPath = "TODO";//host.getDefaultLibLocation ? host.getDefaultLibLocation() : getDirectoryPath(getDefaultLibraryFileName());
     /**
@@ -1358,7 +1357,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                 }
             }
 
-            //skipDefaultLib = skipDefaultLib || (file.hasNoDefaultLib && !ignoreNoDefaultLib);
+            skipDefaultLib = skipDefaultLib || (file.hasNoDefaultLib && !ignoreNoDefaultLib);
 
             if (!options.noResolve) {
                 processReferencedFiles(file, isDefaultLib);

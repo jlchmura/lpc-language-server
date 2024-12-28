@@ -1160,6 +1160,17 @@ const commandOptionsWithoutBuild: CommandLineOption[] = [
         description: Diagnostics.When_comparing_types_check_that_the_objectStructure_is_compatible_with_the_target_type,
         defaultValueDescription: Diagnostics.false_unless_strict_is_set,
     },
+    {
+        name: "noLib",
+        type: "boolean",
+        category: Diagnostics.Language_and_Environment,
+        affectsProgramStructure: true,
+        description: Diagnostics.Disable_including_any_library_files_including_the_default_efun_h,
+        // We are not returning a sourceFile for lib file when asked by the program,
+        // so pass --noLib to avoid reporting a file not found error.
+        transpileOptionValue: true,
+        defaultValueDescription: false,
+    },
 ];
 
 /** @internal */

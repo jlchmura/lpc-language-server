@@ -2,5 +2,8 @@
     "driver": {
         "type": "fluffos"
     },
-    "include": ["./"]
+    "include": ["./"],
+    "compilerOptions": {
+        "noLib": true
+    }
 }

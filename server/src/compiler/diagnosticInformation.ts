@@ -320,6 +320,8 @@ export const Diagnostics = {
     Unknown_option_excludes_Did_you_mean_exclude: diag(6114, DiagnosticCategory.Error, "Unknown_option_excludes_Did_you_mean_exclude_6114", "Unknown option 'excludes'. Did you mean 'exclude'?"),
     Command_line_Options: diag(6171, DiagnosticCategory.Message, "Command_line_Options_6171", "Command-line Options"),
     Type_Checking: diag(6248, DiagnosticCategory.Message, "Type_Checking_6248", "Type Checking"),
+    Language_and_Environment: diag(6254, DiagnosticCategory.Message, "Language_and_Environment_6254", "Language and Environment"),
+    Disable_including_any_library_files_including_the_default_efun_h: diag(6670, DiagnosticCategory.Message, "Disable_including_any_library_files_including_the_default_efun_h_6670", "Disable including any library files, including the default efun.h."),
     When_assigning_functions_check_to_ensure_parameters_and_the_return_values_are_subtype_compatible: diag(6698, DiagnosticCategory.Message, "When_assigning_functions_check_to_ensure_parameters_and_the_return_values_are_subtype_compatible_6698", "When assigning functions, check to ensure parameters and the return values are subtype-compatible."),
     
     Enable_verbose_logging: diag(6713, DiagnosticCategory.Message, "Enable_verbose_logging_6713", "Enable verbose logging."),

@@ -2,5 +2,8 @@
     "driver": {
         "type": "ldmud"
     },
-    "include": ["./"]
+    "include": ["./"],
+    "compilerOptions": {
+        "noLib": true
+    }
 }
