@@ -21,7 +21,7 @@ export async function run(): Promise<void> {
       console.warn = (msg) => { core.warning(msg) };
 
       lpc.sys.writeOutputIsTTY = () => true; // force color on
-
+      
       let hadError = false;
       // Set outputs for other workflow steps to use
       // core.setOutput('time', new Date().toTimeString())
@@ -32,9 +32,9 @@ export async function run(): Promise<void> {
         const match = problemMatcher.exec(cleanedMessage);
         // if match is found, log as error
         if (match) {
-          hadError = true;         
+          hadError = true;                   
           core.error(cleanedMessage, {
-            file: match[1],            
+            file: core.toPlatformPath(lpc.sys.getCurrentDirectory() + match[1]),
             startLine: parseInt(match[2]),
             startColumn: parseInt(match[3]),                        
             title: `LPC${match[5]}: ${match[6]}`
