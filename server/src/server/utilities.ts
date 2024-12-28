@@ -124,11 +124,3 @@ export function indent(str: string): string {
 export function stringifyIndented(json: {}): string {
     return indent(JSON.stringify(json, undefined, 2));
 }
-
-/** @internal */
-export function findArgument(argumentName: string): string | undefined {
-    const index = sys.args.indexOf(argumentName);
-    return index >= 0 && index < sys.args.length - 1
-        ? sys.args[index + 1]
-        : undefined;
-}

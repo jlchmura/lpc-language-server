@@ -1,4 +1,4 @@
-import { BuildOptions, BuilderProgram, CompilerOptions, Debug, Diagnostic, DiagnosticReporter, Diagnostics, ExitStatus, ParsedCommandLine, Program, System, WatchOptions, createDiagnosticReporter, getDiagnosticText, version } from "./_namespaces/lpc";
+import { BuildOptions, BuilderProgram, CompilerOptions, CreateProgramOptions, Debug, Diagnostic, DiagnosticReporter, DiagnosticWithLocation, Diagnostics, DriverTypeMap, ExitStatus, ForegroundColorEscapeSequences, ParsedCommandLine, Program, System, WatchOptions, combinePaths, createCompilerHost, createDiagnosticReporter, createGetCanonicalFileName, createProgram, findArgument, findConfigFile, formatColorAndReset, getBaseFileName, getDefaultLibFileName, getDefaultLibFolder, getDiagnosticText, getDirectoryPath, getErrorSummaryText, getFilesInErrorForSummary, isDiskPathRoot, noop, normalizePath, parseJsonText, parseLpcSourceFileConfigFileContent, sortAndDeduplicateDiagnostics, version } from "./_namespaces/lpc";
 
 
 /** @internal */
@@ -6,10 +6,122 @@ export type ExecuteCommandLineCallbacks = (program: Program | BuilderProgram | P
 /** @internal */
 export function executeCommandLine(
     system: System,
-    cb: ExecuteCommandLineCallbacks,
     commandLineArgs: readonly string[],
 ): void {
+    system.write(`Version ${version}\n`);
+    system.write(`Searching for config file... ${system.getCurrentDirectory()}\n`);
+
+    const toCanonicalFileName = createGetCanonicalFileName(system.useCaseSensitiveFileNames);
+    const projectFolderArg = findArgument("--project", commandLineArgs);
+    const projectFolder = isDiskPathRoot(projectFolderArg) ? getBaseFileName(projectFolderArg) : normalizePath(combinePaths(system.getCurrentDirectory(), projectFolderArg));
+    const configFileName = findConfigFile(projectFolder || system.getCurrentDirectory(), system.fileExists);
+    const canonicalConfigFilePath = (toCanonicalFileName(configFileName));
+
+    if (!configFileName) {
+        system.write("No config file found.\n");
+        process.exit(1);    
+    }
+
+    system.write(`Using config file: ${canonicalConfigFilePath}\n`);
+    const configFile = parseJsonText(configFileName, system.readFile(configFileName));
+    const parsedConfig = parseLpcSourceFileConfigFileContent(configFile, system, getDirectoryPath(configFileName), /*existingOptions*/ undefined, configFileName);
+    // const parsedConfig = getParsedCommandLineOfConfigFile(configFileName, {}, {
+    //     ...system,
+    //     getCurrentDirectory: () => system.getCurrentDirectory(),
+    //     onUnRecoverableConfigFileDiagnostic: (d)=>{console.error(d);},
+    // });
+
+    const compilerOptions = parsedConfig.options;
+    const compilerHost = createCompilerHost(compilerOptions);
+    const execPath = getDirectoryPath(process.argv[1]);
+    compilerHost.getDefaultLibFileName = () => combinePaths(execPath, "../", getDefaultLibFolder(compilerOptions), getDefaultLibFileName(compilerOptions));
+
+    system.write(`Driver type: ${DriverTypeMap[compilerOptions.driverType]}\n`);
+    system.write(`Found ${parsedConfig.fileNames.length} files.\n`);
+    system.write(`Efun Definitions: ${normalizePath(compilerHost.getDefaultLibFileName(compilerOptions))}\n`);
+
+    const createProgramOptions: CreateProgramOptions = {
+        host: compilerHost,
+        rootNames: parsedConfig.fileNames,
+        options: compilerOptions,                
+        oldProgram: undefined,                
+    };
+
+    // our console output is still verbose, so mask console output
+    console.log = noop;
+    console.debug = noop;
+    console.info = noop;
+    console.warn = noop;
+
+    function defaultIsPretty(sys: System) {
+        return !!sys.writeOutputIsTTY && sys.writeOutputIsTTY() && !sys.getEnvironmentVariable("NO_COLOR");
+    }
+
+    function shouldBePretty(sys: System, options: CompilerOptions | BuildOptions) {
+        if (!options || typeof options.pretty === "undefined") {
+            return defaultIsPretty(sys);
+        }
+        return options.pretty;
+    }
+
+    function updateReportDiagnostic(
+        sys: System,
+        existing: DiagnosticReporter,
+        options: CompilerOptions | BuildOptions,
+    ): DiagnosticReporter {
+        return shouldBePretty(sys, options) ?
+            createDiagnosticReporter(sys, /*pretty*/ true) :
+            existing;
+    }
+
+    const reportDiagnostic = updateReportDiagnostic(
+        system,
+        createDiagnosticReporter(system),
+        compilerOptions
+    );
+
+    // create program and get file we are trying to compile
+    const program = createProgram(createProgramOptions);
+
+    const diags: DiagnosticWithLocation[] = [];
+    const rootFiles = program.getRootFileNames();
+
+    rootFiles.forEach(f => {
+        const sourceFile = program.getSourceFile(f);    
+        const parseDiags = program.getSyntacticDiagnostics(sourceFile);
+        diags.push(...parseDiags);
         
+        if (compilerOptions.diagnostics) {
+            const semanticDiags = program.getSemanticDiagnostics(sourceFile);
+            diags.push(...semanticDiags);
+        }        
+    });
+
+    sortAndDeduplicateDiagnostics(diags).forEach(d => {
+        reportDiagnostic(d);
+    });
+
+    if (diags.length) {
+        system.write("\n");
+        const diagTxt = getErrorSummaryText(diags.length, getFilesInErrorForSummary(diags), "\n", compilerHost);
+        system.write(diagTxt);    
+    } else if (rootFiles.length) {
+        system.write(formatColorAndReset("\n✓ ", ForegroundColorEscapeSequences.Green));
+
+        const messages = [
+            "Your code is so fresh and so clean, clean.",
+            "May the source be with you.",
+            "Time to grab a coffee.",
+            "It's a feature, not a bug!",
+            "You are a coding wizard.",
+            "Your code is all that and a bag of chips.",
+            "You must be the Fresh Prince of Code-Air.",
+            "Party on, dudes."
+        ];
+        const message = messages[Math.floor(Math.random() * messages.length)];
+
+        system.write(formatColorAndReset(`No errors found. ${message}\n\n`, ForegroundColorEscapeSequences.Grey));
+    }    
 }
 
 function performBuild(
@@ -70,3 +182,4 @@ function shouldBePretty(sys: System, options: CompilerOptions | BuildOptions) {
 function defaultIsPretty(sys: System) {
     return !!sys.writeOutputIsTTY && sys.writeOutputIsTTY() && !sys.getEnvironmentVariable("NO_COLOR");
 }
+

@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-
+import * as lpc from "lpc";
 
 /**
  * The main function for the action.

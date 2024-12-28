@@ -78,14 +78,18 @@ class LspSession extends lpc.server.Session {
     }
 }
 
+function findArgument(arg: string): string | undefined {
+    return lpc.findArgument(arg, lpc.sys.args); 
+}
+
 function parseLocale(): string | undefined {
-    const locale = lpc.server.findArgument("--locale");
+    const locale = findArgument("--locale");
     return locale;
 }
 
 
 function parseServerMode(): lpc.LanguageServiceMode | undefined {
-    const mode = lpc.server.findArgument("--serverMode");
+    const mode = findArgument("--serverMode");
     if (!mode) return undefined;
 
     switch (mode.toLowerCase()) {
@@ -184,7 +188,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
         });                              
         
         const inferredOptions: protocol.InferredProjectCompilerOptions = {};        
-        const driverTypeArg = lpc.server.findArgument("--driverType");
+        const driverTypeArg = findArgument("--driverType");
         inferredOptions.driverType = driverTypeArg === "fluffos" ? lpc.LanguageVariant.FluffOS : lpc.LanguageVariant.LDMud;        
 
         session.setCompilerOptionsForInferredProjects({options:inferredOptions});
