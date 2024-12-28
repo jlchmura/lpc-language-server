@@ -1,8 +1,13 @@
 import { BuildOptions, BuilderProgram, CompilerOptions, CreateProgramOptions, Debug, Diagnostic, DiagnosticReporter, DiagnosticWithLocation, Diagnostics, DriverTypeMap, ExitStatus, ForegroundColorEscapeSequences, ParsedCommandLine, Program, System, WatchOptions, combinePaths, createCompilerHost, createDiagnosticReporter, createGetCanonicalFileName, createProgram, findArgument, findConfigFile, formatColorAndReset, getBaseFileName, getDefaultLibFileName, getDefaultLibFolder, getDiagnosticText, getDirectoryPath, getErrorSummaryText, getFilesInErrorForSummary, isDiskPathRoot, noop, normalizePath, parseJsonText, parseLpcSourceFileConfigFileContent, sortAndDeduplicateDiagnostics, version } from "./_namespaces/lpc";
 
 
-
+export enum ExecuteCommandMsgType {
+    None = 0,
+    Success,
+    Failure,
+}
 export type ExecuteCommandLineCallbacks = (program: Program | BuilderProgram | ParsedCommandLine) => void;
+export type ExecuteCommandMsgCallback = (msg: string, msgType?: ExecuteCommandMsgType) => void;
 
 /**
  * Executes a CLI build.
@@ -12,6 +17,7 @@ export type ExecuteCommandLineCallbacks = (program: Program | BuilderProgram | P
 export function executeCommandLine(
     system: System,
     commandLineArgs: readonly string[],
+    msgCallback?: ExecuteCommandMsgCallback,
 ): void {
     system.write(`Version ${version}\n`);
     system.write(`Searching for config file... ${system.getCurrentDirectory()}\n`);
@@ -102,8 +108,10 @@ export function executeCommandLine(
 
     if (diags.length) {
         system.write("\n");
-        const diagTxt = getErrorSummaryText(diags.length, getFilesInErrorForSummary(diags), "\n", compilerHost);
-        system.write(diagTxt);    
+        if (msgCallback) {            
+            const diagTxt = getErrorSummaryText(diags.length, getFilesInErrorForSummary(diags), "\n", compilerHost);
+            msgCallback(diagTxt, ExecuteCommandMsgType.Failure);
+        }        
     } else if (rootFiles.length) {
         system.write(formatColorAndReset("\n✓ ", ForegroundColorEscapeSequences.Green));
 
@@ -119,7 +127,9 @@ export function executeCommandLine(
         ];
         const message = messages[Math.floor(Math.random() * messages.length)];
 
-        system.write(formatColorAndReset(`No errors found. ${message}\n\n`, ForegroundColorEscapeSequences.Grey));
+        if (msgCallback) {
+            msgCallback(formatColorAndReset(`No errors found. ${message}\n\n`, ForegroundColorEscapeSequences.Grey), ExecuteCommandMsgType.Success);
+        }        
     }    
 }
 

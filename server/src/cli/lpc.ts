@@ -27,4 +27,8 @@ console.debug = lpc.noop;
 console.info = lpc.noop;
 console.warn = lpc.noop;
 
-lpc.executeCommandLine(lpc.sys, lpc.sys.args);
+lpc.executeCommandLine(lpc.sys, lpc.sys.args, onMessage);
+
+function onMessage(msg: string, msgType?: lpc.ExecuteCommandMsgType) {
+    lpc.sys.write(msg);
+}
