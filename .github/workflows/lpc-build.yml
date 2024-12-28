@@ -1,5 +1,7 @@
 on: [push]
 
+name: Build LPC
+
 jobs:
   lpc_build:
     runs-on: ubuntu-latest
