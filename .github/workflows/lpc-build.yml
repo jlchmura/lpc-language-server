@@ -11,6 +11,6 @@ jobs:
         
       - name: Build
         id: build
-        uses: jlchmura/lpc-language-server/action@action-test
+        uses: jlchmura/lpc-build-action@latest
         with:
           lpc-config: ${{ github.workspace }}/efuns/ldmud/lpc-config.json        
