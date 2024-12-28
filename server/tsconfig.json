@@ -3,18 +3,20 @@
         "rootDir": ".",
         "outDir": "../out/local",
         "pretty": true,
+        "sourceRoot": "./src",
+        "rootDirs": ["src"],
+        "baseUrl": "./",
 
         "lib": ["es2020"],        
         "target": "es2020",
         "module": "ESNext",
         "moduleResolution": "Node",
         
-        "declaration": true,        
-        "declarationMap": true,        
+        "declaration": false,        
         "sourceMap": true,
         "composite": false,
-        // "emitDeclarationOnly": true,
-
+        "stripInternal": true,
+        
         "skipLibCheck": true,
 
         "esModuleInterop": true,

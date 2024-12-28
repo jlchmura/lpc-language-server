@@ -40,6 +40,7 @@ export * from "../emitter.js";
 export * from "../resolutionCache.js";
 export * from "../lpcbuild.js";
 export * from "../lpcbuildPublic.js";
+export * from "../executeCommandLine.js";
 export * from "../expressionToTypeNode.js";
 import * as moduleSpecifiers from "./lpc.moduleSpecifiers.js";
 export { moduleSpecifiers };

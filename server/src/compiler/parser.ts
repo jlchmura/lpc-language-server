@@ -1387,7 +1387,7 @@ export namespace LpcParser {
             case SyntaxKind.LwObjectKeyword:   
             case SyntaxKind.SymbolKeyword:
             case SyntaxKind.BufferKeyword:            
-            case SyntaxKind.ClosureKeyword:
+            // case SyntaxKind.ClosureKeyword:
                 // When these don't start a declaration, they may be the start of a class member if an identifier
                 // immediately follows. Otherwise they're an identifier in an expression statement.
                 return isStartOfDeclaration() || !lookAhead(nextTokenIsIdentifierOrKeywordOnSameLine);
@@ -1435,7 +1435,7 @@ export namespace LpcParser {
                 case SyntaxKind.NoShadowKeyword:
                 case SyntaxKind.BytesKeyword:                
                 case SyntaxKind.LwObjectKeyword:
-                case SyntaxKind.ClosureKeyword:                
+                // case SyntaxKind.ClosureKeyword:                
                 case SyntaxKind.BufferKeyword:
                 case SyntaxKind.IntKeyword:
                 case SyntaxKind.FloatKeyword:
@@ -1815,8 +1815,7 @@ export namespace LpcParser {
             case SyntaxKind.StringKeyword:
             case SyntaxKind.MixedKeyword:
             case SyntaxKind.MappingKeyword:
-            case SyntaxKind.ObjectKeyword:
-            case SyntaxKind.ClosureKeyword:
+            case SyntaxKind.ObjectKeyword:            
             case SyntaxKind.Identifier:
             case SyntaxKind.LessThanToken: // start of union type                
                 if (isStartOfDeclaration()) {
@@ -3117,8 +3116,7 @@ export namespace LpcParser {
             case SyntaxKind.MappingKeyword:
             case SyntaxKind.ObjectKeyword:
             case SyntaxKind.UndefinedKeyword:            
-            case SyntaxKind.ObjectKeyword:
-            case SyntaxKind.ClosureKeyword:
+            case SyntaxKind.ObjectKeyword:            
                 // If these are followed by a dot, then parse these out as a dotted type reference instead.
                 return parseKeywordAndNoDot();
             case SyntaxKind.StatusKeyword:     
@@ -3446,8 +3444,7 @@ export namespace LpcParser {
             case SyntaxKind.MappingKeyword:
             case SyntaxKind.ObjectKeyword:
             case SyntaxKind.StructKeyword:
-            case SyntaxKind.ClassKeyword:
-            case SyntaxKind.ClosureKeyword:
+            case SyntaxKind.ClassKeyword:            
             case SyntaxKind.FunctionKeyword:
             case SyntaxKind.VoidKeyword:
                 return true;

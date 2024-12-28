@@ -13,4 +13,4 @@ jobs:
         id: build
         uses: jlchmura/lpc-build-action@main
         with:
-          lpc-config: ${{ github.workspace }}/efuns/ldmud/lpc-config.json        
+          lpc-config: ${{ github.workspace }}/efuns/fluffos/lpc-config.json        

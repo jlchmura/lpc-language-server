@@ -3118,7 +3118,7 @@ export function isProgramUptoDate(
     }
 }
 
-export function findConfigFile(searchPath: string, fileExists: (fileName: string) => boolean, configName = "lpc-config.json"): string | undefined {
+export function findConfigFile(searchPath: string, fileExists: (fileName: string) => boolean, configName = "lpc-config.json"): string | undefined {    
     return forEachAncestorDirectory(searchPath, ancestor => {
         const fileName = combinePaths(ancestor, configName);
         console.log(`Checking for ${fileName}`);

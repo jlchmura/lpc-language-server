@@ -1,6 +1,8 @@
 // arrays.h
 
+#undef ALL_ARRAY_TYPES
 #define ALL_ARRAY_TYPES string*|int*|float*|object*|mixed*|function*
+#undef ALL_PRIMITIVE_TYPES
 #define ALL_PRIMITIVE_TYPES string|int|float|object|mixed|function
 
 /**

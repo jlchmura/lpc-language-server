@@ -1,0 +1,10 @@
+{
+    "extends": "./tsconfig",
+    "exclude": ["**/tests/**/*"],
+    "compilerOptions": {
+        "outDir": "../out/local-dts",
+        "declaration": true,
+        "declarationMap": true,
+        "emitDeclarationOnly": true
+    }
+}
