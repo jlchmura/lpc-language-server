@@ -113,8 +113,6 @@ export function executeCommandLine(
             msgCallback(diagTxt, ExecuteCommandMsgType.Failure);
         }        
     } else if (rootFiles.length) {
-        system.write(formatColorAndReset("\n✓ ", ForegroundColorEscapeSequences.Green));
-
         const messages = [
             "Your code is so fresh and so clean, clean.",
             "May the source be with you.",
@@ -128,7 +126,7 @@ export function executeCommandLine(
         const message = messages[Math.floor(Math.random() * messages.length)];
 
         if (msgCallback) {
-            msgCallback(formatColorAndReset(`No errors found. ${message}\n\n`, ForegroundColorEscapeSequences.Grey), ExecuteCommandMsgType.Success);
+            msgCallback(formatColorAndReset("\n✓ ", ForegroundColorEscapeSequences.Green) + formatColorAndReset(`No errors found. ${message}\n\n`, ForegroundColorEscapeSequences.Grey), ExecuteCommandMsgType.Success);
         }        
     }    
 }
