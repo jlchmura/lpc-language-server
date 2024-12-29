@@ -2014,6 +2014,7 @@ export function canHaveJSDoc(node: Node): node is HasJSDoc {
         case SyntaxKind.FunctionType:        
         case SyntaxKind.Identifier:
         case SyntaxKind.IfStatement:   
+        case SyntaxKind.IncludeDirective:
         case SyntaxKind.InlineClosureExpression:
         case SyntaxKind.InheritDeclaration:     
         case SyntaxKind.IndexSignature:        
@@ -5637,6 +5638,7 @@ export function getJSDocCommentRanges(node: Node, text: string) {
             node.kind === SyntaxKind.ParenthesizedExpression ||
             node.kind === SyntaxKind.VariableDeclaration ||
             node.kind === SyntaxKind.DefineDirective ||
+            node.kind === SyntaxKind.InheritDeclaration ||
             node.kind === SyntaxKind.ExportSpecifier) ?
         concatenate(getTrailingCommentRanges(text, node.pos), getLeadingCommentRanges(text, node.pos)) :
         getLeadingCommentRanges(text, node.pos);
