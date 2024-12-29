@@ -209,7 +209,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
                             // convert typescript server diagnostics to language server diagnostics
                             const lsDiags = diagnostics.map(d => typeConverters.Diagnostic.fromDiagnostic(d));
 
-                            if (doc && lsDiags) {
+                            if (doc && lsDiags) {                                
                                 connection.sendDiagnostics({ uri, diagnostics: lsDiags });
                             }
                         }

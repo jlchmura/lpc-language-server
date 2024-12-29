@@ -154,11 +154,12 @@ class LpcTaskProvider extends Disposable implements vscode.TaskProvider {
 			buildTaskidentifier,
 			workspaceFolder || vscode.TaskScope.Workspace,
 			vscode.l10n.t("Build - {0}", label),
-			'LPC',
+			'lpc',
 			new vscode.ShellExecution("node", [command, ...args]),
 			'$lpc');
 		buildTask.group = vscode.TaskGroup.Build;
 		buildTask.isBackground = false;
+				
 		return buildTask;
 	}
 

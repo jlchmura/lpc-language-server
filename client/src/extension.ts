@@ -122,7 +122,8 @@ export async function activate(context: ExtensionContext) {
             // Notify the server about file changes to lpc config files contained in the workspace
             fileEvents: workspace.createFileSystemWatcher("**/lpc-config.json"),            
         },
-        diagnosticCollectionName: "LPC",
+        diagnosticCollectionName: "lpc",
+        
     };    
 
     // Create the language client and start the client.
@@ -134,7 +135,7 @@ export async function activate(context: ExtensionContext) {
                 env: [ "NODE_ENV=production" ],                
             },
             run: serverOptions.run,
-            debug: serverOptions.debug
+            debug: serverOptions.debug            
             // debug: {
             //     ...serverOptions.debug,
             //     options: {
@@ -155,24 +156,7 @@ export async function activate(context: ExtensionContext) {
 
     syntaxClient = new LanguageClient("lpc", "LPC Syntax Server", syntaxServerOptions, clientOptions);
     syntaxClient.start();
-          
-    context.subscriptions.push(
-        commands.registerCommand(
-            "lpc.processAll",
-            async (textEditor: TextEditor, _edit: TextEditorEdit) => {
-                client?.diagnostics?.clear();
-                progress.startAnimation();
-                return await client
-                    .sendRequest("textDocument/processAll", {})
-                    .catch((e) => {
-                        console.error("Error sending process all request", e);
-                        progress.stopAnimation();
-                        return e;
-                    });
-            }
-        )
-    );
-    
+                  
     client.onNotification("lpc/initialized", () => {
         clientInitialized=true;
         // don't initialize providers until the server says its ready
@@ -193,8 +177,8 @@ export async function activate(context: ExtensionContext) {
     });
     client.onNotification("lpc/info", (params) => {
         window.showWarningMessage(params);
-    });        
-    
+    });       
+        
     function _register<T extends vscode.Disposable>(value: T): T {
 		if (_isDisposed) {
 			value.dispose();

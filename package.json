@@ -1,7 +1,7 @@
 {
     "name": "lpc",
     "displayName": "LPC",
-    "version": "1.1.17",
+    "version": "1.1.18",
     "galleryBanner": {
         "color": "#000000",
         "theme": "dark"
@@ -49,6 +49,7 @@
     },
     "activationEvents": [
         "workspaceContains:**/*.c",
+        "workspaceContains:**/*.h",
         "workspaceContains:lpc-config.json"
     ],
     "contributes": {
@@ -127,8 +128,8 @@
         "problemMatchers": [
             {
                 "name": "lpc",
-                "label": "%lpc.problemMatchers.lpc.label%",
-                "owner": "lpc",
+                "label": "LPC Compiler Diagnostics",
+                "owner": "lpc",                
                 "source": "LPC",
                 "applyTo": "closedDocuments",
                 "fileLocation": [
