@@ -5,6 +5,8 @@ export const versionMajorMinor = "1.1";
 /** The version of the TypeScript compiler release */
 export const version = "1.1.17" as string;
 
+export const diagnosticPrefix = "LPC" as string;
+
 /**
  * Type of objects whose values are all of the same type.
  * The `in` and `for-in` operators can *not* be safely used,

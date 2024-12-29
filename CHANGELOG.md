@@ -1,5 +1,10 @@
 # LPC Language Services Changelog
 
+## 1.1.18
+
+-   Fix: [Diagnostics are duplicated after running the build task #137](https://github.com/jlchmura/lpc-language-server/issues/137)
+-   Added `.h` to the file extensions that will activate the language server.
+
 ## 1.1.17
 
 -   Fix: LPCDoc `@var` tag types were incorrectly linked to the original symbol
