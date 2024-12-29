@@ -331,9 +331,35 @@ mixed filter(string|mapping|mixed* source,
              string filter_function,
              object|string ob,
              mixed *extra...);
-mixed filter(string|mapping|mixed* source,
-             function f,
-             mixed *extra... );
+string|mapping filter(string|mapping source, function f, mixed *extra... );
+
+/**
+ * @template T
+ * @callback filterCallback
+ * @param {T} element The element to map
+ * @returns The map callback return value
+ */
+
+/**
+ * filter
+ *
+ * 返回一个新字符串、数组或映射，其元素与'source'中的元素相同，前提是这些元素通过过滤函数的测试。
+ * 
+ * 字符串被视为整数数组，因此过滤函数以字符串中每个字符的整数值进行调用。
+ * 
+ * 过滤函数必须接受至少一个参数，即要测试的元素，并返回一个真值（truthy）以表示该元素应包含在结果中，或返回一个假值（falsy）以表示应排除该元素。
+ * 
+ * 在映射的情况下，filter将把键和值传递给过滤函数。
+ * 
+ * 传递给filter()的任何附加参数将在所需参数之后传递给过滤函数。
+ * 
+ * 如果使用第一种语法，过滤函数作为call_other执行。如果ob是一个字符串，则假定它是要加载的对象的文件名，并在其上调用过滤函数。
+ * @template T - string, mapping, or array
+ * @param {T*} source - The source to filter
+ * @param {filterCallback<T>} f - The filter function
+ * @returns {T*} - The filtered source
+ */       
+mixed* filter(mixed* source, function f, mixed *extra... );
 
 /**
  * explode_reversible
