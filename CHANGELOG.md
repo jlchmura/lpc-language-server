@@ -3,6 +3,7 @@
 ## 1.1.18
 
 -   Fix: [Diagnostics are duplicated after running the build task #137](https://github.com/jlchmura/lpc-language-server/issues/137)
+-   Fix: [Incorrect signature resolution when function decl does not have doc comment #139](https://github.com/jlchmura/lpc-language-server/issues/139)  
 -   Added `.h` to the file extensions that will activate the language server.
 
 ## 1.1.17

@@ -4599,6 +4599,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 flags |= SignatureFlags.IsVarArgs;
             }
 
+            if (hasJSDocNodes(declaration)) {
+                flags |= SignatureFlags.HasJsDoc;
+            }
+
             // If this is a JSDoc construct signature, then skip the first parameter in the
             // parameter list.  The first parameter represents the return type of the construct
             // signature.
@@ -31797,7 +31801,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
             // specialized signatures always need to be placed before non-specialized signatures regardless
             // of the cutoff position; see GH#1133
-            if (signatureHasLiteralTypes(signature)) {
+            if (signatureHasLiteralTypes(signature) || signatureHasJsDoc(signature)) {
                 specializedIndex++;
                 spliceIndex = specializedIndex;
                 // The cutoff index always needs to be greater than or equal to the specialized signature index
@@ -34404,4 +34408,8 @@ const typeofNEFacts: ReadonlyMap<string, TypeFacts> = new Map(Object.entries({
 
 function signatureHasLiteralTypes(s: Signature) {
     return !!(s.flags & SignatureFlags.HasLiteralTypes);
+}
+
+function signatureHasJsDoc(s: Signature) {
+    return !!(s.flags & SignatureFlags.HasJsDoc);
 }
