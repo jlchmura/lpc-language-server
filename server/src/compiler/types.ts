@@ -4078,6 +4078,7 @@ export const enum SignatureFlags {
     HasLiteralTypes = 1 << 1,           // Indicates signature is specialized
     Abstract = 1 << 2,                  // Indicates signature comes from an abstract class, abstract construct signature, or abstract constructor type
     IsVarArgs = 1 << 3,                 // Indicates signature is a varargs signature
+    HasJsDoc = 1 << 4,                  // Indicates signature's declaration has JSDoc comments
 
     // Non-propagating flags
     IsInnerCallChain = 1 << 6,          // Indicates signature comes from a CallChain nested in an outer OptionalChain
