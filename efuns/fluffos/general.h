@@ -344,9 +344,63 @@ mixed filter(string|mapping|mixed* source,
              string filter_function,
              object|string ob,
              mixed *extra...);
-mixed filter(string|mapping|mixed* source,
-             function f,
-             mixed *extra... );
+
+/**
+ * @template T
+ * @callback filterCallback
+ * @param {T} element The element to map
+ * @returns The map callback return value
+ */
+/**
+ * filter
+ *
+ * Returns a new string, array or mapping with the same elements as 'source'
+ * whose elements pass the test implemented by the filter function.
+ * 
+ * A string is considered an array of integers, so the filter function is
+ * called with the integer value of each character in the string.
+ * 
+ * The filter function must accept at least one argument, the element to be
+ * tested and return a truthy value if the element should be included in the
+ * result, or a falsy value if it should be excluded.
+ * 
+ * In the case of a mapping, filter will pass the key and value to the filter
+ * function.
+ * 
+ * Any additional arguments given to filter() will be passed to the filter
+ * function after the required arguments.
+ * 
+ * If the first syntax is used, the filter function is performed as a
+ * call_other. If ob is a string, it is assumed to be the filename of an
+ * object to load and call the filter function on.   
+ * @template {string|mapping} T - string, mapping, or array
+ * @param {T} source - The source to filter
+ * @returns {T} - The filtered source
+ */             
+string|mapping filter(string|mapping source, function f, mixed *extra... );
+
+/**
+ * filter
+ *
+ * Returns an array with the same elements as 'source'
+ * whose elements pass the test implemented by the filter function.
+ * 
+ * The filter function must accept at least one argument, the element to be
+ * tested and return a truthy value if the element should be included in the
+ * result, or a falsy value if it should be excluded.
+ * 
+ * Any additional arguments given to filter() will be passed to the filter
+ * function after the required arguments.
+ * 
+ * If the first syntax is used, the filter function is performed as a
+ * call_other. If ob is a string, it is assumed to be the filename of an
+ * object to load and call the filter function on.   
+ * @template T - string, mapping, or array
+ * @param {T*} source - The source to filter
+ * @param {filterCallback<T>} f - The filter function
+ * @returns {T*} - The filtered source
+ */       
+mixed* filter(mixed* source, function f, mixed *extra... );
 
 /**
  * explode_reversible

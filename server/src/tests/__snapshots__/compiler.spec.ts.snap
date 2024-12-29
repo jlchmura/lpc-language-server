@@ -185,6 +185,8 @@ Found 1 error in server/src/tests/cases/compiler/define2.c[90m:1[0m
 
 exports[`Compiler compiler/doWhile.c Reports correct errors for compiler/doWhile.c: diags-compiler/doWhile.c 1`] = `""`;
 
+exports[`Compiler compiler/efun.fluff.filter.c Reports correct errors for compiler/efun.fluff.filter.c: diags-compiler/efun.fluff.filter.c 1`] = `""`;
+
 exports[`Compiler compiler/expr1.c Reports correct errors for compiler/expr1.c: diags-compiler/expr1.c 1`] = `""`;
 
 exports[`Compiler compiler/expr2.c Reports correct errors for compiler/expr2.c: diags-compiler/expr2.c 1`] = `""`;
