@@ -1836,7 +1836,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         //     }
         // }
 
-        const toPragmas = file.pragmas?.get("this-object");
+        const toPragmas = file.pragmas?.get("this-object") ?? file.pragmas?.get("this_object");
         if (toPragmas) {
             const stringLiteral = thisObjectPragmaToStringLiteral(file, toPragmas);
             if (stringLiteral && stringLiteral.text?.length) {

@@ -7471,6 +7471,7 @@ export function processPragmasIntoFields(context: PragmaContext, reportDiagnosti
                 break;
             }
             case "this-object":
+            case "this_object":
                 return; // Accessed directly            
             // case "jsx":
             // case "jsxfrag":

@@ -7678,6 +7678,10 @@ export const commentPragmas = {
         args: [{ name: "name" }],
         kind: PragmaKindFlags.SingleLine,
     },
+    "this_object": {
+        args: [{ name: "name" }],
+        kind: PragmaKindFlags.SingleLine,
+    },
     "lpc-check": {
         kind: PragmaKindFlags.SingleLine,
     },

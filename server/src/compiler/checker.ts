@@ -14801,7 +14801,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (nameStr === "this_object") {
                 // this_object() is a special case that should return the type of the parent sourcefile
                 const file = getSourceFileOfNode(node);
-                const thisObjectPragmas = file.pragmas.get("this-object");                
+                const thisObjectPragmas = file.pragmas.get("this-object") ?? file.pragmas.get("this_object");
                 let resultType: Type;
 
                 // if a pragma is found, use the first pragma value as the type
