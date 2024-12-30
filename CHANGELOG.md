@@ -8,6 +8,7 @@
 -   Fix: [Type predicates not working in inherited sefun files. #144](https://github.com/jlchmura/lpc-language-server/issues/144)
 -   Fix: [Fix typings for filter efun and add unit test, closes #145](https://github.com/jlchmura/lpc-language-server/issues/145)
 -   Added `.h` to the file extensions that will activate the language server.
+-   Added support for [`@lpc-nocheck`](./README.md#disabling-checks-for-a-single-file---lpc-nocheck) and [`@lpc-ignore`](./README.md#ignoring-a-single-line---lpc-ignore) comment directives.
 
 ## 1.1.17
 

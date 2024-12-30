@@ -392,8 +392,6 @@ exports[`Compiler compiler/new3.c Reports correct errors for compiler/new3.c: di
 
 exports[`Compiler compiler/new4.c Reports correct errors for compiler/new4.c: diags-compiler/new4.c 1`] = `""`;
 
-exports[`Compiler compiler/nocheck.c Reports correct errors for compiler/nocheck.c: diags-compiler/nocheck.c 1`] = `""`;
-
 exports[`Compiler compiler/object.c Reports correct errors for compiler/object.c: diags-compiler/object.c 1`] = `""`;
 
 exports[`Compiler compiler/operatorBitwise.c Reports correct errors for compiler/operatorBitwise.c: diags-compiler/operatorBitwise.c 1`] = `""`;
