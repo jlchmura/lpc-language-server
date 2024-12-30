@@ -22,9 +22,10 @@ int uptime( void );
  * 
  * Note: do not leave tracing enabled for too long or you will risk running
  * out of memory.
- *
+ * @param filename the file to write the trace data to
+ * @param auto_stop_sec the number of seconds to collect trace data before stopping, defaults to 30 seconds
  */
-void trace_start(string filename, int auto_stop_sec = 30);
+varargs void trace_start(string filename, int auto_stop_sec);
 
 /**
  * trace_end - stop collecting driver trace

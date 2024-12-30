@@ -251,7 +251,7 @@ int clonep( void | mixed arg );
  * object money = clone_object("/obj/money", 10, "dollars" ) ; // 克隆一个钱币对象并设置初始值
  *
  */
-object clone_object( string name... );
+object clone_object( string name, mixed args... );
 
 /**
  * children() - 返回从给定对象克隆的对象数组。

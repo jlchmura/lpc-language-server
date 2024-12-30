@@ -321,6 +321,9 @@ string query_encoding();
  * An  implementation  of (s)printf() for LPC, with quite a few extensions
  * Implemented by Lynscar (Sean A Reith).
  * 
+ * @param format the format string
+ * @param args the arguments to format
+ * @description 
  * This version supports the following as modifiers:
  * 
  * " "     pad positive integers with a space.
@@ -387,29 +390,36 @@ string query_encoding();
  * f       floating point number
  *
  * Basic Usage:
+ * ```lpc
  * printf("%s is %i", "X", 1)    =   "X is 1"
+ * ```
  * 
  * Alignment:
+ * ```lpc
  * printf("%-20s", "left")       =   "left                "
  * printf("%20|s", "center")     =   "       center       "
  * printf("%20s", "right")       =   "               right"
  * printf("%-20'-'s", "left")    =   "left----------------"
  * printf("%20'-'|s", "center")  =   "-------center-------"
  * printf("%20'-'s", "right")    =   "---------------right"
+ * ```
  * 
  * Numeric:
+ * ```lpc
  * printf("%.2f", 1.2345)        =   "1.23"
  * printf("%10.2f", 1.2345)      =   "      1.23"
  * printf("%10.6f", 0.123)       =   "  0.123000"
+ * ```
  * 
  * Dynamic Field Size:
+ * ```lpc
  * printf("%-*s", 10, "ten")     =   "ten       "
  * printf("%|*s", 20, "twenty")  =   "       twenty       "
  * printf("%*s", 30, "thirty")   =   "                        thirty"
- *
+ * ```
  */
-void printf( string format... );
-string sprintf( string format... );
+void printf( string format, mixed args... );
+string sprintf( string format, mixed args... );
 
 /**
  * int notify_fail( string | function str );
@@ -578,7 +588,7 @@ function
  * be passed on to 'fun' as arguments following the user input.
  *
  */
-varargs void get_char( string | function fun, int flag... );
+varargs void get_char( string | function fun, int flag, mixed args... );
 
 /**
  * find_player() - find a player by name
@@ -645,9 +655,10 @@ void enable_commands(  );
  * When setup_actions > 0, Driver will re-setup all the actions by calling
  * init()  on  its  environment,  sibling  and inventory objects. (in that
  * order).
- * @since 3.0-alpha7.1
+ * @param {int} setup_actions - if non-zero, re-setup actions by calling init() on its environment, sibling and inventory objects. Defaults to 0
+ * @since 3.0-alpha7.1* 
  */
-void enable_commands( int setup_actions = 0 );
+varargs void enable_commands(int setup_actions);
 
 /**
  * ed() - edit a file

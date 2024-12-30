@@ -332,7 +332,7 @@ int clonep( void | mixed arg );
  * object money = clone_object("/obj/money", 10, "dollars" ) ; // clone a money object and set initial values
  *
  */
-object clone_object( string name... );
+object clone_object( string name, mixed args... );
 
 /**
  * children() - returns an array of objects cloned from a given object.

@@ -16,9 +16,10 @@ int uptime( void );
  * 跟踪收集将在 `trace_end()` 被调用或在 `auto_stop_sec` 秒后停止，该值默认为30秒。
  * 
  * 注意：不要让跟踪启用太长时间，否则会有耗尽内存的风险。
- *
+ * @param filename 写入跟踪数据的文件 
+ * @param auto_stop_sec 收集跟踪数据之前的秒数，默认为30秒
  */
-void trace_start(string filename, int auto_stop_sec = 30);
+varargs void trace_start(string filename, int auto_stop_sec);
 
 /**
  * trace_end - 停止收集驱动跟踪信息

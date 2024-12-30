@@ -311,10 +311,10 @@ void dump_socket_status( void );
  * assembly of the i-code 2 - include line number information
  *
  * @param {object} ob - the object to dump
-    * @param {int} flags - the flags to use, defaults to 
-    * @param {string} file - the file to dump to, defaults to "/PROG_DUMP"
+ * @param {int} flags - the flags to use, defaults to 
+ * @param {string} file - the file to dump to, defaults to "/PROG_DUMP"
  */
-varargs void dump_prog( object ob );
+varargs void dump_prog(object ob, int flags, string file);
 
 /**
  * dump_file_descriptors() - dump the MudOS process file descriptor table
