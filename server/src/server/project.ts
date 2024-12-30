@@ -177,7 +177,8 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
             getCurrentDirectory: this.getCurrentDirectory,
             fileExists: this.fileExists,
             readFile: this.readFile,
-            getIncludeDirs: (filename) => this.program.getIncludeDirs(filename)
+            getIncludeDirs: (filename) => this.program.getIncludeDirs(filename),
+            getCompilerOptions: () => this.compilerOptions,
         });                
         this.languageService = createLanguageService(this, fileHandler, this.documentRegistry, this.projectService.serverMode);
         if (lastFileExceededProgramSize) {

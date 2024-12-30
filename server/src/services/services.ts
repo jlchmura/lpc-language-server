@@ -2445,6 +2445,7 @@ class SyntaxTreeCache {
                 readFile: fileName => sys.readFile(fileName),
                 getCurrentDirectory: () => sys.getCurrentDirectory(),
                 getIncludeDirs: ()=>this.host.getIncludeDirs(),  
+                getCompilerOptions: () => this.host.getCompilationSettings(),
             })
         }; 
 

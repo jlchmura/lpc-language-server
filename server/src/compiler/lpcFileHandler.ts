@@ -1,4 +1,4 @@
-import { combinePaths, CompilerHost, convertToRelativePath, forEach, getDirectoryPath, isRootedDiskPath, LoadImportResult, LpcFileHandler, LpcLoadImportResult, ModuleResolutionHost, normalizePath, pathIsAbsolute, pathIsRelative, pushIfUnique, resolvePath } from "./_namespaces/lpc.js";
+import { combinePaths, CompilerHost, CompilerOptions, convertToRelativePath, forEach, getDirectoryPath, isRootedDiskPath, LoadImportResult, LpcFileHandler, LpcLoadImportResult, ModuleResolutionHost, normalizePath, pathIsAbsolute, pathIsRelative, pushIfUnique, resolvePath } from "./_namespaces/lpc.js";
 
 export interface LpcFileHandlerHost {
     getCurrentDirectory?(): string;
@@ -7,6 +7,7 @@ export interface LpcFileHandlerHost {
     // to determine location of bundled typings for node module
     readFile(fileName: string): string | undefined;
     getIncludeDirs(fileName: string): string[];
+    getCompilerOptions(): CompilerOptions;
 }
 
 export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
@@ -24,6 +25,8 @@ export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
         const sourcePath = normalizePath(sourceFilename);
         const sourceDir = getDirectoryPath(sourcePath);
         const includePath = normalizePath(includeFilename);
+        const rootDir = host.getCompilerOptions().rootDir || host.getCurrentDirectory();
+
         let searchPath:string;
         let attemptedPaths: string[];
 
@@ -32,13 +35,13 @@ export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
             searchPath = resolvePath(sourceDir, includePath);
         } else if (pathIsAbsolute(includePath)) {
             // absolute path includes are relative to the project root
-            searchPath = resolvePath(host.getCurrentDirectory(), "." + includePath);
+            searchPath = resolvePath(rootDir, "." + includePath);
         } else {
             // everythign else has to be searched in include dirs
             const searchDirs = [                
                 ...getIncludeDirs(sourceFilename),
                 ...(additionalSearchDirs || []),
-                host.getCurrentDirectory()
+                rootDir
             ];            
             pushIfUnique(searchDirs, sourceDir);
             

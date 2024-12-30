@@ -164,7 +164,8 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         fileExists: fileName => sys.fileExists(fileName),
         readFile: fileName => getSourceFromSnapshotOrDisk(fileName),
         getCurrentDirectory: () => sys.getCurrentDirectory(),
-        getIncludeDirs
+        getIncludeDirs,
+        getCompilerOptions: () => options,
     });
 
     

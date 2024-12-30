@@ -452,6 +452,7 @@ export function createDocumentRegistryInternal(
                         getCurrentDirectory: host.getCurrentDirectory,
                         getIncludeDirs: () => compilationSettings?.libIncludeDirs ?? emptyArray,
                         fileExists: host.fileExists,
+                        getCompilerOptions: () => compilationSettings,
                       })
                   };
         sourceFileOptions.languageVersion = scriptTarget;
