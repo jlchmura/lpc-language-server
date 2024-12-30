@@ -92,14 +92,19 @@ export function executeCommandLine(
     const rootFiles = program.getRootFileNames();
 
     rootFiles.forEach(f => {
-        const sourceFile = program.getSourceFile(f);    
-        const parseDiags = program.getSyntacticDiagnostics(sourceFile);
-        diags.push(...parseDiags);
-        
-        if (compilerOptions.diagnostics) {
-            const semanticDiags = program.getSemanticDiagnostics(sourceFile);
-            diags.push(...semanticDiags);
-        }        
+        try {
+            const sourceFile = program.getSourceFile(f);    
+            const parseDiags = program.getSyntacticDiagnostics(sourceFile);
+            diags.push(...parseDiags);
+            
+            if (compilerOptions.diagnostics) {
+                const semanticDiags = program.getSemanticDiagnostics(sourceFile);
+                diags.push(...semanticDiags);
+            }        
+        } catch (e) {
+            system.write(`Error processing file: ${f}\n`);            
+            throw e;        
+        }
     });
 
     sortAndDeduplicateDiagnostics(diags).forEach(d => {
