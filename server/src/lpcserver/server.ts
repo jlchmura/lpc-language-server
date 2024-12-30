@@ -533,7 +533,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
             
             try {
                 const result = results?.at(0) as any;             
-                if (!result) {
+                if (!result || !result.file) {
                     return [];
                 }
                 const def = vscode.LocationLink.create(

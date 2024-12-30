@@ -3317,7 +3317,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         if (!hasParseDiagnostics(sourceFile)) {
             const span = getSpanOfTokenAtPosition(spanSourceFile, node.pos);
-            diagnostics.add(createFileDiagnostic(sourceFile, span.start, span.length, message, ...args));
+            diagnostics.add(createFileDiagnostic(spanSourceFile, span.start, span.length, message, ...args));
             return true;
         }
         return false;
@@ -32886,9 +32886,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (headMessage) {
                 let chain = chainDiagnosticMessages(/*details*/ undefined, error, parameterRange, args.length);
                 chain = chainDiagnosticMessages(chain, headMessage);
-                return createDiagnosticForNodeArrayFromMessageChain(getSourceFileOfNode(node), errorSpan, chain);
+                return createDiagnosticForNodeArrayFromMessageChain(getSourceFileOrIncludeOfNode(node), errorSpan, chain);
             }
-            return createDiagnosticForNodeArray(getSourceFileOfNode(node), errorSpan, error, parameterRange, args.length);
+            return createDiagnosticForNodeArray(getSourceFileOrIncludeOfNode(node), errorSpan, error, parameterRange, args.length);
         }
     }
 
@@ -33856,7 +33856,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function invocationError(errorTarget: Node, apparentType: Type, kind: SignatureKind, relatedInformation?: DiagnosticRelatedInformation) {
         const { messageChain, relatedMessage: relatedInfo } = invocationErrorDetails(errorTarget, apparentType, kind);
-        const diagnostic = createDiagnosticForNodeFromMessageChain(getSourceFileOfNode(errorTarget), errorTarget, messageChain);
+        const diagnostic = createDiagnosticForNodeFromMessageChain(getSourceFileOrIncludeOfNode(errorTarget), errorTarget, messageChain);
         if (relatedInfo) {
             addRelatedInfo(diagnostic, createDiagnosticForNode(errorTarget, relatedInfo));
         }

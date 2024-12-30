@@ -348,7 +348,7 @@ export function getSourceFileOrIncludeOfNode(node: Node, topLevelInclude?: boole
 /** @internal */
 export function getSourceFileOrIncludeOfNode(node: Node | undefined, topLevelInclude?: boolean): SourceFileBase | undefined;
 /** @internal */
-export function getSourceFileOrIncludeOfNode(node: Node | undefined, topLevelInclude = true): SourceFileBase | undefined {
+export function getSourceFileOrIncludeOfNode(node: Node | undefined, topLevelInclude = false): SourceFileBase | undefined {
     const origNode = node;
     // find the sourcefile or the top-level include directive
     while (node && node.kind !== SyntaxKind.SourceFile) {
@@ -607,14 +607,14 @@ export function setValueDeclaration(symbol: Symbol, node: Declaration): void {
 
 /** @internal */
 export function addRelatedInfo<T extends Diagnostic>(diagnostic: T, ...relatedInformation: DiagnosticRelatedInformation[]): T {
-    if (!relatedInformation.length) {
+    if (!relatedInformation.length || !isArray(relatedInformation)) {
         return diagnostic;
     }
     if (!diagnostic.relatedInformation) {
         diagnostic.relatedInformation = [];
     }
     Debug.assert(diagnostic.relatedInformation !== emptyArray, "Diagnostic had empty array singleton for related info, but is still being constructed!");
-    diagnostic.relatedInformation.push(...relatedInformation);
+    diagnostic.relatedInformation.push(...relatedInformation.slice(0, 100));
     return diagnostic;
 }
 
@@ -687,7 +687,7 @@ export function getErrorSpanForNode(sourceFile: SourceFileBase, node: Node): Tex
         case SyntaxKind.CaseClause:
         case SyntaxKind.DefaultClause: {
             const start = skipTrivia(sourceFile.text, (node as CaseOrDefaultClause).pos);
-            const end = (node as CaseOrDefaultClause).statements.length > 0 ? (node as CaseOrDefaultClause).statements[0].pos : (node as CaseOrDefaultClause).end;
+            const end = Math.max(node.end, (node as CaseOrDefaultClause).statements.length > 0 ? (node as CaseOrDefaultClause).statements[0].pos : (node as CaseOrDefaultClause).end);
             return createTextSpanFromBounds(start, end);
         }
         case SyntaxKind.ReturnStatement: {
@@ -4430,13 +4430,13 @@ export function createDiagnosticMessageChainFromDiagnostic(diagnostic: Diagnosti
 }
 
 /** @internal */
-export function createDiagnosticForNodeArrayFromMessageChain(sourceFile: SourceFile, nodes: NodeArray<Node>, messageChain: DiagnosticMessageChain, relatedInformation?: DiagnosticRelatedInformation[]): DiagnosticWithLocation {
+export function createDiagnosticForNodeArrayFromMessageChain(sourceFile: SourceFileBase, nodes: NodeArray<Node>, messageChain: DiagnosticMessageChain, relatedInformation?: DiagnosticRelatedInformation[]): DiagnosticWithLocation {
     const start = skipTrivia(sourceFile.text, nodes.pos);
     return createFileDiagnosticFromMessageChain(sourceFile, start, nodes.end - start, messageChain, relatedInformation);
 }
 
 /** @internal */
-export function createDiagnosticForNodeArray(sourceFile: SourceFile, nodes: NodeArray<Node>, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {
+export function createDiagnosticForNodeArray(sourceFile: SourceFileBase, nodes: NodeArray<Node>, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithLocation {
     const start = skipTrivia(sourceFile.text, nodes.pos);
     return createFileDiagnostic(sourceFile, start, nodes.end - start, message, ...args);
 }
