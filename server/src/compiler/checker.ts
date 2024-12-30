@@ -3312,9 +3312,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function grammarErrorOnFirstToken(node: Node, message: DiagnosticMessage, ...args: DiagnosticArguments): boolean {
-        const sourceFile = getSourceFileOrIncludeOfNode(node);
+        const spanSourceFile = getSourceFileOrIncludeOfNode(node);
+        const sourceFile = getSourceFileOfNode(node);
+
         if (!hasParseDiagnostics(sourceFile)) {
-            const span = getSpanOfTokenAtPosition(sourceFile, node.pos);
+            const span = getSpanOfTokenAtPosition(spanSourceFile, node.pos);
             diagnostics.add(createFileDiagnostic(sourceFile, span.start, span.length, message, ...args));
             return true;
         }
