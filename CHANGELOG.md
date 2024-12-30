@@ -8,6 +8,8 @@
 -   Fix: [Editing an .h file should trigger a reparse of files that include it. #143](https://github.com/jlchmura/lpc-language-server/issues/143)
 -   Fix: [Type predicates not working in inherited sefun files. #144](https://github.com/jlchmura/lpc-language-server/issues/144)
 -   Fix: [Fix typings for filter efun and add unit test, closes #145](https://github.com/jlchmura/lpc-language-server/issues/145)
+-   Fix: `#include` directives with a rooted path using workspace root instead of project root.
+-   Fix: this_object() property access not able to resolve protected functions.
 -   Added `.h` to the file extensions that will activate the language server.
 -   Added support for [`@lpc-nocheck`](./README.md#disabling-checks-for-a-single-file---lpc-nocheck) and [`@lpc-ignore`](./README.md#ignoring-a-single-line---lpc-ignore) comment directives.
 

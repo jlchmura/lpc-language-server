@@ -7214,3 +7214,14 @@ export function createCommentDirectivesMap(sourceFile: SourceFile, commentDirect
         return true;
     }
 }
+
+export function isThisObjectExpression(node: Expression | QualifiedName): node is CallExpression {
+    if (isCallExpression(node)) {
+        const name = getNameOfDeclaration(node.expression);
+        if (name && isIdentifier(name) && name.text === "this_object") {
+            return true;
+        }
+    }
+
+    return false;
+}
