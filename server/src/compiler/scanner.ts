@@ -17,14 +17,11 @@ import {
     JSDocParsingMode,
     JSDocSyntaxKind,
     KeywordSyntaxKind,
-
     LanguageVariant,
     LineAndCharacter,
     MapLike,
-
     positionIsSynthesized,
     PunctuationOrKeywordSyntaxKind,
-
     ScriptKind,
     ScriptTarget,
     SourceFileLike,
@@ -333,12 +330,12 @@ const unicodeESNextIdentifierPart = [48, 57, 65, 90, 95, 95, 97, 122, 170, 170, 
 /**
  * Test for whether a single line comment with leading whitespace trimmed's text contains a directive.
  */
-const commentDirectiveRegExSingleLine = /^\/\/\/?\s*@(ts-expect-error|ts-ignore)/;
+const commentDirectiveRegExSingleLine = /^\/\/\/?\s*@(lpc-expect-error|lpc-ignore)/;
 
 /**
  * Test for whether a multi-line comment with leading whitespace trimmed's last line contains a directive.
  */
-const commentDirectiveRegExMultiLine = /^(?:\/|\*)*\s*@(ts-expect-error|ts-ignore)/;
+const commentDirectiveRegExMultiLine = /^(?:\/|\*)*\s*@(lpc-expect-error|lpc-ignore)/;
 
 const jsDocSeeOrLink = /@(?:see|link)/i;
 
@@ -2768,10 +2765,10 @@ export function createScanner(
         }
 
         switch (match[1]) {
-            case "ts-expect-error":
+            case "lpc-expect-error":
                 return CommentDirectiveType.ExpectError;
 
-            case "ts-ignore":
+            case "lpc-ignore":
                 return CommentDirectiveType.Ignore;
         }
 

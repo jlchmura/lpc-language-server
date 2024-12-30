@@ -123,12 +123,14 @@ function getSemanticTokens(program: Program, sourceFile: SourceFile, span: TextS
 }
 
 function collectTokens(program: Program, sourceFile: SourceFile, span: TextSpan, collector: (node: Node, tokenType: number, tokenModifier: number) => void, cancellationToken: CancellationToken) {
-    const typeChecker = program.getTypeChecker();
-
-    let disabledSpans = sourceFile.inactiveCodeRanges;
-    let lastDisabledSpan = 0;
-    const checkDisabled = sourceFile.inactiveCodeRanges.length > 0;
+    const typeChecker = program.getTypeChecker();    
     
+    // run the type checker with a currentFile assigned
+    // to avoid constant lookups up the node tree
+    typeChecker.runWithCurrentFile(sourceFile, () => {
+        visit(sourceFile);
+    });
+
     function isFromFile(node: Node) {
         return isSourceFile(node) || !isInExternalFileContext(node);
     }
@@ -211,8 +213,7 @@ function collectTokens(program: Program, sourceFile: SourceFile, span: TextSpan,
             }
         }
         forEachChild(node, visit);        
-    }
-    visit(sourceFile);
+    }    
 }
 
 function classifySymbol(symbol: Symbol, meaning: SemanticMeaning): TokenType | undefined {

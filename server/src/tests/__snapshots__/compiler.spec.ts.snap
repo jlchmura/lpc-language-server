@@ -282,6 +282,15 @@ Found 1 error in server/src/tests/cases/compiler/jsDocParam.c[90m:4[0m
 
 exports[`Compiler compiler/lambda1.c Reports correct errors for compiler/lambda1.c: diags-compiler/lambda1.c 1`] = `""`;
 
+exports[`Compiler compiler/lpc-ignore.c Reports correct errors for compiler/lpc-ignore.c: diags-compiler/lpc-ignore.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/lpc-ignore.c[90m:5[0m
+
+"
+`;
+
+exports[`Compiler compiler/lpc-nocheck.c Reports correct errors for compiler/lpc-nocheck.c: diags-compiler/lpc-nocheck.c 1`] = `""`;
+
 exports[`Compiler compiler/lpcDocVar1.c Reports correct errors for compiler/lpcDocVar1.c: diags-compiler/lpcDocVar1.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/lpcDocVar1.c[90m:6[0m

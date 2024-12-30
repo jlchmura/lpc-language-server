@@ -103,6 +103,9 @@ export interface TypeChecker {
     getAliasedSymbol(symbol: Symbol): Symbol;
     getSymbolAtLocation(node: Node): Symbol | undefined;
     
+    /** @internal */
+    runWithCurrentFile<T>(node: Node, callback: () => T);
+
     getTypeOfSymbolAtLocation(symbol: Symbol, node: Node): Type;
     getRootSymbols(symbol: Symbol): readonly Symbol[];
     
@@ -7835,4 +7838,10 @@ export enum ExitStatus {
 
     // When build is skipped because project references form cycle
     ProjectReferenceCycle_OutputsSkipped = 4,
+}
+
+/** @internal */
+export interface CommentDirectivesMap {
+    getUnusedExpectations(): CommentDirective[];
+    markUsed(matchedLine: number): boolean;
 }

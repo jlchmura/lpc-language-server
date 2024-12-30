@@ -71,6 +71,22 @@ not always the case, in particular when the file is included in a larger object.
 // @this-object /std/living
 ```
 
+### Ignoring a single line - `@lpc-ignore`
+You can instruct the checker to ignore errors on a single line by adding the `@lpc-ignore` comment directive:
+
+```c
+// @lpc-ignore - ignore int to string assignment error
+string foo = 123;
+```
+
+### Disabling checks for a single file - `@lpc-nocheck`
+Diagnostics can be disabled for an entire file by addding a `@lpc-nocheck` comment directive to the top of the file.
+
+```c
+// @lpc-nocheck
+... statements
+```
+
 ### Type Annotations
 
 In many instance, the type checker can automatically infer the type of an object.  For example:
