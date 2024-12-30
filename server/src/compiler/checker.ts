@@ -687,13 +687,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // now merge sefuns so that they override globals
         const sefunFile = host.getSourceFile(compilerOptions.sefunFile);
         if (sefunFile) {
-            const fileSymbol = getSymbolAtLocation(sefunFile, true);
-            const fileType = getTypeOfSymbol(fileSymbol, CheckMode.TypeOnly) as InterfaceType;
-            resolveClassOrInterfaceMembers(fileType as InterfaceType);
-            // don't merge symbol tables here -- we want to override globals
-            fileType.members.forEach((sefunSymbol, id) => {
-                globals.set(id, sefunSymbol);
-            });
+            getMembersOfFileAndInherits(sefunFile, globals);            
         }
 
         addUndefinedToGlobalsOrErrorOnRedeclaration();
@@ -747,6 +741,28 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             currentFile = undefined!;
         }
         return result;
+    }
+
+    function getMembersOfFileAndInherits(file: SourceFile, symbolTable: SymbolTable) {
+        const seenImports = new Set<string>();        
+        const fileSymbol = getSymbolAtLocation(file, true);
+        const fileType = getTypeOfSymbol(fileSymbol, CheckMode.TypeOnly) as InterfaceType;                
+        const importStack = [fileType as InterfaceType];
+        
+        while (importStack.length) {                                                
+            const currentType = importStack.shift() as InterfaceType;                        
+            if (seenImports.has(currentType.symbol.name)) {
+                continue;
+            }
+            seenImports.add(currentType.symbol.name);
+
+            // resolve base types first, which will also populate members
+            const baseTypes = getBaseTypes(currentType);            
+            currentType.members.forEach((sefunSymbol, id) => {
+                symbolTable.set(id, sefunSymbol);
+            });
+            importStack.push(...baseTypes as InterfaceType[]);
+        }
     }
 
     function getGlobalType(name: string, arity: 0, reportErrors: true): ObjectType;
@@ -1682,8 +1698,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return decl && getEffectiveBaseTypeNode(decl);
     }
     
-    function resolveBaseTypeOfSourceFile(type: InterfaceType, node: SourceFile): BaseType[] {                
-        const sourceSymbol = getSymbolOfNode(node);
+    function resolveBaseTypeOfSourceFile(type: InterfaceType, node: SourceFile): BaseType[] {                        
+        const sourceSymbol = type.symbol ?? getSymbolOfNode(node);
 
         Debug.assertIsDefined(sourceSymbol);
 
@@ -1697,8 +1713,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         
         const baseTypes: BaseType[] = [baseType];
         forEachEntry(sourceSymbol?.inherits, (inheritType, prefix) => {                        
+            // resolve the base types
+            getBaseTypes(inheritType as InterfaceType);
             const classBaseTypes = getApparentType(inheritType);
-            baseTypes.push(classBaseTypes);            
+            // baseTypes.push(...getBaseTypes(inheritType as InterfaceType) ?? emptyArray);
+            // const baseNode = classBaseTypes.symbol?.valueDeclaration;
+            // const resolvedBaseType = resolveBaseTypeOfSourceFile(classBaseTypes as InterfaceType, baseNode as SourceFile);
+            baseTypes.push(classBaseTypes);
         });        
 
         return type.resolvedBaseTypes = baseTypes;
@@ -11768,11 +11789,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     getGenericObjectFlags((type as SubstitutionType).baseType) | getGenericObjectFlags((type as SubstitutionType).constraint);
             }
             return (type as SubstitutionType).objectFlags & ObjectFlags.IsGenericType;
-        }
-        console.info("TODO - getGenericObjectFlags");
-        return ObjectFlags.None;
-        // return (type.flags & TypeFlags.InstantiableNonPrimitive || isGenericMappedType(type) || isGenericTupleType(type) ? ObjectFlags.IsGenericObjectType : 0) |
-        //     (type.flags & (TypeFlags.InstantiableNonPrimitive | TypeFlags.Index) || isGenericStringLikeType(type) ? ObjectFlags.IsGenericIndexType : 0);
+        }        
+        return (type.flags & TypeFlags.InstantiableNonPrimitive || isGenericMappedType(type) || isGenericTupleType(type) ? ObjectFlags.IsGenericObjectType : 0) |
+            (type.flags & (TypeFlags.InstantiableNonPrimitive | TypeFlags.Index) || isGenericStringLikeType(type) ? ObjectFlags.IsGenericIndexType : 0);
     }
 
     function isInstantiatedGenericParameter(signature: Signature, pos: number) {
