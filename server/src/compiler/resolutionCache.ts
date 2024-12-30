@@ -7,6 +7,8 @@ import { CachedDirectoryStructureHost, clearMap, closeFileWatcher, closeFileWatc
  */
 export interface ResolutionCache {
     rootDirForResolution: string;
+    resolvedModuleNames: Map<Path, ModeAwareCache<CachedResolvedModuleWithFailedLookupLocations>>;
+    resolvedFileToResolution: Map<Path, Set<ResolutionWithFailedLookupLocations>>;
     invalidateResolutionOfFile(filePath: Path): void;
     removeResolutionsOfFile(filePath: Path, syncDirWatcherRemove?: boolean): void;
     clear(): void;
@@ -28,6 +30,8 @@ export interface ResolutionCache {
         containingSourceFile: SourceFile,
         reusedNames: readonly StringLiteralLike[] | undefined,
     ): readonly ResolvedModuleWithFailedLookupLocations[];
+    getModuleResolutionCache(): ModuleResolutionCache;
+    onChangesAffectModuleResolution(): void;
 }
 
 /** @internal */
@@ -146,10 +150,10 @@ export function createResolutionCache(resolutionHost: ResolutionCacheHost, rootD
 
     return {
         rootDirForResolution,
-        // resolvedModuleNames,
+        resolvedModuleNames,
         // resolvedTypeReferenceDirectives,
         // resolvedLibraries,
-        // resolvedFileToResolution,
+        resolvedFileToResolution,
         // resolutionsWithFailedLookups,
         // resolutionsWithOnlyAffectingLocations,
         // directoryWatchesOfFailedLookups,
@@ -157,7 +161,7 @@ export function createResolutionCache(resolutionHost: ResolutionCacheHost, rootD
         // packageDirWatchers,
         // dirPathToSymlinkPackageRefCount,
         // watchFailedLookupLocationsOfExternalModuleResolutions,
-        // getModuleResolutionCache: () => moduleResolutionCache,
+        getModuleResolutionCache: () => moduleResolutionCache,
         startRecordingFilesWithChangedResolutions,
         finishRecordingFilesWithChangedResolutions,
         // perDirectoryResolvedModuleNames and perDirectoryResolvedTypeReferenceDirectives could be non empty if there was exception during program update
@@ -179,7 +183,7 @@ export function createResolutionCache(resolutionHost: ResolutionCacheHost, rootD
         // updateTypeRootsWatch,
         // closeTypeRootsWatch,
         clear,
-        // onChangesAffectModuleResolution,
+        onChangesAffectModuleResolution,
     };
 
     function getResolvedModule(resolution: CachedResolvedModuleWithFailedLookupLocations) {
@@ -219,13 +223,13 @@ export function createResolutionCache(resolutionHost: ResolutionCacheHost, rootD
         hasChangedAutomaticTypeDirectiveNames = false;
     }
 
-    // function onChangesAffectModuleResolution() {
-    //     allModuleAndTypeResolutionsAreInvalidated = true;
-    //     moduleResolutionCache.clearAllExceptPackageJsonInfoCache();
-    //     typeReferenceDirectiveResolutionCache.clearAllExceptPackageJsonInfoCache();
-    //     moduleResolutionCache.update(resolutionHost.getCompilationSettings());
-    //     typeReferenceDirectiveResolutionCache.update(resolutionHost.getCompilationSettings());
-    // }
+    function onChangesAffectModuleResolution() {
+        allModuleAndTypeResolutionsAreInvalidated = true;
+        moduleResolutionCache.clearAllExceptPackageJsonInfoCache();
+        // typeReferenceDirectiveResolutionCache.clearAllExceptPackageJsonInfoCache();
+        moduleResolutionCache.update(resolutionHost.getCompilationSettings());
+        // typeReferenceDirectiveResolutionCache.update(resolutionHost.getCompilationSettings());
+    }
 
     function startRecordingFilesWithChangedResolutions() {
         filesWithChangedSetOfUnresolvedImports = [];
@@ -995,7 +999,7 @@ export function createResolutionCache(resolutionHost: ResolutionCacheHost, rootD
     }
 
     function removeResolutionsOfFile(filePath: Path, syncDirWatcherRemove?: boolean) {
-        // removeResolutionsOfFileFromCache(resolvedModuleNames, filePath, getResolvedModule, syncDirWatcherRemove);
+        removeResolutionsOfFileFromCache(resolvedModuleNames, filePath, getResolvedModule, syncDirWatcherRemove);
         // removeResolutionsOfFileFromCache(resolvedTypeReferenceDirectives, filePath, getResolvedTypeReferenceDirective, syncDirWatcherRemove);
     }
 

@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { addRange, append, arrayFrom, CachedDirectoryStructureHost, clearMap, closeFileWatcher, combinePaths, CompilerHost, CompilerOptions, createCacheableExportInfoMap, createLanguageService, createLpcFileHandler, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, filter, flatMap, forEach, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDefaultLibFolder, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, isExternalModuleNameRelative, isString, JSDocParsingMode, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, parsePackageName, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, resolutionExtensionIsTSOrJson, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, SourceMapper, StringLiteralLike, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, tryGetLocalizedLibPath, TypeAcquisition, updateErrorForNoInputFiles, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
+import { addRange, append, arrayFrom, CachedDirectoryStructureHost, clearMap, closeFileWatcher, combinePaths, CompilerHost, CompilerOptions, createCacheableExportInfoMap, createLanguageService, createLpcFileHandler, createResolutionCache, Debug, Diagnostic, DirectoryStructureHost, DirectoryWatcherCallback, DocumentRegistry, explainFiles, ExportInfoMap, FileWatcher, FileWatcherCallback, FileWatcherEventKind, filter, flatMap, forEach, forEachKey, GetCanonicalFileName, getDefaultLibFileName, getDefaultLibFolder, getDirectoryPath, getNormalizedAbsolutePath, getOrUpdate, HasInvalidatedLibResolutions, HasInvalidatedResolutions, IScriptSnapshot, isExternalModuleNameRelative, isString, JSDocParsingMode, LanguageService, LanguageServiceHost, LanguageServiceMode, maybeBind, ModuleResolutionCache, ModuleResolutionHost, noopFileWatcher, normalizePath, ParsedCommandLine, parsePackageName, Path, PerformanceEvent, PollingInterval, Program, ProgramUpdateLevel, ProjectReference, ResolutionCache, resolutionExtensionIsTSOrJson, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, returnFalse, returnTrue, sortAndDeduplicate, SortedReadonlyArray, SourceFile, SourceMapper, StringLiteralLike, StructureIsReused, ThrottledCancellationToken, timestamp, toPath, tracing, tryGetLocalizedLibPath, TypeAcquisition, updateErrorForNoInputFiles, updateMissingFilePathsWatch, WatchDirectoryFlags, WatchOptions, WatchType } from "./_namespaces/lpc.js";
 import { asNormalizedPath, emptyArray, Errors, HostCancellationToken, LogLevel, NormalizedPath, ProjectService, ScriptInfo, updateProjectIfDirty } from "./_namespaces/lpc.server.js";
 
 
@@ -193,6 +193,11 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     /** @internal */
     resolveModuleNameLiterals(moduleLiterals: readonly StringLiteralLike[], containingFile: string, redirectedReference: ResolvedProjectReference | undefined, options: CompilerOptions, containingSourceFile: SourceFile, reusedNames: readonly StringLiteralLike[] | undefined): readonly ResolvedModuleWithFailedLookupLocations[] {
         return this.resolutionCache.resolveModuleNameLiterals(moduleLiterals, containingFile, redirectedReference, options, containingSourceFile, reusedNames);
+    }
+
+    /** @internal */
+    getModuleResolutionCache(): ModuleResolutionCache | undefined {
+        return this.resolutionCache.getModuleResolutionCache();
     }
     
     disableLanguageService(lastFileExceededProgramSize?: string) {
@@ -830,6 +835,8 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
         return this.getCurrentProgram()?.forEachResolvedProjectReference(cb);
     }
 
+    
+    
     private updateGraphWorker() {
         const oldProgram = this.languageService.getCurrentProgram();
         Debug.assert(oldProgram === this.program);

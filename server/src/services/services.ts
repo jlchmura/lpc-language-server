@@ -1668,10 +1668,10 @@ export function createLanguageService(
             //hasChangedAutomaticTypeDirectiveNames,
             trace: maybeBind(host, host.trace),
             resolveModuleNames: maybeBind(host, host.resolveModuleNames),
-            // getModuleResolutionCache: maybeBind(
-            //     host,
-            //     host.getModuleResolutionCache
-            // ),
+            getModuleResolutionCache: maybeBind(
+                host,
+                host.getModuleResolutionCache
+            ),
             createHash: maybeBind(host, host.createHash),
             // resolveTypeReferenceDirectives: maybeBind(
             //     host,
