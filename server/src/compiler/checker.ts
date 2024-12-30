@@ -33831,7 +33831,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function getDiagnosticSpanForCallNode(node: CallExpression) {
-        const sourceFile = getSourceFileOfNode(node);
+        const sourceFile = getSourceFileOrIncludeOfNode(node);
         const { start, length } = getErrorSpanForNode(sourceFile, isPropertyAccessExpression(node.expression) ? node.expression.name : node.expression);
         return { start, length, sourceFile };
     }
