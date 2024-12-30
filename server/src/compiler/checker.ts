@@ -320,6 +320,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         signatureToString,
         getDiagnostics,
         getAliasedSymbol: resolveAlias,
+        runWithCurrentFile,
         getSymbolAtLocation: nodeIn => {
             const node = getParseTreeNode(nodeIn);
             return runWithCurrentFile(node, ()=>{
