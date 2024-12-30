@@ -15,6 +15,8 @@ import {
     LineAndCharacter,
     LpcFileHandler,
     MinimalResolutionCacheHost,
+    ModuleResolutionCache,
+    ModuleSpecifierCache,
     Node,
     ParsedCommandLine,
     Program,
@@ -649,7 +651,7 @@ export interface LanguageServiceHost
     /** @internal */ getGlobalTypingsCacheLocation?(): string | undefined;
     // /** @internal */ getSymlinkCache?(files?: readonly SourceFile[]): SymlinkCache;
     /* Lets the Program from a AutoImportProviderProject use its host project's ModuleResolutionCache */
-    // /** @internal */ getModuleResolutionCache?(): ModuleResolutionCache | undefined;
+    /** @internal */ getModuleResolutionCache?(): ModuleResolutionCache | undefined;
 
     /*
      * Required for full import and type reference completions.
@@ -676,7 +678,7 @@ export interface LanguageServiceHost
     ): string | undefined;
     // /** @internal */ getPackageJsonsForAutoImport?(rootDir?: string): readonly ProjectPackageJsonInfo[];
     /** @internal */ getCachedExportInfoMap?(): ExportInfoMap;
-    // /** @internal */ getModuleSpecifierCache?(): ModuleSpecifierCache;
+    /** @internal */ getModuleSpecifierCache?(): ModuleSpecifierCache;
     /** @internal */ setCompilerHost?(host: CompilerHost): void;
     /** @internal */ useSourceOfProjectReferenceRedirect?(): boolean;
     /** @internal */ getPackageJsonAutoImportProvider?(): Program | undefined;
