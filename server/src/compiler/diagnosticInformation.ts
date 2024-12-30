@@ -523,4 +523,5 @@ export const Diagnostics = {
     Unable_to_open_file_0: diag(6050, DiagnosticCategory.Error, "Unable_to_open_file_0_6050", "Unable to open file '{0}'."),
     Corrupted_locale_file_0: diag(6051, DiagnosticCategory.Error, "Corrupted_locale_file_0_6051", "Corrupted locale file {0}."),
     Version_0: diag(6029, DiagnosticCategory.Message, "Version_0_6029", "Version {0}"),
+    Unused_lpc_expect_error_directive: diag(2578, DiagnosticCategory.Error, "Unused_lpc_expect_error_directive_2578", "Unused '@lpc-expect-error' directive."),
 }
