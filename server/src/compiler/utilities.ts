@@ -1312,7 +1312,7 @@ export function createNameResolver({
                         }
                     }
                                          
-                    // now check inherited symbols
+                    // now check inherited symbols                    
                     const importTypes = sourceFileSymbol.inherits;                                        
                     const importStack = Array.from(importTypes?.entries() ?? emptyArray);
                     const seenImports = new Set<string>();                    
@@ -1332,16 +1332,9 @@ export function createNameResolver({
                         if (result) {
                             break loop;
                         }
-
-                        // TODO: filter by import prefix here                            
-                        const inheritFile = first(importType.symbol.declarations);                                                                                                                        
-                        const inheritFileSymbol = getSymbolOfDeclaration(inheritFile);                        
-                        const nestedInherits = inheritFileSymbol.inherits;
-                        importStack.push(...(nestedInherits?.entries() ?? emptyArray));
-                        // if (nestedInherits) {
-
-                        //     forEachEntry(nestedInherits, (importSymbol, importSymbolName) => { importTypes.set(importSymbolName, importSymbol); });                     
-                        // }                                                
+                        
+                        const nestedInherits = importType?.symbol?.inherits;
+                        importStack.push(...(nestedInherits?.entries() ?? emptyArray));                                                  
                     }
                                        
                     //const moduleExports = getSymbolOfDeclaration(location as SourceFile /*| ModuleDeclaration*/)?.exports || emptySymbols;                    
