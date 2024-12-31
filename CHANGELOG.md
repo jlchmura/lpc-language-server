@@ -1,5 +1,10 @@
 # LPC Language Services Changelog
 
+## 1.1.19
+
+-   Fix: [Parser error on mapping access with multi args inside a prefix unary expr #150](https://github.com/jlchmura/lpc-language-server/issues/150)
+-   Fix: Node position incorrect when parsing a macro inside a nested include directive.
+
 ## 1.1.18
 
 -   Fix: [Diagnostics are duplicated after running the build task #137](https://github.com/jlchmura/lpc-language-server/issues/137)

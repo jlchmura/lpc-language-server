@@ -2421,7 +2421,7 @@ export namespace LpcParser {
                 nodeMacroMap.set(node, rootMacro.name);                
             }
 
-            if (macroState && macroState.fileName === fileName) {
+            if (macroState) {
                 // use the macro end pos, if we're in a macro
                 const currentState = getPositionState();
                 const endToUse = Math.max((currentState.fileName === fileName && !currentState.macro) ? currentState.pos : 0, rootMacro.end);
@@ -2647,6 +2647,10 @@ export namespace LpcParser {
 
     function allowInAnd<T>(func: () => T): T {
         return doOutsideOfContext(NodeFlags.DisallowInContext, func);
+    }
+
+    function allowCommaInAnd<T>(func: () => T): T {
+        return doOutsideOfContext(NodeFlags.DisallowCommaContext | NodeFlags.DisallowInContext, func);
     }
 
     function disallowInAnd<T>(func: () => T): T {
@@ -4866,13 +4870,13 @@ export namespace LpcParser {
             // let leftOp: Token<SyntaxKind.LessThanToken> | undefined, rightOp: Token<SyntaxKind.LessThanToken> | undefined;                        
             if (parseOptional(SyntaxKind.DotDotToken)) {
                 // rightOp = parseOptionalToken(SyntaxKind.LessThanToken);
-                right = allowInAnd(parseExpression);
+                right = allowCommaInAnd(parseExpression);
             } else {
                 // leftOp = parseOptionalToken(SyntaxKind.LessThanToken);
-                left = allowInAnd(parseExpression);
+                left = allowCommaInAnd(parseExpression);
                 if (parseOptional(SyntaxKind.DotDotToken) && token() !== SyntaxKind.CloseBracketToken) {
                     // leftOp = parseOptionalToken(SyntaxKind.LessThanToken);
-                    right = allowInAnd(parseExpression);
+                    right = allowCommaInAnd(parseExpression);
                 }
             }
             

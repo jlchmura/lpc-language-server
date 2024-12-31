@@ -4317,26 +4317,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // The include sourcefile is no longer needed, because the include node acts
         // as a sourcefile itself.  However, if we ever did need it - the better way to
         // acomplish this would be to add it to NodeLinks
-
-        // else if (!node.resolvedSourceFile) {
-        //     // try to resolve the source file for this include
-        //     // this may be a horrible idea
-        //     // TODO - assess the perf impact of this
-        //     // It is used in utilities/createDiagnosticForNode()
-
-        //     // create a fake string literal w/ the include filename
-        //     const stringLiteral = factory.createStringLiteral(node.fileName);
-        //     setTextRangePosEnd(stringLiteral, node.content.pos, node.content.end);
-
-        //     //store sourcefile on links?            
-        //     const module = resolveExternalModuleName(node, stringLiteral, stringType);
-        //     if (module) {
-        //         // this should go on nodelinks, but we won't have access to that in utilities
-        //         const sourceFile = cast(first(module.declarations), isSourceFile);
-        //         node.resolvedSourceFile = sourceFile;
-        //     }
-        // }
-
+       
         forEach(node.statements, checkSourceElement);
         checkSourceElement(node.endOfFileToken);        
     }
@@ -32881,6 +32862,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         else if (args.length) {
             // too long; error goes on the excess parameters
             const errorSpan = factory.createNodeArray(args.slice(max));
+            const errorSourceFile = getSourceFileOrIncludeOfNode(first(errorSpan));
             const pos = first(errorSpan).pos;
             let end = last(errorSpan).end;
             if (end === pos) {
@@ -32890,9 +32872,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (headMessage) {
                 let chain = chainDiagnosticMessages(/*details*/ undefined, error, parameterRange, args.length);
                 chain = chainDiagnosticMessages(chain, headMessage);
-                return createDiagnosticForNodeArrayFromMessageChain(getSourceFileOrIncludeOfNode(node), errorSpan, chain);
+                return createDiagnosticForNodeArrayFromMessageChain(errorSourceFile, errorSpan, chain);
             }
-            return createDiagnosticForNodeArray(getSourceFileOrIncludeOfNode(node), errorSpan, error, parameterRange, args.length);
+            return createDiagnosticForNodeArray(errorSourceFile, errorSpan, error, parameterRange, args.length);
         }
     }
 
