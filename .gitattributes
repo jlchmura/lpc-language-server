@@ -3,4 +3,4 @@
 *.js linguist-language=TypeScript
 **/*.json linguist-language=jsonc
 
-action/dist/** -diff linguist-generated=true
+__snapshots__/**/* -diff linguist-generated=true
