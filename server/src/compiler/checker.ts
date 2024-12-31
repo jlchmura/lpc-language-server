@@ -4306,6 +4306,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function checkIncludeDirective(node: IncludeDirective) {
         // Grammar checking
+        if (node.flags & NodeFlags.Synthesized) {
+            // don't check global includes
+            return;
+        }
         if (!node.text) {
             error(node, Diagnostics.Cannot_find_include_file_0, getIncludeDirectiveFilename(node));
         } 
