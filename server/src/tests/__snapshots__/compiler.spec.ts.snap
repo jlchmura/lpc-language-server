@@ -263,6 +263,8 @@ exports[`Compiler compiler/include1.c Reports correct errors for compiler/includ
 
 exports[`Compiler compiler/indexAccess.c Reports correct errors for compiler/indexAccess.c: diags-compiler/indexAccess.c 1`] = `""`;
 
+exports[`Compiler compiler/indexAccess2.c Reports correct errors for compiler/indexAccess2.c: diags-compiler/indexAccess2.c 1`] = `""`;
+
 exports[`Compiler compiler/inherit1.base1.c Reports correct errors for compiler/inherit1.base1.c: diags-compiler/inherit1.base1.c 1`] = `""`;
 
 exports[`Compiler compiler/inherit1.base2.c Reports correct errors for compiler/inherit1.base2.c: diags-compiler/inherit1.base2.c 1`] = `""`;
