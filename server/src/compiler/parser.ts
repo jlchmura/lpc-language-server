@@ -2421,7 +2421,7 @@ export namespace LpcParser {
                 nodeMacroMap.set(node, rootMacro.name);                
             }
 
-            if (macroState && macroState.fileName === fileName) {
+            if (macroState) {
                 // use the macro end pos, if we're in a macro
                 const currentState = getPositionState();
                 const endToUse = Math.max((currentState.fileName === fileName && !currentState.macro) ? currentState.pos : 0, rootMacro.end);

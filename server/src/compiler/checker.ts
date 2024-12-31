@@ -32862,6 +32862,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         else if (args.length) {
             // too long; error goes on the excess parameters
             const errorSpan = factory.createNodeArray(args.slice(max));
+            const errorSourceFile = getSourceFileOrIncludeOfNode(first(errorSpan));
             const pos = first(errorSpan).pos;
             let end = last(errorSpan).end;
             if (end === pos) {
@@ -32871,9 +32872,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (headMessage) {
                 let chain = chainDiagnosticMessages(/*details*/ undefined, error, parameterRange, args.length);
                 chain = chainDiagnosticMessages(chain, headMessage);
-                return createDiagnosticForNodeArrayFromMessageChain(getSourceFileOrIncludeOfNode(node), errorSpan, chain);
+                return createDiagnosticForNodeArrayFromMessageChain(errorSourceFile, errorSpan, chain);
             }
-            return createDiagnosticForNodeArray(getSourceFileOrIncludeOfNode(node), errorSpan, error, parameterRange, args.length);
+            return createDiagnosticForNodeArray(errorSourceFile, errorSpan, error, parameterRange, args.length);
         }
     }
 
