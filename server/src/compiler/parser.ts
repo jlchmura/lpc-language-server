@@ -1171,6 +1171,8 @@ export namespace LpcParser {
                 return parseErrorAtCurrentToken(Diagnostics.Type_expected);
             case ParsingContext.HeritageClauses:
                 return parseErrorAtCurrentToken(Diagnostics.Unexpected_token_expected);
+            case ParsingContext.ForEachInitializers:
+                return parseErrorAtCurrentToken(Diagnostics.Variable_declaration_expected);
         //     case ParsingContext.ImportOrExportSpecifiers:
         //         if (token() === SyntaxKind.FromKeyword) {
         //             return parseErrorAtCurrentToken(Diagnostics._0_expected, "}");

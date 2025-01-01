@@ -524,4 +524,6 @@ export const Diagnostics = {
     Corrupted_locale_file_0: diag(6051, DiagnosticCategory.Error, "Corrupted_locale_file_0_6051", "Corrupted locale file {0}."),
     Version_0: diag(6029, DiagnosticCategory.Message, "Version_0_6029", "Version {0}"),
     Unused_lpc_expect_error_directive: diag(2578, DiagnosticCategory.Error, "Unused_lpc_expect_error_directive_2578", "Unused '@lpc-expect-error' directive."),
+    The_left_hand_side_of_a_for_each_statement_cannot_be_a_destructuring_pattern: diag(2491, DiagnosticCategory.Error, "The_left_hand_side_of_a_for_each_statement_cannot_be_a_destructuring_pattern_2491", "The left-hand side of a 'foreach' statement cannot be a destructuring pattern."),
+    The_left_hand_side_of_a_for_each_mapping_statement_must_be_a_variable_or_a_property_access: diag(2487, DiagnosticCategory.Error, "The_left_hand_side_of_a_for_each_mapping_statement_must_be_a_variable_or_a_property_access_2487", "The left-hand side of a 'foreach...mapping' statement must be a variable or a property access."),
 }

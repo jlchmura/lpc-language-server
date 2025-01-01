@@ -2721,7 +2721,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
         }
 
-        if (!isArrayLikeType(arrayType)) {
+        if (!isArrayLikeType(arrayType) && !isMappingType(arrayType)) {
             if (errorNode) {
                 // Which error we report depends on whether we allow strings or if there was a
                 // string constituent. For example, if the input type is number | string, we
@@ -2749,6 +2749,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
             return getUnionType(possibleOutOfBounds ? [arrayElementType, stringType, undefinedType] : [arrayElementType, stringType], UnionReduction.Subtype);
         }
+
+        // TODO handle mapping type
+        
 
         return (use & IterationUse.PossiblyOutOfBounds) ? includeUndefinedInIndexSignature(arrayElementType) : arrayElementType;
 
@@ -3995,8 +3998,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function checkForEachStatement(node: ForEachStatement) {
         // Grammar checking
         checkGrammarForInOrForOfStatement(node);
-
-        const rightType = getNonNullableTypeIfNeeded(checkExpression(node.expression));
+        
         // TypeScript 1.0 spec (April 2014): 5.4
         // In a 'for-in' statement of the form
         // for (let VarDecl in Expr) Statement
@@ -4004,9 +4006,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         //   and Expr must be an expression of type Any, an object type, or a type parameter type.
         if (node.initializer.kind === SyntaxKind.VariableDeclarationList) {
             const variable = (node.initializer as VariableDeclarationList).declarations[0];
-            // if (variable && isBindingPattern(variable.name)) {
-            //     error(variable.name, Diagnostics.The_left_hand_side_of_a_for_in_statement_cannot_be_a_destructuring_pattern);
-            // }
+            if (variable && isBindingPattern(variable.name)) {
+                error(variable.name, Diagnostics.The_left_hand_side_of_a_for_each_statement_cannot_be_a_destructuring_pattern);
+            }
             checkVariableDeclarationList(node.initializer as VariableDeclarationList);
         }
         else {
@@ -4015,15 +4017,32 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //   Var must be an expression classified as a reference of type Any or the String primitive type,
             //   and Expr must be an expression of type Any, an object type, or a type parameter type.
             const varExpr = node.initializer;
+            const iteratedType = checkRightHandSideOfForOf(node);
             const leftType = checkExpression(varExpr);
-            // if (varExpr.kind === SyntaxKind.ArrayLiteralExpression || varExpr.kind === SyntaxKind.ObjectLiteralExpression) {
-            //     error(varExpr, Diagnostics.The_left_hand_side_of_a_for_in_statement_cannot_be_a_destructuring_pattern);
-            // }
-            if (!isTypeAssignableTo(getIndexTypeOrString(rightType), leftType)) {
+            const rightType = getNonNullableTypeIfNeeded(checkExpression(node.expression));
+
+            if (varExpr.kind === SyntaxKind.ArrayLiteralExpression || varExpr.kind === SyntaxKind.ObjectLiteralExpression) {
+                error(varExpr, Diagnostics.The_left_hand_side_of_a_for_each_statement_cannot_be_a_destructuring_pattern);
+            }
+            else if (!isTypeAssignableTo(getIndexTypeOrString(rightType), leftType)) {
                 error(varExpr, Diagnostics.The_left_hand_side_of_a_for_in_statement_must_be_of_type_string_or_any);
             }
             else if (isBinaryExpression(varExpr)) {
 
+            }
+            
+            checkReferenceExpression(
+                varExpr,
+                Diagnostics.The_left_hand_side_of_a_for_each_mapping_statement_must_be_a_variable_or_a_property_access,
+                Diagnostics.The_left_hand_side_of_a_for_in_statement_may_not_be_an_optional_property_access
+            );
+            if (iteratedType) {            
+                // iteratedType will be undefined if the rightType was missing properties/signatures
+                // required to get its iteratedType (like [Symbol.iterator] or next). This may be
+                // because we accessed properties from anyType, or it may have led to an error inside
+                // getElementTypeOfIterable.
+                checkTypeAssignableToAndOptionallyElaborate(iteratedType, leftType, varExpr, node.expression);
+                return;                
             }
             else if (!isVariableDeclaration(varExpr) && !isCommaExpression(varExpr)) {
                 // run check only former check succeeded to avoid cascading errors
@@ -4033,14 +4052,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     Diagnostics.The_left_hand_side_of_a_for_in_statement_may_not_be_an_optional_property_access,
                 );
             }
+            
+            // unknownType is returned i.e. if node.expression is identifier whose name cannot be resolved
+            // in this case error about missing name is already reported - do not report extra one
+            if (rightType === neverType || !isTypeAssignableToKind(rightType, TypeFlags.NonPrimitive | TypeFlags.InstantiableNonPrimitive | TypeFlags.String)) {
+                error(node.expression, Diagnostics.The_right_hand_side_of_a_for_in_statement_must_be_of_type_any_an_object_type_or_a_type_parameter_but_here_has_type_0, typeToString(rightType));
+            }
         }
-
-        // unknownType is returned i.e. if node.expression is identifier whose name cannot be resolved
-        // in this case error about missing name is already reported - do not report extra one
-        if (rightType === neverType || !isTypeAssignableToKind(rightType, TypeFlags.NonPrimitive | TypeFlags.InstantiableNonPrimitive | TypeFlags.String)) {
-            error(node.expression, Diagnostics.The_right_hand_side_of_a_for_in_statement_must_be_of_type_any_an_object_type_or_a_type_parameter_but_here_has_type_0, typeToString(rightType));
-        }
-
+        
         checkSourceElement(node.statement);
         if (node.locals) {
             registerForUnusedIdentifiersCheck(node);
@@ -9191,22 +9210,24 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         declaration: ParameterDeclaration | PropertyDeclaration | PropertySignature | VariableDeclaration | BindingElement | JSDocPropertyLikeTag,
         includeOptionality: boolean,
         checkMode: CheckMode,
-    ): Type | undefined {
-        // A variable declared in a for..in statement is of type string, or of type keyof T when the
-        // right hand expression is of a type parameter type.
-        // if (isVariableDeclaration(declaration) && declaration.parent.parent.kind === SyntaxKind.ForEachStatement) {
-        //     const indexType = getIndexType(getNonNullableTypeIfNeeded(checkExpression((declaration.parent.parent as ForEachStatement).expression, /*checkMode*/ checkMode)));
-        //     return indexType.flags & (TypeFlags.TypeParameter | TypeFlags.Index) ? getExtractStringType(indexType) : stringType;
-        // }
+    ): Type | undefined {        
+        if (isVariableDeclaration(declaration) && declaration.parent.parent.kind === SyntaxKind.ForEachStatement) {
+            const forEach = declaration.parent.parent;
+            const expressionType = getNonNullableTypeIfNeeded(checkExpression(forEach.expression, checkMode));
 
-        // if (isVariableDeclaration(declaration) && declaration.parent.parent.kind === SyntaxKind.ForOfStatement) {
-        //     // checkRightHandSideOfForOf will return undefined if the for-of expression type was
-        //     // missing properties/signatures required to get its iteratedType (like
-        //     // [Symbol.iterator] or next). This may be because we accessed properties from anyType,
-        //     // or it may have led to an error inside getElementTypeOfIterable.
-        //     const forOfStatement = declaration.parent.parent;
-        //     return checkRightHandSideOfForOf(forOfStatement) || anyType;
-        // }
+            if (isArrayType(expressionType)) {
+                // A variable declared in a for..in statement is of type string, or of type keyof T when the
+                // right hand expression is of a type parameter type.
+                const indexType = getIndexType(expressionType);
+                return indexType.flags & (TypeFlags.TypeParameter | TypeFlags.Index) ? getExtractStringType(indexType) : stringType;
+            } else if (isMappingType(expressionType)) {
+                // checkRightHandSideOfForOf will return undefined if the for-of expression type was
+                // missing properties/signatures required to get its iteratedType (like
+                // [Symbol.iterator] or next). This may be because we accessed properties from anyType,
+                // or it may have led to an error inside getElementTypeOfIterable.
+                checkRightHandSideOfForOf(forEach) || anyType;
+            }            
+        }
 
         if (isBindingPattern(declaration.parent)) {
             Debug.fail("implement me - getTypeForVariableLikeDeclaration");
