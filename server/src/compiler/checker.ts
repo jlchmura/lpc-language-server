@@ -800,9 +800,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return createTypeFromGenericGlobalType(readonly ? globalReadonlyArrayType : globalArrayType, [elementType]);
     }
 
-    function createMappingType(elementType: Type, readonly?: boolean): ObjectType {
+    function createMappingType(keyType: Type, elementType: Type, readonly?: boolean): ObjectType {
         Debug.assert(readonly !== true, "readonly not supported");
-        return createTypeFromGenericGlobalType(globalMappingType, [elementType]);
+        return createTypeFromGenericGlobalType(globalMappingType, [keyType, elementType]);
     }
 
     function addUndefinedToGlobalsOrErrorOnRedeclaration() {
@@ -2501,35 +2501,45 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function checkMappingLiteral(node: MappingLiteralExpression, checkMode: CheckMode | undefined, forceTuple: boolean | undefined): Type {
         const elements = node.elements;
         const elementCount = elements?.length || 0;
-        const elementTypes: Type[] = [];
+        const keyTypes: Type[] = [];
+        const elementTypes: Type[][] = [];
         const elementFlags: ElementFlags[] = [];
         pushCachedContextualType(node);
         
         let hasOmittedExpression = false;
         for (let i = 0; i < elementCount; i++) {
-            const e = elements[i];            
+            const e = elements[i];
+            
             if (exactOptionalPropertyTypes && e.kind === SyntaxKind.OmittedExpression) {
                 hasOmittedExpression = true;
-                elementTypes.push(undefinedOrMissingType);
+                elementTypes.push([undefinedOrMissingType]);
                 elementFlags.push(ElementFlags.Optional);
             }
             else if (!isOmittedExpression(e)) {
-                const type = checkExpressionForMutableLocation(e.name, checkMode, forceTuple);
-                elementTypes.push(addOptionality(type, /*isProperty*/ true, hasOmittedExpression));
+                const keyType = checkExpressionForMutableLocation(e.name, checkMode, forceTuple);
+                keyTypes.push(keyType);
+                
+                // elementTypes.push(addOptionality(type, /*isProperty*/ true, hasOmittedExpression));
                 elementFlags.push(hasOmittedExpression ? ElementFlags.Optional : ElementFlags.Required);                
                 
-                forEach(elements, me => {
-                    const type = checkExpressionForMutableLocation(me, checkMode, forceTuple);
-                    elementTypes.push(addOptionality(type, /*isProperty*/ true, hasOmittedExpression));
+                forEach(e.elements, (me,idx) => {
+                    const type = checkExpressionForMutableLocation(me, checkMode, forceTuple);                    
+                    elementTypes[idx] = elementTypes[idx] || [];
+                    elementTypes[idx].push(addOptionality(type, /*isProperty*/ true, hasOmittedExpression));
                     elementFlags.push(hasOmittedExpression ? ElementFlags.Optional : ElementFlags.Required);                
                 });
             }
         }
-        popContextualType();        
+        popContextualType();     
+        
+        const finalKeyType = getReducedType(getUnionType(keyTypes, UnionReduction.Subtype));
+        const finalElementTypes: Type = elementTypes.length > 1 ? createArrayType(getUnionType(elementTypes.map(types => getReducedType(getUnionType(types, UnionReduction.Subtype))))) :
+            elementTypes.length === 1 ? getReducedType(getUnionType(elementTypes[0], UnionReduction.Subtype)) :
+            strictNullChecks ? implicitNeverType : undefinedWideningType;
+
         return createMappingLiteralType(createMappingType(
-            elementTypes.length ?
-                getUnionType(sameMap(elementTypes, (t, i) => elementFlags[i] & ElementFlags.Variadic ? getIndexedAccessTypeOrUndefined(t, numberType) || anyType : t), UnionReduction.Subtype) :
-                strictNullChecks ? implicitNeverType : undefinedWideningType,
+            finalKeyType,
+            finalElementTypes,
             false,
         ));
     }
@@ -2751,7 +2761,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
 
         // TODO handle mapping type
-        
+        if (isMappingType(arrayType)) {
+            return arrayType.resolvedTypeArguments?.length ? getUnionType(arrayType.resolvedTypeArguments) : undefinedWideningType;            
+        }
 
         return (use & IterationUse.PossiblyOutOfBounds) ? includeUndefinedInIndexSignature(arrayElementType) : arrayElementType;
 
@@ -9225,7 +9237,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // missing properties/signatures required to get its iteratedType (like
                 // [Symbol.iterator] or next). This may be because we accessed properties from anyType,
                 // or it may have led to an error inside getElementTypeOfIterable.
-                checkRightHandSideOfForOf(forEach) || anyType;
+                const mappingType = checkRightHandSideOfForOf(forEach) || anyType;
+                if (mappingType.flags & TypeFlags.Union) {
+                    // if the maping returned a union type, then we need to determine the declarations position in a var decl list
+                    // the final type is the same position in the union type
+                    const declIndex = declaration.parent.declarations.indexOf(declaration);
+                    const declType = (mappingType as UnionType).types.at(declIndex) || anyType;
+                    return declType;
+                }
+                return mappingType;
             }            
         }
 
