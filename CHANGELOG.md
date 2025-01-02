@@ -2,6 +2,7 @@
 
 ## 1.1.19
 
+-   Fix: [catch blocks should not be block scoped #91](https://github.com/jlchmura/lpc-language-server/issues/91)
 -   Fix: [Foreach with two variables should not report 2405 #94](https://github.com/jlchmura/lpc-language-server/issues/94)
 -   Fix: [Parser error on mapping access with multi args inside a prefix unary expr #150](https://github.com/jlchmura/lpc-language-server/issues/150)
 -   Fix: [Flow node incorrect for variables initialized at the object level #152](https://github.com/jlchmura/lpc-language-server/issues/152)
