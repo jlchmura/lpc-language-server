@@ -6019,9 +6019,10 @@ export function getEnclosingContainer(node: Node): Node | undefined {
 
 /** @internal */
 export function isObjectLiteralOrClassExpressionMethodOrAccessor(node: Node): node is MethodDeclaration  {
-    return (node.kind === SyntaxKind.MethodDeclaration) &&
+    // In LPC we need to match on FunctionDecl & Source File here instead of Method/Class
+    return (node.kind === SyntaxKind.MethodDeclaration || node.kind === SyntaxKind.FunctionDeclaration ) &&
         (node.parent.kind === SyntaxKind.ObjectLiteralExpression ||
-            node.parent.kind === SyntaxKind.ClassExpression);
+            node.parent.kind === SyntaxKind.SourceFile);
 }
 
 /** @internal */
@@ -7225,3 +7226,4 @@ export function isThisObjectExpression(node: Expression | QualifiedName): node i
 
     return false;
 }
+

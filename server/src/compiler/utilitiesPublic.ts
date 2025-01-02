@@ -59,12 +59,13 @@ export function isFunctionLike(node: Node | undefined): node is SignatureDeclara
 function isFunctionLikeDeclarationKind(kind: SyntaxKind): boolean {
     switch (kind) {
         case SyntaxKind.FunctionDeclaration:
-        // case SyntaxKind.MethodDeclaration:
+        case SyntaxKind.MethodDeclaration:
         // case SyntaxKind.Constructor:
         // case SyntaxKind.GetAccessor:
         // case SyntaxKind.SetAccessor:
         case SyntaxKind.FunctionExpression:
-        // case SyntaxKind.ArrowFunction:
+        case SyntaxKind.ArrowFunction:
+        case SyntaxKind.InlineClosureExpression:
             return true;
         default:
             return false;
@@ -74,14 +75,14 @@ function isFunctionLikeDeclarationKind(kind: SyntaxKind): boolean {
 /** @internal */
 export function isFunctionLikeKind(kind: SyntaxKind): boolean {
     switch (kind) {
-        // case SyntaxKind.MethodSignature:
+        case SyntaxKind.MethodSignature:
         case SyntaxKind.CallSignature:
         case SyntaxKind.JSDocSignature:        
         case SyntaxKind.InlineClosureExpression:
         // case SyntaxKind.ConstructSignature:
-        // case SyntaxKind.IndexSignature:
-        // case SyntaxKind.FunctionType:
-        case SyntaxKind.JSDocFunctionType:
+        case SyntaxKind.IndexSignature:
+        case SyntaxKind.FunctionType:
+        case SyntaxKind.JSDocFunctionType:        
         // case SyntaxKind.ConstructorType:
             return true;
         default:

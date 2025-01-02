@@ -2661,7 +2661,7 @@ export type FlowNode =
 // property for the containing control flow).
 /** @internal */
 export interface FlowStart extends FlowNodeBase {
-    node: FunctionExpression | undefined;//| ArrowFunction | MethodDeclaration | GetAccessorDeclaration | SetAccessorDeclaration | undefined;
+    node: FunctionExpression | ArrowFunction | MethodDeclaration | FunctionDeclaration | undefined;
     antecedent: undefined;
 }
 
@@ -3750,7 +3750,7 @@ export interface DeclarationStatement extends NamedDeclaration, Statement {
     readonly name?: Identifier | StringLiteral | IntLiteral;
 }
 
-export interface FunctionDeclaration extends FunctionLikeDeclarationBase, DeclarationStatement, LocalsContainer {
+export interface FunctionDeclaration extends FunctionLikeDeclarationBase, DeclarationStatement, LocalsContainer, FlowContainer {
     readonly kind: SyntaxKind.FunctionDeclaration;
     readonly modifiers?: NodeArray<Modifier>;
     readonly name?: Identifier;

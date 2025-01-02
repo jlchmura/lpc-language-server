@@ -222,6 +222,13 @@ exports[`Compiler compiler/forEach2.c Reports correct errors for compiler/forEac
 
 exports[`Compiler compiler/forEach3.c Reports correct errors for compiler/forEach3.c: diags-compiler/forEach3.c 1`] = `""`;
 
+exports[`Compiler compiler/forEach4.c Reports correct errors for compiler/forEach4.c: diags-compiler/forEach4.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/forEach4.c[90m:3[0m
+
+"
+`;
+
 exports[`Compiler compiler/forEachRef.c Reports correct errors for compiler/forEachRef.c: diags-compiler/forEachRef.c 1`] = `""`;
 
 exports[`Compiler compiler/funcDecl1.c Reports correct errors for compiler/funcDecl1.c: diags-compiler/funcDecl1.c 1`] = `""`;
