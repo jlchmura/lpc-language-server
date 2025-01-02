@@ -2760,7 +2760,6 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return getUnionType(possibleOutOfBounds ? [arrayElementType, stringType, undefinedType] : [arrayElementType, stringType], UnionReduction.Subtype);
         }
 
-        // TODO handle mapping type
         if (isMappingType(arrayType)) {
             return arrayType.resolvedTypeArguments?.length ? getUnionType(arrayType.resolvedTypeArguments) : undefinedWideningType;            
         }
@@ -4030,30 +4029,47 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //   and Expr must be an expression of type Any, an object type, or a type parameter type.
             const varExpr = node.initializer;
             const iteratedType = checkRightHandSideOfForOf(node);
-            const leftType = checkExpression(varExpr);
+            let leftType = checkExpression(varExpr);
+            let commaRightType: Type;
             const rightType = getNonNullableTypeIfNeeded(checkExpression(node.expression));
 
             if (varExpr.kind === SyntaxKind.ArrayLiteralExpression || varExpr.kind === SyntaxKind.ObjectLiteralExpression) {
                 error(varExpr, Diagnostics.The_left_hand_side_of_a_for_each_statement_cannot_be_a_destructuring_pattern);
             }
+            else if (isCommaExpression(varExpr)) {
+                checkReferenceExpression(varExpr.left, Diagnostics.The_left_hand_side_of_a_for_each_mapping_statement_must_be_a_variable_or_a_property_access, Diagnostics.The_left_hand_side_of_a_for_in_statement_may_not_be_an_optional_property_access);
+                checkReferenceExpression(varExpr.right, Diagnostics.The_left_hand_side_of_a_for_each_mapping_statement_must_be_a_variable_or_a_property_access, Diagnostics.The_left_hand_side_of_a_for_in_statement_may_not_be_an_optional_property_access);
+                
+                // expand the types on each side of the comma expr
+                leftType = checkExpression(varExpr.left);
+                commaRightType = checkExpression(varExpr.right);
+                if (!isTypeAssignableTo(getIndexTypeOrString(rightType), leftType)) {
+                    error(varExpr, Diagnostics.The_left_hand_side_of_a_for_in_statement_must_be_of_type_string_or_any);    
+                }
+            } 
             else if (!isTypeAssignableTo(getIndexTypeOrString(rightType), leftType)) {
                 error(varExpr, Diagnostics.The_left_hand_side_of_a_for_in_statement_must_be_of_type_string_or_any);
             }
-            else if (isBinaryExpression(varExpr)) {
-
+            else {            
+                checkReferenceExpression(
+                    varExpr,
+                    Diagnostics.The_left_hand_side_of_a_for_each_mapping_statement_must_be_a_variable_or_a_property_access,
+                    Diagnostics.The_left_hand_side_of_a_for_in_statement_may_not_be_an_optional_property_access
+                );
             }
-            
-            checkReferenceExpression(
-                varExpr,
-                Diagnostics.The_left_hand_side_of_a_for_each_mapping_statement_must_be_a_variable_or_a_property_access,
-                Diagnostics.The_left_hand_side_of_a_for_in_statement_may_not_be_an_optional_property_access
-            );
             if (iteratedType) {            
                 // iteratedType will be undefined if the rightType was missing properties/signatures
                 // required to get its iteratedType (like [Symbol.iterator] or next). This may be
                 // because we accessed properties from anyType, or it may have led to an error inside
                 // getElementTypeOfIterable.
-                checkTypeAssignableToAndOptionallyElaborate(iteratedType, leftType, varExpr, node.expression);
+                if (isCommaExpression(varExpr) && iteratedType.flags & TypeFlags.Union) {
+                    const iteratedUnionType = iteratedType as UnionType;
+                    // check each type in the union against the type in the comma expr
+                    checkTypeAssignableToAndOptionallyElaborate(iteratedUnionType.types.at(0) ?? errorType, leftType, varExpr.left, node.expression);
+                    checkTypeAssignableToAndOptionallyElaborate(iteratedUnionType.types.at(1) ?? errorType, commaRightType, varExpr.right, node.expression);
+                } else {
+                    checkTypeAssignableToAndOptionallyElaborate(iteratedType, leftType, varExpr, node.expression);
+                }
                 return;                
             }
             else if (!isVariableDeclaration(varExpr) && !isCommaExpression(varExpr)) {
@@ -22046,9 +22062,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     (isVariableDeclaration(target) || isBindingElement(target)) 
                         // TS checked the export symbol here, but since our SourceFile level 
                         // vars can impact flow nodes, we don't want to do that
-                        && getSymbolOfDeclaration(getResolvedSymbol(source as Identifier).declarations[0]) === getSymbolOfDeclaration(target);                        
-            // case SyntaxKind.ThisKeyword:
-            //     return target.kind === SyntaxKind.ThisKeyword;
+                        && getSymbolOfDeclaration(getResolvedSymbol(source as Identifier).declarations[0]) === getSymbolOfDeclaration(target);                                    
             case SyntaxKind.SuperKeyword:
                 return target.kind === SyntaxKind.SuperKeyword;            
             case SyntaxKind.ParenthesizedExpression:
