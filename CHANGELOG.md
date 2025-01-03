@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.20
+
+-   `null` keyword was incorrectly parsed as a reserved word in LPC code.
+
 ## 1.1.19
 
 -   Fix: [catch blocks should not be block scoped #91](https://github.com/jlchmura/lpc-language-server/issues/91)

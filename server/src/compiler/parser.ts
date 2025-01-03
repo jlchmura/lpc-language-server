@@ -2909,7 +2909,6 @@ export namespace LpcParser {
         switch (token()) {
             // case SyntaxKind.ThisKeyword:
             case SyntaxKind.SuperKeyword:
-            case SyntaxKind.NullKeyword:
             case SyntaxKind.TrueKeyword:
             case SyntaxKind.FalseKeyword:
             case SyntaxKind.NumericLiteral:
@@ -2938,6 +2937,11 @@ export namespace LpcParser {
                 return true;
             // case SyntaxKind.ImportKeyword:
             //     return lookAhead(nextTokenIsOpenParenOrLessThanOrDot);
+            case SyntaxKind.NullKeyword:
+                if (scriptKind === ScriptKind.JSON) {
+                    return true;
+                }
+                // fall through
             default:
                 return isIdentifier();
         }
@@ -3071,8 +3075,7 @@ export namespace LpcParser {
             case SyntaxKind.MappingKeyword:
             case SyntaxKind.ObjectKeyword:
             case SyntaxKind.VoidKeyword:
-            case SyntaxKind.UndefinedKeyword:
-            case SyntaxKind.NullKeyword:            
+            case SyntaxKind.UndefinedKeyword:        
             case SyntaxKind.OpenBraceToken:
             case SyntaxKind.OpenBracketToken:
             case SyntaxKind.LessThanToken:
@@ -3102,6 +3105,11 @@ export namespace LpcParser {
             //     // Only consider '(' the start of a type if followed by ')', '...', an identifier, a modifier,
             //     // or something that starts a type. We don't want to consider things like '(1)' a type.
             //     return !inStartOfParameter && lookAhead(isStartOfParenthesizedOrFunctionType);            
+            case SyntaxKind.NullKeyword:            
+                if (scriptKind === ScriptKind.JSON) {
+                    return true;
+                }
+                // fall through
             default:
                 return isIdentifier();
         }
@@ -3156,10 +3164,7 @@ export namespace LpcParser {
             case SyntaxKind.StringArrayLiteral:
             case SyntaxKind.IntLiteral:
             case SyntaxKind.CharLiteral:
-            case SyntaxKind.FloatLiteral:
-            case SyntaxKind.TrueKeyword:
-            case SyntaxKind.FalseKeyword:
-            case SyntaxKind.NullKeyword:
+            case SyntaxKind.FloatLiteral:               
                 return parseLiteralTypeNode();            
             // case SyntaxKind.MinusToken:
             //     return lookAhead(nextTokenIsNumericOrBigIntLiteral) ? parseLiteralTypeNode(/*negative*/ true) : parseTypeReference();
@@ -3177,6 +3182,13 @@ export namespace LpcParser {
             //     return parseImportType();
             // case SyntaxKind.AssertsKeyword:
             //     return lookAhead(nextTokenIsIdentifierOrKeywordOnSameLine) ? parseAssertsTypePredicate() : parseTypeReference();            
+            case SyntaxKind.TrueKeyword:
+            case SyntaxKind.FalseKeyword:
+            case SyntaxKind.NullKeyword:
+                if (scriptKind === ScriptKind.JSON) {
+                    return parseLiteralTypeNode();       
+                }   
+                // fall through     
             default:
                 // Type Refs can only exist inside jsdoc
                 return inContext(NodeFlags.JSDoc) ? parseTypeReference() : undefined;
@@ -3446,7 +3458,6 @@ export namespace LpcParser {
             case SyntaxKind.LwObjectKeyword:
             case SyntaxKind.ClosureKeyword:            
             case SyntaxKind.BufferKeyword:
-            case SyntaxKind.NullKeyword:
             case SyntaxKind.TrueKeyword:
             case SyntaxKind.FalseKeyword:
             case SyntaxKind.IntKeyword:
@@ -3469,6 +3480,8 @@ export namespace LpcParser {
             case SyntaxKind.StatusKeyword:
             case SyntaxKind.SymbolKeyword:
                 return languageVariant === LanguageVariant.LDMud;
+            case SyntaxKind.NullKeyword:
+                return languageVersion === ScriptTarget.JSON;
         }        
 
         return false;
@@ -5211,8 +5224,7 @@ export namespace LpcParser {
                 return parseLiteralNode();                
             case SyntaxKind.StringizedIdentifier:
                 return parseStringizedIdentifier();
-            case SyntaxKind.SuperKeyword:
-            case SyntaxKind.NullKeyword:
+            case SyntaxKind.SuperKeyword:        
             case SyntaxKind.TrueKeyword:
             case SyntaxKind.FalseKeyword:
                 return parseTokenNode<PrimaryExpression>();
@@ -5266,6 +5278,10 @@ export namespace LpcParser {
                     // fall through and report error
                     break;
                 }
+        }
+
+        if (token() === SyntaxKind.NullKeyword && scriptKind === ScriptKind.JSON) {
+            return parseTokenNode<PrimaryExpression>();
         }
 
         if (token() === SyntaxKind.NewKeyword && languageVariant === LanguageVariant.FluffOS) {            
