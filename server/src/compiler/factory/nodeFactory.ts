@@ -1547,7 +1547,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
 
 
     // @api 
-    function createByRefElement(expr: Expression): ByRefElement {
+    function createByRefElement(ampToken: AmpersandToken | RefToken, expr: Expression): ByRefElement {
         const node = createBaseNode<ByRefElement>(SyntaxKind.ByRefElement);
         node.expression = expr;
         return node;
@@ -1782,7 +1782,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         modifiers: readonly Modifier[] | undefined,
         dotDotDotToken: DotDotDotToken | undefined,
         name: string | BindingName,
-        ampToken?: AmpersandToken,
+        ampToken?: AmpersandToken | RefToken,
         type?: TypeNode,
         initializer?: Expression,
     ): ParameterDeclaration {

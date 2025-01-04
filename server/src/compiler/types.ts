@@ -1596,7 +1596,7 @@ export interface NodeFactory {
     createForEachStatement(initializer: ForInitializer | undefined, range: Expression | undefined, statement: Statement): ForEachStatement;
     createDoWhileStatement(statement: Statement, expression: Expression): DoWhileStatement;
     createWhileStatement(statement: Statement, expression: Expression): WhileStatement;
-    createParameterDeclaration(modifiers: readonly Modifier[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, ampToken?: AmpersandToken, type?: TypeNode, initializer?: Expression): ParameterDeclaration;
+    createParameterDeclaration(modifiers: readonly Modifier[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, ampToken?: AmpersandToken | RefToken, type?: TypeNode, initializer?: Expression): ParameterDeclaration;
     /** @internal */ createMissingDeclaration(): MissingDeclaration;
     createCatchStatement(expression: Expression | undefined, block: Block): CatchStatement;
 
@@ -1606,7 +1606,7 @@ export interface NodeFactory {
     createEvaluateExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): EvaluateExpression;
     createNewExpression(expression: Expression|TypeNode|undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly NewExpressionArgument[] | undefined): NewExpression;
     createSpreadElement(expression: Expression): SpreadElement;
-    createByRefElement(expr: Expression): ByRefElement;
+    createByRefElement(ampToken: AmpersandToken | RefToken, expr: Expression): ByRefElement;
     createFunctionExpression(modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterDeclaration[] | undefined, type: TypeNode | undefined, body: Block): FunctionExpression;
     createOmittedExpression(): OmittedExpression;
     createParenthesizedExpression(expression: Expression): ParenthesizedExpression;
@@ -3660,7 +3660,7 @@ export interface ParameterDeclaration extends NamedDeclaration, JSDocContainer {
     readonly modifiers?: NodeArray<Modifier>;
     readonly dotDotDotToken?: DotDotDotToken;    // Present on rest parameter
     readonly name: BindingName;                  // Declared parameter name.
-    readonly ampToken?: AmpersandToken;          // Present on "by ref" parameters
+    readonly ampToken?: AmpersandToken | RefToken;          // Present on "by ref" parameters
     readonly type?: TypeNode;                    // Optional type annotation
     readonly initializer?: Expression;           // Optional initializer    
 }
@@ -4366,6 +4366,7 @@ export interface ByRefElement extends Expression {
     readonly kind: SyntaxKind.ByRefElement;
     readonly parent: CallExpression | NewExpression;
     readonly expression: Expression;
+    readonly refToken: RefToken | AmpersandToken;
 }
 
 

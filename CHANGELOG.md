@@ -2,6 +2,7 @@
 
 ## 1.1.20
 
+-   Fix: [FluffOS `ref` keyword not being parsed correctly. #155](https://github.com/jlchmura/lpc-language-server/issues/155)
 -   `null` keyword was incorrectly parsed as a reserved word in LPC code.
 
 ## 1.1.19
