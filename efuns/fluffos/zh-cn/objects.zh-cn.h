@@ -92,7 +92,7 @@ varargs int query_heart_beat( object );
  * 如果对象是隐藏的（通过 set_hide()），并且当前对象不可隐藏，则返回 0。
  *
  */
-object present( mixed str, object ob );
+varargs object present( mixed str, object ob );
 
 /**
  * objects - 返回所有加载对象的数组
