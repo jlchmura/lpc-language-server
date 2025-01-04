@@ -132,7 +132,7 @@ varargs int query_heart_beat( object );
  * able.  returns 0
  *
  */
-object present( mixed str, object ob );
+varargs object present( mixed str, object ob );
 
 /**
  * objects - return an array of all loaded objects
