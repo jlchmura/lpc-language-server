@@ -436,6 +436,8 @@ exports[`Compiler compiler/operatorDoubleBang.c Reports correct errors for compi
 
 exports[`Compiler compiler/operatorLogical.c Reports correct errors for compiler/operatorLogical.c: diags-compiler/operatorLogical.c 1`] = `""`;
 
+exports[`Compiler compiler/paramRef.c Reports correct errors for compiler/paramRef.c: diags-compiler/paramRef.c 1`] = `""`;
+
 exports[`Compiler compiler/predefined1.c Reports correct errors for compiler/predefined1.c: diags-compiler/predefined1.c 1`] = `""`;
 
 exports[`Compiler compiler/predefined2.c Reports correct errors for compiler/predefined2.c: diags-compiler/predefined2.c 1`] = `
