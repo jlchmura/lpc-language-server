@@ -3089,8 +3089,7 @@ export namespace LpcParser {
             case SyntaxKind.CharLiteral:
             case SyntaxKind.FloatLiteral:
             case SyntaxKind.TrueKeyword:
-            case SyntaxKind.FalseKeyword:
-            case SyntaxKind.ObjectKeyword:
+            case SyntaxKind.FalseKeyword:            
             case SyntaxKind.AsteriskToken:
             case SyntaxKind.QuestionToken:
             case SyntaxKind.ExclamationToken:
@@ -3135,8 +3134,7 @@ export namespace LpcParser {
             case SyntaxKind.MixedKeyword:
             case SyntaxKind.MappingKeyword:
             case SyntaxKind.ObjectKeyword:
-            case SyntaxKind.UndefinedKeyword:            
-            case SyntaxKind.ObjectKeyword:            
+            case SyntaxKind.UndefinedKeyword:                                 
                 // If these are followed by a dot, then parse these out as a dotted type reference instead.
                 return parseKeywordAndNoDot();
             case SyntaxKind.StatusKeyword:     
