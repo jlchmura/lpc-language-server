@@ -17,9 +17,41 @@
  * ments are partitioned based on the return value of f.   In  particular,
  * the array does not need to be composed of objects.
  *
+ * @template {object} T
+ * @param {T*} obarr The array of objects to partition
+ * @param separator The function to use to partition the array
+ * @param {T} skip The value to skip
+ * @returns {<T*>*} The partitioned array
  */
-mixed unique_array( object *obarr, string separator, void | mixed skip);
-mixed unique_array( mixed *arr, function f, void | mixed skip );
+varargs mixed unique_array(mixed *obarr, string separator, mixed skip);
+
+/**
+ * @template T, Y
+ * @callback uniqueArrayCallback
+ * @param {T} element The element to test
+ * @returns {Y} The map callback return value
+ */
+
+
+/**
+ * unique_array() - partitions an array of objects into groups
+ *
+ * Groups objects together for which the 'separator' function returns  the
+ * same  value.  'obarr'  should  be  an array of objects, other types are
+ * ignored.  The 'separator' function is called only once in  each  object
+ * in  'obarr'.   THe  optional  'skip'  parameter enables a pre-filter on
+ * 'obarr', skipping elements which match 'skip'.  The second form works a
+ * bit differently.  each element of the array is passed to f and the ele‐
+ * ments are partitioned based on the return value of f.   In  particular,
+ * the array does not need to be composed of objects.
+ *
+ * @template T
+ * @param {T*} arr The array of objects to partition
+ * @param {uniqueArrayCallback<T,Y>} f The function to use to partition the array
+ * @param {T|void} skip The value to skip
+ * @returns {<T*>*} The partitioned array
+ */
+varargs <mixed*>* unique_array(mixed *arr, function f, mixed skip );
 
 /**
  * sort_array() - sort an array

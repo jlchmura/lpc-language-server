@@ -4047,7 +4047,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     error(varExpr, Diagnostics.The_left_hand_side_of_a_for_in_statement_must_be_of_type_string_or_any);    
                 }
             } 
-            else if (!isTypeAssignableTo(getIndexTypeOrString(rightType), leftType)) {
+            // else if (!isTypeAssignableTo(getIndexTypeOrString(rightType), leftType)) {
+            else if (!isTypeAssignableTo(rightType, leftType)) {
                 error(varExpr, Diagnostics.The_left_hand_side_of_a_for_in_statement_must_be_of_type_string_or_any);
             }
             else {            

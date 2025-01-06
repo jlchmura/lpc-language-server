@@ -3,6 +3,8 @@
 ## 1.1.21
 
 -   Fix: [Foreach over an array always results in a string type #161](https://github.com/jlchmura/lpc-language-server/issues/161)
+-   Improved efun typing:
+    -   FluffOS `unique_array`
 
 ## 1.1.20
 
