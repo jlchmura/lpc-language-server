@@ -2750,7 +2750,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return hasStringConstituent ? possibleOutOfBounds ? includeUndefinedInIndexSignature(stringType) : stringType : undefined;
         }
 
-        const arrayElementType = getIndexTypeOfType(arrayType, numberType);
+        const arrayElementType = isArrayType(arrayType) && arrayType.resolvedTypeArguments ? first(arrayType.resolvedTypeArguments) : getIndexTypeOfType(arrayType, numberType);
         if (hasStringConstituent && arrayElementType) {
             // This is just an optimization for the case where arrayOrStringType is string | string[]
             if (arrayElementType.flags & TypeFlags.StringLike && !compilerOptions.noUncheckedIndexedAccess) {
@@ -8600,7 +8600,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             getObjectFlags(type) & ObjectFlags.Mapped ? getIndexTypeForMappedType(type as MappedType, indexFlags) :
             type === wildcardType ? wildcardType :
             type.flags & TypeFlags.Unknown ? neverType :
-            type.flags & (TypeFlags.Any | TypeFlags.Never) ? stringNumberSymbolType :
+            type.flags & (TypeFlags.Any | TypeFlags.Never) ? stringNumberSymbolType :            
             getLiteralTypeFromProperties(type, (indexFlags & IndexFlags.NoIndexSignatures ? TypeFlags.StringLiteral : TypeFlags.StringLike) | (indexFlags & IndexFlags.StringsOnly ? 0 : TypeFlags.NumberLike), indexFlags === IndexFlags.None);
     }
 
@@ -9260,11 +9260,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             const forEach = declaration.parent.parent;
             const expressionType = getNonNullableTypeIfNeeded(checkExpression(forEach.expression, checkMode));
 
-            if (isArrayType(expressionType)) {
+            if (isArrayType(expressionType) && expressionType.resolvedTypeArguments) {
+                // unlike TS, LPC allows an array of any type in a foreach, so just return the type arg.
+                return first(expressionType.resolvedTypeArguments);
                 // A variable declared in a for..in statement is of type string, or of type keyof T when the
-                // right hand expression is of a type parameter type.
-                const indexType = getIndexType(expressionType);
-                return indexType.flags & (TypeFlags.TypeParameter | TypeFlags.Index) ? getExtractStringType(indexType) : stringType;
+                // right hand expression is of a type parameter type.                                
+                // const indexType = getIndexType(expressionType);                
+                // return indexType.flags & (TypeFlags.TypeParameter | TypeFlags.Index) ? getExtractStringType(indexType) : stringType;
             } else if (isMappingType(expressionType)) {
                 // checkRightHandSideOfForOf will return undefined if the for-of expression type was
                 // missing properties/signatures required to get its iteratedType (like
