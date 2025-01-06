@@ -23,7 +23,7 @@
  * @param {T} skip The value to skip
  * @returns {<T*>*} The partitioned array
  */
-varargs mixed unique_array(mixed *obarr, string separator, mixed skip);
+varargs mixed unique_array(object *obarr, string separator, mixed skip);
 
 /**
  * @template T, Y
