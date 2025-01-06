@@ -1056,9 +1056,7 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
                 case SyntaxKind.Identifier:
                     return emitIdentifier(node as Identifier);
                 case SyntaxKind.TypeLiteral:
-                    return emitTypeLiteral(node as TypeLiteralNode);
-                case SyntaxKind.ArrayType:
-                    return emitArrayType(node as ArrayTypeNode);
+                    return emitTypeLiteral(node as TypeLiteralNode);                
                 case SyntaxKind.VariableStatement:
                     return emitVariableStatement(node as VariableStatement);
                 case SyntaxKind.Parameter:

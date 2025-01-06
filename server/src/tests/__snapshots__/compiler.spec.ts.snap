@@ -256,6 +256,10 @@ Found 1 error in server/src/tests/cases/compiler/forEach6.c[90m:4[0m
 
 exports[`Compiler compiler/forEach7.c Reports correct errors for compiler/forEach7.c: diags-compiler/forEach7.c 1`] = `""`;
 
+exports[`Compiler compiler/forEach8.c Reports correct errors for compiler/forEach8.c: diags-compiler/forEach8.c 1`] = `""`;
+
+exports[`Compiler compiler/forEach9.c Reports correct errors for compiler/forEach9.c: diags-compiler/forEach9.c 1`] = `""`;
+
 exports[`Compiler compiler/forEachRef.c Reports correct errors for compiler/forEachRef.c: diags-compiler/forEachRef.c 1`] = `""`;
 
 exports[`Compiler compiler/funcDecl1.c Reports correct errors for compiler/funcDecl1.c: diags-compiler/funcDecl1.c 1`] = `""`;

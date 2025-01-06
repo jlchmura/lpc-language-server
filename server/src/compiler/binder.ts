@@ -632,11 +632,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             // case SyntaxKind.CallSignature:
             // case SyntaxKind.ConstructSignature:
             case SyntaxKind.IndexSignature:
-                return declareSymbolAndAddToSymbolTable(node as Declaration, SymbolFlags.Signature, SymbolFlags.None);
-            case SyntaxKind.TypeLiteral:
-            case SyntaxKind.JSDocTypeLiteral:
-            case SyntaxKind.MappedType:
-                return bindAnonymousTypeWorker(node as TypeLiteralNode/* | MappedTypeNode*/ | JSDocTypeLiteral);            
+                return declareSymbolAndAddToSymbolTable(node as Declaration, SymbolFlags.Signature, SymbolFlags.None);            
             case SyntaxKind.JSDocClassTag:
                 return bindJSDocClassTag(node as JSDocClassTag);
             case SyntaxKind.FunctionType:
