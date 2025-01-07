@@ -9289,7 +9289,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     }
 
                     return declType;
+                } else if (mappingType === undefinedWideningType) {
+                    // this means it was a plain, untyped mapping object
+                    // use the type of the variable declaration
+                    return tryGetTypeFromEffectiveTypeNode(declaration);
                 }
+
                 return mappingType;
             }            
         }
