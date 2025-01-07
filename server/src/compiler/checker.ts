@@ -24301,7 +24301,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 flowContainer.kind === SyntaxKind.FunctionExpression ||
                 flowContainer.kind === SyntaxKind.InlineClosureExpression || 
                 isObjectLiteralOrClassExpressionMethodOrAccessor(flowContainer)
-            ) && (                
+            ) && (           
+                // TS limited this first condition to const vars only, but for LPC
+                // we'll allow any var that is not auto array type
+                type !== autoArrayType ||     
                 isParameterOrMutableLocalVariable(localOrExportSymbol) && isPastLastAssignment(localOrExportSymbol, node)
             )
         ) {

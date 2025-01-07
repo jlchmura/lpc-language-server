@@ -3,8 +3,10 @@
 ## 1.1.21
 
 -   Fix: [Foreach over an array always results in a string type #161](https://github.com/jlchmura/lpc-language-server/issues/161)
+-   Fix: [Flow type lost inside inline closure #164](https://github.com/jlchmura/lpc-language-server/issues/164)
 -   Improved efun typing:
     -   FluffOS `unique_array`
+    -   Added type guards to several LD efuns
 
 ## 1.1.20
 

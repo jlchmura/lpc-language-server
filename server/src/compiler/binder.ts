@@ -320,7 +320,8 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 break;
             case SyntaxKind.Block:
             //case SyntaxKind.ModuleBlock:
-                bindEachFunctionsFirst((node as Block).statements);
+                // bindEachFunctionsFirst((node as Block).statements);
+                bindEach((node as Block).statements);                
                 break;
             case SyntaxKind.BindingElement:
                 bindBindingElementFlow(node as BindingElement);
@@ -915,7 +916,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
 
         if (currentFlow) {
             node.flowNode = currentFlow;
-        }        
+        }
         
         // only exclude functions from declaration if there is no body (meaning it is a function header decl).
         const excludes = !node.body ? SymbolFlags.FunctionExcludes : SymbolFlags.None;

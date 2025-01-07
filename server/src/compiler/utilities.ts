@@ -455,10 +455,10 @@ export function getImmediatelyInvokedFunctionExpression(func: Node): CallExpress
     if (func.kind === SyntaxKind.FunctionExpression || func.kind === SyntaxKind.InlineClosureExpression) {
         let prev = func;
         let parent = func.parent;
-        // while (parent.kind === SyntaxKind.ParenthesizedExpression) {
-        //     prev = parent;
-        //     parent = parent.parent;
-        // }
+        while (parent.kind === SyntaxKind.ParenthesizedExpression) {
+            prev = parent;
+            parent = parent.parent;
+        }
         if (parent.kind === SyntaxKind.CallExpression && (parent as CallExpression).expression === prev) {
             return parent as CallExpression;
         }
