@@ -2661,7 +2661,7 @@ export type FlowNode =
 // property for the containing control flow).
 /** @internal */
 export interface FlowStart extends FlowNodeBase {
-    node: FunctionExpression | ArrowFunction | MethodDeclaration | FunctionDeclaration | undefined;
+    node: FunctionExpression | ArrowFunction | InlineClosureExpression | MethodDeclaration | FunctionDeclaration | undefined;
     antecedent: undefined;
 }
 

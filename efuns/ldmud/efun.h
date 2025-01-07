@@ -3967,8 +3967,8 @@ float pow(int|float base, int|float exp);
  * pointerp
  *
  * Return 1 if arg is a pointer, i.e. an array.
- *
- *
+ * @template T
+ * @returns {arg is T*} 
  */
 int pointerp(mixed arg);
 
@@ -4272,7 +4272,7 @@ object* objects(object prev_ob, int num);
  *
  * Return 1 if arg is an object.
  *
- *
+ * @returns {arg is object} 1 if arg is an object, 0 otherwise.
  */
 int objectp(mixed arg);
 
@@ -4974,7 +4974,7 @@ object master(int dont_load);
  *
  * Returns 1 if the argument is a mapping, or 0 if it is not.
  *
- *
+ * @returns {arg is mapping} 1 if arg is a mapping, 0 otherwise.
  */
 int mappingp(mixed arg);
 
@@ -5778,7 +5778,7 @@ string invert_bits(string str);
  *
  * Return 1 if arg is an integer number.
  *
- *
+ * @returns {arg is int} 1 if arg is an integer number, 0 otherwise
  */
 int intp(mixed arg);
 
@@ -6898,7 +6898,7 @@ float floor(float arg);
  *
  * Returns 1 if the arg is a floating point number, 0 else.
  *
- *
+ * @returns {n is float} 1 if n is a float, 0 else.
  */
 int floatp(mixed n);
 

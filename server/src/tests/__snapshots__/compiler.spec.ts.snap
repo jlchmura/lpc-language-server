@@ -208,6 +208,8 @@ exports[`Compiler compiler/expr5.c Reports correct errors for compiler/expr5.c: 
 
 exports[`Compiler compiler/flowNode1.c Reports correct errors for compiler/flowNode1.c: diags-compiler/flowNode1.c 1`] = `""`;
 
+exports[`Compiler compiler/flowType1.c Reports correct errors for compiler/flowType1.c: diags-compiler/flowType1.c 1`] = `""`;
+
 exports[`Compiler compiler/fnNoReturn1.c Reports correct errors for compiler/fnNoReturn1.c: diags-compiler/fnNoReturn1.c 1`] = `""`;
 
 exports[`Compiler compiler/fnNoReturn2.c Reports correct errors for compiler/fnNoReturn2.c: diags-compiler/fnNoReturn2.c 1`] = `
