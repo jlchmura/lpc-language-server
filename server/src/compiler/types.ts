@@ -1209,7 +1209,7 @@ export const enum NodeFlags {
     AwaitContext       = 1 << 16, // If node was parsed in the 'await' context created when parsing an async function
     DisallowCommaContext = 1 << 17, // If node was parsed in a context where comma expr are not allow
     ThisNodeHasError   = 1 << 18, // If the parser encountered an error when parsing the code that created this node
-    JavaScriptFile     = 1 << 19, // If node was parsed in a JavaScript
+    DisallowConditionalTypesContext     = 1 << 19, 
     ThisNodeOrAnySubNodesHasError = 1 << 20, // If this node or any of its children had an error
     HasAggregatedChildData = 1 << 21, // If we've computed data from children and cached it in this node
     OptionalChain       = 1 << 22, // not used
@@ -1223,7 +1223,7 @@ export const enum NodeFlags {
     ReachabilityAndEmitFlags = ReachabilityCheckFlags,
 
     // Parsing context flags
-    ContextFlags = DisallowInContext | DisallowCommaContext | YieldContext | DisallowTypes | AwaitContext | JavaScriptFile | Ambient,
+    ContextFlags = DisallowInContext | DisallowCommaContext | YieldContext | DisallowTypes | AwaitContext | DisallowConditionalTypesContext | MacroContext | IncludeContext | Ambient,
 
     // parse set flags
     BlockScoped = Variable,
@@ -1430,6 +1430,7 @@ export type TypeNodeSyntaxKind =
     | SyntaxKind.ExpressionWithTypeArguments
     | SyntaxKind.FunctionType
     | SyntaxKind.ConditionalType
+    | SyntaxKind.IntersectionType
     | SyntaxKind.JSDocTypeExpression
     | SyntaxKind.JSDocAllType
     | SyntaxKind.JSDocUnknownType
@@ -1563,6 +1564,7 @@ export interface NodeFactory {
     createTypeReferenceNode(typeName: string | EntityName, typeArguments?: readonly TypeNode[]): TypeReferenceNode;
     updateTypeReferenceNode(node: TypeReferenceNode, typeName: EntityName, typeArguments: NodeArray<TypeNode> | undefined): TypeReferenceNode;
     createUnionTypeNode(types: readonly TypeNode[]): UnionTypeNode;
+    createIntersectionTypeNode(types: readonly TypeNode[]): IntersectionTypeNode;
     createArrayTypeNode(elementType: TypeNode): ArrayTypeNode;
     createParenthesizedType(type: TypeNode): ParenthesizedTypeNode;
     createLiteralTypeNode(literal: LiteralTypeNode["literal"]): LiteralTypeNode;
@@ -2200,6 +2202,7 @@ export type HasChildren =
     | InheritDeclaration
     | InferTypeNode
     | IncludeDirective
+    | IntersectionTypeNode
     | ParameterDeclaration        
     | ByRefElement
     | EvaluateExpression
@@ -3420,6 +3423,11 @@ export interface TypeNode extends Node {
 
 export interface UnionTypeNode extends TypeNode {
     readonly kind: SyntaxKind.UnionType;
+    readonly types: NodeArray<TypeNode>;
+}
+
+export interface IntersectionTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.IntersectionType;
     readonly types: NodeArray<TypeNode>;
 }
 

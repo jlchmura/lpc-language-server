@@ -80,6 +80,7 @@ import {
     InheritClauseNodeType,
     InheritDeclaration,
     InlineClosureExpression,
+    IntersectionTypeNode,
     IntLiteral,
     isGeneratedIdentifier,
     isIdentifier,    
@@ -320,6 +321,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         updateTypePredicateNode,
         createArrayTypeNode,
         createUnionTypeNode,
+        createIntersectionTypeNode,
         createParenthesizedType,
         createKeywordTypeNode,
         createTypeReferenceNode,
@@ -1146,10 +1148,23 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         return node;
     }
 
+    function createUnionOrIntersectionTypeNode(kind: SyntaxKind.UnionType | SyntaxKind.IntersectionType, types: readonly TypeNode[], parenthesize: (nodes: readonly TypeNode[]) => readonly TypeNode[]) {
+        const node = createBaseNode<UnionTypeNode | IntersectionTypeNode>(kind);
+        node.types = factory.createNodeArray(parenthesize(types));
+        node.transformFlags = TransformFlags.None;
+        return node;
+    }
+
+    // @api
     function createUnionTypeNode(types: readonly TypeNode[]): UnionTypeNode {
         const node = createBaseNode<UnionTypeNode>(SyntaxKind.UnionType);
         node.types = factory.createNodeArray(types); //parenthesize(types));
         return node;
+    }
+
+    // @api
+    function createIntersectionTypeNode(types: readonly TypeNode[]): IntersectionTypeNode {
+        return createUnionOrIntersectionTypeNode(SyntaxKind.IntersectionType, types, parenthesizerRules().parenthesizeConstituentTypesOfIntersectionType) as IntersectionTypeNode;
     }
 
     function asNodeArray<T extends Node>(array: readonly T[]): NodeArray<T>;

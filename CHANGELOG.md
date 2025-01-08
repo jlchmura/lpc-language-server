@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.22
+
+-   Added support for LPCDoc intersection types
+
 ## 1.1.21
 
 -   Fix: [Foreach over an array always results in a string type #161](https://github.com/jlchmura/lpc-language-server/issues/161)
