@@ -319,6 +319,13 @@ exports[`Compiler compiler/intLiteral2.c Reports correct errors for compiler/int
 
 exports[`Compiler compiler/intersectionType.c Reports correct errors for compiler/intersectionType.c: diags-compiler/intersectionType.c 1`] = `""`;
 
+exports[`Compiler compiler/intersectionTypeIllegal.c Reports correct errors for compiler/intersectionTypeIllegal.c: diags-compiler/intersectionTypeIllegal.c 1`] = `
+"
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/intersectionTypeIllegal.c[90m:3[0m
+
+"
+`;
+
 exports[`Compiler compiler/jsDocParam.c Reports correct errors for compiler/jsDocParam.c: diags-compiler/jsDocParam.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/jsDocParam.c[90m:4[0m

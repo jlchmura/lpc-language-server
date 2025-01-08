@@ -3064,8 +3064,9 @@ export namespace LpcParser {
         return parseUnionOrIntersectionType(SyntaxKind.AmpersandToken, parseTypeOperatorOrHigher, factory.createIntersectionTypeNode);
     }
 
-    function parseUnionTypeOrHigher(): TypeNode {
-        return parseUnionOrIntersectionType(SyntaxKind.BarToken, parseIntersectionTypeOrHigher, factory.createUnionTypeNode);
+    function parseUnionTypeOrHigher(): TypeNode {                
+        // only parse intersections inside jsdoc context
+        return parseUnionOrIntersectionType(SyntaxKind.BarToken, inContext(NodeFlags.JSDoc) ? parseIntersectionTypeOrHigher : parseTypeOperatorOrHigher, factory.createUnionTypeNode);
     }
 
     function parsePostfixTypeOrHigher(): TypeNode {
