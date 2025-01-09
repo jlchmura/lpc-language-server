@@ -3816,7 +3816,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         contextuallyCheckFunctionExpressionOrObjectLiteralMethod(node, checkMode);
 
-        return getTypeOfSymbol(getSymbolOfDeclaration(node));        
+        const type = getTypeOfSymbol(getSymbolOfDeclaration(node));        
+        // if (getObjectFlags(type) & ObjectFlags.Anonymous && type.symbol.name == InternalSymbolName.Function ) {
+        //     const signature = firstOrUndefined(getSignaturesOfType(type, SignatureKind.Call));
+        //     if (signature) {
+        //         return getReturnTypeOfSignature(signature);
+        //     }
+        // }
+        return type;
     }
 
     function contextuallyCheckFunctionExpressionOrObjectLiteralMethod(node: FunctionExpression | InlineClosureExpression, checkMode?: CheckMode) {
@@ -12425,6 +12432,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return anyType;
             }
             returnType = checkExpressionCached(func.body, checkMode && checkMode & ~CheckMode.SkipGenericFunctions);            
+
+            // if an inline closure is set to a single identifier which is a function, use the resolved return type of that function
+            if (isInlineClosureExpression(func) && isIdentifier(func.body) && getObjectFlags(returnType) & ObjectFlags.Anonymous) {
+                isFunctionObjectType
+                returnType = firstOrUndefined((returnType as ObjectType).callSignatures)?.resolvedReturnType ?? returnType;
+            }            
+            
             // if (isAsync) {
             //     // From within an async function you can return either a non-promise value or a promise. Any
             //     // Promise/A+ compatible implementation will always assimilate any foreign promise, so the
@@ -22843,9 +22857,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             || isSourceFile(declaration)
         ) {
             // Symbol is property of some kind that is merged with something - should use `getTypeOfFuncClassEnumModule` and not `getTypeOfVariableOrParameterOrProperty`
-            // if (symbol.flags & (SymbolFlags.Function | SymbolFlags.Method | SymbolFlags.Class | SymbolFlags.Enum | SymbolFlags.ValueModule)) {
-            //     return getTypeOfFuncClassEnumModule(symbol);
-            // }            
+            if (symbol.flags & (SymbolFlags.Function | SymbolFlags.Method | SymbolFlags.Class | SymbolFlags.Enum | SymbolFlags.ValueModule)) {
+                return getTypeOfFuncClassEnumModule(symbol);
+            }            
             type = declaration.parent && isBinaryExpression(declaration.parent) ?
                 getWidenedTypeForAssignmentDeclaration(symbol) :
                 tryGetTypeFromEffectiveTypeNode(declaration) || anyType;
@@ -22902,10 +22916,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const declaration = symbol.valueDeclaration;
         // Check if variable has type annotation that circularly references the variable itself
         if (declaration) {
-            // if (getEffectiveTypeAnnotationNode(declaration)) {
-            //     error(symbol.valueDeclaration, Diagnostics._0_is_referenced_directly_or_indirectly_in_its_own_type_annotation, symbolToString(symbol));
-            //     return errorType;
-            // }
+            if (getEffectiveTypeAnnotationNode(declaration)) {
+                error(symbol.valueDeclaration, Diagnostics._0_is_referenced_directly_or_indirectly_in_its_own_type_annotation, symbolToString(symbol));
+                return errorType;
+            }
             // Check if variable has initializer that circularly references the variable itself
             if (noImplicitAny && (declaration.kind !== SyntaxKind.Parameter || (declaration as HasInitializer).initializer)) {
                 error(symbol.valueDeclaration, Diagnostics._0_implicitly_has_type_any_because_it_does_not_have_a_type_annotation_and_is_referenced_directly_or_indirectly_in_its_own_initializer, symbolToString(symbol));
@@ -23033,7 +23047,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     declaration.parent.kind === SyntaxKind.BinaryExpression)
         ) {
             return getWidenedTypeForAssignmentDeclaration(symbol);
-        }
+        }        
         // else if (symbol.flags & SymbolFlags.ValueModule && declaration && isSourceFile(declaration) && declaration.commonJsModuleIndicator) {
         //     const resolvedModule = resolveExternalModuleSymbol(symbol);
         //     if (resolvedModule !== symbol) {
