@@ -146,6 +146,9 @@ mixed element_of(mixed *arr);
  *
  * 如果'arg'是数组，则返回1，否则返回0。
  *
+ * @param {mixed} arg 要检查的参数
+ * @returns {arg is mixed*} 如果'arg'是数组，则返回1，否则返回0。
+ * @example
  * int is_array = arrayp( ({ 1, 2, 3, 4 }) ); // 1
  * int is_array = arrayp( "Foo" ); // 0 
  */
