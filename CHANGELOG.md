@@ -2,6 +2,8 @@
 
 ## 1.1.22
 
+-   Fix: [objectp should maintain typed object #168](https://github.com/jlchmura/lpc-language-server/issues/168)
+-   Fix: [arrayp sefun is not changing the flow type to array #171](https://github.com/jlchmura/lpc-language-server/issues/171)
 -   Added support for LPCDoc intersection types
 
 ## 1.1.21

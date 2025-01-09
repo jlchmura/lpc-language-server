@@ -30676,9 +30676,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 const matching = discriminant && getConstituentTypeForKeyType(type as UnionType, discriminant);
 
                 // in LPC - skip the directlyRelated checks if there is no discriminant.
-                if (!discriminant && !strickObjectTypes) {
-                    return candidate;
-                }
+                // if (!discriminant && !strickObjectTypes) {
+                //     return candidate;
+                // }
 
                 // For each constituent t in the current type, if t and and c are directly related, pick the most
                 // specific of the two. When t and c are related in both directions, we prefer c for type predicates
@@ -30745,13 +30745,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     if (!isMatchingReference(reference, expr) && inlineLevel < 5) {
                         const symbol = getResolvedSymbol(expr as Identifier);
                         // if (isConstantVariable(symbol)) {
-                        //     const declaration = symbol.valueDeclaration;
-                        //     if (declaration && isVariableDeclaration(declaration) && !declaration.type && declaration.initializer && isConstantReference(reference)) {
-                        //         inlineLevel++;
-                        //         const result = narrowType(type, declaration.initializer, assumeTrue);
-                        //         inlineLevel--;
-                        //         return result;
-                        //     }
+                            const declaration = symbol.valueDeclaration;
+                            if (declaration && isVariableDeclaration(declaration) && !declaration.type && declaration.initializer /*&& isConstantReference(reference)*/) {
+                                inlineLevel++;
+                                const result = narrowType(type, declaration.initializer, assumeTrue);
+                                inlineLevel--;
+                                return result;
+                            }
                         // }
                     }
                     // falls through

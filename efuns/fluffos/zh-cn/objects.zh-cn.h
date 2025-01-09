@@ -111,6 +111,7 @@ object *objects( void | string | function func );
  *
  * @返回 {arg 是对象} 如果 'arg' 是对象则返回 1。
  *
+ * @returns {arg is object} 1 if 'arg' is an object.
  */
 int objectp( mixed arg );
 
