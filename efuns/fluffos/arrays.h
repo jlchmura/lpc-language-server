@@ -92,9 +92,8 @@ mixed *shuffle(mixed *arr);
 
 /**
  * pointerp() - identifies whether a given variable is an array
- * @template {ALL_PRIMITIVE_TYPES} T
- * @param {T|T*} arg The argument to check 
- * @returns {arg is T*} 1 if 'arg' is an array, otherwise returns 0.
+ * @param {mixed} arg The argument to check 
+ * @returns {arg is mixed*} 1 if 'arg' is an array, otherwise returns 0.
  * @example
  * int is_array = pointerp( ({ 1, 2, 3, 4 }) ); // 1
  * int is_array = pointerp( "Foo" ); // 0

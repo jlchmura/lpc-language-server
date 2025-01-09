@@ -2535,7 +2535,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const finalKeyType = getReducedType(getUnionType(keyTypes, UnionReduction.Subtype));
         const finalElementTypes: Type = elementTypes.length > 1 ? createArrayType(getUnionType(elementTypes.map(types => getReducedType(getUnionType(types, UnionReduction.Subtype))))) :
             elementTypes.length === 1 ? getReducedType(getUnionType(elementTypes[0], UnionReduction.Subtype)) :
-            strictNullChecks ? implicitNeverType : undefinedWideningType;
+            strictNullChecks ? implicitNeverType : autoType;
 
         return createMappingLiteralType(createMappingType(
             finalKeyType,
@@ -2761,7 +2761,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
 
         if (isMappingType(arrayType)) {
-            return arrayType.resolvedTypeArguments?.length ? getUnionType(arrayType.resolvedTypeArguments) : undefinedWideningType;            
+            return arrayType.resolvedTypeArguments?.length ? getUnionType(arrayType.resolvedTypeArguments) : autoType;
         }
 
         return (use & IterationUse.PossiblyOutOfBounds) ? includeUndefinedInIndexSignature(arrayElementType) : arrayElementType;
