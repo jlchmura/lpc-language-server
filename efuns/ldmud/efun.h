@@ -3967,8 +3967,8 @@ float pow(int|float base, int|float exp);
  * pointerp
  *
  * Return 1 if arg is a pointer, i.e. an array.
- * @template T
- * @returns {arg is T*} 
+ *
+ * @returns {arg is mixed*} 
  */
 int pointerp(mixed arg);
 
