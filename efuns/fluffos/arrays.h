@@ -183,6 +183,9 @@ mixed element_of(mixed *arr);
  *
  * int is_array = arrayp( ({ 1, 2, 3, 4 }) ); // 1
  * int is_array = arrayp( "Foo" ); // 0 
+ * @template T
+ * @param {T} arg
+ * @returns {arg is T*} 1 if 'arg' is an array, otherwise returns 0.
  */
 int arrayp( mixed arg );
 
