@@ -198,6 +198,10 @@ exports[`Compiler compiler/doWhile.c Reports correct errors for compiler/doWhile
 
 exports[`Compiler compiler/efun.fluff.filter.c Reports correct errors for compiler/efun.fluff.filter.c: diags-compiler/efun.fluff.filter.c 1`] = `""`;
 
+exports[`Compiler compiler/error1.c Reports correct errors for compiler/error1.c: diags-compiler/error1.c 1`] = `""`;
+
+exports[`Compiler compiler/error2.c Reports correct errors for compiler/error2.c: diags-compiler/error2.c 1`] = `""`;
+
 exports[`Compiler compiler/eval1.c Reports correct errors for compiler/eval1.c: diags-compiler/eval1.c 1`] = `""`;
 
 exports[`Compiler compiler/expr1.c Reports correct errors for compiler/expr1.c: diags-compiler/expr1.c 1`] = `""`;
