@@ -6404,8 +6404,8 @@ export namespace LpcParser {
                     comment = parseTrailingTagComments(start, end, indent, indentText);
                 }
 
-                const typedefTag = factory.createJSDocTypedefTag(tagName, typeExpression, fullName, comment);
-                return finishNode(typedefTag, start.pos, end);
+                const typedefTag = factory.createJSDocTypedefTag(tagName, typeExpression, fullName, comment);                
+                return addImportCandidate(finishNode(typedefTag, start.pos, end));
             }           
 
             function parseCallbackTagParameters(indent: number) {

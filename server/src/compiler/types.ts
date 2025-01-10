@@ -3215,6 +3215,7 @@ export type ImportCandidateNode =
     CallExpression |
     JSDocParameterTag |
     JSDocTypeTag | 
+    JSDocTypedefTag |
     JSDocPropertyTag |
     JSDocVariableTag |
     JSDocReturnTag

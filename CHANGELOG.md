@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.23
+
+-   Resolve object names in `@typedef` tags.
+
 ## 1.1.22
 
 -   Fix: [objectp should maintain typed object #168](https://github.com/jlchmura/lpc-language-server/issues/168)
