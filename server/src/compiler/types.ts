@@ -2615,6 +2615,15 @@ export type MinusToken = PunctuationToken<SyntaxKind.MinusToken>;
 
 export type PropertyAccessToken = DotToken | MinusGreaterThanToken;
 
+export type JSDocImportCandidateNode = 
+    | JSDocParameterTag
+    | JSDocTypeTag
+    | JSDocTypedefTag
+    | JSDocVariableTag
+    | JSDocPropertyTag
+    | JSDocReturnTag
+    ;
+
 export type JSDocSyntaxKind =
     | SyntaxKind.EndOfFileToken
     | SyntaxKind.WhitespaceTrivia
