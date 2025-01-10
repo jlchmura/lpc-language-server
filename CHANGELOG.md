@@ -3,6 +3,7 @@
 ## 1.1.23
 
 -   Fix: [Add $() support to type checker #167](https://github.com/jlchmura/lpc-language-server/issues/167)
+-   Fix: [FluffOS error() efun does not mark unreachable code #175](https://github.com/jlchmura/lpc-language-server/issues/175)
 -   Resolve object names in `@typedef` tags.
 
 ## 1.1.22
