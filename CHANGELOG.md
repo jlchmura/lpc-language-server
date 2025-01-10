@@ -2,6 +2,7 @@
 
 ## 1.1.23
 
+-   Fix: [Add $() support to type checker #167](https://github.com/jlchmura/lpc-language-server/issues/167)
 -   Resolve object names in `@typedef` tags.
 
 ## 1.1.22
