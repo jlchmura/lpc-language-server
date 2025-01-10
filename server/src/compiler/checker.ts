@@ -3816,14 +3816,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         contextuallyCheckFunctionExpressionOrObjectLiteralMethod(node, checkMode);
 
-        const type = getTypeOfSymbol(getSymbolOfDeclaration(node));        
-        // if (getObjectFlags(type) & ObjectFlags.Anonymous && type.symbol.name == InternalSymbolName.Function ) {
-        //     const signature = firstOrUndefined(getSignaturesOfType(type, SignatureKind.Call));
-        //     if (signature) {
-        //         return getReturnTypeOfSignature(signature);
-        //     }
-        // }
-        return type;
+        return getTypeOfSymbol(getSymbolOfDeclaration(node));
     }
 
     function contextuallyCheckFunctionExpressionOrObjectLiteralMethod(node: FunctionExpression | InlineClosureExpression, checkMode?: CheckMode) {
@@ -12435,7 +12428,6 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
             // if an inline closure is set to a single identifier which is a function, use the resolved return type of that function
             if (isInlineClosureExpression(func) && isIdentifier(func.body) && getObjectFlags(returnType) & ObjectFlags.Anonymous) {
-                isFunctionObjectType
                 returnType = firstOrUndefined((returnType as ObjectType).callSignatures)?.resolvedReturnType ?? returnType;
             }            
             
@@ -14950,7 +14942,21 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // evaluate $() args will not checked via call expression resolution
             // so manually check them here.
             if (nameStr === "$" && languageVariant === LanguageVariant.FluffOS && findAncestor(node, isInlineClosureExpression)) {
-                node.arguments?.forEach(a => checkExpression(a));   
+                const args = node.arguments || emptyArray;                
+                                                
+                // the first arg should be an identifier pointing at a function
+                const fnIdentifier = firstOrUndefined(args);
+                if (fnIdentifier && isIdentifier(fnIdentifier)) {
+                    const fnType = checkExpressionCached(fnIdentifier, checkMode && checkMode & ~CheckMode.SkipGenericFunctions);   
+                    // check args 2+
+                    for (let i = 1; i < args.length; ++i) {
+                        checkExpression(args[i]);
+                    }
+                    
+                    return fnType;
+                }
+
+                args.forEach(a => checkExpression(a));
                 return anyType;
             }
         }
