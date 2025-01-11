@@ -974,11 +974,11 @@ export namespace LpcParser {
         sourceFile.text = sourceText;
         sourceFile.bindDiagnostics = [];
         sourceFile.bindSuggestionDiagnostics = undefined;
-        sourceFile.languageVersion = ScriptTarget.LPC;
+        sourceFile.languageVersion = languageVersion || ScriptTarget.LPC;
         sourceFile.fileName = fileName;
-        sourceFile.languageVariant = LanguageVariant.LDMud;
+        sourceFile.languageVariant = languageVariant ;
         sourceFile.isDeclarationFile = false;
-        sourceFile.scriptKind = ScriptKind.LPC;
+        sourceFile.scriptKind = scriptKind || ScriptKind.LPC;
         
         return sourceFile;
     }

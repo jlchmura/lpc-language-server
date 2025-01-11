@@ -14927,17 +14927,18 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 const basePath = getLibRootedFileName(file.fileName, compilerOptions);                
                 return getStringLiteralType(basePath);
             }
-            
-            if (signature.declaration && !(checkMode || 0 & CheckMode.TypeOnly)) {
-                // check if the function has a return type of error
-                // we'll use this to mark efuns (like fluff's `error`) that stop execution
-                // and should be treated as an explicit return
-                const throwsTag = getJSDocThrowsTag(signature.declaration);
-                if (throwsTag) {
-                    const fn = getContainingFunction(node);
-                    (fn as Mutable<Node>).flags |= NodeFlags.HasExplicitReturn;
-                }
-            }        
+           
+            // I don't think this is needed anymore since error() was added to binder
+            // if (signature.declaration && !(checkMode || 0 & CheckMode.TypeOnly)) {
+            //     // check if the function has a return type of error
+            //     // we'll use this to mark efuns (like fluff's `error`) that stop execution
+            //     // and should be treated as an explicit return
+            //     const throwsTag = getJSDocThrowsTag(signature.declaration);
+            //     if (throwsTag) {
+            //         const fn = getContainingFunction(node);
+            //         (fn as Mutable<Node>).flags |= NodeFlags.HasExplicitReturn;
+            //     }
+            // }        
             
             // evaluate $() args will not checked via call expression resolution
             // so manually check them here.
