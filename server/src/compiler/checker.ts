@@ -699,7 +699,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         getSymbolLinks(globalThisSymbol).type = createObjectType(ObjectFlags.Anonymous, globalThisSymbol);
 
         // Initialize special types                        
-        globalArrayType = getGlobalType("__LS__Array" as string, /*arity*/ 0, /*reportErrors*/ true) as GenericType;        
+        globalArrayType = getGlobalArrayType("__LS__Array" as string) as GenericType;        
         globalMappingType = getGlobalType("__LS__Mapping", 0, true) as GenericType;
         globalObjectType = getGlobalType("__LS__Object", 0, true) as GenericType;
         globalFunctionType = getGlobalType("__LS__Function" as string, /*arity*/ 0, /*reportErrors*/ true);
@@ -766,6 +766,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
     }
 
+    function getGlobalArrayType(name: string): ObjectType {
+        const type = getGlobalType(name, 0, true);
+
+        // add index infos
+        (type as InterfaceTypeWithDeclaredMembers).declaredIndexInfos = [createIndexInfo(createTypeParameter(), createTypeParameter(), false)];
+
+        return type;
+    }
+
     function getGlobalType(name: string, arity: 0, reportErrors: true): ObjectType;
     function getGlobalType(name: string, arity: 0, reportErrors: boolean): ObjectType | undefined;
     function getGlobalType(name: string, arity: number, reportErrors: true): GenericType;
@@ -797,7 +806,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function createArrayType(elementType: Type, readonly?: boolean): ObjectType {        
-        return createTypeFromGenericGlobalType(readonly ? globalReadonlyArrayType : globalArrayType, [elementType]);
+        const arrayType = createTypeFromGenericGlobalType(readonly ? globalReadonlyArrayType : globalArrayType, [elementType]);
+        arrayType.indexInfos = [createIndexInfo(intType, elementType, readonly)];
+        return arrayType;
     }
 
     function createMappingType(keyType: Type, elementType: Type, readonly?: boolean): ObjectType {
@@ -2168,7 +2179,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function getIndexInfosOfStructuredType(type: Type): readonly IndexInfo[] {
         if (type.flags & TypeFlags.StructuredType) {
             const resolved = resolveStructuredTypeMembers(type as ObjectType);
-            return resolved.indexInfos ?? emptyArray;
+            return resolved.indexInfos ?? emptyArray;            
         }
         return emptyArray;
     }
@@ -4048,8 +4059,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     error(varExpr, Diagnostics.The_left_hand_side_of_a_for_in_statement_must_be_of_type_string_or_any);    
                 }
             } 
-            // else if (!isTypeAssignableTo(getIndexTypeOrString(rightType), leftType)) {
-            else if (!isTypeAssignableTo(rightType, leftType)) {
+            else if (!isTypeAssignableTo(isMappingType(rightType) ? getIndexTypeOrString(rightType) : leftType, leftType)) {                        
                 error(varExpr, Diagnostics.The_left_hand_side_of_a_for_in_statement_must_be_of_type_string_or_any);
             }
             else {            
@@ -4071,8 +4081,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     checkTypeAssignableToAndOptionallyElaborate(iteratedUnionType.types.at(1) ?? errorType, commaRightType, varExpr.right, node.expression);
                 } else {
                     checkTypeAssignableToAndOptionallyElaborate(iteratedType, leftType, varExpr, node.expression);
-                }
-                return;                
+                }                
             }
             else if (!isVariableDeclaration(varExpr) && !isCommaExpression(varExpr)) {
                 // run check only former check succeeded to avoid cascading errors
@@ -4097,7 +4106,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function getIndexTypeOrString(type: Type): Type {
-        const indexType = getExtractStringType(getIndexType(type));
+        const indexType = getIndexType(type);// TODO: what is extract string type? getExtractStringType(getIndexType(type));
         return indexType.flags & TypeFlags.Never ? stringType : indexType;
     }
 
@@ -5157,7 +5166,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
             else {                
                 const elementTypes = node.kind === SyntaxKind.ArrayType ? [getTypeFromTypeNode(node.elementType)] : map(node.elements, getTypeFromTypeNode);
-                links.resolvedType = createNormalizedTypeReference(target, elementTypes);
+                links.resolvedType = createNormalizedTypeReference(target, elementTypes);                
             }
         }
         return links.resolvedType;
@@ -5896,14 +5905,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     // Check variable, parameter, or property declaration
-    function checkVariableLikeDeclaration(node: ParameterDeclaration | PropertyDeclaration | PropertySignature | VariableDeclaration | BindingElement) {        
+    function checkVariableLikeDeclaration(node: ParameterDeclaration | PropertyDeclaration | PropertySignature | VariableDeclaration | BindingElement): void {
         if (!isBindingElement(node)) {
             checkSourceElement(node.type);
         }
 
         // JSDoc `function(string, string): string` syntax results in parameters with no name
         if (!node.name) {
-            return errorType;
+            return;
         }
 
         if (isBindingElement(node)) {
@@ -5964,7 +5973,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // For a binding pattern, validate the initializer and exit
         if (isBindingPattern(node.name)) {
             if (isInAmbientOrTypeNode(node)) {
-                return anyType;
+                return;
             }
             const needCheckInitializer = hasOnlyExpressionInitializer(node) && node.initializer && node.parent.parent.kind !== SyntaxKind.ForEachStatement;
             const needCheckWidenedType = false;//!some(node.name.elements, not(isOmittedExpression));
@@ -5990,14 +5999,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     }
                 }
             }
-            return getTypeOfNode(node);
+            return;
         }
         // For a commonjs `const x = require`, validate the alias and exit
         const symbol = getSymbolOfDeclaration(node);
      
         if (symbol.flags & SymbolFlags.Alias && (isVariableDeclarationInitializedToBareOrAccessedRequire(node) || isBindingElementOfBareOrAccessedRequire(node))) {
             checkAliasSymbol(node);
-            return getTypeOfNode(node);
+            return;
         }        
         const type = convertAutoToAny(getTypeOfSymbol(symbol));
         if (node === symbol.valueDeclaration) {
@@ -6079,9 +6088,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 checkVarDeclaredNamesNotShadowed(node);
             }
             checkCollisionsForDeclarationName(node, node.name);
-        }
-
-        return getTypeOfNode(node);
+        }        
     }
 
     function checkNonNullNonVoidType(type: Type, node: Node): Type {
@@ -7684,6 +7691,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             type.objectFlags |= typeArguments ? getPropagatingFlagsOfTypes(typeArguments) : 0;
             type.target = target;
             type.resolvedTypeArguments = typeArguments;
+
+            if (target == globalArrayType) {
+                (type as unknown as InterfaceTypeWithDeclaredMembers).declaredIndexInfos = [createIndexInfo(intType, firstOrUndefined(typeArguments) || anyType, false)];
+            }
+            else if (target == globalMappingType) {
+                const keyType = typeArguments?.at(0) || anyType;
+                const valueType = typeArguments?.at(1) || anyType;  
+                (type as unknown as InterfaceTypeWithDeclaredMembers).declaredIndexInfos = [createIndexInfo(keyType, valueType, false)];
+            }
         }
         return type;
     }
@@ -8611,11 +8627,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             isGenericMappedType(type) && (!hasDistributiveNameType(type) || getMappedTypeNameTypeKind(type) === MappedTypeNameTypeKind.Remapping) ||
             type.flags & TypeFlags.Union && !(indexFlags & IndexFlags.NoReducibleCheck) && isGenericReducibleType(type) ||
             type.flags & TypeFlags.Intersection && maybeTypeOfKind(type, TypeFlags.Instantiable) && some((type as IntersectionType).types, isEmptyAnonymousObjectType));
-    }
+    }    
 
     function getIndexType(type: Type, indexFlags = IndexFlags.None): Type {        
         return isNoInferType(type) ? getNoInferType(getIndexType((type as SubstitutionType).baseType, indexFlags)) :
             shouldDeferIndexType(type, indexFlags) ? getIndexTypeForGenericType(type as InstantiableType | UnionOrIntersectionType, indexFlags) :
+            // isArrayLikeType(type) ? getIndexTypeForArrayType(type, indexFlags) :
+            // isMappingType(type) ? getIndexTypeForMappingType(type, indexFlags) :
             type.flags & TypeFlags.Union ? getIntersectionType(map((type as UnionType).types, t => getIndexType(t, indexFlags))) :
             type.flags & TypeFlags.Intersection ? getUnionType(map((type as IntersectionType).types, t => getIndexType(t, indexFlags))) :
             getObjectFlags(type) & ObjectFlags.Mapped ? getIndexTypeForMappedType(type as MappedType, indexFlags) :
@@ -8648,11 +8666,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function getLiteralTypeFromProperties(type: Type, include: TypeFlags, includeOrigin: boolean) {
         const origin = includeOrigin && (getObjectFlags(type) & (ObjectFlags.ClassOrInterface | ObjectFlags.Reference) || type.aliasSymbol) ? createOriginIndexType(type) : undefined;
-        const propertyTypes = map(getPropertiesOfType(type), prop => getLiteralTypeFromProperty(prop, include));
+        // const propertyTypes = map(getPropertiesOfType(type), prop => getLiteralTypeFromProperty(prop, include));
         const indexKeyTypes = map(getIndexInfosOfType(type), info =>
             info !== enumNumberIndexInfo && isKeyTypeIncluded(info.keyType, include) ?
                 info.keyType === stringType && include & TypeFlags.Number ? stringOrNumberType : info.keyType : neverType);
-        return getUnionType(concatenate(propertyTypes, indexKeyTypes), UnionReduction.Literal, /*aliasSymbol*/ undefined, /*aliasTypeArguments*/ undefined, origin);
+        // in LPC, you can't iterate over an object's keys - so only use the index info's key type here
+        return getUnionType(indexKeyTypes, UnionReduction.Literal, /*aliasSymbol*/ undefined, /*aliasTypeArguments*/ undefined, origin);
+        // return getUnionType(concatenate(propertyTypes, indexKeyTypes), UnionReduction.Literal, /*aliasSymbol*/ undefined, /*aliasTypeArguments*/ undefined, origin);
     }
 
     function isKeyTypeIncluded(keyType: Type, include: TypeFlags): boolean {
@@ -13585,11 +13605,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // Start with signatures at empty array in case of recursive types
             (type as InterfaceTypeWithDeclaredMembers).declaredCallSignatures = emptyArray;
             (type as InterfaceTypeWithDeclaredMembers).declaredConstructSignatures = emptyArray;
-            (type as InterfaceTypeWithDeclaredMembers).declaredIndexInfos = emptyArray;
-
+            
             (type as InterfaceTypeWithDeclaredMembers).declaredCallSignatures = getSignaturesOfSymbol(members.get(InternalSymbolName.Call));
             (type as InterfaceTypeWithDeclaredMembers).declaredConstructSignatures = getSignaturesOfSymbol(members.get(InternalSymbolName.New));
-            (type as InterfaceTypeWithDeclaredMembers).declaredIndexInfos = getIndexInfosOfSymbol(symbol);
+
+            if (!(type as InterfaceTypeWithDeclaredMembers).declaredIndexInfos) {
+                (type as InterfaceTypeWithDeclaredMembers).declaredIndexInfos = emptyArray;
+                (type as InterfaceTypeWithDeclaredMembers).declaredIndexInfos = getIndexInfosOfSymbol(symbol);
+            }
         }
         return type as InterfaceTypeWithDeclaredMembers;
     }
@@ -13681,7 +13704,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             members = createInstantiatedSymbolTable(source.declaredProperties, mapper, /*mappingThisOnly*/ typeParameters.length === 1);
             callSignatures = instantiateSignatures(source.declaredCallSignatures, mapper);
             constructSignatures = instantiateSignatures(source.declaredConstructSignatures, mapper);
-            indexInfos = instantiateIndexInfos(source.declaredIndexInfos, mapper);
+            // since our array and mapping types aren't real generics, we'll have facked the index infos
+            // use those if available
+            indexInfos = (type as InterfaceTypeWithDeclaredMembers).declaredIndexInfos || instantiateIndexInfos(source.declaredIndexInfos, mapper);
         }
         const baseTypes = getBaseTypes(source);
         if (baseTypes.length) {
@@ -14762,8 +14787,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 Debug.fail("TODO - implement me - checkExpressionWorker - SyntheticExpression");
                 return anyType;
             //     return checkSyntheticExpression(node as SyntheticExpression);
-            case SyntaxKind.VariableDeclaration:
-                return checkVariableDeclaration(node as VariableDeclaration);            
+            // case SyntaxKind.VariableDeclaration:
+            //     return checkVariableDeclaration(node as VariableDeclaration);            
             case SyntaxKind.SuperAccessExpression:
                 return checkSuperExpression(node as SuperAccessExpression);
         }   
@@ -24864,7 +24889,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (source.flags & TypeFlags.IntLiteral && (source as IntLiteralType).value === 0) {
             // in LPC, 0 can be assigned to anything
             return true;
-        }
+        }        
         if (relation !== identityRelation) {
             if (relation === comparableRelation && !(target.flags & TypeFlags.Never) && isSimpleTypeRelatedTo(target, source, relation) || isSimpleTypeRelatedTo(source, target, relation)) {
                 return true;
@@ -24892,16 +24917,30 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return false;
     }
 
-    function canSkipStrictObjectCheck(source: Type, target: Type) {
-        const canSkipStrictCheck = !strickObjectTypes && 
-                // TODO: JC - disabling this requirement until I'm sure I want to use it
-                // !(getObjectFlags(source) & ObjectFlags.Anonymous && getObjectFlags(target) & ObjectFlags.Anonymous) &&
-                !(isGlobalType(source) && isGlobalType(target));
-        return canSkipStrictCheck;
+    function canSkipStrictObjectCheck(source: Type, target: Type) {        
+        if (strickObjectTypes) return false;
+        
+        const globalSoure = isGlobalType(source), globalTarget = isGlobalType(target);        
+        if (globalSoure && globalTarget) {
+            return source.symbol?.name === target.symbol?.name;
+        } 
+        else if (globalSoure || globalTarget) {
+            // if one is global and one is an objectType, then we need strict checks
+            return false;
+            // return source !== objectType && target !== objectType;
+        }
+
+        return true;
+        // const canSkipStrictCheck = 
+        //             // TODO: JC - disabling this requirement until I'm sure I want to use it
+        //             // !(getObjectFlags(source) & ObjectFlags.Anonymous && getObjectFlags(target) & ObjectFlags.Anonymous) &&
+        //             !(isGlobalType(source) && isGlobalType(target));
+            
+        // return canSkipStrictCheck;
     }
 
     function isGlobalType(type: Type) {        
-        return type?.symbol?.flags & SymbolFlags.FakeGlobal;
+        return !!(type?.symbol?.flags & SymbolFlags.FakeGlobal);
     }
 
     function typeCouldHaveTopLevelSingletonTypes(type: Type): boolean {
@@ -26481,7 +26520,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
             // Before normalization: if `source` is type an object type, and `target` is primitive,
             // skip all the checks we don't need and just return `isSimpleTypeRelatedTo` result
-            if (originalSource.flags & TypeFlags.Object && originalTarget.flags & TypeFlags.Primitive) {
+            if (
+                (originalSource.flags & TypeFlags.Object && originalTarget.flags & TypeFlags.Primitive)
+                ||
+                (originalTarget.flags & TypeFlags.Object && originalSource.flags & TypeFlags.Primitive)
+             ) {
                 if (
                     relation === comparableRelation && !(originalTarget.flags & TypeFlags.Never) && isSimpleTypeRelatedTo(originalTarget, originalSource, relation) ||
                     isSimpleTypeRelatedTo(originalSource, originalTarget, relation, reportErrors ? reportError : undefined)
@@ -26493,6 +26536,23 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 }
                 return Ternary.False;
             }
+
+            if (isGlobalType(originalSource) || isGlobalType(originalTarget)) {
+                // global to non-global type comparisons are always errors
+                // global to global is an error unless the types match
+                if (!(isGlobalType(originalSource) && isGlobalType(originalTarget)) || originalSource.symbol?.name !== originalTarget.symbol?.name) {
+                    if (reportErrors) {
+                        reportErrorResults(originalSource, originalTarget, originalSource, originalTarget, headMessage);
+                    }
+                    return Ternary.False;    
+                }
+            }
+            // if ((isGlobalType(originalSource) && originalTarget === objectType) || (isGlobalType(originalTarget) && originalSource === objectType)) {
+            //     if (reportErrors) {
+            //         reportErrorResults(originalSource, originalTarget, originalSource, originalTarget, headMessage);
+            //     }
+            //     return Ternary.False;
+            // }
 
             // Normalize the source and target types: Turn fresh literal types into regular literal types,
             // turn deferred type references into regular type references, simplify indexed access and
@@ -26509,6 +26569,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 traceUnionsOrIntersectionsTooLarge(source, target);
                 return recursiveTypeRelatedTo(source, target, /*reportErrors*/ false, IntersectionState.None, recursionFlags);
             }
+
+            
 
             // We fastpath comparing a type parameter to exactly its constraint, as this is _super_ common,
             // and otherwise, for type parameters in large unions, causes us to need to compare the union to itself,
