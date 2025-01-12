@@ -271,5 +271,5 @@ int call_out( string | function fun, int | float delay, mixed arg ... );
  * users()->quit();
  *
  */
-mixed call_other( object|object* ob, string|mixed * funcArgs... );
+mixed call_other( string|object|object* ob, string|mixed * funcArgs... );
 
