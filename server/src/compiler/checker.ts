@@ -15804,7 +15804,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function checkArithmeticOperandType(operand: Node, type: Type, diagnostic: DiagnosticMessage, isAwaitValid = false): boolean {        
-        if (!isTypeAssignableTo(type, validArithmeticType)) {
+        if (!isArrayLikeType(type) && !isTypeAssignableTo(type, validArithmeticType)) {
             errorAndMaybeSuggestAwait(
                 operand,
                 false,
