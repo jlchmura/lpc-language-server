@@ -529,6 +529,16 @@ exports[`Compiler compiler/typeAssertion2.c Reports correct errors for compiler/
 
 exports[`Compiler compiler/typeAssertion3.c Reports correct errors for compiler/typeAssertion3.c: diags-compiler/typeAssertion3.c 1`] = `""`;
 
+exports[`Compiler compiler/typeChecksArray.c Reports correct errors for compiler/typeChecksArray.c: diags-compiler/typeChecksArray.c 1`] = `""`;
+
+exports[`Compiler compiler/typeChecksInt.c Reports correct errors for compiler/typeChecksInt.c: diags-compiler/typeChecksInt.c 1`] = `""`;
+
+exports[`Compiler compiler/typeChecksMapping.c Reports correct errors for compiler/typeChecksMapping.c: diags-compiler/typeChecksMapping.c 1`] = `""`;
+
+exports[`Compiler compiler/typeChecksObject.c Reports correct errors for compiler/typeChecksObject.c: diags-compiler/typeChecksObject.c 1`] = `""`;
+
+exports[`Compiler compiler/typeChecksString.c Reports correct errors for compiler/typeChecksString.c: diags-compiler/typeChecksString.c 1`] = `""`;
+
 exports[`Compiler compiler/typeInference1.c Reports correct errors for compiler/typeInference1.c: diags-compiler/typeInference1.c 1`] = `""`;
 
 exports[`Compiler compiler/typeInference2.c Reports correct errors for compiler/typeInference2.c: diags-compiler/typeInference2.c 1`] = `""`;
