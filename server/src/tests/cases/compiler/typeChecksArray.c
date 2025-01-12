@@ -10,6 +10,15 @@ test() {
     string *_sa4 = 1.0;
     // @lpc-expect-error: can't assign object to string
     string *_sa5 = obj;
+
+    /****** All of these should be legal assignments  *****/
+
+    mixed *_arr_mixed = ({ "a", "b", "c" });
+    mixed *_arr_mixed2 = ({ 1, 2, 3 });
+    string *_arr_string1 = ({ 1, 2, 3 });
+    string *_arr_string2 = ({ "a", "b", "c" });
+    int *_arr_int1 = ({ 1, 2, 3 });
+    int *_arr_int2 = ({ "a", "b", "c" });
 }
 
 // @driver: fluffos

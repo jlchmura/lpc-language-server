@@ -535,6 +535,8 @@ exports[`Compiler compiler/typeChecksInt.c Reports correct errors for compiler/t
 
 exports[`Compiler compiler/typeChecksMapping.c Reports correct errors for compiler/typeChecksMapping.c: diags-compiler/typeChecksMapping.c 1`] = `""`;
 
+exports[`Compiler compiler/typeChecksMixed.c Reports correct errors for compiler/typeChecksMixed.c: diags-compiler/typeChecksMixed.c 1`] = `""`;
+
 exports[`Compiler compiler/typeChecksObject.c Reports correct errors for compiler/typeChecksObject.c: diags-compiler/typeChecksObject.c 1`] = `""`;
 
 exports[`Compiler compiler/typeChecksString.c Reports correct errors for compiler/typeChecksString.c: diags-compiler/typeChecksString.c 1`] = `""`;
