@@ -383,6 +383,7 @@ string sprintf( string format... );
  * 这个函数的理念是允许比 'What?' 更好的错误消息。
  *
  */
+int notify_fail( string | function str );
 
 /**
  * message - 向“生物”对象发送消息

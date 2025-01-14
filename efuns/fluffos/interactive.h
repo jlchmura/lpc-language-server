@@ -446,7 +446,7 @@ string sprintf( string format, mixed args... );
  * 'What?'.
  *
  */
-
+int notify_fail( string | function str );
 
 /**
  * message - deliver messages to "living" objects
