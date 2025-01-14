@@ -5,6 +5,9 @@
 -   Fix: [Add $() support to type checker #167](https://github.com/jlchmura/lpc-language-server/issues/167)
 -   Fix: [FluffOS error() efun does not mark unreachable code #175](https://github.com/jlchmura/lpc-language-server/issues/175)
 -   Resolve object names in `@typedef` tags.
+-   FluffOS efun changes:
+    -   Updated [query_num](https://github.com/jlchmura/lpc-language-server/pull/178)
+    -   Added [notify_fail](https://github.com/jlchmura/lpc-language-server/issues/177)
 
 ## 1.1.22
 
