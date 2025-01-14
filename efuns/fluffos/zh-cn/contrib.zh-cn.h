@@ -311,7 +311,7 @@ string query_replaced_program(void | object);
  * @param {int} num - 要转换的数字
  * @param {int} many - （可选）默认为 0
  */
-string query_num(int num, int many);
+varargs string query_num(int num, int many);
 
 /**
  * query_notify_fail

@@ -323,7 +323,7 @@ string query_replaced_program(void | object);
  * @param {int} num - number to convert
  * @param {int} many - (optional) defaults to 0
  */
-string query_num(int num, int many);
+varargs string query_num(int num, int many);
 
 /**
  * query_notify_fail
