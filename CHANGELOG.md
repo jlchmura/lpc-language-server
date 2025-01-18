@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.24
+
+-   Fix: [Adjust handling of array of arrays #180](https://github.com/jlchmura/lpc-language-server/issues/180)
+
 ## 1.1.23
 
 -   Fix: [Add $() support to type checker #167](https://github.com/jlchmura/lpc-language-server/issues/167)

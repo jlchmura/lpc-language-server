@@ -1447,7 +1447,7 @@ export namespace LpcParser {
                 case SyntaxKind.MixedKeyword:
                 case SyntaxKind.VoidKeyword:                
                 case SyntaxKind.MappingKeyword:     
-                case SyntaxKind.LessThanToken: // start of array union type                               
+                case SyntaxKind.LessThanToken: // start of array union type                                               
                     return true;        
                     // const previousToken = token();
                     // nextToken();
@@ -3075,6 +3075,9 @@ export namespace LpcParser {
         
         if (parseOptional(SyntaxKind.AsteriskToken)) {
             return finishNode(factory.createArrayTypeNode(type), pos);
+        } if (parseOptional(SyntaxKind.AsteriskAsteriskToken)) {
+            // instead of rescanning the star, just create a nested array node
+            return finishNode(factory.createArrayTypeNode(factory.createArrayTypeNode(type)), pos);
         } else {
             return type;
         }                        
