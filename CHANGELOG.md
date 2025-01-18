@@ -1,10 +1,17 @@
 # LPC Language Services Changelog
 
+## 1.1.24
+
+-   Fix: [Adjust handling of array of arrays #180](https://github.com/jlchmura/lpc-language-server/issues/180)
+
 ## 1.1.23
 
 -   Fix: [Add $() support to type checker #167](https://github.com/jlchmura/lpc-language-server/issues/167)
 -   Fix: [FluffOS error() efun does not mark unreachable code #175](https://github.com/jlchmura/lpc-language-server/issues/175)
 -   Resolve object names in `@typedef` tags.
+-   FluffOS efun changes:
+    -   Updated [query_num](https://github.com/jlchmura/lpc-language-server/pull/178)
+    -   Added [notify_fail](https://github.com/jlchmura/lpc-language-server/issues/177)
 
 ## 1.1.22
 
