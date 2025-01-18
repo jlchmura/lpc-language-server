@@ -3072,14 +3072,16 @@ export namespace LpcParser {
     function parsePostfixTypeOrHigher(): TypeNode {
         const pos = getPositionState();
         let type = parseNonArrayType();
-        
-        if (parseOptional(SyntaxKind.AsteriskToken)) {
-            return finishNode(factory.createArrayTypeNode(type), pos);
-        } if (parseOptional(SyntaxKind.AsteriskAsteriskToken)) {
-            // instead of rescanning the star, just create a nested array node
-            return finishNode(factory.createArrayTypeNode(factory.createArrayTypeNode(type)), pos);
-        } else {
-            return type;
+                
+        while (token() != SyntaxKind.EndOfFileToken) {
+            if (parseOptional(SyntaxKind.AsteriskToken)) {
+                type = finishNode(factory.createArrayTypeNode(type), pos);
+            } if (parseOptional(SyntaxKind.AsteriskAsteriskToken)) {
+                // instead of rescanning the star, just create a nested array node
+                type = finishNode(factory.createArrayTypeNode(factory.createArrayTypeNode(type)), pos);
+            } else {
+                return type;
+            }
         }                        
     }
 
