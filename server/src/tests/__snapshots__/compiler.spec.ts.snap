@@ -117,6 +117,8 @@ Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/cl
 "
 `;
 
+exports[`Compiler compiler/class3.c Reports correct errors for compiler/class3.c: diags-compiler/class3.c 1`] = `""`;
+
 exports[`Compiler compiler/clone_object1.c Reports correct errors for compiler/clone_object1.c: diags-compiler/clone_object1.c 1`] = `""`;
 
 exports[`Compiler compiler/clone_object2.c Reports correct errors for compiler/clone_object2.c: diags-compiler/clone_object2.c 1`] = `

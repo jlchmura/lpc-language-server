@@ -1,4 +1,4 @@
-import { AmpersandToken, ArrayLiteralExpression, ArrayTypeNode, BaseNodeFactory, BinaryExpression, BinaryOperatorToken, BindingPattern, Block, BooleanLiteral, BreakOrContinueStatement, BreakStatement, ByRefElement, CallExpression, CaseBlock, CaseClause, CaseOrDefaultClause, CastExpression, CatchExpression, CatchStatement, CharacterCodes, CloneObjectExpression, CommaListExpression, CommentRange, ConditionalExpression, ContinueStatement, Debug, DefaultClause, DefineDirective, Diagnostic, DiagnosticArguments, DiagnosticMessage, DiagnosticWithDetachedLocation, Diagnostics, DoWhileStatement, ElementAccessExpression, EndOfFileToken, EntityName, EvaluateExpression, Expression, ExpressionStatement, ExpressionWithTypeArguments, Extension, ForEachChildNodes, ForEachStatement, ForStatement, FunctionDeclaration, FunctionExpression, HasJSDoc, Identifier, IfStatement, ImpliedStringConcatExpression, ImportCandidateNode, IncludeDirective, InferTypeNode, InheritClauseNodeType, InheritDeclaration, InlineClosureExpression, IntersectionTypeNode, IterationStatement, JSDoc, JSDocAugmentsTag, JSDocAuthorTag, JSDocCallbackTag, JSDocClassTag, JSDocComment, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocOverrideTag, JSDocParameterTag, JSDocParsingMode, JSDocPrivateTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocProtectedTag, JSDocPublicTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocTypedefTag, JSDocUnknownTag, JSDocVariableTag, JSDocVariadicType, JsonMinusNumericLiteral, JsonObjectExpressionStatement, JsonSourceFile, KeywordSyntaxKind, LabeledStatement, LambdaExpression, LambdaIdentifierExpression, LambdaOperatorExpression, LambdaOperatorToken, LanguageVariant, LeftHandSideExpression, LiteralExpression, LiteralLikeNode, LiteralTypeNode, LpcFileHandler, LpcLoadImportResult, Macro, MacroParameter, MapLike, MappingEntryExpression, MappingLiteralExpression, MemberExpression, MethodSignature, MissingDeclaration, Modifier, ModifierLike, Mutable, MutableNodeArray, NewExpression, NewExpressionArgument, NewStructExpression, Node, NodeArray, NodeFactory, NodeFactoryFlags, NodeFlags, NullLiteral, NumericLiteral, ObjectLiteralElementLike, ObjectLiteralExpression, OperatorPrecedence, ParameterDeclaration, ParenthesizedExpression, PositionState, PostfixUnaryExpression, PostfixUnaryOperator, PragmaContext, PragmaDefinition, PragmaDirective, PragmaKindFlags, PragmaMap, PragmaPseudoMap, PragmaPseudoMapEntry, PrefixUnaryExpression, PrefixUnaryOperator, PreprocessorDirective, PrimaryExpression, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAccessToken, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, QualifiedName, RangeExpression, RefToken, ResolutionMode, ReturnStatement, ScriptKind, ScriptTarget, ShorthandPropertyAssignment, SourceFile, SpreadElement, Statement, StringLiteral, StructDeclaration, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, Ternary, TextChangeRange, TextRange, Token, TypeAssertion, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnaryExpression, UndefDirective, UnionTypeNode, UpdateExpression, VariableDeclaration, VariableDeclarationList, VariableStatement, WhileStatement, addRange, addRelatedInfo, append, attachFileToDiagnostics, canHaveJSDoc, commentPragmas, concatenate, containsParseError, createDetachedDiagnostic, createNodeFactory, createScanner, emptyArray, emptyMap, fileExtensionIs, first, firstOrUndefined, forEach, forEachEntry, getAnyExtensionFromPath, getBaseFileName, getBinaryOperatorPrecedence, getDirectoryPath, getFullWidth, getJSDocCommentRanges, getLeadingCommentRanges, getSpellingSuggestion, idText, identity, isArray, isArrayTypeNode, isAssignmentOperator, isBinaryExpression, isIdentifier as isIdentifierNode, isIdentifierText, isJSDocReturnTag, isJSDocTypeTag, isKeyword, isKeywordOrPunctuation, isLeftHandSideExpression, isLiteralKind, isModifierKind, isStringLiteral, isStringOrNumericLiteralLike, isStructTypeNode, isTypeReferenceNode, last, lastOrUndefined, mapDefined, nodeIsMissing, nodeIsPresent, objectAllocator, performance, setNodeFlags, setParent, setParentRecursive, setTextRangePos, setTextRangePosEnd, setTextRangePosWidth, skipTrivia, some, startsWith, supportedDeclarationExtensions, textToKeywordObj, toArray, tokenIsIdentifierOrKeyword, tokenToString, tracing } from "./_namespaces/lpc";
+import { AmpersandToken, ArrayLiteralExpression, ArrayTypeNode, BaseNodeFactory, BinaryExpression, BinaryOperatorToken, BindingPattern, Block, BooleanLiteral, BreakOrContinueStatement, BreakStatement, ByRefElement, CallExpression, CaseBlock, CaseClause, CaseOrDefaultClause, CastExpression, CatchExpression, CatchStatement, CharacterCodes, CloneObjectExpression, CommaListExpression, CommentRange, ConditionalExpression, ContinueStatement, Debug, DefaultClause, DefineDirective, Diagnostic, DiagnosticArguments, DiagnosticMessage, DiagnosticWithDetachedLocation, Diagnostics, DoWhileStatement, ElementAccessExpression, EndOfFileToken, EntityName, EvaluateExpression, Expression, ExpressionStatement, ExpressionWithTypeArguments, Extension, ForEachChildNodes, ForEachStatement, ForStatement, FunctionDeclaration, FunctionExpression, HasJSDoc, Identifier, IfStatement, ImpliedStringConcatExpression, ImportCandidateNode, IncludeDirective, InferTypeNode, InheritClauseNodeType, InheritDeclaration, InlineClosureExpression, IntersectionTypeNode, IterationStatement, JSDoc, JSDocAugmentsTag, JSDocAuthorTag, JSDocCallbackTag, JSDocClassTag, JSDocComment, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocOverrideTag, JSDocParameterTag, JSDocParsingMode, JSDocPrivateTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocProtectedTag, JSDocPublicTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocTypedefTag, JSDocUnknownTag, JSDocVariableTag, JSDocVariadicType, JsonMinusNumericLiteral, JsonObjectExpressionStatement, JsonSourceFile, KeywordSyntaxKind, LabeledStatement, LambdaExpression, LambdaIdentifierExpression, LambdaOperatorExpression, LambdaOperatorToken, LanguageVariant, LeftHandSideExpression, LiteralExpression, LiteralLikeNode, LiteralTypeNode, LpcFileHandler, LpcLoadImportResult, Macro, MacroParameter, MapLike, MappingEntryExpression, MappingLiteralExpression, MemberExpression, MethodSignature, MissingDeclaration, Modifier, ModifierLike, Mutable, MutableNodeArray, NewExpression, NewExpressionArgument, NewStructExpression, Node, NodeArray, NodeFactory, NodeFactoryFlags, NodeFlags, NullLiteral, NumericLiteral, ObjectLiteralElementLike, ObjectLiteralExpression, OperatorPrecedence, ParameterDeclaration, ParenthesizedExpression, PositionState, PostfixUnaryExpression, PostfixUnaryOperator, PragmaContext, PragmaDefinition, PragmaDirective, PragmaKindFlags, PragmaMap, PragmaPseudoMap, PragmaPseudoMapEntry, PrefixUnaryExpression, PrefixUnaryOperator, PreprocessorDirective, PrimaryExpression, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAccessToken, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, QualifiedName, RangeExpression, RefToken, ResolutionMode, ReturnStatement, ScriptKind, ScriptTarget, ShorthandPropertyAssignment, SourceFile, SpreadElement, Statement, StringLiteral, StructDeclaration, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, Ternary, TextChangeRange, TextRange, Token, TypeAssertion, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnaryExpression, UndefDirective, UnionTypeNode, UpdateExpression, VariableDeclaration, VariableDeclarationList, VariableStatement, WhileStatement, addRange, addRelatedInfo, append, attachFileToDiagnostics, canHaveJSDoc, commentPragmas, concatenate, containsParseError, createDetachedDiagnostic, createNodeFactory, createScanner, emptyArray, emptyMap, fileExtensionIs, first, firstOrUndefined, flatten, forEach, forEachEntry, getAnyExtensionFromPath, getBaseFileName, getBinaryOperatorPrecedence, getDirectoryPath, getFullWidth, getJSDocCommentRanges, getLeadingCommentRanges, getSpellingSuggestion, idText, identity, isArray, isArrayTypeNode, isAssignmentOperator, isBinaryExpression, isIdentifier as isIdentifierNode, isIdentifierText, isJSDocReturnTag, isJSDocTypeTag, isKeyword, isKeywordOrPunctuation, isLeftHandSideExpression, isLiteralKind, isModifierKind, isStringLiteral, isStringOrNumericLiteralLike, isStructTypeNode, isTypeReferenceNode, last, lastOrUndefined, map, mapDefined, nodeIsMissing, nodeIsPresent, objectAllocator, performance, setNodeFlags, setParent, setParentRecursive, setTextRangePos, setTextRangePosEnd, setTextRangePosWidth, skipTrivia, some, startsWith, supportedDeclarationExtensions, textToKeywordObj, toArray, tokenIsIdentifierOrKeyword, tokenToString, tracing } from "./_namespaces/lpc";
 
 const enum SpeculationKind {
     TryParse,
@@ -1076,7 +1076,9 @@ export namespace LpcParser {
         return parseErrorAt(scanner.getTokenStart(), scanner.getTokenEnd(), scanner.getFileName(), message, ...args);
     }
 
-    function parseList<T extends Node>(kind: ParsingContext, parseElement: () => T, start?: PositionState): NodeArray<T> {
+    function parseList<T extends NodeArray<any>>(kind: ParsingContext, parseElement: () => T, start?: PositionState): T[];
+    function parseList<T extends Node>(kind: ParsingContext, parseElement: () => T, start?: PositionState): NodeArray<T>;
+    function parseList<T extends Node>(kind: ParsingContext, parseElement: () => T, start?: PositionState): NodeArray<T> | T[] {
         const saveCurrentParsingContext = currentParsingContext;
         const saveParsingContext = parsingContext;
         parsingContext |= 1 << kind;
@@ -1196,6 +1198,8 @@ export namespace LpcParser {
                 return parseErrorAtCurrentToken(Diagnostics.Pragma_option_expected);
             case ParsingContext.InlineClosure:
                 return parseErrorAtCurrentToken(Diagnostics.Expression_or_comma_expected);
+            case ParsingContext.PropertySignatureNames:
+                return parseErrorAtCurrentToken(Diagnostics.Property_or_signature_expected);
             default:
                 Debug.fail("Unknown ParsingContext");
                 console.debug("todo - parsingContextErrors");
@@ -1226,6 +1230,8 @@ export namespace LpcParser {
                 return token() === SyntaxKind.CaseKeyword || token() === SyntaxKind.DefaultKeyword;
             case ParsingContext.TypeMembers:
                 return lookAhead(isTypeMemberStart);
+            case ParsingContext.PropertySignatureNames:
+                return tokenIsIdentifierOrKeyword(token());
             // case ParsingContext.ClassMembers:
             //     // We allow semicolons as class elements (as specified by ES6) as long as we're
             //     // not in error recovery.  If we're in error recovery, we don't want an errant
@@ -1549,6 +1555,8 @@ export namespace LpcParser {
                 return token() !== SyntaxKind.CommaToken;
             case ParsingContext.HeritageClauses:
                 return token() === SyntaxKind.OpenBraceToken || token() === SyntaxKind.CloseBraceToken;            
+            case ParsingContext.PropertySignatureNames:
+                return token() === SyntaxKind.SemicolonToken;
             default:
                 return false;
         }
@@ -3277,7 +3285,7 @@ export namespace LpcParser {
     function parseObjectTypeMembers(): NodeArray<TypeElement> {
         let members: NodeArray<TypeElement>;
         if (parseExpected(SyntaxKind.OpenBraceToken)) {
-            members = parseList(ParsingContext.TypeMembers, parseTypeMember);
+            members = factory.createNodeArray(flatten(parseList(ParsingContext.TypeMembers, parseTypeMember)));
             parseExpected(SyntaxKind.CloseBraceToken);
         }
         else {
@@ -3696,7 +3704,7 @@ export namespace LpcParser {
         return false;
     }
 
-    function parseTypeMember(): TypeElement {        
+    function parseTypeMember(): NodeArray<TypeElement> {
         const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         const modifiers = parseModifiers(/*allowDecorators*/ false);
@@ -3705,31 +3713,46 @@ export namespace LpcParser {
         // }
         return parsePropertyOrMethodSignature(pos, hasJSDoc, modifiers);
     }
-
-    function parsePropertyOrMethodSignature(pos: PositionState, hasJSDoc: boolean, modifiers: NodeArray<Modifier> | undefined): PropertySignature | MethodSignature {
+   
+    function parsePropertyOrMethodSignature(pos: PositionState, hasJSDoc: boolean, modifiers: NodeArray<Modifier> | undefined): NodeArray<PropertySignature | MethodSignature> {
         const type = parseType();
-        const name = parsePropertyName();        
-        let node: PropertySignature | MethodSignature;
+
+        let node: PropertySignature | MethodSignature;                
+
+        const names = parseDelimitedList(ParsingContext.PropertySignatureNames, parsePropertyName);
+        let gotSemi = false;
+        const nodes = map(names, (name, i) => {
+            let nodeType: TypeNode = type;
+            let nodeModifiers = modifiers;
+
+            if (i > 0) {
+                nodeType = factory.cloneNode(type);                
+                setNodeFlags(nodeType, nodeType.flags | NodeFlags.Synthesized);
+
+                nodeModifiers = factory.createNodeArray(map(modifiers, m=> {
+                    const clonedMod = factory.cloneNode(m);
+                    setNodeFlags(clonedMod, clonedMod.flags | NodeFlags.Synthesized);
+                    return clonedMod;
+                }));
+            }
+
+            node = factory.createPropertySignature(nodeModifiers, name, nodeType);
+            
+            // Although type literal properties cannot not have initializers, we attempt
+            // to parse an initializer so we can report in the checker that an interface
+            // property or type literal property cannot have an initializer.
+            if (token() === SyntaxKind.EqualsToken) (node as Mutable<PropertySignature>).initializer = parseInitializer();
+
+            if (token()== SyntaxKind.SemicolonToken) {
+                parseSemicolon();
+                gotSemi = true;
+            }
+                        
+            return withJSDoc(finishNode(node, pos), hasJSDoc);
+        });
+
                 
-        node = factory.createPropertySignature(modifiers, name, type);
-        // Although type literal properties cannot not have initializers, we attempt
-        // to parse an initializer so we can report in the checker that an interface
-        // property or type literal property cannot have an initializer.
-        if (token() === SyntaxKind.EqualsToken) (node as Mutable<PropertySignature>).initializer = parseInitializer();
-        
-        parseTypeMemberSemicolon();
-        return withJSDoc(finishNode(node, pos), hasJSDoc);
-    }
-
-    function parseTypeMemberSemicolon() {
-        // We allow type members to be separated by commas or (possibly ASI) semicolons.
-        // First check if it was a comma.  If so, we're done with the member.
-        if (parseOptional(SyntaxKind.CommaToken)) {
-            return;
-        }
-
-        // Didn't have a comma.  We must have a (possible ASI) semicolon.
-        parseSemicolon();
+        return factory.createNodeArray(nodes);
     }
 
     function parsePropertyName(): PropertyName {
@@ -5419,6 +5442,7 @@ export namespace LpcParser {
         TypeMembers,               // Members in interface or type literal
         ClassMembers,              // Members in class declaration
         EnumMembers,               // Members in enum declaration
+        PropertySignatureNames,    // Property signatures in type literals
         ElementAccess,             // Expressions in an element access
         HeritageClauseElement,     // Elements in a heritage clause
         VariableDeclarations,      // Variable declarations in variable statement
