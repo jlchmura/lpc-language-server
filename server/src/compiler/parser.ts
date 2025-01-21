@@ -703,94 +703,103 @@ export namespace LpcParser {
             const tokenValue = scanner.getTokenValue();
             let macro = macroTable.get(tokenValue);
 
-            if (macro && macro.disabled !== true && macro.range) {                                
-                // we are in a macro substitution                
-                macro.disabled = true;                
-                macro.originFilename = scanner.getFileName();
-                macro.posInOrigin = scanner.getTokenFullStart();
-                macro.endInOrigin = scanner.getTokenFullStart() + tokenValue.length + 1;
-                macro.pos = getPositionState();
-                macro.end = macro.pos.tokenStart + tokenValue.length;
-                
-                const { range, arguments: macroArgsDef } = macro;  
-               
-                // check if this macro has argumnets                
-                const argValsByName: MapLike<MacroParameter> = {};
-                if (macroArgsDef?.length > 0) {                                        
-                    // scan the next token, which should be an open paren.. parseArg wil check it.
-                    currentToken = nextTokenWithoutCheck();
-                    
-                    const values = parseMacroArguments();
-                    const valuesEndPos = scanner.getTokenFullStart();                    
-
-                    // now organize macro params by name
-                    let lastArg = lastOrUndefined(values);                    
-                    forEach(macroArgsDef, (arg, i) => {
-                        Debug.assertIsDefined(arg.name);
-                        const argName = (arg.name as Identifier).text;                        
-                        if (values.length > i) {
-                            const argVal = values[i];                            
-                            argValsByName[argName] = argVal;            
-                        } else {
-                            parseErrorAt(lastArg?.end ?? valuesEndPos, valuesEndPos, scanner.getFileName(), Diagnostics.Missing_argument_for_macro_0, argName);
-                            argValsByName[argName] = {
-                                posInOrigin: lastArg?.end ?? valuesEndPos,
-                                endInOrigin: lastArg?.end ?? valuesEndPos,
-                                pos: 0,
-                                end: 0,
-                                text: "",
-                                disabled: false,
-                            }
-                        }
-                    });
-
-                    macro.argsIn = argValsByName;
-                }
-                
-                // create a scanner for this macro                                              
-                const saveCurrentMacro = currentMacro;                
-                
-                scanner.switchStream(
-                    macro.includeFilename ?? macro.originFilename, macro.getText(), range.pos, range.end - range.pos, true /* revertOnEOF */,
-                    () => {
-                        // re-enable the macro
-                        Debug.assertIsDefined(macro);
-                        macro.disabled = false;
-                        macro.argsIn = undefined;                    
-                        macro.originFilename = undefined!;
-                        macro.posInOrigin = undefined!;
-                        macro.endInOrigin = undefined!;
-                        macro.pos = undefined!;
-                        currentMacro = saveCurrentMacro!;
-                                                
-                        // parse args will have consumed the next token, so we need to store that and return it
-                        // when the previous scanner gets restored
-                        return macroArgsDef?.length > 0;
-                    }
-                );
-                
-                currentMacro = macro;                
-                                              
-                // scan again using the new scanner
-                return nextTokenWithoutCheck();
-            } else if (currentMacro && currentMacro.argsIn?.[tokenValue] && currentMacro.argsIn?.[tokenValue].disabled !== true) {
-                // this is a macro parameter
-                const arg = currentMacro.argsIn[tokenValue];                
-                arg.disabled = true;                
-
-                scanner.switchStream(
-                    "", arg.text, arg.pos, arg.end, true /* revertOnEOF */,
-                    () => {
-                        arg.disabled = false;
-                        return false;
-                    }
-                );                               
-
-                return nextTokenWithoutCheck();// currentToken = scanner.scan();
+            // check macro params first - even if tokenValue matches a macro, we should not substitute if it is a macro param
+            if (currentMacro && currentMacro.argsIn?.[tokenValue] && currentMacro.argsIn?.[tokenValue].disabled !== true) {
+                return processMacroParamSubstitution(incomingToken, tokenValue, currentMacro);
+            } else if (macro && macro.disabled !== true && macro.range) {                                
+                return processMacroSubstitution(incomingToken, tokenValue, macro);
             } 
         }
         
         return currentToken = incomingToken;
+    }
+
+    function processMacroParamSubstitution(incomingToken: SyntaxKind, tokenValue: string, macro: Macro): SyntaxKind {
+        // this is a macro parameter
+        const arg = macro.argsIn[tokenValue];                
+        arg.disabled = true;                
+
+        scanner.switchStream(
+            "", arg.text, arg.pos, arg.end, true /* revertOnEOF */,
+            () => {
+                arg.disabled = false;
+                return false;
+            }
+        );                               
+
+        return nextTokenWithoutCheck();// currentToken = scanner.scan();
+    }
+
+    function processMacroSubstitution(incomingToken: SyntaxKind, tokenValue: string, macro: Macro): SyntaxKind {
+        // we are in a macro substitution                
+        macro.disabled = true;                
+        macro.originFilename = scanner.getFileName();
+        macro.posInOrigin = scanner.getTokenFullStart();
+        macro.endInOrigin = scanner.getTokenFullStart() + tokenValue.length + 1;
+        macro.pos = getPositionState();
+        macro.end = macro.pos.tokenStart + tokenValue.length;
+        
+        const { range, arguments: macroArgsDef } = macro;  
+       
+        // check if this macro has argumnets                
+        const argValsByName: MapLike<MacroParameter> = {};
+        if (macroArgsDef?.length > 0) {                                        
+            // scan the next token, which should be an open paren.. parseArg wil check it.
+            currentToken = nextTokenWithoutCheck();
+            
+            const values = parseMacroArguments();
+            const valuesEndPos = scanner.getTokenFullStart();                    
+
+            // now organize macro params by name
+            let lastArg = lastOrUndefined(values);                    
+            forEach(macroArgsDef, (arg, i) => {
+                Debug.assertIsDefined(arg.name);
+                const argName = (arg.name as Identifier).text;                        
+                if (values.length > i) {
+                    const argVal = values[i];                            
+                    argValsByName[argName] = argVal;            
+                } else {
+                    parseErrorAt(lastArg?.end ?? valuesEndPos, valuesEndPos, scanner.getFileName(), Diagnostics.Missing_argument_for_macro_0, argName);
+                    argValsByName[argName] = {
+                        posInOrigin: lastArg?.end ?? valuesEndPos,
+                        endInOrigin: lastArg?.end ?? valuesEndPos,
+                        pos: 0,
+                        end: 0,
+                        text: "",
+                        disabled: false,
+                    }
+                }
+            });
+
+            macro.argsIn = argValsByName;
+        }
+        
+        // create a scanner for this macro                                              
+        const saveCurrentMacro = currentMacro;                
+        
+        scanner.switchStream(
+            macro.includeFilename ?? macro.originFilename, macro.getText(), range.pos, range.end - range.pos, true /* revertOnEOF */,
+            () => {
+                // re-enable the macro
+                Debug.assertIsDefined(macro);
+                macro.disabled = false;
+                macro.argsIn = undefined;                    
+                macro.originFilename = undefined!;
+                macro.posInOrigin = undefined!;
+                macro.endInOrigin = undefined!;
+                macro.pos = undefined!;
+                currentMacro = saveCurrentMacro!;
+                                        
+                // parse args will have consumed the next token, so we need to store that and return it
+                // when the previous scanner gets restored
+                return macroArgsDef?.length > 0;
+            }
+        );
+        
+        currentMacro = macro;                
+                                      
+        // scan again using the new scanner
+        return nextTokenWithoutCheck();
     }
 
     function nextTokenAnd<T>(func: () => T): T {
