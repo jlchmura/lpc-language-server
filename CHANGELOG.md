@@ -4,7 +4,8 @@
 
 -   Fix: [Adjust handling of array of arrays #180](https://github.com/jlchmura/lpc-language-server/issues/180)
 -   Fix: [Parser errors when last last is an include directive without a newline #184](https://github.com/jlchmura/lpc-language-server/issues/184)
--   Fix: Import will null text can crash program file load
+-   Fix: [Macro parameter should not get substituted by other macros #186](https://github.com/jlchmura/lpc-language-server/issues/186)
+-   Fix: Import with null text can crash program file load
 -   Improved efun definitions:
     -   FluffOS [`shutdown`](https://github.com/jlchmura/lpc-language-server/pull/182)
 
