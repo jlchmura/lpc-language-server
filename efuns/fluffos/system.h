@@ -113,7 +113,7 @@ string strftime( string fmt, int time );
  * valid_override(4) up (in master.c) to protect against efun::shutdown().
  *
  */
-void shutdown( int how );
+varargs void shutdown( int how );
 
 /**
  * set_reset - modify the time until reset on an object

@@ -99,7 +99,7 @@ string strftime( string fmt, int time );
  * 确保在master.c中设置valid_override(4)以保护against efun::shutdown()。
  *
  */
-void shutdown( int how );
+varargs void shutdown( int how );
 
 /**
  * set_reset - 修改对象的重置时间
