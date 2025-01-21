@@ -1606,7 +1606,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             const resolutionsInFile = createModeAwareCache<ResolutionWithFailedLookupLocations>();
             (resolvedModules ??= new Map()).set(file.path, resolutionsInFile);
             for (let index = 0; index < moduleNames.length; index++) {
-                if (!resolutions[index] || !moduleNames[index].text) continue;
+                if (!resolutions[index] || !moduleNames[index]?.text) continue;
                 const resolution = resolutions[index].resolvedModule;
                 const moduleName = getNormalizedModuleName(moduleNames[index].text);
                 const mode: ResolutionMode = ModuleKind.LPC;// getModeForUsageLocationWorker(file, moduleNames[index], optionsForFile);
