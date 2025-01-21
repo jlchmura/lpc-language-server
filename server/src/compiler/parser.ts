@@ -1845,6 +1845,15 @@ export namespace LpcParser {
         return withJSDoc(finishNode(factory.createEmptyStatement(), pos), hasJSDoc);
     }
 
+    function parseValidDirectiveEnd() {
+        if (token() == SyntaxKind.NewLineTrivia || token() == SyntaxKind.EndOfFileToken) {
+            return true;
+        } else {
+            parseErrorAtCurrentToken(Diagnostics.Expected_newline_after_directive);
+            return false;
+        }            
+    }
+
     function parseDirective(): PreprocessorDirective {
         scanner.setReportLineBreak(true);
 
@@ -1873,8 +1882,8 @@ export namespace LpcParser {
                     nextToken();            
                 }
         }
-
-        let scanNextToken = parseExpected(SyntaxKind.NewLineTrivia, Diagnostics.Expected_newline_after_directive, false);
+        
+        let scanNextToken = parseValidDirectiveEnd();
         scanner.setReportLineBreak(false);
         
         if (directive?.kind === SyntaxKind.IncludeDirective) {

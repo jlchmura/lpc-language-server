@@ -315,6 +315,8 @@ exports[`Compiler compiler/ifelse.c Reports correct errors for compiler/ifelse.c
 
 exports[`Compiler compiler/include1.c Reports correct errors for compiler/include1.c: diags-compiler/include1.c 1`] = `""`;
 
+exports[`Compiler compiler/include2.c Reports correct errors for compiler/include2.c: diags-compiler/include2.c 1`] = `""`;
+
 exports[`Compiler compiler/indexAccess.c Reports correct errors for compiler/indexAccess.c: diags-compiler/indexAccess.c 1`] = `""`;
 
 exports[`Compiler compiler/indexAccess2.c Reports correct errors for compiler/indexAccess2.c: diags-compiler/indexAccess2.c 1`] = `""`;
