@@ -24,8 +24,27 @@ If you are updating from the 1.0.x version, please see [config-changes.md](confi
 -   Code outline
 -   Code navigation
 -   Folding (with support for `// #region` blocks)
+-   Build task
 
-### LPCDoc Comments
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
+
+## Example
+
+For an example mudlib, pre-configured to work with LPC Language Services, see the [Nightmare Residuum mudlib](https://github.com/michaelprograms/nightmare-residuum). 
+This mudlib has been fully annotated with [LPCDoc](#lpcdoc-comments) and can been successfully validated by the LPC Language Service and build task without errors.
+
+## If you love this extension, you could
+
+[<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" >](https://www.buymeacoffee.com/jlchmura)
+
+## Semantic Analysis
+
+Semantic analysis (sometimes refered to as the _type checker_) will perform many useful checks on your code, but you must opt-in to this feature. 
+To enable semantic code analysis, set the [diagnostics](#diagnostics---diagnostics) options to `"on"`.
+
+## LPCDoc Comments
 
 LPC Language Services uses [JSDoc-style](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html) comments to provide additional context during hover and signature help.
 
@@ -43,18 +62,6 @@ int doCommand(string cmd) {
 ```
 Similar to typed languages like TypeScript, the type annotations are optional but can provide valuable context to the language server. For more, see [Type Annotations](#type-annotations), below.
 
-## If you love this extension, you could
-
-[<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" >](https://www.buymeacoffee.com/jlchmura)
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md).
-
-## Semantic Analysis
-
-Semantic analysis (sometimes refered to as the _type checker_) will perform many useful checks on your code, but you must opt-in to this feature. 
-To enable semantic code analysis, set the [diagnostics](#diagnostics---diagnostics) options to `"on"`.
 
 ### Disable Checks on Per-File Basis
 
@@ -147,10 +154,6 @@ First create an `lpc-config.json` file that is used to store setting for the lan
 If no config file is found, the language server will still work but won't be able to take advante of global include files, include search dirs, etc.
 
 For example, see this [GLPU Fork](https://github.com/jlchmura/glpu) in which the config file is placed in the workspace root.
-
-### Example
-
-For an example mudlib, pre-configured to work with LPC Language Services, see this slightly modified version of the [LP 2.4.5 mudlib](https://github.com/jlchmura/lp-245). LPC Language Services can parse and validate this entire lib without errors.
 
 #### Driver Options - `driver`
 
