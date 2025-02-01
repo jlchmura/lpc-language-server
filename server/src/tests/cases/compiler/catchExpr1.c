@@ -1,5 +1,8 @@
 void testCatches() {
-    if (err=catch(this_user()->quit_character())) {
+    object o = clone_object("object.c");
+    if (err=catch(o->query_number())) {
         write("error");
     }
 }
+
+// @files: object.c
