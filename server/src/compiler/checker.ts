@@ -14467,7 +14467,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function checkCatchExpression(node: CatchExpression, checkMode?: CheckMode): Type {
-        checkExpression(node.expression, checkMode);                
+        if (node.block && node.expression) {
+            error(node, Diagnostics.Catch_expression_cannot_also_have_a_block);
+        }
+
+        if (node.block) {
+            checkBlock(node.block);
+        } else {
+            checkExpression(node.expression, checkMode);                
+        }
+        
         // catch always returns either 0 or a string
         // for both LD & Fluff
         return getUnionType([falseType, stringType]);        

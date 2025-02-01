@@ -37,6 +37,7 @@ export const Diagnostics = {
     Circular_include_detected_0_to_1: diag(9029, DiagnosticCategory.Error, "Circular_include_detected_0_to_1_9029", "Circular include detected '{0}' -> '{1}'."),
     Locale_0_is_not_supported: diag(9030, DiagnosticCategory.Error, "Locale_0_is_not_supported_9030", "Locale '{0}' is not supported."),
     No_errors: diag(9031, DiagnosticCategory.Message, "No_errors_9031", "No errors - That is some happy LPC."),
+    Catch_expression_cannot_also_have_a_block: diag(9032, DiagnosticCategory.Error, "Catch_expression_cannot_also_have_a_block_9032", "Catch expression cannot also have a block."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    
