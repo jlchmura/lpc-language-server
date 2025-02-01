@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.25
+
+-   Fix: [catch expression not checked #191](https://github.com/jlchmura/lpc-language-server/issues/191)
+
 ## 1.1.24
 
 -   Fix: [Adjust handling of array of arrays #180](https://github.com/jlchmura/lpc-language-server/issues/180)
