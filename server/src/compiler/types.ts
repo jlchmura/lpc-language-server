@@ -219,7 +219,7 @@ export interface TypeChecker {
     /** @internal */ getUnionType(types: Type[], subtypeReduction?: UnionReduction): Type;
     getAugmentedPropertiesOfType(type: Type): Symbol[];
     getPropertiesOfType(type: Type): Symbol[];
-    
+    /** @internal */ getRelationCacheSizes(): { assignable: number; identity: number; subtype: number; strictSubtype: number; };
     /**
      * Note that this will return undefined in the following case:
      *     // a.ts
@@ -5138,7 +5138,7 @@ export interface Program extends ScriptReferenceHost {
     getSymbolCount(): number;
     getTypeCount(): number;
     getInstantiationCount(): number;
-    // getRelationCacheSizes(): { assignable: number; identity: number; subtype: number; strictSubtype: number; };
+    getRelationCacheSizes(): { assignable: number; identity: number; subtype: number; strictSubtype: number; };    
 
     /** @internal */ getFileProcessingDiagnostics(): FilePreprocessingDiagnostics[] | undefined;
     // /** @internal */ getAutomaticTypeDirectiveNames(): string[];

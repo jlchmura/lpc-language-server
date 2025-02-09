@@ -379,7 +379,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         getSymbolCount: () => getTypeChecker().getSymbolCount(),
         getTypeCount: () => getTypeChecker().getTypeCount(),
         getInstantiationCount: () => getTypeChecker().getInstantiationCount(),
-        //getRelationCacheSizes: () => getTypeChecker().getRelationCacheSizes(),
+        getRelationCacheSizes: () => getTypeChecker().getRelationCacheSizes(),
         getFileProcessingDiagnostics: () => fileProcessingDiagnostics,
         // getAutomaticTypeDirectiveNames: () => automaticTypeDirectiveNames!,
         // getAutomaticTypeDirectiveResolutions: () => automaticTypeDirectiveResolutions,

@@ -317,6 +317,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         getTypeCount: () => typeCount,
         getInstantiationCount: () => totalInstantiationCount,
         getStringType: () => stringType,
+        getRelationCacheSizes: () => ({
+            assignable: assignableRelation.size,
+            identity: identityRelation.size,
+            subtype: subtypeRelation.size,
+            strictSubtype: strictSubtypeRelation.size,
+        }),
         signatureToString,
         getDiagnostics,
         getAliasedSymbol: resolveAlias,

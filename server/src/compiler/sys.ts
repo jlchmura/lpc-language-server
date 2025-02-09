@@ -1,4 +1,4 @@
-import { AssertionLevel, closeFileWatcher, closeFileWatcherOf, combinePaths, Comparison, contains, containsPath, createGetCanonicalFileName, createMultiMap, Debug, directorySeparator, emptyArray, emptyFileSystemEntries, endsWith, enumerateInsertsAndDeletes, FileSystemEntries, getDirectoryPath, getFallbackOptions, getNormalizedAbsolutePath, getRelativePathFromDirectory, getRelativePathToDirectoryOrUrl, getRootLength, getStringComparer, isArray, isNodeLikeSystem, isString, mapDefined, matchFiles, memoize, ModuleImportResult, noop, normalizePath, normalizeSlashes, orderedRemoveItem, Path, PollingWatchKind, some, startsWith, timestamp, unorderedRemoveItem, WatchDirectoryKind, WatchFileKind, WatchOptions, writeFileEnsuringDirectories } from "./_namespaces/lpc.js";
+import { AssertionLevel, closeFileWatcher, closeFileWatcherOf, combinePaths, Comparison, contains, containsPath, createGetCanonicalFileName, createMultiMap, Debug, directorySeparator, emptyArray, emptyFileSystemEntries, endsWith, enumerateInsertsAndDeletes, FileSystemEntries, getDirectoryPath, getFallbackOptions, getNormalizedAbsolutePath, getRelativePathFromDirectory, getRelativePathToDirectoryOrUrl, getRootLength, getStringComparer, isArray, isNodeLikeSystem, isString, mapDefined, matchFiles, memoize, ModuleImportResult, noop, noopFileWatcher, normalizePath, normalizeSlashes, orderedRemoveItem, Path, PollingWatchKind, some, startsWith, timestamp, unorderedRemoveItem, WatchDirectoryKind, WatchFileKind, WatchOptions, writeFileEnsuringDirectories } from "./_namespaces/lpc.js";
 
 declare function setTimeout(handler: (...args: any[]) => void, timeout: number): any;
 declare function clearTimeout(handle: any): void;
@@ -1488,8 +1488,8 @@ export let sys: System = (() => {
             },
             readFile,
             writeFile,
-            watchFile,
-            watchDirectory,
+            watchFile,//: ()=>noopFileWatcher,
+            watchDirectory,//: ()=>noopFileWatcher,
             preferNonRecursiveWatch: !fsSupportsRecursiveFsWatch,
             resolvePath: path => _path.resolve(path),
             fileExists,

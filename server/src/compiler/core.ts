@@ -2066,3 +2066,16 @@ export function getRangesWhere<T>(arr: readonly T[], pred: (t: T) => boolean, cb
     }
     if (start !== undefined) cb(start, arr.length);
 }
+
+/** @internal */
+export function reduceLeftIterator<T, U>(iterator: Iterable<T> | undefined, f: (memo: U, value: T, i: number) => U, initial: U): U {
+    let result = initial;
+    if (iterator) {
+        let pos = 0;
+        for (const value of iterator) {
+            result = f(result, value, pos);
+            pos++;
+        }
+    }
+    return result;
+}
