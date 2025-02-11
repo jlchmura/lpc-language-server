@@ -5060,6 +5060,11 @@ export interface Program extends ScriptReferenceHost {
     getSourceFiles(): readonly SourceFile[];
 
     /**
+     * Gets a type checker that can be used to semantically analyze source files in the program.
+     */
+    getTypeChecker(): TypeChecker;
+    
+    /**
      * Get a list of file names that were passed to 'createProgram' or referenced in a
      * program source file but could not be located.
      *
@@ -5087,12 +5092,7 @@ export interface Program extends ScriptReferenceHost {
     forEachResolvedModule(
         callback: (resolution: ResolvedModuleWithFailedLookupLocations, moduleName: string, mode: ResolutionMode, filePath: Path) => void,
         file?: SourceFile,
-    ): void;
-
-    /**
-     * Gets a type checker that can be used to semantically analyze source files in the program.
-     */
-    getTypeChecker(): TypeChecker;
+    ): void;    
     
     // /** @internal */
     // forEachResolvedTypeReferenceDirective(
