@@ -1,0 +1,48 @@
+{
+    "name": "lpc-lang",
+    "displayName": "LPC",
+    "description": "LPC Language Compiler Library",
+    "version": "1.1.25",
+    "scripts": {      
+    },
+    "author": "jlchmura",
+    "publisher": "jlchmura",
+    "license": "MIT",    
+    "typings": "./lpc/lpc.d.ts",
+    "main": "./src/lpc.js",
+    "bin": {
+        "lpc": "./bin/lpc",
+        "lpcserver": "./bin/lpcserver"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/jlchmura/lpc-language-server"
+    },
+    "keywords": [
+        "LPC",
+        "language",
+        "server",
+        "Lars Pensjö",
+        "C",
+        "MUD",
+        "LPMUD",
+        "LDMUD",
+        "FluffOS",
+        "MudOS",
+        "VSCode"
+    ],
+    "bugs": {
+        "url": "https://github.com/jlchmura/lpc-language-server/issues"
+    },
+    "homepage": "https://github.com/jlchmura/lpc-language-server#readme",
+    "dependencies": {        
+        "glob": "^10.3.15",
+        "jsonc-parser": "^3.3.1",        
+        "setimmediate": "^1.0.5",        
+        "vscode-uri": "^3.0.8"
+    }
+}
+  

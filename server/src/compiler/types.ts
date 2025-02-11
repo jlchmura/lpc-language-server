@@ -5068,7 +5068,7 @@ export interface Program extends ScriptReferenceHost {
     getMissingFilePaths(): Map<Path, string>;
     /** @internal */
     getModuleResolutionCache(): /*ModuleResolutionCache | */undefined;
-    // /** @internal */
+    /** @internal */
     getFilesByNameMap(): Map<Path, SourceFile | false | undefined>;
 
     /** @internal */
@@ -5088,6 +5088,12 @@ export interface Program extends ScriptReferenceHost {
         callback: (resolution: ResolvedModuleWithFailedLookupLocations, moduleName: string, mode: ResolutionMode, filePath: Path) => void,
         file?: SourceFile,
     ): void;
+
+    /**
+     * Gets a type checker that can be used to semantically analyze source files in the program.
+     */
+    getTypeChecker(): TypeChecker;
+    
     // /** @internal */
     // forEachResolvedTypeReferenceDirective(
     //     callback: (resolution: ResolvedTypeReferenceDirectiveWithFailedLookupLocations, moduleName: string, mode: ResolutionMode, filePath: Path) => void,
@@ -5119,12 +5125,7 @@ export interface Program extends ScriptReferenceHost {
     /** @internal */ getSuggestionDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
 
     // /** @internal */ getBindAndCheckDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
-    // /** @internal */ getProgramDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];
-
-    /**
-     * Gets a type checker that can be used to semantically analyze source files in the program.
-     */
-    getTypeChecker(): TypeChecker;
+    // /** @internal */ getProgramDiagnostics(sourceFile: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[];    
     getConfigDefines(): ReadonlyMap<string, string>;
 
     // /** @internal */ getCommonSourceDirectory(): string;

@@ -15,4 +15,6 @@ coverage
 vscode-profile-*.*
 tsconfig.tsbuildinfo
 isolate*.log
-lib/
+lib/**/*
+!lib/package.json
+!lib/README.md

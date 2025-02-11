@@ -2657,13 +2657,14 @@ export function getTokenPosOfNode(node: Node, sourceFile?: SourceFileLike, inclu
         }
     }
 
-    return skipTrivia(
-        (sourceFile ?? getSourceFileOfNode(node)).text,
+    const text = (sourceFile ?? getSourceFileOfNode(node))?.text;
+    return text ? skipTrivia(
+        text,
         node.pos,
         /*stopAfterLineBreak*/ false,
         /*stopAtComments*/ false,
         isInJSDoc(node),
-    );
+    ) : node.pos;
 }
 
 /** @internal */
@@ -7154,7 +7155,7 @@ export function tryGetLocalizedLibPath(options: CompilerOptions): string {
     const basePath = getDirectoryPath(normalizePath(sys.getExecutingFilePath()));
     const driverPath = getDefaultLibFolder(options);
     
-    const locale = getUILocale().toLowerCase()
+    const locale = getUILocale()?.toLowerCase() ?? "en";
     const matchResult = /^([a-z]+)([_-]([a-z]+))?$/.exec(locale);;
     const language = matchResult[1];
     const libFilename = getDefaultLibFileName(options);
