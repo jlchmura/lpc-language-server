@@ -6195,7 +6195,12 @@ export namespace LpcParser {
                 return token() === SyntaxKind.OpenBraceToken ? parseJSDocTypeExpression() : undefined;
             }
 
-            function parseBracketNameInPropertyAndParamTag(): { name: EntityName; isBracketed: boolean; } {
+            /**
+             * 
+             * @param [foo=1] somethig
+             * @returns 
+             */
+            function parseBracketNameInPropertyAndParamTag(foo: number=1): { name: EntityName; isBracketed: boolean; expr: Expression | undefined } {
                 // Looking for something like '[foo]', 'foo', '[foo.bar]' or 'foo.bar'
                 const isBracketed = parseOptionalJsdoc(SyntaxKind.OpenBracketToken);
                 if (isBracketed) {
@@ -6204,6 +6209,8 @@ export namespace LpcParser {
                 // a markdown-quoted name: `arg` is not legal jsdoc, but occurs in the wild
                 const isBackquoted = parseOptionalJsdoc(SyntaxKind.BacktickToken);
                 const name = parseJSDocEntityName();
+                let expr: Expression = undefined;
+
                 if (isBackquoted) {
                     parseExpectedTokenJSDoc(SyntaxKind.BacktickToken);
                 }
@@ -6211,13 +6218,13 @@ export namespace LpcParser {
                     skipWhitespace();
                     // May have an optional default, e.g. '[foo = 42]'
                     if (parseOptionalToken(SyntaxKind.EqualsToken)) {
-                        parseExpression();
+                        expr = parseExpression();
                     }
 
                     parseExpected(SyntaxKind.CloseBracketToken);
                 }
 
-                return { name, isBracketed };
+                return { name, isBracketed, expr };
             }
 
             function isObjectOrObjectArrayTypeReference(node: TypeNode): boolean {
@@ -6236,7 +6243,7 @@ export namespace LpcParser {
                 let isNameFirst = !typeExpression;
                 skipWhitespaceOrAsterisk();
 
-                const { name, isBracketed } = parseBracketNameInPropertyAndParamTag();
+                const { name, isBracketed, expr } = parseBracketNameInPropertyAndParamTag();
                 const indentText = skipWhitespaceOrAsterisk();
 
                 if (isNameFirst && !lookAhead(parseJSDocLinkPrefix)) {
@@ -6252,7 +6259,7 @@ export namespace LpcParser {
                 }
                 const result = target === PropertyLikeParse.Property ? factory.createJSDocPropertyTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment) :
                     target === PropertyLikeParse.Variable ? factory.createJSDocVariableTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment) :
-                    factory.createJSDocParameterTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment);
+                    factory.createJSDocParameterTag(tagName, name, expr, isBracketed, typeExpression, isNameFirst, comment);
                 return addImportCandidate(finishNode(result, start));
             }
 
@@ -7344,8 +7351,8 @@ function forEachChildInOptionalRestOrJSDocParameterModifier<T>(node: JSDocTypeEx
 function forEachChildInJSDocParameterOrPropertyTag<T>(node: JSDocParameterTag | JSDocPropertyTag | JSDocVariableTag, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
     return visitNode(cbNode, node.tagName) ||
         (node.isNameFirst
-            ? visitNode(cbNode, node.name) || visitNode(cbNode, node.typeExpression)
-            : visitNode(cbNode, node.typeExpression) || visitNode(cbNode, node.name)) ||
+            ? visitNode(cbNode, node.name) || visitNode(cbNode, node.defaultExpression) || visitNode(cbNode, node.typeExpression)
+            : visitNode(cbNode, node.typeExpression) || visitNode(cbNode, node.name) || visitNode(cbNode, node.defaultExpression)) || 
         (typeof node.comment === "string" ? undefined : visitNodes(cbNode, cbNodes, node.comment));
 }
 

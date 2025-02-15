@@ -1637,7 +1637,7 @@ export interface NodeFactory {
     // JSDoc
     createJSDocText(text: string): JSDocText;
     createJSDocComment(comment?: string | NodeArray<JSDocComment> | undefined, tags?: readonly JSDocTag[] | undefined): JSDoc;
-    createJSDocParameterTag(tagName: Identifier | undefined, name: EntityName, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocParameterTag;
+    createJSDocParameterTag(tagName: Identifier | undefined, name: EntityName, defaultExpression: Expression | undefined, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocParameterTag;
     createJSDocReturnTag(tagName: Identifier | undefined, typeExpression?: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocReturnTag;
     createJSDocOptionalType(type: TypeNode): JSDocOptionalType;
     createJSDocTypeTag(tagName: Identifier | undefined, typeExpression: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocTypeTag;
@@ -3465,6 +3465,7 @@ export type EntityName = Identifier | QualifiedName;
 export interface JSDocPropertyLikeTag extends JSDocTag, Declaration {
     readonly parent: JSDoc;
     readonly name: EntityName;
+    readonly defaultExpression: Expression | undefined;
     readonly typeExpression?: JSDocTypeExpression;
     /** Whether the property name came before the type -- non-standard for JSDoc, but Typescript-like */
     readonly isNameFirst: boolean;

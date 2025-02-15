@@ -2109,10 +2109,11 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createJSDocParameterTag(tagName: Identifier | undefined, name: EntityName, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocParameterTag {
+    function createJSDocParameterTag(tagName: Identifier | undefined, name: EntityName, defaultExpression: Expression | undefined, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocParameterTag {
         const node = createBaseJSDocTagDeclaration<JSDocParameterTag>(SyntaxKind.JSDocParameterTag, tagName ?? createIdentifier("param"), comment);
         node.typeExpression = typeExpression;
         node.name = name;
+        node.defaultExpression = defaultExpression;
         node.isNameFirst = !!isNameFirst;
         node.isBracketed = isBracketed;
         return node;

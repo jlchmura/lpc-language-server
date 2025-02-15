@@ -1,5 +1,10 @@
 # LPC Language Services Changelog
 
+## 1.1.26
+
+-   Package for deployment to NPM as [`@lpc-lang/core`](https://www.npmjs.com/package/@lpc-lang/core)
+-   Parse and return default expression in LPCDoc `@param` tags.
+
 ## 1.1.25
 
 -   Fix: [catch expression not checked #191](https://github.com/jlchmura/lpc-language-server/issues/191)

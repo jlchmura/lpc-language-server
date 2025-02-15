@@ -1201,7 +1201,7 @@ function tryMergeJsdocTags(oldTag: JSDocTag, newTag: JSDocTag): JSDocTag | undef
             const oldParam = oldTag as JSDocParameterTag;
             const newParam = newTag as JSDocParameterTag;
             return isIdentifier(oldParam.name) && isIdentifier(newParam.name) && oldParam.name.text === newParam.name.text
-                ? factory.createJSDocParameterTag(/*tagName*/ undefined, newParam.name, /*isBracketed*/ false, newParam.typeExpression, newParam.isNameFirst, oldParam.comment)
+                ? factory.createJSDocParameterTag(/*tagName*/ undefined, newParam.name, newParam.defaultExpression, /*isBracketed*/ false, newParam.typeExpression, newParam.isNameFirst, oldParam.comment)
                 : undefined;
         }
         case SyntaxKind.JSDocReturnTag:

@@ -2000,6 +2000,9 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
         emitNodeWithWriter(node.name, writeParameter);
         emit(node.dotDotDotToken);
         
+        // TODO - optional and default params
+
+
         // The comment position has to fallback to any present node within the parameterdeclaration because as it turns out, the parser can make parameter declarations with _just_ an initializer.
         emitInitializer(
             node.initializer, 
