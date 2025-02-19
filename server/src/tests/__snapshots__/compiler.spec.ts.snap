@@ -452,6 +452,22 @@ Found 1 error in server/src/tests/cases/compiler/modifiers2.c[90m:2[0m
 
 exports[`Compiler compiler/modifiers3.c Reports correct errors for compiler/modifiers3.c: diags-compiler/modifiers3.c 1`] = `""`;
 
+exports[`Compiler compiler/namedObject1.c Reports correct errors for compiler/namedObject1.c: diags-compiler/namedObject1.c 1`] = `""`;
+
+exports[`Compiler compiler/namedObject2.c Reports correct errors for compiler/namedObject2.c: diags-compiler/namedObject2.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/namedObject2.c[90m:3[0m
+
+"
+`;
+
+exports[`Compiler compiler/namedObject3.c Reports correct errors for compiler/namedObject3.c: diags-compiler/namedObject3.c 1`] = `
+"
+Found 3 errors in the same file, starting at: server/src/tests/cases/compiler/namedObject3.c[90m:3[0m
+
+"
+`;
+
 exports[`Compiler compiler/new1.c Reports correct errors for compiler/new1.c: diags-compiler/new1.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/new1.c[90m:6[0m

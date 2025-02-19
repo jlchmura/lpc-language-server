@@ -4,6 +4,7 @@
 
 -   Package for deployment to NPM as [`@lpc-lang/core`](https://www.npmjs.com/package/@lpc-lang/core)
 -   Parse and return default expression in LPCDoc `@param` tags.
+-   Add parser/checker support for LDMud named objects.
 
 ## 1.1.25
 
