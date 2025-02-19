@@ -1568,6 +1568,7 @@ export interface NodeFactory {
     createUnionTypeNode(types: readonly TypeNode[]): UnionTypeNode;
     createIntersectionTypeNode(types: readonly TypeNode[]): IntersectionTypeNode;
     createArrayTypeNode(elementType: TypeNode): ArrayTypeNode;
+    createNamedObjectTypeNode(name: StringLiteral, objectKeyword: TypeNode): NamedObjectTypeNode;
     createParenthesizedType(type: TypeNode): ParenthesizedTypeNode;
     createLiteralTypeNode(literal: LiteralTypeNode["literal"]): LiteralTypeNode;
     createTypeLiteralNode(members: readonly TypeElement[] | undefined): TypeLiteralNode;
@@ -2239,9 +2240,10 @@ export type HasChildren =
     // | TupleTypeNode
     // | OptionalTypeNode
     // | RestTypeNode
-    | ArrayTypeNode
+    | ArrayTypeNode    
     | UnionTypeNode
     | TypeAssertion
+    | NamedObjectTypeNode
     // | IntersectionTypeNode
     // | ConditionalTypeNode
     // | InferTypeNode    
@@ -3224,6 +3226,7 @@ export type ImportCandidateNode =
     InheritDeclaration | 
     IncludeDirective |
     CallExpression |
+    NamedObjectTypeNode |
     JSDocParameterTag |
     JSDocTypeTag | 
     JSDocTypedefTag |
@@ -3450,6 +3453,7 @@ export interface ArrayTypeNode extends TypeNode {
 
 export interface NamedObjectTypeNode extends TypeNode {
     readonly kind: SyntaxKind.NamedObjectType;
+    readonly objectKeyword: TypeNode;
     readonly name: StringLiteral;
 }
 

@@ -156,6 +156,7 @@ import {
     ModifierToken,
     Mutable,
     MutableNodeArray,
+    NamedObjectTypeNode,
     NamedTupleMember,
     NewExpression,
     NewStructExpression,
@@ -320,6 +321,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createTypePredicateNode,
         updateTypePredicateNode,
         createArrayTypeNode,
+        createNamedObjectTypeNode,
         createUnionTypeNode,
         createIntersectionTypeNode,
         createParenthesizedType,
@@ -1145,6 +1147,14 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     function createArrayTypeNode(elementType: TypeNode): ArrayTypeNode {
         const node = createBaseNode<ArrayTypeNode>(SyntaxKind.ArrayType);
         node.elementType = elementType; // parenthesizerRules().parenthesizeNonArrayTypeOfPostfixType(elementType);
+        return node;
+    }
+
+    // @api
+    function createNamedObjectTypeNode(name: StringLiteral, objectKeyword: TypeNode): NamedObjectTypeNode {
+        const node = createBaseNode<NamedObjectTypeNode>(SyntaxKind.NamedObjectType);
+        node.objectKeyword = objectKeyword;
+        node.name = name;
         return node;
     }
 
