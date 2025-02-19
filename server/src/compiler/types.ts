@@ -847,6 +847,7 @@ export const enum SyntaxKind {
     ParenthesizedType,
     TypeReference,
     TypePredicate,
+    NamedObjectType,
     ConditionalType,  // Last TYpe Node
     
     // Elements
@@ -1431,6 +1432,7 @@ export type TypeNodeSyntaxKind =
     | SyntaxKind.FunctionType
     | SyntaxKind.ConditionalType
     | SyntaxKind.IntersectionType
+    | SyntaxKind.NamedObjectType
     | SyntaxKind.JSDocTypeExpression
     | SyntaxKind.JSDocAllType
     | SyntaxKind.JSDocUnknownType
@@ -1566,6 +1568,7 @@ export interface NodeFactory {
     createUnionTypeNode(types: readonly TypeNode[]): UnionTypeNode;
     createIntersectionTypeNode(types: readonly TypeNode[]): IntersectionTypeNode;
     createArrayTypeNode(elementType: TypeNode): ArrayTypeNode;
+    createNamedObjectTypeNode(name: StringLiteral, objectKeyword: TypeNode): NamedObjectTypeNode;
     createParenthesizedType(type: TypeNode): ParenthesizedTypeNode;
     createLiteralTypeNode(literal: LiteralTypeNode["literal"]): LiteralTypeNode;
     createTypeLiteralNode(members: readonly TypeElement[] | undefined): TypeLiteralNode;
@@ -2237,9 +2240,10 @@ export type HasChildren =
     // | TupleTypeNode
     // | OptionalTypeNode
     // | RestTypeNode
-    | ArrayTypeNode
+    | ArrayTypeNode    
     | UnionTypeNode
     | TypeAssertion
+    | NamedObjectTypeNode
     // | IntersectionTypeNode
     // | ConditionalTypeNode
     // | InferTypeNode    
@@ -3222,6 +3226,7 @@ export type ImportCandidateNode =
     InheritDeclaration | 
     IncludeDirective |
     CallExpression |
+    NamedObjectTypeNode |
     JSDocParameterTag |
     JSDocTypeTag | 
     JSDocTypedefTag |
@@ -3444,6 +3449,12 @@ export interface IntersectionTypeNode extends TypeNode {
 export interface ArrayTypeNode extends TypeNode {
     readonly kind: SyntaxKind.ArrayType;
     readonly elementType: TypeNode;
+}
+
+export interface NamedObjectTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.NamedObjectType;
+    readonly objectKeyword: TypeNode;
+    readonly name: StringLiteral;
 }
 
 export interface JSDocContainer extends Node {
