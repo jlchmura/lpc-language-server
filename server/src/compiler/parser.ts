@@ -3185,8 +3185,7 @@ export namespace LpcParser {
             case SyntaxKind.FloatKeyword:
             case SyntaxKind.FunctionKeyword:
             case SyntaxKind.MixedKeyword:
-            case SyntaxKind.MappingKeyword:
-            case SyntaxKind.ObjectKeyword:
+            case SyntaxKind.MappingKeyword:            
             case SyntaxKind.UndefinedKeyword:                                 
                 // If these are followed by a dot, then parse these out as a dotted type reference instead.
                 return parseKeywordAndNoDot();
@@ -3194,6 +3193,15 @@ export namespace LpcParser {
             case SyntaxKind.SymbolKeyword:  
                 // status is only available in LD           
                 return languageVariant === LanguageVariant.LDMud ? parseKeywordAndNoDot() : undefined;
+            case SyntaxKind.ObjectKeyword:
+                // LD has "named" objects.
+                const objectType = parseKeywordAndNoDot();
+                if (token() === SyntaxKind.StringLiteral && languageVariant === LanguageVariant.LDMud) {
+                    const objectName = parseLiteralNode();
+                    return objectType;
+                }
+
+                return objectType;
             case SyntaxKind.AsteriskEqualsToken:
                 // If there is '*=', treat it as * followed by postfix =
                 scanner.reScanAsteriskEqualsToken();

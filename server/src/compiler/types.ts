@@ -847,6 +847,7 @@ export const enum SyntaxKind {
     ParenthesizedType,
     TypeReference,
     TypePredicate,
+    NamedObjectType,
     ConditionalType,  // Last TYpe Node
     
     // Elements
@@ -1431,6 +1432,7 @@ export type TypeNodeSyntaxKind =
     | SyntaxKind.FunctionType
     | SyntaxKind.ConditionalType
     | SyntaxKind.IntersectionType
+    | SyntaxKind.NamedObjectType
     | SyntaxKind.JSDocTypeExpression
     | SyntaxKind.JSDocAllType
     | SyntaxKind.JSDocUnknownType
@@ -3444,6 +3446,11 @@ export interface IntersectionTypeNode extends TypeNode {
 export interface ArrayTypeNode extends TypeNode {
     readonly kind: SyntaxKind.ArrayType;
     readonly elementType: TypeNode;
+}
+
+export interface NamedObjectTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.NamedObjectType;
+    readonly name: StringLiteral;
 }
 
 export interface JSDocContainer extends Node {
