@@ -2,7 +2,8 @@
 
 ## 1.1.27
 
--   Scanner should allow whitespace in array/mapping literal
+-   Fix: Scanner should allow whitespace in array/mapping literal
+-   Fix: Properly handle parens in nested macro arguments
 
 ## 1.1.26
 
