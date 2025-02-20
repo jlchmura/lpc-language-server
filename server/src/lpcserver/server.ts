@@ -15,7 +15,7 @@ import { getHeapStatistics } from "v8";
 // generate a unique 5 digit it
 // const randomId = Math.floor(Math.random() * 90000) + 10000;
 // const logFilename = `lpc-server-${randomId}.log`;
-const logger = new Logger("lpc-server.log", true, lpc.server.LogLevel.normal);
+const logger = new Logger(undefined, true, lpc.server.LogLevel.normal);
 // const origLog = console.log;
 // console.log = (...args) => { logger.info(args.length === 1 ? args[0] : args.join(", ")); origLog(...args); };
 // const origErr = console.error;
