@@ -535,6 +535,10 @@ export namespace LpcParser {
             const kind = nextToken();
             switch (kind) {
                 case SyntaxKind.EndOfFileToken:
+                    if (scanner.getStateId() > 1) {
+                        scanner.releaseState();
+                        continue;
+                    }
                     if (parenCount > 0) {
                         parseErrorAtPosition(pos, scanner.getTokenEnd() - pos, scanner.getFileName(), Diagnostics.Unterminated_macro_arguments_list);
                     }
@@ -719,8 +723,11 @@ export namespace LpcParser {
         const arg = macro.argsIn[tokenValue];                
         arg.disabled = true;                
 
+        const argIndex = macro.arguments?.findIndex(a => (a.name as Identifier)?.text === tokenValue) ?? -1;
+        const isLastArg = argIndex === macro.arguments?.length - 1;
+
         scanner.switchStream(
-            "", arg.text, arg.pos, arg.end, true /* revertOnEOF */,
+            "", arg.text, arg.pos, arg.end, !isLastArg /* revertOnEOF */,
             () => {
                 arg.disabled = false;
                 return false;
@@ -4789,7 +4796,7 @@ export namespace LpcParser {
     }
 
     function parseArgumentList() {
-        parseExpected(SyntaxKind.OpenParenToken);
+        parseExpected(SyntaxKind.OpenParenToken);        
         const result = parseDelimitedList(ParsingContext.ArgumentExpressions, parseArgumentExpression);
         const isComplete = parseExpected(SyntaxKind.CloseParenToken);
         return markNodeAsComplete(result, isComplete);
