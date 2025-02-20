@@ -17,6 +17,8 @@ exports[`Compiler compiler/array3.c Reports correct errors for compiler/array3.c
 
 exports[`Compiler compiler/array4.c Reports correct errors for compiler/array4.c: diags-compiler/array4.c 1`] = `""`;
 
+exports[`Compiler compiler/array5.c Reports correct errors for compiler/array5.c: diags-compiler/array5.c 1`] = `""`;
+
 exports[`Compiler compiler/assignment1.c Reports correct errors for compiler/assignment1.c: diags-compiler/assignment1.c 1`] = `""`;
 
 exports[`Compiler compiler/assignment2.c Reports correct errors for compiler/assignment2.c: diags-compiler/assignment2.c 1`] = `
