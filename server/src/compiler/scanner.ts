@@ -2157,16 +2157,23 @@ export function createScanner(
                     // if (charCodeUnchecked(pos + 1) === CharacterCodes.colon && charCodeUnchecked(pos + 2) !== CharacterCodes.colon) {
                     //     return pos += 2, token = SyntaxKind.OpenParenColonToken;
                     // }
-                    if (charCodeUnchecked(pos + 1) === CharacterCodes.openBracket) {
-                        return pos += 2, token = SyntaxKind.OpenParenBracketToken;
-                    }     
-                    if (charCodeUnchecked(pos + 1) === CharacterCodes.openBrace) {
-                        return pos += 2, token = SyntaxKind.OpenParenBraceToken;
-                    }  
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.asterisk) {
                         return pos += 2, token = SyntaxKind.OpenParenAsteriskToken;
                     }             
+                    
+                    // advance past paren, then skip whitespace                    
                     pos++;
+                    while (pos < end && isWhiteSpaceSingleLine(charCodeUnchecked(pos))) {
+                        pos++;
+                    }
+                    
+                    if (charCodeUnchecked(pos) === CharacterCodes.openBracket) {
+                        return pos += 1, token = SyntaxKind.OpenParenBracketToken;
+                    }     
+                    if (charCodeUnchecked(pos) === CharacterCodes.openBrace) {
+                        return pos += 1, token = SyntaxKind.OpenParenBraceToken;
+                    }  
+                                        
                     return token = SyntaxKind.OpenParenToken;
                 case CharacterCodes.closeParen:
                     pos++;

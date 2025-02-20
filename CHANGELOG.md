@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.27
+
+-   Scanner should allow whitespace in array/mapping literal
+
 ## 1.1.26
 
 -   Package for deployment to NPM as [`@lpc-lang/core`](https://www.npmjs.com/package/@lpc-lang/core)
