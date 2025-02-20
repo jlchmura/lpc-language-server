@@ -535,7 +535,7 @@ export namespace LpcParser {
             const kind = nextToken();
             switch (kind) {
                 case SyntaxKind.EndOfFileToken:
-                    if (scanner.getStateId() > 1) {
+                    if (parenCount > 0 && scanner.getStateId() > 1) {
                         scanner.releaseState();
                         continue;
                     }
@@ -588,7 +588,7 @@ export namespace LpcParser {
             });
         }
 
-        parseExpected(SyntaxKind.CloseParenToken);
+        parseExpected(SyntaxKind.CloseParenToken, undefined, false);
 
         return args;
     }
@@ -723,11 +723,11 @@ export namespace LpcParser {
         const arg = macro.argsIn[tokenValue];                
         arg.disabled = true;                
 
-        const argIndex = macro.arguments?.findIndex(a => (a.name as Identifier)?.text === tokenValue) ?? -1;
-        const isLastArg = argIndex === macro.arguments?.length - 1;
+        // const argIndex = macro.arguments?.findIndex(a => (a.name as Identifier)?.text === tokenValue) ?? -1;
+        const revertOnEOF = true;//argIndex !== macro.arguments?.length - 1;
 
         scanner.switchStream(
-            "", arg.text, arg.pos, arg.end, !isLastArg /* revertOnEOF */,
+            "", arg.text, arg.pos, arg.end, revertOnEOF,
             () => {
                 arg.disabled = false;
                 return false;
@@ -796,10 +796,8 @@ export namespace LpcParser {
                 macro.endInOrigin = undefined!;
                 macro.pos = undefined!;
                 currentMacro = saveCurrentMacro!;
-                                        
-                // parse args will have consumed the next token, so we need to store that and return it
-                // when the previous scanner gets restored
-                return macroArgsDef?.length > 0;
+                                                        
+                return false;//macroArgsDef?.length > 0;
             }
         );
         
