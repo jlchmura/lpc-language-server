@@ -112,6 +112,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
     logger.info(`${logPrefix}Arguments: ${args.join(" ")}`);
     logger.info(`${logPrefix}Platform: ${platform} NodeVersion: ${process.version} CaseSensitive: ${lpc.sys.useCaseSensitiveFileNames}`);
     logger.info(`${logPrefix}ServerMode: ${serverMode}`)
+    logger.info(`${logPrefix}PID: ${process.pid}`);
     
     const locale = parseLocale();    
     logger.info(`${logPrefix}Locale: ${parseLocale()}`);    
@@ -172,7 +173,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
         host.setTimeout = setTimeout;
         host.clearTimeout = clearTimeout;
         host.setImmediate = setImmediate;
-        host.clearImmediate = clearImmediate;            
+        host.clearImmediate = clearImmediate;       
         
         const session = new LspSession({
             host: lpc.sys as lpc.server.ServerHost,
