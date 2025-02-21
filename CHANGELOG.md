@@ -1,5 +1,10 @@
 # LPC Language Services Changelog
 
+## 1.1.28
+
+-   Performance Improvement: Include files will now only trigger a re-parse of dependent files
+    if a) the dependent file is open in the editor or b) the number of dependent files is less than 25.
+
 ## 1.1.27
 
 -   Fix: Scanner should allow whitespace in array/mapping literal

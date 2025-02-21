@@ -699,22 +699,23 @@ export namespace LpcParser {
 
                 scanner.setReportLineBreak(false);
                 
-                // start the scan over
+                // start the scan over            
                 return nextTokenWithoutCheck();                
+            case SyntaxKind.Identifier:
+                if (allowMacroProcessing) {
+                    const tokenValue = scanner.getTokenValue();
+                    let macro: Macro;
+        
+                    // check macro params first - even if tokenValue matches a macro, we should not substitute if it is a macro param
+                    if (currentMacro && currentMacro.argsIn?.[tokenValue] && currentMacro.argsIn?.[tokenValue].disabled !== true) {
+                        return processMacroParamSubstitution(incomingToken, tokenValue, currentMacro);
+                    } else if ((macro = macroTable.get(tokenValue)) && macro.disabled !== true && macro.range) {                                
+                        return processMacroSubstitution(incomingToken, tokenValue, macro);
+                    } 
+                }
+                break;
         }
       
-        if (allowMacroProcessing && (incomingToken === SyntaxKind.Identifier)) {
-            const tokenValue = scanner.getTokenValue();
-            let macro = macroTable.get(tokenValue);
-
-            // check macro params first - even if tokenValue matches a macro, we should not substitute if it is a macro param
-            if (currentMacro && currentMacro.argsIn?.[tokenValue] && currentMacro.argsIn?.[tokenValue].disabled !== true) {
-                return processMacroParamSubstitution(incomingToken, tokenValue, currentMacro);
-            } else if (macro && macro.disabled !== true && macro.range) {                                
-                return processMacroSubstitution(incomingToken, tokenValue, macro);
-            } 
-        }
-        
         return currentToken = incomingToken;
     }
 

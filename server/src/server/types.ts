@@ -1,5 +1,6 @@
 import { DirectoryWatcherCallback, FileWatcher, FileWatcherCallback, ModuleImportResult, System, WatchOptions } from "./_namespaces/lpc";
 
+
 export interface ServerHost extends System {
     watchFile(path: string, callback: FileWatcherCallback, pollingInterval?: number, options?: WatchOptions): FileWatcher;
     watchDirectory(path: string, callback: DirectoryWatcherCallback, recursive?: boolean, options?: WatchOptions): FileWatcher;
@@ -12,7 +13,7 @@ export interface ServerHost extends System {
     trace?(s: string): void;
     require?(initialPath: string, moduleName: string): ModuleImportResult;
     /** @internal */
-    importPlugin?(root: string, moduleName: string): Promise<ModuleImportResult>;
+    importPlugin?(root: string, moduleName: string): Promise<ModuleImportResult>;    
 }
 
 export interface SymbolDisplayPart {

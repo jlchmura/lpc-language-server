@@ -2449,15 +2449,15 @@ class SyntaxTreeCache {
             })
         }; 
 
-        if (this.currentFileName !== fileName) {                       
+        // if (this.currentFileName !== fileName) {                       
             sourceFile = createLanguageServiceSourceFile(fileName, scriptSnapshot, options, version, /*setNodeParents*/ true, languageVariant, scriptKind);
-        }
-        else if (this.currentFileVersion !== version) {            
-            // This is the same file, just a newer version. Incrementally parse the file.
-            const editRange = scriptSnapshot.getChangeRange(this.currentFileScriptSnapshot!);
+        // }
+        // else if (this.currentFileVersion !== version) {            
+        //     // This is the same file, just a newer version. Incrementally parse the file.
+        //     const editRange = scriptSnapshot.getChangeRange(this.currentFileScriptSnapshot!);
                         
-            sourceFile = updateLanguageServiceSourceFile(this.currentSourceFile!, options.globalIncludes, options.configDefines, options.fileHandler, scriptSnapshot, version, editRange, languageVariant, false);
-        }
+        //     sourceFile = updateLanguageServiceSourceFile(this.currentSourceFile!, options.globalIncludes, options.configDefines, options.fileHandler, scriptSnapshot, version, editRange, languageVariant, false);
+        // }
 
         if (sourceFile) {
             // All done, ensure state is up to date
