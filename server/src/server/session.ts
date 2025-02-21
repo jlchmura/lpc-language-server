@@ -1,5 +1,5 @@
 import { arrayFrom, arrayReverseIterator, cast, CodeAction, CompletionEntry, CompletionEntryData, CompletionEntryDetails, CompletionInfo, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, FileTextChanges, filter, find, first, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, forEach, FormatCodeSettings, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, getSnapshotText, identity, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LanguageVariant, LineAndCharacter, LpcConfigSourceFile, map, mapDefined, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, perfLogger, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, SignatureHelpItem, SignatureHelpItems, singleIterator, startsWith, SymbolDisplayPart, TextChange, TextSpan, textSpanEnd, toFileNameLowerCase, toPath, tracing, UserPreferences, WithMetadata } from "./_namespaces/lpc";
-import { ChangeFileArguments, ConfiguredProject, convertScriptKindName, convertUserPreferences, Errors, GcTimer, indent, isConfiguredProject, Logger, LogLevel, Msg, NormalizedPath, OpenFileArguments, Project, ProjectKind, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
+import { ChangeFileArguments, ConfiguredProject, convertScriptKindName, convertUserPreferences, Errors, GcTimer, indent, isConfiguredProject, Logger, LogLevel, Msg, NormalizedPath, normalizedPathToPath, OpenFileArguments, Project, ProjectKind, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
 export interface HostCancellationToken {
@@ -279,7 +279,7 @@ export class Session<TMessage = string> implements EventSender {
      * @param fileName is the name of the file to be opened
      * @param fileContent is a version of the file content that is known to be more up to date than the one on disk
      */
-    private openClientFile(fileName: NormalizedPath, fileContent?: string, scriptKind?: ScriptKind, projectRootPath?: NormalizedPath) {
+    private openClientFile(fileName: NormalizedPath, fileContent?: string, scriptKind?: ScriptKind, projectRootPath?: NormalizedPath) {                        
         this.projectService.openClientFileWithNormalizedPath(fileName, fileContent, scriptKind, /*hasMixedContent*/ false, projectRootPath);
     }
 
@@ -369,17 +369,21 @@ export class Session<TMessage = string> implements EventSender {
             // to get re-parsed when the new program is created.
             // TODO - there's probably a more efficient way to do this vs just testing for .h files.
             if (scriptInfo.fileName.endsWith(".h")) {
+                const openFiles = this.projectService.openFiles;
                 let count = 0;
                 scriptInfo.containingProjects.forEach(project => {                                        
                     const resolutions = project.resolutionCache.resolvedFileToResolution.get(scriptInfo.path);                    
                     resolutions?.forEach(r => {
-                        r.files.forEach(p => {
-                            this.projectService.getScriptInfoForPath(p)?.incrementVersion();
-                            count++;
+                        let incrementAllFiles = r.files?.size < 25;
+                        r.files.forEach(p => { 
+                            if (incrementAllFiles || openFiles.has(p)) {
+                                this.projectService.getScriptInfoForPath(p)?.incrementVersion();                                
+                                count++;
+                            }
                         });                        
                     });                                        
                 });                                
-                // this.logger.info(`Queued ${count} resolutions for reparse due to change in ${scriptInfo.fileName}`);
+                // this.logger.msg(`Queued ${count} resolutions for reparse due to change in ${scriptInfo.fileName}`);
             }
         }
     }
@@ -418,7 +422,7 @@ export class Session<TMessage = string> implements EventSender {
                 next.delay("checkOne", followMs, checkOne);
             }
         };
-        const checkOne = () => {
+        const checkOne = () => {            
             if (this.changeSeq !== seq) {
                 return;
             }
@@ -436,16 +440,18 @@ export class Session<TMessage = string> implements EventSender {
 
             const { fileName, project } = item;
             const diagnostics = [];
-
+                        
             // Ensure the project is up to date before checking if this file is present in the project.
             updateProjectIfDirty(project);
+
             if (!project.containsFile(fileName, requireOpen)) {
                 return;
             }
+        
 
             const syntaxDiag = this.syntacticCheck(fileName, project);
             diagnostics.push(...syntaxDiag);
-
+            
             if (this.changeSeq !== seq) {
                 this.sendAllDiagnostics(diagnostics, fileName, project);
                 return;
