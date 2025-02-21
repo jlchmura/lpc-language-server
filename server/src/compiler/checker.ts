@@ -671,11 +671,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function initializeTypeChecker() {
         // Bind all source files and propagate errors
-        for (const file of host.getSourceFiles()) {            
-            if (file.isDefaultLib) {
-                const ii=0;
-            }
-            bindSourceFile(file, compilerOptions);            
+        for (const file of host.getSourceFiles()) {                        
+            bindSourceFile(file, compilerOptions);
         }
         
         // we'll use the globals concept to store driver efuns        
@@ -3299,6 +3296,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.EmptyStatement:            
             case SyntaxKind.JSDocClassTag:
             case SyntaxKind.JSDocSignature:
+            case SyntaxKind.UndefDirective:
                 return;
         }
 
