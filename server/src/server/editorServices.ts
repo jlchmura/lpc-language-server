@@ -2622,8 +2622,7 @@ export class ProjectService {
     }
 
     /** @internal */
-    applyChangesToFile(scriptInfo: ScriptInfo, changes: Iterable<TextChange>) {
-        
+    applyChangesToFile(scriptInfo: ScriptInfo, changes: Iterable<TextChange>) {        
         for (const change of changes) {            
             scriptInfo.editContent(change.span.start, change.span.start + change.span.length, change.newText);
         }

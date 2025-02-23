@@ -209,6 +209,7 @@ import {
     setTextRangePosEnd,
     ResolvedProjectReference,
     CheckLpcDirective,
+    bindSourceFile,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 import { computeSuggestionDiagnostics } from "./suggestionDiagnostics.js";
@@ -1946,6 +1947,7 @@ export function createLanguageService(
 
             throw error;
         }
+        bindSourceFile(sourceFile, program.getCompilerOptions());
         return sourceFile;
     }
 

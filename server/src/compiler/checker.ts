@@ -671,14 +671,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function initializeTypeChecker() {
         // Bind all source files and propagate errors
-        for (const file of host.getSourceFiles()) {                        
-            bindSourceFile(file, compilerOptions);
-        }
+        // for (const file of host.getSourceFiles()) {                        
+        //     bindSourceFile(file, compilerOptions);
+        // }
         
         // we'll use the globals concept to store driver efuns        
         for (const file of host.getSourceFiles()) {            
             // const isSefunFile = file.fileName === compilerOptions.sefunFile;
-            if (file.isDefaultLib) {                
+            if (file.isDefaultLib) {          
+                bindSourceFile(file, compilerOptions);
+
                 // lib files (non sefun) can't have inherits, so don't bother checking those nodes
                 mergeSymbolTable(globals, file.locals!);                
                 // also add the efun symbols under a prefix
@@ -691,6 +693,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // now merge sefuns so that they override globals
         const sefunFile = host.getSourceFile(compilerOptions.sefunFile);
         if (sefunFile) {
+            bindSourceFile(sefunFile, compilerOptions);
             getMembersOfFileAndInherits(sefunFile, globals);            
         }
 
@@ -726,8 +729,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // globalThisType = getGlobalTypeOrUndefined("ThisType" as string, /*arity*/ 1) as GenericType;
 
         validArithmeticType = getUnionType([numberType, globalArrayType]); // valid lhs for arithmetic operations
-    }
-    
+    }        
+
     /**
      * Runs the callback with the current file set to the file of the given node.
      * @param node node to use for current file lookuop
@@ -739,6 +742,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (!currentFile) {
             hadCurrentFile = false;
             currentFile = getSourceFileOfNode(node);
+            currentFile && bindSourceFile(currentFile, compilerOptions);
         }
         const result = callback();
         if (!hadCurrentFile) {
@@ -17513,6 +17517,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // No results from files already being imported by this file - expand search (expensive, but not location-specific, so cached)
         const otherFiles = host.getSourceFiles();
         for (const file of otherFiles) {
+            bindSourceFile(file, compilerOptions);
             //if (!isExternalModule(file)) continue;
             const sym = getSymbolOfDeclaration(file);
             const ref = getAliasForSymbolInContainer(sym, symbol);
@@ -21022,7 +21027,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (resolutionDiagnostic) {
                 error(errorNode, resolutionDiagnostic, moduleReference, resolvedModule.resolvedFileName);
             }
-                                
+            
+            // bind if needed
+            bindSourceFile(sourceFile, host.getCompilerOptions());
+
             if (sourceFile.symbol) {
                 // get the base type, which will force the source file type to be resolved
                 const type = getTypeOfSymbol(sourceFile.symbol) as InterfaceType;                                
