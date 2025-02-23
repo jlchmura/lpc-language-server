@@ -4,6 +4,7 @@
 
 -   Performance Improvement: Include files will now only trigger a re-parse of dependent files
     if a) the dependent file is open in the editor or b) the number of dependent files is less than 25.
+-   Fix some unhandled exceptions in the language server.
 
 ## 1.1.27
 

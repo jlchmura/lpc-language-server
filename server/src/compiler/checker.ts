@@ -5135,7 +5135,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (elementType) {
             return readonly ? globalReadonlyArrayType : globalArrayType;
         }
-        const elementFlags = map((node as TupleTypeNode).elements, getTupleElementFlags);
+        const elementFlags = map((node as TupleTypeNode).elements, getTupleElementFlags) || emptyArray;
         return getTupleTargetType(elementFlags, readonly, map((node as TupleTypeNode).elements, memberIfLabeledElementDeclaration));
     }
 
