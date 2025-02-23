@@ -669,7 +669,7 @@ export function createTextSpan(start: number, length: number): TextSpan {
     }
     if (length < 0) {
         // Debug.fail("length < 0");
-        Debug.loggingHost.log(LogLevel.Warning, "createTextSpan, length < 0");
+        Debug.loggingHost?.log(LogLevel.Warning, "createTextSpan, length < 0");
         return { start, length: 1 };
         // throw new Error("length < 0");
     }
