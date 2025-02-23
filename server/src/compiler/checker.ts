@@ -362,7 +362,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         isTypeInvalidDueToUnionDiscriminant,
         typeHasCallOrConstructSignatures,
         getReturnTypeOfSignature,
-        getTypeOfPropertyAccessExpr,
+        getTypeOfPropertyAccessExpr: (node: PropertyAccessExpression) => {
+            return runWithCurrentFile(node, () => getTypeOfPropertyAccessExpr(node));            
+        },
         getContextualType: (nodeIn: Expression, contextFlags?: ContextFlags) => {
             const node = getParseTreeNode(nodeIn, isExpression);
             if (!node) {
