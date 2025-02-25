@@ -5310,6 +5310,7 @@ export function getDeclarationFromName(name: Node): Declaration | undefined {
 /** @internal */
 export function isLiteralComputedPropertyDeclarationName(node: Node) {
     return isStringOrNumericLiteralLike(node) &&
+        node.parent && 
         node.parent.kind === SyntaxKind.ComputedPropertyName &&
         isDeclaration(node.parent.parent);
 }

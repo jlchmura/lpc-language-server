@@ -672,15 +672,21 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     return checker;
 
     function initializeTypeChecker() {
+        const sefunFile = host.getSourceFile(compilerOptions.sefunFile);
+
         // Bind all source files and propagate errors
         for (const file of host.getSourceFiles()) {                        
-            bindSourceFile(file, compilerOptions);
+            if (file != sefunFile) {
+                bindSourceFile(file, compilerOptions);
+            }
         }
         
         // we'll use the globals concept to store driver efuns        
         for (const file of host.getSourceFiles()) {            
             // const isSefunFile = file.fileName === compilerOptions.sefunFile;
-            if (file.isDefaultLib) {                
+            if (file.isDefaultLib) {          
+                // bindSourceFile(file, compilerOptions);
+
                 // lib files (non sefun) can't have inherits, so don't bother checking those nodes
                 mergeSymbolTable(globals, file.locals!);                
                 // also add the efun symbols under a prefix
@@ -691,8 +697,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
 
         // now merge sefuns so that they override globals
-        const sefunFile = host.getSourceFile(compilerOptions.sefunFile);
+        
         if (sefunFile) {
+            bindSourceFile(sefunFile, compilerOptions);
             getMembersOfFileAndInherits(sefunFile, globals);            
         }
 
@@ -728,8 +735,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // globalThisType = getGlobalTypeOrUndefined("ThisType" as string, /*arity*/ 1) as GenericType;
 
         validArithmeticType = getUnionType([numberType, globalArrayType]); // valid lhs for arithmetic operations
-    }
-    
+    }        
+
     /**
      * Runs the callback with the current file set to the file of the given node.
      * @param node node to use for current file lookuop
@@ -740,7 +747,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         let hadCurrentFile = true;
         if (!currentFile) {
             hadCurrentFile = false;
-            currentFile = getSourceFileOfNode(node);
+            currentFile = getSourceFileOfNode(node);            
         }
         const result = callback();
         if (!hadCurrentFile) {
@@ -1383,7 +1390,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function getSymbolOfDeclaration(node: Declaration): Symbol {
-        return getMergedSymbol(node.symbol && getLateBoundSymbol(node.symbol));
+        return node && getMergedSymbol(node.symbol && getLateBoundSymbol(node.symbol));
     }
 
     /**
@@ -21024,7 +21031,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (resolutionDiagnostic) {
                 error(errorNode, resolutionDiagnostic, moduleReference, resolvedModule.resolvedFileName);
             }
-                                
+                        
             if (sourceFile.symbol) {
                 // get the base type, which will force the source file type to be resolved
                 const type = getTypeOfSymbol(sourceFile.symbol) as InterfaceType;                                
@@ -22168,7 +22175,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     (isVariableDeclaration(target) || isBindingElement(target)) 
                         // TS checked the export symbol here, but since our SourceFile level 
                         // vars can impact flow nodes, we don't want to do that
-                        && getSymbolOfDeclaration(getResolvedSymbol(source as Identifier).declarations[0]) === getSymbolOfDeclaration(target);                                    
+                        && getSymbolOfDeclaration(firstOrUndefined(getResolvedSymbol(source as Identifier).declarations)) === getSymbolOfDeclaration(target);                                    
             case SyntaxKind.SuperKeyword:
                 return target.kind === SyntaxKind.SuperKeyword;            
             case SyntaxKind.ParenthesizedExpression:

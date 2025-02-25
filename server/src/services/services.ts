@@ -16,7 +16,6 @@ import {
     FileReference,
     find,
     FloatLiteralType,
-    FlowNode,
     forEach,
     forEachChild,
     FunctionLikeDeclaration,
@@ -27,8 +26,7 @@ import {
     getNonAssignedNameOfDeclaration,
     getObjectFlags,
     getSourceFileOfNode,
-    getTokenPosOfNode,
-    HasLocals,
+    getTokenPosOfNode,    
     hasSyntacticModifier,
     Identifier,
     IndexKind,
@@ -38,7 +36,6 @@ import {
     isBindingPattern,
     isJSDocCommentContainingNode,
     isNodeKind,
-    isPropertyNameLiteral,
     JSDoc,
     JSDocContainer,
     LanguageVariant,
@@ -68,7 +65,6 @@ import {
     Symbol,
     SymbolFlags,
     SymbolLinks,
-    symbolName,
     SymbolTable,
     SyntaxKind,
     SyntaxList,
@@ -187,7 +183,6 @@ import {
     SignatureHelpItemsOptions,
     SignatureHelpItems,
     SignatureHelp,
-    isSourceFile,
     isDefineDirective,
     createLpcFileHandler,
     sys,
@@ -205,14 +200,12 @@ import {
     TextInsertion,
     getNewLineOrDefaultFromHost,
     PragmaMap,
-    factory,
-    setTextRangePosEnd,
     ResolvedProjectReference,
     CheckLpcDirective,
+    bindSourceFile,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 import { computeSuggestionDiagnostics } from "./suggestionDiagnostics.js";
-
 
 // These utilities are common to multiple language service features.
 // #region
@@ -1595,7 +1588,8 @@ export function createLanguageService(
         // This array is retained by the program and will be used to determine if the program is up to date,
         // so we need to make a copy in case the host mutates the underlying array - otherwise it would look
         // like every program always has the host's current list of root files.
-        const rootFileNames = host.getScriptFileNames().slice();
+        const rootFileNames = host.getScriptFileNames().slice();                
+        const parseableFiles = new Set(host.getParseableFiles());
 
         // Get a fresh cache of the host information
         const newSettings = host.getCompilationSettings() || getDefaultCompilerOptions();
@@ -1691,7 +1685,8 @@ export function createLanguageService(
                 host.useSourceOfProjectReferenceRedirect
             ),
             getParsedCommandLine,
-            jsDocParsingMode: host.jsDocParsingMode,
+            jsDocParsingMode: host.jsDocParsingMode,            
+            getParseableFiles: maybeBind(host, host.getParseableFiles),            
         };
 
         host.setCompilerHost?.(compilerHost);
@@ -1709,8 +1704,10 @@ export function createLanguageService(
             onUnRecoverableConfigFileDiagnostic: noop,
         };
         
+        
+
         // If the program is already up-to-date, we can reuse it
-        if (isProgramUptoDate(program, rootFileNames, newSettings, (_path, fileName) => host.getScriptVersion(fileName), fileName => compilerHost!.fileExists(fileName), hasInvalidatedResolutions, hasInvalidatedLibResolutions, hasChangedAutomaticTypeDirectiveNames, getParsedCommandLine, projectReferences)) {
+        if (isProgramUptoDate(program, rootFileNames, newSettings, (_path, fileName) => host.getScriptVersion(fileName), fileName => compilerHost!.fileExists(fileName), hasInvalidatedResolutions, hasInvalidatedLibResolutions, hasChangedAutomaticTypeDirectiveNames, getParsedCommandLine, projectReferences, parseableFiles)) {
             compilerHost = undefined;
             parsedCommandLines = undefined;
             releasedScriptKinds = undefined;
@@ -1946,6 +1943,7 @@ export function createLanguageService(
 
             throw error;
         }
+        bindSourceFile(sourceFile, program.getCompilerOptions());
         return sourceFile;
     }
 
@@ -2012,7 +2010,7 @@ export function createLanguageService(
         return SignatureHelp.getSignatureHelpItems(program, sourceFile, position, triggerReason, cancellationToken);
     }
 
-    function getEncodedSemanticClassifications(fileName: string, span: TextSpan): Classifications {
+    function getEncodedSemanticClassifications(fileName: string, span: TextSpan): Classifications {        
         synchronizeHostData();
                 
         return classifier2020.getEncodedSemanticClassifications(program, cancellationToken, getValidSourceFile(fileName), span);        

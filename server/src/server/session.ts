@@ -1,4 +1,4 @@
-import { arrayFrom, arrayReverseIterator, cast, CodeAction, CompletionEntry, CompletionEntryData, CompletionEntryDetails, CompletionInfo, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, FileTextChanges, filter, find, first, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, forEach, FormatCodeSettings, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, getSnapshotText, identity, isArray, isDeclarationFileName, isString, JSDocTagInfo, LanguageServiceMode, LanguageVariant, LineAndCharacter, LpcConfigSourceFile, map, mapDefined, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, perfLogger, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, SignatureHelpItem, SignatureHelpItems, singleIterator, startsWith, SymbolDisplayPart, TextChange, TextSpan, textSpanEnd, toFileNameLowerCase, toPath, tracing, UserPreferences, WithMetadata } from "./_namespaces/lpc";
+import { arrayFrom, arrayReverseIterator, cast, CodeAction, CompletionEntry, CompletionEntryData, CompletionEntryDetails, CompletionInfo, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, FileTextChanges, filter, find, first, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, forEach, FormatCodeSettings, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, getSnapshotText, getTouchingPropertyName, identity, isArray, isDeclarationFileName, isSourceFile, isString, JSDocTagInfo, LanguageServiceMode, LanguageVariant, LineAndCharacter, LpcConfigSourceFile, map, mapDefined, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, perfLogger, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, SignatureHelpItem, SignatureHelpItems, singleIterator, startsWith, SymbolDisplayPart, TextChange, TextSpan, textSpanEnd, toFileNameLowerCase, toPath, tracing, UserPreferences, WithMetadata } from "./_namespaces/lpc";
 import { ChangeFileArguments, ConfiguredProject, convertScriptKindName, convertUserPreferences, Errors, GcTimer, indent, isConfiguredProject, Logger, LogLevel, Msg, NormalizedPath, normalizedPathToPath, OpenFileArguments, Project, ProjectKind, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
@@ -374,7 +374,7 @@ export class Session<TMessage = string> implements EventSender {
                 scriptInfo.containingProjects.forEach(project => {                                        
                     const resolutions = project.resolutionCache.resolvedFileToResolution.get(scriptInfo.path);                    
                     resolutions?.forEach(r => {
-                        let incrementAllFiles = r.files?.size < 25;
+                        let incrementAllFiles = r.files?.size < 50;
                         r.files.forEach(p => { 
                             if (incrementAllFiles || openFiles.has(p)) {
                                 this.projectService.getScriptInfoForPath(p)?.incrementVersion();                                
@@ -394,6 +394,10 @@ export class Session<TMessage = string> implements EventSender {
         }
 
         if (fileNames.length > 0) {
+            // mark files as needing parsing
+            fileNames.map(fileName => {
+                this.projectService.markFileForParsing(fileName);        
+            });
             this.updateErrorCheck(next, fileNames, delay);
         }
     }
@@ -643,10 +647,11 @@ export class Session<TMessage = string> implements EventSender {
 
     private getEncodedSemanticClassifications(args: protocol.EncodedSemanticClassificationsRequestArgs) {
         const { file, project } = this.getFileAndProject(args);
-        if (!project.getCurrentProgram()) return;
-        // TODO - why do we have to run this first and TS doesn't?
-        // this.semanticCheck(file, project);
+        if (!project.getCurrentProgram()) return;        
         // const format = args.format === "2020" ? SemanticClassificationFormat.TwentyTwenty : SemanticClassificationFormat.Original;
+        if (this.projectService.markFileForParsing(file)) {
+            project.markAsDirty();
+        }
         return project.getLanguageService().getEncodedSemanticClassifications(file, args);
     } 
 
@@ -1692,7 +1697,8 @@ function getPerProjectReferences<TResult>(
             if (!project.containsFile(toNormalizedPath(location.fileName))) {
                 continue;
             }
-            const projectResults = searchPosition(project, location);
+            searchUnparsedProjectFiles(project, location);
+            const projectResults = searchPosition(project, location);            
             resultsMap.set(project, projectResults ?? emptyArray);
             searchedProjectKeys.add(getProjectKey(project));
         }
@@ -1722,6 +1728,44 @@ function getPerProjectReferences<TResult>(
     }
 
     return resultsMap;
+    
+    /**
+     * search unparsed project files (via readfile) for instances of the symbol
+     * and mark them for parsing
+     * @param project 
+     * @param location 
+     * @returns 
+     */
+    function searchUnparsedProjectFiles(project: Project, location: DocumentPosition): void {
+        // get the sourcefile for this location & the node at current position
+        const program = project.getLanguageService().getCurrentProgram();
+        const sourceFile = program.getSourceFile(location.fileName);        
+        const node = sourceFile && getTouchingPropertyName(sourceFile, location.pos);
+        const symbol = program.getTypeChecker().getSymbolAtLocation(node);
+
+        // check the declaration - if it is in the same sourcefile and its parent is not the sourcefile
+        // the all refs are within this file and we don't need to do a global search
+        const declaration = firstOrUndefined(symbol?.declarations);
+        if (declaration?.getSourceFile() === sourceFile && !isSourceFile(declaration.parent)) return;
+                
+        // loop through root files - for any that are not parseable,
+        // load the contents from disk and look for the string "name"
+        const name = symbol.getName();
+        const parseableFiles = project.getParseableFiles();
+        const rootFiles = project.getRootFiles();
+        forEach(rootFiles, rootFile => {
+            const rootFilePath = project.toPath(rootFile);
+            if (!parseableFiles.has(rootFilePath)) {
+                const text = project.readFile(rootFile);
+                if (text && text.indexOf(name) !== -1) {
+                    // mark it for parsing, which will get picked up when sync worker is called
+                    projectService.markFileForParsing(rootFile);
+                    project.markAsDirty();
+                    //return { fileName: rootFilePath, pos: text.indexOf(name) };
+                }
+            }
+        });
+    }
 
     function searchPosition(project: Project, location: DocumentPosition): readonly TResult[] | undefined {
         const projectResults =  getResultsForPosition(project, location);
