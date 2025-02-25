@@ -2,6 +2,7 @@
 
 ## 1.1.28
 
+-   Lazy Parsing: The language server will now only parse files that are open in the editor or are directly dependent on an open file. This should reduce the memory footprint of the language server and improve performance. Note that running a language feature that analyzes multiple files (such as "Find All References") can still cause a large number of files to be parsed, so it is still recommended that projects be scoped as narrowly as possible using "include" and "exclude" config options.
 -   Performance Improvement: Include files will now only trigger a re-parse of dependent files
     if a) the dependent file is open in the editor or b) the number of dependent files is less than 25.
 
