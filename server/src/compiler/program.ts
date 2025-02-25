@@ -1,4 +1,4 @@
-import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne, getRelativePathFromFile, getRelativePathFromDirectory, map, resolvePath, diagnosticCategoryName, getLineAndCharacterOfPosition, convertToRelativePath, BuilderProgram, addRange, explainIfFileIsRedirectAndImpliedFormat, chainDiagnosticMessages, createFileDiagnosticFromMessageChain, createCompilerDiagnosticFromMessageChain, fileIncludeReasonToDiagnostics, createFileDiagnostic, getMatchedFileSpec, createDiagnosticForNodeInSourceFile, FilePreprocessingLibReferenceDiagnostic, getSpellingSuggestion, identity, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ParsedCommandLine, arrayIsEqualTo, forEachEntry, projectReferenceIsEqualTo, compareDataObjects, HasChangedAutomaticTypeDirectiveNames, isJSDocTypeTag, hasJSDocNodes, isJSDoc, isJSDocNode, isJSDocTypeExpression, isLiteralTypeNode, getLiteralText, GetLiteralTextFlags, isStringLiteralLike, isJSDocParameterTag, isJSDocReturnTag, isTypePredicateNode, StringLiteralType, isPropertyAccessExpression, Mutable, ImportCandidateNode, isNewExpression, isTypeNode, getLibRootedFileName, isJSDocPropertyTag, PragmaPseudoMapEntry, setParent, setTextRangePosEnd, PragmaPseudoMap, TextRange, CommentRange, thisObjectPragmaToStringLiteral, emptyMap, getLpcConfigPropArrayElementValue, forEachLpcConfigPropArray, LpcConfigSourceFile, isArrayLiteralExpression, tryCast, isObjectLiteralExpression, forEachPropertyAssignment, getLpcConfigObjectLiteralExpression, getPropertyArrayElementValue, getNameOfScriptTarget, getEmitScriptTarget, setTextRange, isCallExpression, isIdentifier, changesAffectModuleResolution, sourceFileAffectingCompilerOptions, hasChangesInResolutions, moduleResolutionIsEqualTo, changesAffectingProgramStructure, isBinaryExpression, isArrayTypeNode, LiteralTypeNode, LiteralExpression, isJSDocVariableTag, changesAffectLibCompilation, getMatchedIncludeSpec, tryGetLocalizedLibPath, isInExternalFileContext, DiagnosticCategory, forEachAncestorDirectory, getPositionOfLineAndCharacter, SourceFileBase, getPathComponents, diagnosticPrefix, createDiagnosticForRange, CommentDirective, createCommentDirectivesMap, CommentDirectivesMap, getLineStarts, computeLineAndCharacterOfPosition, skipTypeChecking, isUnionTypeNode, firstOrUndefined, TypeNode, BinaryExpression, isIntersectionTypeNode, isJSDocTypedefTag, isTypeLiteralNode, isJSDocTypeLiteral, JSDocImportCandidateNode, isNamedObjectTypeNode, bindSourceFile } from "./_namespaces/lpc.js";
+import { getDeclarationDiagnostics as lpc_getDeclarationDiagnostics, forEachResolvedProjectReference as lpc_forEachResolvedProjectReference, combinePaths, compareValues, CompilerHost, CompilerOptions, containsPath, createDiagnosticCollection, createGetCanonicalFileName, createMultiMap, CreateProgramOptions, createSourceFile, Diagnostic, DiagnosticArguments, DiagnosticMessage, Diagnostics, DiagnosticWithLocation, FileIncludeKind, FileIncludeReason, FilePreprocessingDiagnostics, FilePreprocessingDiagnosticsKind, forEach, getBaseFileName, getDirectoryPath, getNewLineCharacter, getRootLength, hasExtension, isArray, maybeBind, memoize, normalizePath, ObjectLiteralExpression, PackageId, Path, performance, Program, ProgramHost, ProjectReference, PropertyAssignment, ReferencedFile, removePrefix, removeSuffix, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, SourceFile, stableSort, StructureIsReused, sys, System, toPath as lpc_toPath, tracing, TypeChecker, getNormalizedAbsolutePathWithoutRoot, some, isRootedDiskPath, optionsHaveChanges, packageIdToString, toFileNameLowerCase, getNormalizedAbsolutePath, CreateSourceFileOptions, createTypeChecker, ScriptTarget, libs, FileReference, SortedReadonlyArray, concatenate, sortAndDeduplicateDiagnostics, emptyArray, LpcFileHandler, createLpcFileHandler, DiagnosticMessageChain, isString, CancellationToken, flatMap, filter, Debug, ScriptKind, flatten, OperationCanceledException, noop, getNormalizedPathComponents, GetCanonicalFileName, getPathFromPathComponents, WriteFileCallback, EmitHost, WriteFileCallbackData, getDefaultLibFileName, LibResolution, returnFalse, isTraceEnabled, trace, equateStringsCaseSensitive, equateStringsCaseInsensitive, NodeFlags, ResolvedModuleFull, Extension, ResolutionMode, ModeAwareCache, isExternalModule, StringLiteral, Identifier, isCloneObjectExpression, isStringLiteral, setParentRecursive, append, Node, SyntaxKind, forEachChild, ResolutionWithFailedLookupLocations, createModeAwareCache, ModuleKind, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, ModuleResolutionCache, contains, createModuleResolutionCache, ModuleResolutionHost, ModeAwareCacheKey, createModeAwareCacheKey, resolveModuleName, isInheritDeclaration, LogLevel, PackageJsonInfoCache, StringLiteralLike, skipTrivia, getSourceFileOfNode, hasLPCFileExtension, getNormalizedModuleName, isIncludeDirective, first, createEvaluator, forEachChildRecursively, factory, LanguageVariant, ResolvedConfigFileName, resolveConfigFileProjectName,     createMasterApplyGetIncludePathVm, memoizeOne, getRelativePathFromFile, getRelativePathFromDirectory, map, resolvePath, diagnosticCategoryName, getLineAndCharacterOfPosition, convertToRelativePath, BuilderProgram, addRange, explainIfFileIsRedirectAndImpliedFormat, chainDiagnosticMessages, createFileDiagnosticFromMessageChain, createCompilerDiagnosticFromMessageChain, fileIncludeReasonToDiagnostics, createFileDiagnostic, getMatchedFileSpec, createDiagnosticForNodeInSourceFile, FilePreprocessingLibReferenceDiagnostic, getSpellingSuggestion, identity, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ParsedCommandLine, arrayIsEqualTo, forEachEntry, projectReferenceIsEqualTo, compareDataObjects, HasChangedAutomaticTypeDirectiveNames, isJSDocTypeTag, hasJSDocNodes, isJSDoc, isJSDocNode, isJSDocTypeExpression, isLiteralTypeNode, getLiteralText, GetLiteralTextFlags, isStringLiteralLike, isJSDocParameterTag, isJSDocReturnTag, isTypePredicateNode, StringLiteralType, isPropertyAccessExpression, Mutable, ImportCandidateNode, isNewExpression, isTypeNode, getLibRootedFileName, isJSDocPropertyTag, PragmaPseudoMapEntry, setParent, setTextRangePosEnd, PragmaPseudoMap, TextRange, CommentRange, thisObjectPragmaToStringLiteral, emptyMap, getLpcConfigPropArrayElementValue, forEachLpcConfigPropArray, LpcConfigSourceFile, isArrayLiteralExpression, tryCast, isObjectLiteralExpression, forEachPropertyAssignment, getLpcConfigObjectLiteralExpression, getPropertyArrayElementValue, getNameOfScriptTarget, getEmitScriptTarget, setTextRange, isCallExpression, isIdentifier, changesAffectModuleResolution, sourceFileAffectingCompilerOptions, hasChangesInResolutions, moduleResolutionIsEqualTo, changesAffectingProgramStructure, isBinaryExpression, isArrayTypeNode, LiteralTypeNode, LiteralExpression, isJSDocVariableTag, changesAffectLibCompilation, getMatchedIncludeSpec, tryGetLocalizedLibPath, isInExternalFileContext, DiagnosticCategory, forEachAncestorDirectory, getPositionOfLineAndCharacter, SourceFileBase, getPathComponents, diagnosticPrefix, createDiagnosticForRange, CommentDirective, createCommentDirectivesMap, CommentDirectivesMap, getLineStarts, computeLineAndCharacterOfPosition, skipTypeChecking, isUnionTypeNode, firstOrUndefined, TypeNode, BinaryExpression, isIntersectionTypeNode, isJSDocTypedefTag, isTypeLiteralNode, isJSDocTypeLiteral, JSDocImportCandidateNode, isNamedObjectTypeNode, bindSourceFile, hostGetCanonicalFileName, ReadonlyPragmaContext } from "./_namespaces/lpc.js";
 
 interface FileReasonToChainCache {
     fileIncludeReasonDetails: DiagnosticMessageChain | undefined;
@@ -35,8 +35,8 @@ export function createProgram(rootNames: readonly string[], options: CompilerOpt
 export function createProgram(rootNamesOrOptions: readonly string[] | CreateProgramOptions, _options?: CompilerOptions, _host?: CompilerHost, _oldProgram?: Program, _configFileParsingDiagnostics?: readonly Diagnostic[]): Program {
     const createProgramOptions = isArray(rootNamesOrOptions) ? createCreateProgramOptions(rootNamesOrOptions, _options!, _host, _oldProgram, _configFileParsingDiagnostics) : rootNamesOrOptions; // TODO: GH#18217
     const { rootNames, options, configFileParsingDiagnostics, projectReferences, typeScriptVersion } = createProgramOptions;
-    let { oldProgram } = createProgramOptions;
-    
+    let { oldProgram } = createProgramOptions;    
+
     // const host = createProgramOptions.host || createCompilerHost(options);
     // const readFile = host.readFile.bind(host) as typeof host.readFile;
 
@@ -115,6 +115,9 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     const getDefaultLibraryFileName = memoize(() => host.getDefaultLibFileName(options));
 
     let configDefines: ReadonlyMap<string, string> | undefined;
+
+    // Set of files that are currently marked as parsable 
+    const parseableFiles = host.getParseableFiles();
 
     /**
      * map with
@@ -278,8 +281,19 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         }
 
         tracing?.push(tracing.Phase.Program, "processRootFiles", { count: rootNames.length });
-        forEach(rootNames, (name, index) => processRootFile(name, /*isDefaultLib*/ false, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.RootFile, index }));
+        forEach(rootNames, (name, index) => {
+            // only process the file if it is marked as parseable
+            if (!parseableFiles || parseableFiles.has(toPath(name))) {
+                processRootFile(name, /*isDefaultLib*/ false, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.RootFile, index })
+            }
+        });
         tracing?.pop();                
+        
+        if (options.sefunFile && fileExists(options.sefunFile)) {
+            // sefun file always gets processed
+            const sefunFileIndex = rootNames.indexOf(options.sefunFile);
+            processRootFile(options.sefunFile, /*isDefaultLib*/ false, /*ignoreNoDefaultLib*/ false, { kind: FileIncludeKind.RootFile, index: sefunFileIndex });
+        }                                
         
         // Do not process the default library if:
         //  - The '--noLib' flag is used.
@@ -349,8 +363,11 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
     resolvedModulesProcessing = undefined;
     //resolvedTypeReferenceDirectiveNamesProcessing = undefined;
 
+    // make a copy of the parseable files set so we can track changes
+    const currentParsableFiles = new Set(parseableFiles);
     const program: Program = {
         getRootFileNames: () => rootNames,
+        getParseableFiles: () => currentParsableFiles,
         getDriverType: () => options.driverType,
         getSourceFile,
         getSourceFileByPath,
@@ -474,12 +491,13 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
      * Did you really mean to call this?  You probably want `getSourceFile`
      * @param fileName 
      * @returns source text
+     * @internal
      */
     function getSourceFromSnapshotOrDisk(fileName: string): string | undefined {                
         return host.getSourceTextFromSnapshot(fileName) ?? sys.readFile(fileName);                
     }
 
-    function getSourceFile(fileName: string): SourceFile | undefined {
+    function getSourceFile(fileName: string): SourceFile | undefined {        
         return getSourceFileByPath(toPath(fileName));
     }
 
@@ -1437,7 +1455,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         }
     }
     
-    function getSourceFileByPath(path: Path): SourceFile | undefined {
+    function getSourceFileByPath(path: Path): SourceFile | undefined {        
         return filesByName.get(path) || undefined;
     }
 
@@ -1651,6 +1669,9 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
                     modulesWithElidedImports.set(file.path, true);
                 }
                 else if (shouldAddFile) {
+                    // mark module as parseable, if parseable files are being used
+                    parseableFiles?.add(toPath(resolvedFileName));
+                    
                     findSourceFile(
                         resolvedFileName,
                         /*isDefaultLib*/ false,
@@ -2144,6 +2165,11 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
             return StructureIsReused.Not;
         }
 
+        // is the set of parsable files has changed, we cant reuse the structure
+        const oldParsedNamed = oldProgram.getParseableFiles();
+        if (parseableFiles.size != oldParsedNamed.size) {
+            return StructureIsReused.Not;
+        }
 
         // Check if any referenced project tsconfig files are different
         if (!canReuseProjectReferences()) {
@@ -2449,7 +2475,8 @@ export function createCompilerHostWorker(
         readDirectory: (path, extensions, include, exclude, depth) => system.readDirectory(path, extensions, include, exclude, depth),
         createDirectory: d => system.createDirectory(d),
         createHash: maybeBind(system, system.createHash),
-        onAllFilesNeedReparse: (fileNames: string[]) => noop,
+        onAllFilesNeedReparse: (fileNames: string[]) => noop,        
+        getParseableFiles: () => undefined,
     };
     return compilerHost;
 }
@@ -3107,18 +3134,28 @@ export function isProgramUptoDate(
     hasChangedAutomaticTypeDirectiveNames: HasChangedAutomaticTypeDirectiveNames | undefined,
     getParsedCommandLine: (fileName: string) => ParsedCommandLine | undefined,
     projectReferences: readonly ProjectReference[] | undefined,
+    parseableFilePaths: ReadonlySet<Path>
 ): boolean {
     // If we haven't created a program yet or have changed automatic type directives, then it is not up-to-date
     if (!program || hasChangedAutomaticTypeDirectiveNames?.()) return false;
 
     // If root file names don't match
     if (!arrayIsEqualTo(program.getRootFileNames(), rootFileNames)) return false;
+    
+    // quick check to see if size of parseable files has changed
+    if (parseableFilePaths?.size !== program.getParseableFiles()?.size) return false;
+    // check if any parseable files do not have valid sourcefiles yet
+    let needsToParseNewFiles = false;
+    parseableFilePaths.forEach(path => {
+        needsToParseNewFiles ||= !program.getSourceFileByPath(path);
+    });
+    if (needsToParseNewFiles) return false;
 
     let seenResolvedRefs: ResolvedProjectReference[] | undefined;
 
     // If project references don't match
     if (!arrayIsEqualTo(program.getProjectReferences(), projectReferences, projectReferenceUptoDate)) return false;
-
+        
     // If any file is not up-to-date, then the whole program is not up-to-date
     if (program.getSourceFiles().some(sourceFileNotUptoDate)) return false;
 

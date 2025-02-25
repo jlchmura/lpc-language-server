@@ -1,4 +1,3 @@
-import { ILpcConfig } from "../config-types.js";
 import {
     CompilerHost,
     CompilerOptions,
@@ -12,13 +11,12 @@ import {
     HasChangedAutomaticTypeDirectiveNames,
     HasInvalidatedResolutions,
     JSDocParsingMode,
-    LineAndCharacter,
-    LpcFileHandler,
+    LineAndCharacter,    
     MinimalResolutionCacheHost,
     ModuleResolutionCache,
-    ModuleSpecifierCache,
-    Node,
+    ModuleSpecifierCache,    
     ParsedCommandLine,
+    Path,
     Program,
     ProjectReference,
     ResolvedModule,
@@ -551,7 +549,7 @@ export interface LanguageServiceHost
     getCompilationSettings(): CompilerOptions;
     getNewLine?(): string;
     /** @internal */ updateFromProject?(): void;
-    /** @internal */ updateFromProjectInProgress?: boolean;
+    /** @internal */ updateFromProjectInProgress?: boolean;    
 
     getProjectVersion?(): string;
     getScriptFileNames(): string[];
@@ -694,7 +692,8 @@ export interface LanguageServiceHost
     ): void;
     /** @internal */ getIncompleteCompletionsCache?(): IncompleteCompletionsCache;
     //** @internal */ runWithTemporaryFileUpdate?(rootFile: string, updatedText: string, cb: (updatedProgram: Program, originalProgram: Program | undefined, updatedPastedText: SourceFile) => void): void;
-    jsDocParsingMode?: JSDocParsingMode | undefined;
+    jsDocParsingMode?: JSDocParsingMode | undefined;    
+    /** @internal */ getParseableFiles(): Set<Path>;
 }
 
 /**

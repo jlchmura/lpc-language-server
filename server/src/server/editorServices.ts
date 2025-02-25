@@ -117,6 +117,12 @@ export class ProjectService {
      */
     readonly openFiles: Map<Path, NormalizedPath | undefined> = new Map<Path, NormalizedPath | undefined>();
 
+    /**
+     * Files that have been opened or referenced by an open file and therefore
+     * should be parsed as part of the program.
+     */
+    readonly shouldParse: Set<Path> = new Set<Path>();
+
     /** Config files looked up and cached config files for open script info */
     private readonly configFileForOpenFiles = new Map<Path, ConfigFileName>();
     /** Set of open script infos that are root of inferred project */
@@ -524,6 +530,19 @@ export class ProjectService {
             }
         }
         return info;
+    }
+
+    /** @internal */
+    markFileForParsing(fileName: string): boolean {        
+        const filePath = this.toPath(fileName);
+
+        if (this.shouldParse.has(filePath)) {
+            return false;
+        }
+
+        this.shouldParse.add(filePath);
+        this.tryGetDefaultProjectForFile(toNormalizedPath(fileName))?.markFileAsDirty(filePath);
+        return true;
     }
     
     /** @internal */
@@ -978,7 +997,7 @@ export class ProjectService {
     }
 
 
-    openClientFileWithNormalizedPath(fileName: NormalizedPath, fileContent?: string, scriptKind?: ScriptKind, hasMixedContent?: boolean, projectRootPath?: NormalizedPath): OpenConfiguredProjectResult {
+    openClientFileWithNormalizedPath(fileName: NormalizedPath, fileContent?: string, scriptKind?: ScriptKind, hasMixedContent?: boolean, projectRootPath?: NormalizedPath): OpenConfiguredProjectResult {        
         const info = this.getOrCreateOpenScriptInfo(fileName, fileContent, scriptKind, hasMixedContent, projectRootPath);
         const { retainProjects, ...result } = this.assignProjectToOpenedScriptInfo(info);
         this.cleanupProjectsAndScriptInfos(
@@ -2479,7 +2498,7 @@ export class ProjectService {
                 noopConfigFileWatcher;
         });
     }
-
+    
     /**
      * Remove this file from the set of open, non-configured files.
      * @param info The file that has been closed or newly configured

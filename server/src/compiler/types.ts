@@ -5072,6 +5072,11 @@ export interface Program extends ScriptReferenceHost {
     getSourceFiles(): readonly SourceFile[];
 
     /**
+     * Get a list of files that are parsable
+     */
+    getParseableFiles(): ReadonlySet<Path> | undefined;
+
+    /**
      * Gets a type checker that can be used to semantically analyze source files in the program.
      */
     getTypeChecker(): TypeChecker;
@@ -5376,7 +5381,8 @@ export interface CompilerHost extends ModuleResolutionHost {
     /** @internal */ storeSignatureInfo?: boolean;
     /** @internal */ getBuildInfo?(fileName: string, configFilePath: string | undefined): BuildInfo | undefined;
 
-    jsDocParsingMode?: JSDocParsingMode;
+    jsDocParsingMode?: JSDocParsingMode;    
+    /** @internal */ getParseableFiles(): Set<Path>;
 }
 
 /** @internal */

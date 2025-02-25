@@ -227,6 +227,11 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     }
 
     /** @internal */
+    getParseableFiles(): Set<lpc.Path> {
+        return this.projectService.shouldParse;
+    }
+
+    /** @internal */
     scheduleInvalidateResolutionsOfFailedLookupLocations() {
         this.projectService.throttledOperations.schedule(`${this.getProjectName()}FailedLookupInvalidation`, /*delay*/ 1000, () => {
             if (this.resolutionCache.invalidateResolutionsOfFailedLookupLocations()) {

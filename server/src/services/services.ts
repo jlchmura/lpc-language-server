@@ -1596,7 +1596,8 @@ export function createLanguageService(
         // This array is retained by the program and will be used to determine if the program is up to date,
         // so we need to make a copy in case the host mutates the underlying array - otherwise it would look
         // like every program always has the host's current list of root files.
-        const rootFileNames = host.getScriptFileNames().slice();
+        const rootFileNames = host.getScriptFileNames().slice();                
+        const parseableFiles = new Set(host.getParseableFiles());
 
         // Get a fresh cache of the host information
         const newSettings = host.getCompilationSettings() || getDefaultCompilerOptions();
@@ -1692,7 +1693,8 @@ export function createLanguageService(
                 host.useSourceOfProjectReferenceRedirect
             ),
             getParsedCommandLine,
-            jsDocParsingMode: host.jsDocParsingMode,
+            jsDocParsingMode: host.jsDocParsingMode,            
+            getParseableFiles: maybeBind(host, host.getParseableFiles),            
         };
 
         host.setCompilerHost?.(compilerHost);
@@ -1710,8 +1712,10 @@ export function createLanguageService(
             onUnRecoverableConfigFileDiagnostic: noop,
         };
         
+        
+
         // If the program is already up-to-date, we can reuse it
-        if (isProgramUptoDate(program, rootFileNames, newSettings, (_path, fileName) => host.getScriptVersion(fileName), fileName => compilerHost!.fileExists(fileName), hasInvalidatedResolutions, hasInvalidatedLibResolutions, hasChangedAutomaticTypeDirectiveNames, getParsedCommandLine, projectReferences)) {
+        if (isProgramUptoDate(program, rootFileNames, newSettings, (_path, fileName) => host.getScriptVersion(fileName), fileName => compilerHost!.fileExists(fileName), hasInvalidatedResolutions, hasInvalidatedLibResolutions, hasChangedAutomaticTypeDirectiveNames, getParsedCommandLine, projectReferences, parseableFiles)) {
             compilerHost = undefined;
             parsedCommandLines = undefined;
             releasedScriptKinds = undefined;
@@ -2014,7 +2018,7 @@ export function createLanguageService(
         return SignatureHelp.getSignatureHelpItems(program, sourceFile, position, triggerReason, cancellationToken);
     }
 
-    function getEncodedSemanticClassifications(fileName: string, span: TextSpan): Classifications {
+    function getEncodedSemanticClassifications(fileName: string, span: TextSpan): Classifications {        
         synchronizeHostData();
                 
         return classifier2020.getEncodedSemanticClassifications(program, cancellationToken, getValidSourceFile(fileName), span);        

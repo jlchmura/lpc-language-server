@@ -394,6 +394,10 @@ export class Session<TMessage = string> implements EventSender {
         }
 
         if (fileNames.length > 0) {
+            // mark files as needing parsing
+            fileNames.map(fileName => {
+                this.projectService.markFileForParsing(fileName);        
+            });
             this.updateErrorCheck(next, fileNames, delay);
         }
     }
@@ -643,10 +647,11 @@ export class Session<TMessage = string> implements EventSender {
 
     private getEncodedSemanticClassifications(args: protocol.EncodedSemanticClassificationsRequestArgs) {
         const { file, project } = this.getFileAndProject(args);
-        if (!project.getCurrentProgram()) return;
-        // TODO - why do we have to run this first and TS doesn't?
-        // this.semanticCheck(file, project);
+        if (!project.getCurrentProgram()) return;        
         // const format = args.format === "2020" ? SemanticClassificationFormat.TwentyTwenty : SemanticClassificationFormat.Original;
+        if (this.projectService.markFileForParsing(file)) {
+            project.markAsDirty();
+        }
         return project.getLanguageService().getEncodedSemanticClassifications(file, args);
     } 
 
