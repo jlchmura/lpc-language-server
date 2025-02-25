@@ -1095,8 +1095,8 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     private filesToStringWorker(writeProjectFileNames: boolean, writeFileExplaination: boolean, writeFileVersionAndText: boolean) {
         if (this.isInitialLoadPending()) return "\tFiles (0) InitialLoadPending\n";
         if (!this.program) return "\tFiles (0) NoProgram\n";
-        const sourceFiles = this.program.getSourceFiles();
-        let strBuilder = `\tFiles (${sourceFiles.length})\n`;
+        const sourceFiles = this.program.getSourceFiles();        
+        let strBuilder = `\tFiles (${sourceFiles.length} / ${this.rootFilesMap.size})\n`;        
         if (writeProjectFileNames) {
             for (const file of sourceFiles) {
                 strBuilder += `\t${file.fileName}${writeFileVersionAndText ? ` ${file.version} ${JSON.stringify(file.text)}` : ""}\n`;
