@@ -26,7 +26,6 @@ export interface ProjectsUpdatedInBackgroundEvent {
     data: { openFiles: string[]; };
 }
 
-
 export class ProjectService {
     /** @internal */
     readonly documentRegistry: DocumentRegistry;

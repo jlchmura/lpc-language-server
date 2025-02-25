@@ -374,7 +374,7 @@ export class Session<TMessage = string> implements EventSender {
                 scriptInfo.containingProjects.forEach(project => {                                        
                     const resolutions = project.resolutionCache.resolvedFileToResolution.get(scriptInfo.path);                    
                     resolutions?.forEach(r => {
-                        let incrementAllFiles = r.files?.size < 25;
+                        let incrementAllFiles = r.files?.size < 50;
                         r.files.forEach(p => { 
                             if (incrementAllFiles || openFiles.has(p)) {
                                 this.projectService.getScriptInfoForPath(p)?.incrementVersion();                                

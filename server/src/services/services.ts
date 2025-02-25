@@ -16,7 +16,6 @@ import {
     FileReference,
     find,
     FloatLiteralType,
-    FlowNode,
     forEach,
     forEachChild,
     FunctionLikeDeclaration,
@@ -27,8 +26,7 @@ import {
     getNonAssignedNameOfDeclaration,
     getObjectFlags,
     getSourceFileOfNode,
-    getTokenPosOfNode,
-    HasLocals,
+    getTokenPosOfNode,    
     hasSyntacticModifier,
     Identifier,
     IndexKind,
@@ -38,7 +36,6 @@ import {
     isBindingPattern,
     isJSDocCommentContainingNode,
     isNodeKind,
-    isPropertyNameLiteral,
     JSDoc,
     JSDocContainer,
     LanguageVariant,
@@ -68,7 +65,6 @@ import {
     Symbol,
     SymbolFlags,
     SymbolLinks,
-    symbolName,
     SymbolTable,
     SyntaxKind,
     SyntaxList,
@@ -187,7 +183,6 @@ import {
     SignatureHelpItemsOptions,
     SignatureHelpItems,
     SignatureHelp,
-    isSourceFile,
     isDefineDirective,
     createLpcFileHandler,
     sys,
@@ -205,15 +200,12 @@ import {
     TextInsertion,
     getNewLineOrDefaultFromHost,
     PragmaMap,
-    factory,
-    setTextRangePosEnd,
     ResolvedProjectReference,
     CheckLpcDirective,
     bindSourceFile,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 import { computeSuggestionDiagnostics } from "./suggestionDiagnostics.js";
-
 
 // These utilities are common to multiple language service features.
 // #region
