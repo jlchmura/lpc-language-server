@@ -6,7 +6,7 @@
         "color": "#000000",
         "theme": "dark"
     },
-    "description": "Rich language support for LPC (Lars Pensjö C)",
+    "description": "Rich language support for LPC (LDMud/FluffOS branch of LPMud drivers)",
     "main": "out/client/src/extension.js",
     "publisher": "jlchmura",
     "icon": "lpc-icon.png",
