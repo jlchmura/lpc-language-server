@@ -1955,11 +1955,11 @@ export namespace LpcParser {
             const includes = includeGraph.get(currentFile)!;
             includes.add(resolvedFilename);
         
-            // Check for circular includes
+            // Check for circular includes            
             if (hasCircularDependency(includeGraph, currentFile)) {
-                console.error(`Circular include detected: ${currentFile} -> ${resolvedFilename}`);
-                // report the error at the top-level include
-                parseErrorAtRange(currentTopLevelIncludeDirective ?? includeDirective, fileName, Diagnostics.Circular_include_detected_0_to_1, currentFile, resolvedFilename);
+                console.info(`Circular include ignored: ${currentFile} -> ${resolvedFilename}`);
+                // the drivers will ignore these, so we don't need to report an error
+                // parseErrorAtRange(currentTopLevelIncludeDirective ?? includeDirective, fileName, Diagnostics.Circular_include_detected_0_to_1, currentFile, resolvedFilename);
                 return false;
             }
             
@@ -1984,9 +1984,12 @@ export namespace LpcParser {
                 const revertStream = scanner.switchStream(
                     resolvedFilename, includeSourceText, 0, includeSourceText.length, false /* revertOnEOF */,
                     ()=>{
+                        includes.delete(resolvedFilename);
+
                         currentTopLevelIncludeDirective = saveTopDirective!;
                         currentIncludeDirective = saveDirective;
                         currentToken = scanner.getToken();
+
                         return false;
                     }
                 );            
