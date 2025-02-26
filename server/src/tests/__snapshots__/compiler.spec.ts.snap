@@ -433,6 +433,8 @@ Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/ma
 "
 `;
 
+exports[`Compiler compiler/mapping6.c Reports correct errors for compiler/mapping6.c: diags-compiler/mapping6.c 1`] = `""`;
+
 exports[`Compiler compiler/missingFunc.c Reports correct errors for compiler/missingFunc.c: diags-compiler/missingFunc.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/missingFunc.c[90m:3[0m

@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.29
+
+-   Fix: [Mapping literal can have newline whitespace between `(` and `[` #202](https://github.com/jlchmura/lpc-language-server/issues/202)
+
 ## 1.1.28
 
 -   Lazy Parsing: The language server will now only parse files that are open in the editor or are directly dependent on an open file. This should reduce the memory footprint of the language server and improve performance. Note that running a language feature that analyzes multiple files (such as "Find All References") can still cause a large number of files to be parsed, so it is still recommended that projects be scoped as narrowly as possible using "include" and "exclude" config options.
