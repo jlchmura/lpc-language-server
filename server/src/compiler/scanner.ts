@@ -2163,7 +2163,7 @@ export function createScanner(
                     
                     // advance past paren, then skip whitespace                    
                     pos++;
-                    while (pos < end && isWhiteSpaceSingleLine(charCodeUnchecked(pos))) {
+                    while (pos < end && isWhiteSpaceLike(charCodeUnchecked(pos))) {
                         pos++;
                     }
                     
