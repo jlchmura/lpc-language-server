@@ -3304,7 +3304,11 @@ export namespace LpcParser {
     function parseObjectTypeMembers(): NodeArray<TypeElement> {
         let members: NodeArray<TypeElement>;
         if (parseExpected(SyntaxKind.OpenBraceToken)) {
-            members = factory.createNodeArray(flatten(parseList(ParsingContext.TypeMembers, parseTypeMember)));
+            const typeMembers = parseList(ParsingContext.TypeMembers, parseTypeMember);
+            const memberNodeArray = typeMembers as unknown as NodeArray<any>;
+            // need to restore the actual positions from the flattened node list
+            members = createNodeArray(flatten(memberNodeArray), memberNodeArray?.pos, memberNodeArray?.end);
+            
             parseExpected(SyntaxKind.CloseBraceToken);
         }
         else {
@@ -3316,12 +3320,15 @@ export namespace LpcParser {
     
     function parseStructTypeNode(structOrClassToken: KeywordSyntaxKind, isStructKeywordExpected=true): StructTypeNode {
         const pos = getPositionState();
+        let structTypeKeyword = token();
         if (isStructKeywordExpected && !parseExpected(structOrClassToken)) {
+            structTypeKeyword = SyntaxKind.StructKeyword;
             createMissingNode(structOrClassToken, /*reportAtCurrentPosition*/ true, Diagnostics._0_expected, "struct");
         }
         
         const name = parseIdentifier();        
-        return finishNode(factory.createStructTypeNode(name), pos);
+        Debug.assert(structTypeKeyword === SyntaxKind.StructKeyword || structTypeKeyword === SyntaxKind.ClassKeyword);
+        return finishNode(factory.createStructTypeNode(name, structTypeKeyword), pos);
     }
 
     function parseLiteralTypeNode(negative?: boolean): LiteralTypeNode {
