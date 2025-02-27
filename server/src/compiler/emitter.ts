@@ -1997,6 +1997,10 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
     function emitParameter(node: ParameterDeclaration) {
         emitDecoratorsAndModifiers(node, node.modifiers, /*allowDecorators*/ true);
         emitTypeAnnotation(node.type);
+        if (node.ampToken) {
+             emit(node.ampToken);
+             if (node.ampToken.kind === SyntaxKind.RefKeyword) writeSpace();
+        }
         emitNodeWithWriter(node.name, writeParameter);
         emit(node.dotDotDotToken);
         
