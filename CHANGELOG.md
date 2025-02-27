@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.30
+
+-   Fix LD struct parsing error introduced in 1.1.29.
+
 ## 1.1.29
 
 -   Fix: [Mapping literal can have newline whitespace between `(` and `[` #202](https://github.com/jlchmura/lpc-language-server/issues/202)

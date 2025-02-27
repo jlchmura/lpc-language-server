@@ -3320,7 +3320,7 @@ export namespace LpcParser {
     
     function parseStructTypeNode(structOrClassToken: KeywordSyntaxKind, isStructKeywordExpected=true): StructTypeNode {
         const pos = getPositionState();
-        let structTypeKeyword = token();
+        let structTypeKeyword = (token() === SyntaxKind.StructKeyword || token() === SyntaxKind.ClassKeyword) ? token() : structOrClassToken;
         if (isStructKeywordExpected && !parseExpected(structOrClassToken)) {
             structTypeKeyword = SyntaxKind.StructKeyword;
             createMissingNode(structOrClassToken, /*reportAtCurrentPosition*/ true, Diagnostics._0_expected, "struct");
