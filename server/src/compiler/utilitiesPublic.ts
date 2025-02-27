@@ -809,6 +809,10 @@ export function hasRestParameter(s: SignatureDeclaration | JSDocSignature): bool
     return !!last && isRestParameter(last);
 }
 
+export function isByRefParameterDeclaration(node: ParameterDeclaration | JSDocParameterTag): node is ParameterDeclaration {
+    return !isJSDocParameterTag(node) && !!node.ampToken;
+}
+
 export function isRestParameter(node: ParameterDeclaration | JSDocParameterTag): boolean {
     const type = isJSDocParameterTag(node) ? (node.typeExpression && node.typeExpression.type) : node.type;
     return (node as ParameterDeclaration).dotDotDotToken !== undefined || 
