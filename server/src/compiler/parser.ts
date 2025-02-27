@@ -5002,7 +5002,14 @@ export namespace LpcParser {
     }
 
     function parsePropertyAccessExpressionRest(pos: PositionState, expression: LeftHandSideExpression, propertyAccessToken: PropertyAccessToken) {
-        const name = parseRightSideOfDot(/*allowIdentifierNames*/ true, /*allowPrivateIdentifiers*/ true, /*allowUnicodeEscapeSequenceInIdentifierName*/ true);
+        let name: Expression | Identifier;
+
+        if (token() === SyntaxKind.OpenParenToken) {
+            name = parseParenthesizedExpression();
+        } else {
+            name = parseRightSideOfDot(/*allowIdentifierNames*/ true, /*allowPrivateIdentifiers*/ true, /*allowUnicodeEscapeSequenceInIdentifierName*/ true);
+        }
+
         const isOptionalChain = false;
         const propertyAccess = factoryCreatePropertyAccessExpression(expression, name, propertyAccessToken);
         

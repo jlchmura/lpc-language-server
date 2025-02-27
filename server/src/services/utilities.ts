@@ -217,6 +217,8 @@ import {
     LeftHandSideExpression,
     isSyntaxList,
     isJSDocTypeAlias,
+    isParenthesizedExpression,
+    ParenthesizedExpression,
 } from "./_namespaces/lpc.js";
 
 // Matches the beginning of a triple slash directive
@@ -224,7 +226,7 @@ const tripleSlashDirectivePrefixRegex = /^\/\/\/\s*</;
 
 /** @internal */
 export function getNameFromPropertyName(
-    name: PropertyName
+    name: PropertyName | ParenthesizedExpression
 ): string | undefined {
     return name.kind === SyntaxKind.ComputedPropertyName
         // treat computed property names where expression is string/numeric literal as just string/numeric literal

@@ -46,6 +46,7 @@ import {
     some,
     SourceFile,
     SyntaxKind,
+    tryGetTextOfPropertyName,
     TypeChecker,
     VariableStatement,
 } from "./_namespaces/lpc.js";
@@ -109,9 +110,8 @@ function isConvertibleFunction(node: FunctionLikeDeclaration, checker: TypeCheck
     //     returnsPromise(node, checker);
 }
 
-
 function hasSupportedNumberOfArguments(node: CallExpression & { readonly expression: PropertyAccessExpression; }) {
-    const name = node.expression.name.text;
+    const name = tryGetTextOfPropertyName(node.expression.name);
     const maxArguments = name === "then" ? 2 : name === "catch" ? 1 : name === "finally" ? 1 : 0;
     if (node.arguments.length > maxArguments) return false;
     if (node.arguments.length < maxArguments) return true;
