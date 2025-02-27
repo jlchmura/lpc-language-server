@@ -3320,12 +3320,15 @@ export namespace LpcParser {
     
     function parseStructTypeNode(structOrClassToken: KeywordSyntaxKind, isStructKeywordExpected=true): StructTypeNode {
         const pos = getPositionState();
+        let structTypeKeyword = token();
         if (isStructKeywordExpected && !parseExpected(structOrClassToken)) {
+            structTypeKeyword = SyntaxKind.StructKeyword;
             createMissingNode(structOrClassToken, /*reportAtCurrentPosition*/ true, Diagnostics._0_expected, "struct");
         }
         
         const name = parseIdentifier();        
-        return finishNode(factory.createStructTypeNode(name), pos);
+        Debug.assert(structTypeKeyword === SyntaxKind.StructKeyword || structTypeKeyword === SyntaxKind.ClassKeyword);
+        return finishNode(factory.createStructTypeNode(name, structTypeKeyword), pos);
     }
 
     function parseLiteralTypeNode(negative?: boolean): LiteralTypeNode {

@@ -1572,7 +1572,7 @@ export interface NodeFactory {
     createParenthesizedType(type: TypeNode): ParenthesizedTypeNode;
     createLiteralTypeNode(literal: LiteralTypeNode["literal"]): LiteralTypeNode;
     createTypeLiteralNode(members: readonly TypeElement[] | undefined): TypeLiteralNode;
-    createStructTypeNode(name: Identifier): StructTypeNode;
+    createStructTypeNode(name: Identifier, keyword: StructKeywordSyntaxKind): StructTypeNode;
     createPropertySignature(modifiers: readonly Modifier[] | undefined, name: PropertyName | string, type: TypeNode | undefined): PropertySignature;
     createStructDeclarationNode(
         modifiers: readonly Modifier[] | undefined,
@@ -2350,6 +2350,9 @@ export type DirectiveSyntaxKind =
     | SyntaxKind.EndIfDirective
     | SyntaxKind.PragmaDirective;
     
+export type StructKeywordSyntaxKind = 
+    | SyntaxKind.StructKeyword
+    | SyntaxKind.ClassKeyword;
 
 export type KeywordSyntaxKind =
     | SyntaxKind.AnyKeyword    
@@ -4857,6 +4860,7 @@ export interface LiteralTypeNode extends TypeNode {
 
 export interface StructTypeNode extends TypeNode {
     readonly kind: SyntaxKind.StructType;
+    readonly keyword: StructKeywordSyntaxKind;
     readonly typeName: EntityName;
 }
 
