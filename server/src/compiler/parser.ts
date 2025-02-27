@@ -3304,7 +3304,11 @@ export namespace LpcParser {
     function parseObjectTypeMembers(): NodeArray<TypeElement> {
         let members: NodeArray<TypeElement>;
         if (parseExpected(SyntaxKind.OpenBraceToken)) {
-            members = factory.createNodeArray(flatten(parseList(ParsingContext.TypeMembers, parseTypeMember)));
+            const typeMembers = parseList(ParsingContext.TypeMembers, parseTypeMember);
+            const memberNodeArray = typeMembers as unknown as NodeArray<any>;
+            // need to restore the actual positions from the flattened node list
+            members = createNodeArray(flatten(memberNodeArray), memberNodeArray?.pos, memberNodeArray?.end);
+            
             parseExpected(SyntaxKind.CloseBraceToken);
         }
         else {
