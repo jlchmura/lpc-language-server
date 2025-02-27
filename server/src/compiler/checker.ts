@@ -6914,7 +6914,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
         if (isPropertyAccessExpression(e)) {
             const lhsType = getTypeOfExpression(e.expression);
-            return getPropertyOfType(lhsType, e.name.text);
+            return isIdentifier(e.name) && getPropertyOfType(lhsType, e.name.text);
         }
         if (isElementAccessExpression(e)) {
             const propType = checkExpressionCached(e.argumentExpression);
@@ -12273,7 +12273,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     const type = getTypeOfDottedName((node as PropertyAccessExpression).expression, diagnostic);
                     if (type) {
                         const name = (node as PropertyAccessExpression).name;
-                        let prop: Symbol | undefined;
+                        let prop: Symbol | undefined;                        
                         // if (isPrivateIdentifier(name)) {
                         //     if (!type.symbol) {
                         //         return undefined;
@@ -12281,7 +12281,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                         //     prop = getPropertyOfType(type, getSymbolNameForPrivateIdentifier(type.symbol, name.text));
                         // }
                         // else {
-                            prop = getPropertyOfType(type, name.text);
+                        prop = isIdentifier(name) && getPropertyOfType(type, name.text);
                         // }
                         return prop && getExplicitTypeOfSymbol(prop, diagnostic);
                     }
@@ -18017,7 +18017,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
         if (!isIdentifier(node.expression.expression)) return false;
         // Exactly `globalThis.Symbol.something` and `globalThis` resolves to the global `globalThis`
-        return idText(node.expression.name) === "Symbol" && idText(node.expression.expression) === "globalThis" && getResolvedSymbol(node.expression.expression) === globalThisSymbol;
+        return isIdentifier(node.expression.name) && idText(node.expression.name) === "Symbol" && idText(node.expression.expression) === "globalThis" && getResolvedSymbol(node.expression.expression) === globalThisSymbol;
     }
 
     function requiresAddingImplicitUndefined(parameter: ParameterDeclaration | JSDocParameterTag) {
@@ -24104,7 +24104,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return checkPropertyAccessExpressionOrQualifiedName(node, node.left, leftType, node.right, checkMode);
     }
     
-    function checkPropertyAccessExpressionOrQualifiedName(node: PropertyAccessExpression | QualifiedName, left: Expression | QualifiedName, leftType: Type, right: Identifier, checkMode: CheckMode | undefined, writeOnly?: boolean) {
+    function checkPropertyAccessExpressionOrQualifiedName(node: PropertyAccessExpression | QualifiedName, left: Expression | QualifiedName, leftType: Type, right: Identifier | ParenthesizedExpression, checkMode: CheckMode | undefined, writeOnly?: boolean) {
         const parentSymbol = getNodeLinks(left).resolvedSymbol;
         const assignmentKind = getAssignmentTargetKind(node);
         // if left is an array, then use its element type in fluffos
@@ -24120,6 +24120,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
             return isErrorType(apparentType) ? errorType : apparentType;
         }
+        
+        if (isParenthesizedExpression(right)) {
+            // if right is a parenthesized expr, we can shortcut this whole check and just return any
+            // TODO - if right is a string literal - we can technically narrow validate the property access?            
+            const rigthExprType = checkExpression(right); // check the expression - but don't use its type
+            return anyType;
+        }
+
         prop = getPropertyOfType(apparentType, right.text, /*skipObjectFunctionPropertyAugment*/ false, /*includeTypeOnlyMembers*/ node.kind === SyntaxKind.QualifiedName);
     
         if (!prop && isThisObjectExpression(left)) {
@@ -29104,7 +29112,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function getAccessedPropertyName(access: AccessExpression | BindingElement | ParameterDeclaration): string | undefined {
         if (isPropertyAccessExpression(access)) {
-            return access.name.text;
+            const propAccId = skipParentheses(access.name);
+            return isIdentifier(propAccId) && propAccId.text;            
         }
         if (isElementAccessExpression(access)) {
             return tryGetElementAccessExpressionName(access);
@@ -30614,7 +30623,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
 
         function isMatchingConstructorReference(expr: Expression) {
-            return (isPropertyAccessExpression(expr) && idText(expr.name) === "constructor" ||
+            return (isPropertyAccessExpression(expr) && isIdentifier(expr.name) && idText(expr.name) === "constructor" ||
                 isElementAccessExpression(expr) && isStringLiteral(expr.argumentExpression) && expr.argumentExpression.text === "constructor") &&
                 isMatchingReference(reference, expr.expression);
         }
@@ -31085,7 +31094,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return node.parent.kind === SyntaxKind.TypeReference;
     }
     
-    function getLiteralTypeFromPropertyName(name: PropertyName ) {
+    function getLiteralTypeFromPropertyName(name: PropertyName) {
         if (isPrivateIdentifier(name)) {
             return neverType;
         }

@@ -203,6 +203,7 @@ import {
     ResolvedProjectReference,
     CheckLpcDirective,
     bindSourceFile,
+    tryGetTextOfPropertyName,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 import { computeSuggestionDiagnostics } from "./suggestionDiagnostics.js";
@@ -725,7 +726,7 @@ class SourceFileObject extends NodeObject<SyntaxKind.SourceFile> implements Sour
 
         function getDeclarationName(declaration: Declaration) {
             const name = getNonAssignedNameOfDeclaration(declaration);
-            return name && (isComputedPropertyName(name) && isPropertyAccessExpression(name.expression) ? name.expression.name.text
+            return name && (isComputedPropertyName(name) && isPropertyAccessExpression(name.expression) ? tryGetTextOfPropertyName(name.expression.name)
                 : isPropertyName(name) ? getNameFromPropertyName(name) : undefined);            
         }
 

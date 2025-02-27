@@ -1445,7 +1445,7 @@ export type TypeNodeSyntaxKind =
     | SyntaxKind.JSDocSignature
     | SyntaxKind.JSDocTypeLiteral;
 
-export type PropertyName = Identifier | StringLiteral | IntLiteral | ComputedPropertyName;
+export type PropertyName = Identifier | StringLiteral | IntLiteral | ComputedPropertyName | ParenthesizedExpression;
 export type MemberName = Identifier;// | Expression;
 
 export type DeclarationName =
@@ -3391,7 +3391,7 @@ export interface FloatLiteral extends LiteralExpression, Declaration {
     readonly numericLiteralFlags: TokenFlags;
 }
 
-export type PropertyNameLiteral = Identifier | StringLiteral | IntLiteral;
+export type PropertyNameLiteral = Identifier | StringLiteral | IntLiteral ;
 
 export interface StringLiteral extends LiteralExpression, Declaration {
     readonly kind: SyntaxKind.StringLiteral;
@@ -3931,7 +3931,7 @@ export type CaseOrDefaultClause =
 export interface PropertyAccessExpression extends MemberExpression, NamedDeclaration, JSDocContainer, FlowContainer {
     readonly kind: SyntaxKind.PropertyAccessExpression;
     readonly expression: LeftHandSideExpression;        
-    readonly name: MemberName;
+    readonly name: MemberName | ParenthesizedExpression;
     readonly propertyAccessToken: PropertyAccessToken
 }
 

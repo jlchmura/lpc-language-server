@@ -97,6 +97,15 @@ exports[`Compiler compiler/callOther2.c Reports correct errors for compiler/call
 
 exports[`Compiler compiler/callOther3.c Reports correct errors for compiler/callOther3.c: diags-compiler/callOther3.c 1`] = `""`;
 
+exports[`Compiler compiler/callOther4.c Reports correct errors for compiler/callOther4.c: diags-compiler/callOther4.c 1`] = `""`;
+
+exports[`Compiler compiler/callOther5.c Reports correct errors for compiler/callOther5.c: diags-compiler/callOther5.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/callOther5.c[90m:7[0m
+
+"
+`;
+
 exports[`Compiler compiler/catchBlock.c Reports correct errors for compiler/catchBlock.c: diags-compiler/catchBlock.c 1`] = `""`;
 
 exports[`Compiler compiler/catchBlock2.c Reports correct errors for compiler/catchBlock2.c: diags-compiler/catchBlock2.c 1`] = `""`;
@@ -531,6 +540,8 @@ exports[`Compiler compiler/struct1.c Reports correct errors for compiler/struct1
 exports[`Compiler compiler/struct2.c Reports correct errors for compiler/struct2.c: diags-compiler/struct2.c 1`] = `""`;
 
 exports[`Compiler compiler/structMemberAccess.c Reports correct errors for compiler/structMemberAccess.c: diags-compiler/structMemberAccess.c 1`] = `""`;
+
+exports[`Compiler compiler/structMemberAccess2.c Reports correct errors for compiler/structMemberAccess2.c: diags-compiler/structMemberAccess2.c 1`] = `""`;
 
 exports[`Compiler compiler/super1.c Reports correct errors for compiler/super1.c: diags-compiler/super1.c 1`] = `
 "

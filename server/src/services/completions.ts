@@ -1525,7 +1525,7 @@ function createCompletionEntry(
             return undefined;
         }
         // If the text after the '.' starts with this name, write over it. Else, add new text.
-        const end = startsWith(name, propertyAccessToConvert.name.text) ? propertyAccessToConvert.name.end : dot.end;
+        const end = startsWith(name, tryGetTextOfPropertyName(propertyAccessToConvert.name)) ? propertyAccessToConvert.name.end : dot.end;
         replacementSpan = createTextSpanFromBounds(dot.getStart(sourceFile), end);
     }
     

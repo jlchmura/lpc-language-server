@@ -2685,7 +2685,10 @@ export function hasJSDocNodes(node: Node): node is HasJSDoc {
 }
 
 /** @internal */
-export function getTextOfIdentifierOrLiteral(node: PropertyNameLiteral): string {
+export function getTextOfIdentifierOrLiteral(node: PropertyNameLiteral | ParenthesizedExpression): string {
+    if (isParenthesizedExpression(node)) {
+        return getTextOfIdentifierOrLiteral(skipParentheses(node.expression) as PropertyNameLiteral);
+    } 
     return node.text; // TODO
     //return isMemberName(node) ? idText(node) : node.text;
 }
@@ -4029,7 +4032,13 @@ export function getPropertyNameForPropertyNameNode(name: PropertyName): string |
                 }
                 return nameExpression.operand.text as string;
             }
-            return undefined;        
+            return undefined; 
+        case SyntaxKind.ParenthesizedExpression:
+            const parenNameExpression = skipParentParenthesis(name);
+            if (isStringOrNumericLiteralLike(parenNameExpression)) {
+                return (parenNameExpression.text);
+            }
+            return undefined;       
         default:
             return Debug.assertNever(name);
     }
@@ -4051,7 +4060,9 @@ function isLiteralLikeAccess(node: Node): node is /*LiteralLikeElementAccessExpr
  */
 export function getElementOrPropertyAccessArgumentExpressionOrName(node: AccessExpression): Identifier | StringLiteral | IntLiteral | ElementAccessExpression | undefined {
     if (isPropertyAccessExpression(node)) {
-        return node.name;
+        const nameExpr = skipParentParenthesis(node.name);
+        Debug.assert(isStringOrNumericLiteralLike(nameExpr) || isIdentifier(nameExpr));
+        return nameExpr;
     }
     const arg = skipParentheses(node.argumentExpression);
     if (isIntLiteral(arg) || isStringLiteral(arg)) {
@@ -5601,6 +5612,8 @@ export function tryGetTextOfPropertyName(name: PropertyName /*| NoSubstitutionTe
         case SyntaxKind.ComputedPropertyName:
             if (isStringOrNumericLiteralLike(name.expression)) return (name.expression.text);
             return undefined;        
+        case SyntaxKind.ParenthesizedExpression:
+            return tryGetTextOfPropertyName(name.expression as PropertyName);
         default:
             return Debug.assertNever(name);
     }
@@ -5988,7 +6001,7 @@ export function isTypeUsableAsPropertyName(type: Type): type is StringLiteralTyp
 export function tryGetPropertyAccessOrIdentifierToString(expr: Expression | ConciseBody): string | undefined {
     if (isPropertyAccessExpression(expr)) {
         const baseStr = tryGetPropertyAccessOrIdentifierToString(expr.expression);
-        if (baseStr !== undefined) {
+        if (baseStr !== undefined && isIdentifier(expr.name)) {
             return baseStr + "." + entityNameToString(expr.name);
         }
     }
