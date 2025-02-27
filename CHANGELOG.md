@@ -5,6 +5,7 @@
 -   Fix: [Mapping literal can have newline whitespace between `(` and `[` #202](https://github.com/jlchmura/lpc-language-server/issues/202)
 -   Fix: [Signature hover does not display ref for parameters #210](https://github.com/jlchmura/lpc-language-server/issues/210)
 -   Fix: [Support property access with runtime expression. #208](https://github.com/jlchmura/lpc-language-server/issues/208)
+-   Fix: [Signature hover does not display class types for parameters #199](https://github.com/jlchmura/lpc-language-server/issues/199)
 -   Fix: Circular include directives are now ignored and no longer report a diagnostic
 
 ## 1.1.28
