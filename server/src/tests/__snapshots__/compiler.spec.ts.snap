@@ -126,6 +126,8 @@ Found 1 error in server/src/tests/cases/compiler/catchBlock3.c[90m:4[0m
 "
 `;
 
+exports[`Compiler compiler/catchBlock4.c Reports correct errors for compiler/catchBlock4.c: diags-compiler/catchBlock4.c 1`] = `""`;
+
 exports[`Compiler compiler/catchExpr1.c Reports correct errors for compiler/catchExpr1.c: diags-compiler/catchExpr1.c 1`] = `""`;
 
 exports[`Compiler compiler/class1.c Reports correct errors for compiler/class1.c: diags-compiler/class1.c 1`] = `""`;

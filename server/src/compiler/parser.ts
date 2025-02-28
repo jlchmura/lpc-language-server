@@ -2340,14 +2340,25 @@ export namespace LpcParser {
         parseExpected(SyntaxKind.CatchKeyword);
 
         let expression: Expression;
+        let modifier: Identifier | undefined;
+        let modifierExpression: Expression | undefined;
+
         if (parseOptional(SyntaxKind.OpenParenToken)) {
             expression = parseExpression();
+
+            if (parseOptional(SyntaxKind.SemicolonToken)) {
+                modifier = parseIdentifier(Diagnostics.Catch_expression_modifier_expected);
+                if (!nodeIsMissing(modifier) && token() !== SyntaxKind.CloseParenToken) {
+                    modifierExpression = parseExpression();
+                }
+            }
+
             parseExpected(SyntaxKind.CloseParenToken);
         }        
 
         const block = parseFunctionBlockOrSemicolon(SignatureFlags.None);
 
-        return withJSDoc(finishNode(factory.createCatchStatement(expression, block), pos), hasJSDoc);
+        return withJSDoc(finishNode(factory.createCatchStatement(expression, block, modifier, modifierExpression), pos), hasJSDoc);
     }
     
     function parseCaseClause(): CaseClause {
@@ -6828,6 +6839,8 @@ const forEachChildTable: ForEachChildTable = {
     },
     [SyntaxKind.CatchStatement]: function forEachChildInCatchStatement<T>(node: CatchStatement, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {        
         return visitNode(cbNode, node.expression) ||
+            visitNode(cbNode, node.modifier) || 
+            visitNode(cbNode, node.modifierExpression) ||
             visitNode(cbNode, node.block);
     },
     [SyntaxKind.Parameter]: function forEachChildInParameter<T>(node: ParameterDeclaration, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
