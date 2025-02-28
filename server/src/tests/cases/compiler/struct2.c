@@ -9,5 +9,5 @@ struct Foo foo;
 public struct Foo accessStruct(int i) {
     foo->i = i;
     foo->str = "a";
-    return s1;
+    return foo;
 }

@@ -6,6 +6,7 @@
 -   [Function declaration can have an array indicator with no type #203](https://github.com/jlchmura/lpc-language-server/issues/203)
 -   [Catch modifiers report parser error #207](https://github.com/jlchmura/lpc-language-server/issues/207)
 -   Allow `&` in an LD foreach expression
+-   Fix: Parser error reported in LD when function has struct parameters.
 
 ## 1.1.30
 

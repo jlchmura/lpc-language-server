@@ -560,6 +560,8 @@ exports[`Compiler compiler/struct2.c Reports correct errors for compiler/struct2
 
 exports[`Compiler compiler/struct3.c Reports correct errors for compiler/struct3.c: diags-compiler/struct3.c 1`] = `""`;
 
+exports[`Compiler compiler/struct4.c Reports correct errors for compiler/struct4.c: diags-compiler/struct4.c 1`] = `""`;
+
 exports[`Compiler compiler/structMemberAccess.c Reports correct errors for compiler/structMemberAccess.c: diags-compiler/structMemberAccess.c 1`] = `""`;
 
 exports[`Compiler compiler/structMemberAccess2.c Reports correct errors for compiler/structMemberAccess2.c: diags-compiler/structMemberAccess2.c 1`] = `""`;
