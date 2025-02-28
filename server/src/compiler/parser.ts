@@ -1470,7 +1470,8 @@ export namespace LpcParser {
                 case SyntaxKind.MixedKeyword:
                 case SyntaxKind.VoidKeyword:                
                 case SyntaxKind.MappingKeyword:     
-                case SyntaxKind.LessThanToken: // start of array union type                                               
+                case SyntaxKind.LessThanToken: // start of array union type  
+                case SyntaxKind.AsteriskToken:                                             
                     return true;        
                     // const previousToken = token();
                     // nextToken();
@@ -1848,6 +1849,7 @@ export namespace LpcParser {
             case SyntaxKind.ObjectKeyword:            
             case SyntaxKind.Identifier:
             case SyntaxKind.LessThanToken: // start of union type                
+            case SyntaxKind.AsteriskToken: // See https://github.com/jlchmura/lpc-language-server/issues/203
                 if (isStartOfDeclaration()) {
                     return parseDeclaration();
                 }            

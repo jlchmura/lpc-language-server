@@ -5191,9 +5191,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 links.resolvedType = node.kind === SyntaxKind.TupleType && node.elements.length === 0 ? target :
                     createDeferredTypeReference(target, node, /*mapper*/ undefined);
             }
-            else {                
-                const elementTypes = node.kind === SyntaxKind.ArrayType ? [getTypeFromTypeNode(node.elementType)] : map(node.elements, getTypeFromTypeNode);
-                links.resolvedType = createNormalizedTypeReference(target, elementTypes);
+            else if (node.kind === SyntaxKind.ArrayType) {
+                if (!node.elementType) {
+                    links.resolvedType = autoArrayType;
+                } else {
+                    links.resolvedType = createNormalizedTypeReference(target, [getTypeFromTypeNode(node.elementType)]);
+                }
+            } else {                                   
+                links.resolvedType = createNormalizedTypeReference(target, map(node.elements, getTypeFromTypeNode));
             }
         }
         return links.resolvedType;
