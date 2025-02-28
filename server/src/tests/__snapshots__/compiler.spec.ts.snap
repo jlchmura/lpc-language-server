@@ -310,6 +310,8 @@ exports[`Compiler compiler/forEach10.c Reports correct errors for compiler/forEa
 
 exports[`Compiler compiler/forEachRef.c Reports correct errors for compiler/forEachRef.c: diags-compiler/forEachRef.c 1`] = `""`;
 
+exports[`Compiler compiler/forEachRef2.c Reports correct errors for compiler/forEachRef2.c: diags-compiler/forEachRef2.c 1`] = `""`;
+
 exports[`Compiler compiler/funcDecl1.c Reports correct errors for compiler/funcDecl1.c: diags-compiler/funcDecl1.c 1`] = `""`;
 
 exports[`Compiler compiler/funcDecl2.c Reports correct errors for compiler/funcDecl2.c: diags-compiler/funcDecl2.c 1`] = `""`;
