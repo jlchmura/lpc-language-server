@@ -3,6 +3,7 @@
 ## 1.1.31
 
 -   [Allow deprecated modifier #209](https://github.com/jlchmura/lpc-language-server/issues/209)
+-   [Function declaration can have an array indicator with no type #203](https://github.com/jlchmura/lpc-language-server/issues/203)
 
 ## 1.1.30
 
