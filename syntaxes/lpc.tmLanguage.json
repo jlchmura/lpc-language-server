@@ -55,7 +55,7 @@
         },
         {
             "comment": "Modifiers",
-            "match": "\\b(public|private|protected|nosave|nomask|varargs)\\b",
+            "match": "\\b(public|private|protected|nosave|nomask|varargs|deprecated)\\b",
             "name": "storage.modifier.lpc"
         },
         {

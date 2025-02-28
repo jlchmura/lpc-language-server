@@ -1398,6 +1398,7 @@ export namespace LpcParser {
             case SyntaxKind.NoMaskKeyword:
             case SyntaxKind.NoSaveKeyword:
             case SyntaxKind.NoShadowKeyword:   
+            case SyntaxKind.DeprecatedKeyword:
             case SyntaxKind.VarArgsKeyword:
             case SyntaxKind.FunctionKeyword:
             case SyntaxKind.IntKeyword:
@@ -1455,6 +1456,7 @@ export namespace LpcParser {
                 case SyntaxKind.PublicKeyword:
                 case SyntaxKind.StaticKeyword:
                 case SyntaxKind.NoMaskKeyword:
+                case SyntaxKind.DeprecatedKeyword:
                 case SyntaxKind.NoSaveKeyword:
                 case SyntaxKind.VarArgsKeyword:
                 case SyntaxKind.NoShadowKeyword:
@@ -1825,6 +1827,7 @@ export namespace LpcParser {
             case SyntaxKind.PublicKeyword:            
             case SyntaxKind.StaticKeyword:    
             case SyntaxKind.NoMaskKeyword:
+            case SyntaxKind.DeprecatedKeyword:
             case SyntaxKind.NoSaveKeyword:
             case SyntaxKind.NoShadowKeyword:                         
             case SyntaxKind.VarArgsKeyword:
@@ -2914,6 +2917,17 @@ export namespace LpcParser {
         parseErrorAt(pos, Math.max(pos, node.end), nodeFilename, Diagnostics.Unexpected_keyword_or_identifier);
     }
 
+    function setDeprecated<T extends Node>(node: T, modifiers: NodeArray<Modifier> | undefined): T {
+        if (modifiers) {
+            for (const modifier of modifiers) {
+                if (modifier.kind === SyntaxKind.DeprecatedKeyword) {
+                    (node as Mutable<T>).flags |= NodeFlags.Deprecated;
+                }
+            }
+        }
+
+        return node;
+    }
     
     let hasDeprecatedTag = false;
     function withJSDoc<T extends HasJSDoc>(node: T, hasJSDoc: boolean): T {
@@ -3806,7 +3820,7 @@ export namespace LpcParser {
         const body = parseFunctionBlockOrSemicolon(SignatureFlags.None);
 
         const node = factory.createFunctionDeclaration(modifiers, name, parameters, type, body);
-        return withJSDoc(finishNode(node, pos), hasJSDoc);
+        return setDeprecated(withJSDoc(finishNode(node, pos), hasJSDoc), modifiers);
     }
 
     function parseFunctionBlockOrSemicolon(flags: SignatureFlags, diagnosticMessage?: DiagnosticMessage): Block | undefined {
@@ -3832,6 +3846,13 @@ export namespace LpcParser {
 
     function parseVariableStatement(pos: PositionState, hasJSDoc: boolean, modifiers: NodeArray<ModifierLike> | undefined, type: TypeNode | undefined): VariableStatement {
         const declarationList = parseVariableDeclarationList(/*inForStatementInitializer*/ false, type);
+
+        if (modifiers && modifiers.some(modifier => modifier.kind === SyntaxKind.DeprecatedKeyword)) {
+            for (const decl of declarationList.declarations) {
+                (decl as Mutable<VariableDeclaration>).flags |= NodeFlags.Deprecated;
+            }
+        }
+
         parseSemicolon();
         const node = factoryCreateVariableStatement(modifiers, type, declarationList);
         return withJSDoc(finishNode(node, pos), hasJSDoc);

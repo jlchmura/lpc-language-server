@@ -211,6 +211,12 @@ Found 1 error in server/src/tests/cases/compiler/define2.c[90m:1[0m
 
 exports[`Compiler compiler/define3.c Reports correct errors for compiler/define3.c: diags-compiler/define3.c 1`] = `""`;
 
+exports[`Compiler compiler/deprecated1.c Reports correct errors for compiler/deprecated1.c: diags-compiler/deprecated1.c 1`] = `""`;
+
+exports[`Compiler compiler/deprecated2.c Reports correct errors for compiler/deprecated2.c: diags-compiler/deprecated2.c 1`] = `""`;
+
+exports[`Compiler compiler/deprecated3.c Reports correct errors for compiler/deprecated3.c: diags-compiler/deprecated3.c 1`] = `""`;
+
 exports[`Compiler compiler/doWhile.c Reports correct errors for compiler/doWhile.c: diags-compiler/doWhile.c 1`] = `""`;
 
 exports[`Compiler compiler/efun.fluff.filter.c Reports correct errors for compiler/efun.fluff.filter.c: diags-compiler/efun.fluff.filter.c 1`] = `""`;
