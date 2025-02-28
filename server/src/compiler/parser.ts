@@ -2225,13 +2225,10 @@ export namespace LpcParser {
         parseExpected(SyntaxKind.OpenParenToken);
         
         let initializer!: VariableDeclarationList | Expression;
-        if (
-            isTypeName()// && lookAhead(nextTokenIsIdentifierOrKeyword)
-        ) {
+        if (isTypeName() /*&& lookAhead(nextTokenIsIdentifierOrKeyword)*/) {
             // const type = parseType();
             initializer = parseVariableDeclarationList(/*inForStatementInitializer*/ true, undefined, ParsingContext.ForEachInitializers);
-        }
-        else {
+        } else {
             initializer = disallowInAnd(parseExpression);
         }
 
@@ -2241,8 +2238,8 @@ export namespace LpcParser {
             isColon=true;
             parseExpected(SyntaxKind.ColonToken);
         }
-
-        const expression = parseMaybeRangeExpression(SyntaxKind.CloseParenToken);
+        
+        const expression = isLDMud && isRefElement() ? parseByRefElement() : parseMaybeRangeExpression(SyntaxKind.CloseParenToken);
         parseExpected(SyntaxKind.CloseParenToken);
         const body = parseStatement();
 
@@ -3554,6 +3551,20 @@ export namespace LpcParser {
             || token() === SyntaxKind.LessThanToken // union type
             || isTypeName()
             || isLiteralPropertyName();
+    }
+
+    function isLDMud(): boolean {
+        return languageVariant === LanguageVariant.LDMud;
+    }
+
+    function isRefElement(): boolean {
+        switch (token()) {
+            case SyntaxKind.AmpersandToken:
+            case SyntaxKind.RefKeyword:
+                return true;
+            default:
+                return false;
+        }
     }
 
     function isTypeName(): boolean {
