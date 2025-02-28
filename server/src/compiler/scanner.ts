@@ -170,6 +170,7 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     closure: SyntaxKind.ClosureKeyword,
     continue: SyntaxKind.ContinueKeyword,                
     default: SyntaxKind.DefaultKeyword,
+    deprecated: SyntaxKind.DeprecatedKeyword,
     do: SyntaxKind.DoKeyword,
     else: SyntaxKind.ElseKeyword,            
     false: SyntaxKind.FalseKeyword,

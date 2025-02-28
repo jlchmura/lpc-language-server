@@ -1433,7 +1433,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.parameters = createNodeArray(parameters);
         node.type = type;
         node.body = body;
-
+        
         if (!node.body) {
             node.transformFlags = TransformFlags.None;
         } else {
