@@ -5478,8 +5478,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     }
                     checkNoTypeArguments(node);
                     return !noImplicitAny ? anyType : undefined;
-                default:
-                    console.debug("todo - unhandled jsdoc type ref name " + node.typeName.text);
+                // default:
+                //     console.debug("todo - unhandled jsdoc type ref name " + node.typeName.text);
             }
         }
     }

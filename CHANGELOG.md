@@ -4,6 +4,7 @@
 
 -   [Allow deprecated modifier #209](https://github.com/jlchmura/lpc-language-server/issues/209)
 -   [Function declaration can have an array indicator with no type #203](https://github.com/jlchmura/lpc-language-server/issues/203)
+-   [Catch modifiers report parser error #207](https://github.com/jlchmura/lpc-language-server/issues/207)
 
 ## 1.1.30
 

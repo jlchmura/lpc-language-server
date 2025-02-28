@@ -875,11 +875,13 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createCatchStatement(expression: Expression | undefined, block: Block): CatchStatement {
+    function createCatchStatement(expression: Expression | undefined, block: Block, modifier?: Identifier, modifierExpression?: Expression): CatchStatement {
         const node = createBaseNode<CatchStatement>(SyntaxKind.CatchStatement);
         node.expression = expression;
         node.block = block;
-        
+        node.modifier = modifier;
+        node.modifierExpression = modifierExpression;
+                
         node.transformFlags |= propagateChildFlags(node.expression) |
             propagateChildFlags(node.block);
 
