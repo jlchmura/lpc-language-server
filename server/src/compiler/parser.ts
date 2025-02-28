@@ -1339,6 +1339,7 @@ export namespace LpcParser {
             isModifierKind(token()) ||
             token() === SyntaxKind.AtToken ||
             token() === SyntaxKind.AmpersandToken ||
+            token() === SyntaxKind.StructKeyword ||
             isStartOfType(/*inStartOfParameter*/ !isJSDocParameter);
     }
 
