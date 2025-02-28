@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.31
+
+-   [Allow deprecated modifier #209](https://github.com/jlchmura/lpc-language-server/issues/209)
+
 ## 1.1.30
 
 -   Fix LD struct parsing error introduced in 1.1.29.
