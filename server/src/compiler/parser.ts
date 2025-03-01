@@ -553,6 +553,11 @@ export namespace LpcParser {
                     if (parenCount > 0) {
                         paramText += scanner.getTokenText();
                     }
+                    break;    
+                case SyntaxKind.OpenParenBraceToken:
+                case SyntaxKind.OpenParenBracketToken:
+                    parenCount++;
+                    paramText += scanner.getTokenText();
                     break;
                 case SyntaxKind.CommaToken:
                     if (parenCount === 1) {
@@ -570,6 +575,7 @@ export namespace LpcParser {
                         break;
                     }
                     // fall through            
+                
                 default:
                     paramText += scanner.getTokenText();
                     break;                    
@@ -1145,6 +1151,7 @@ export namespace LpcParser {
                 return parseErrorAtCurrentToken(Diagnostics.Declaration_or_statement_expected);
             case ParsingContext.SwitchClauses:
                 return parseErrorAtCurrentToken(Diagnostics.case_or_default_expected);
+            case ParsingContext.SwitchPreBlock:
             case ParsingContext.SwitchClauseStatements:
                 return parseErrorAtCurrentToken(Diagnostics.Statement_expected);
             case ParsingContext.RestProperties: // fallthrough
