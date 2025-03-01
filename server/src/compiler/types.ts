@@ -765,13 +765,11 @@ export const enum SyntaxKind {
     StructKeyword,
     CatchKeyword,    
     MixedKeyword,
-    UnknownKeyword,    
-    InKeyword,
+    UnknownKeyword,        
     MappingKeyword,
     VoidKeyword,
     BreakKeyword,
-    BytesKeyword,
-    BufferKeyword,    
+    BytesKeyword,    
     DoKeyword,
     ElseKeyword,
     ForKeyword,
@@ -810,9 +808,11 @@ export const enum SyntaxKind {
     SymbolKeyword,      // not reserved in fluffos
     ObjectKeyword,      // can occur in a super expr i.e.  object::fn()
     RefKeyword,         // fluff only
+    BufferKeyword,      // fluff only
     IsKeyword,          // use for type predicates only
     FunctionsKeyword,   // inherit modifier
     VirtualKeyword,     // inherit modifier
+    InKeyword,          // not a reserved word in LD (maybe fluff?)
     NewKeyword,         // LastKeyword and LastToken - everything after this will be processed by the binder
 
     // Parse Tree Nodes
