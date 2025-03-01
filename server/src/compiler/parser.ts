@@ -676,7 +676,7 @@ export namespace LpcParser {
             }
 
             // start the scan over
-            return nextTokenWithoutCheck();            
+            incomingToken = scanner.scan();            
         }
 
         switch (incomingToken) {

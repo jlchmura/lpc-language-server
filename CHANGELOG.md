@@ -4,6 +4,7 @@
 
 -   [Function macro with array arg parsed incorrectly. #220](https://github.com/jlchmura/lpc-language-server/issues/220)
 -   Fix crash on signature help when typing a macro function without args.
+-   Fix possible max call stack crash with large or open-ended code ranges that are disabled.
 
 ## 1.1.31
 
