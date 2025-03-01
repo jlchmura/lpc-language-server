@@ -1,4 +1,4 @@
-import { Symbol, ArrowFunction, BinaryExpression, CallLikeExpression, CancellationToken, canHaveSymbol, contains, createPrinterWithRemoveComments, createTextSpan, createTextSpanFromBounds, createTextSpanFromNode, Debug, emptyArray, find, findAncestor, findIndex, findTokenOnLeftOfPosition, first, firstDefined, flatMapToMutable, FunctionExpression, getPossibleTypeArgumentsInfo, Identifier, identity, InternalSymbolName, isArrayBindingPattern, isBinaryExpression, isBindingElement, isBlock, isCallOrNewExpression, isFunctionTypeNode, isIdentifier, isInComment, isInString, isMethodDeclaration, isNoSubstitutionTemplateLiteral, isParameter, isPropertyAccessExpression, isSourceFile, isSpreadElement, isSyntaxList, last, lastOrUndefined, map, mapToDisplayParts, Node, NodeBuilderFlags, ParenthesizedExpression, Program, punctuationPart, Signature, SignatureHelpItem, SignatureHelpItems, SignatureHelpTriggerReason, skipTrivia, SourceFile, spacePart, SpreadElement, SymbolDisplayPart, symbolToDisplayParts, SyntaxKind, SyntaxList, TextRange, TextSpan, tryCast, Type, TypeChecker, TypeParameter, findPrecedingToken, getPossibleGenericSignatures, Expression, getInvokedExpression, EmitHint, ListFormat, factory, SignatureHelpParameter, Printer, isTransientSymbol, CheckFlags, ParameterDeclaration, ConciseBody, tryGetTextOfPropertyName } from "./_namespaces/lpc.js";
+import { Symbol, ArrowFunction, BinaryExpression, CallLikeExpression, CancellationToken, canHaveSymbol, contains, createPrinterWithRemoveComments, createTextSpan, createTextSpanFromBounds, createTextSpanFromNode, Debug, emptyArray, find, findAncestor, findIndex, findTokenOnLeftOfPosition, first, firstDefined, flatMapToMutable, FunctionExpression, getPossibleTypeArgumentsInfo, Identifier, identity, InternalSymbolName, isArrayBindingPattern, isBinaryExpression, isBindingElement, isBlock, isCallOrNewExpression, isFunctionTypeNode, isIdentifier, isInComment, isInString, isMethodDeclaration, isNoSubstitutionTemplateLiteral, isParameter, isPropertyAccessExpression, isSourceFile, isSpreadElement, isSyntaxList, last, lastOrUndefined, map, mapToDisplayParts, Node, NodeBuilderFlags, ParenthesizedExpression, Program, punctuationPart, Signature, SignatureHelpItem, SignatureHelpItems, SignatureHelpTriggerReason, skipTrivia, SourceFile, spacePart, SpreadElement, SymbolDisplayPart, symbolToDisplayParts, SyntaxKind, SyntaxList, TextRange, TextSpan, tryCast, Type, TypeChecker, TypeParameter, findPrecedingToken, getPossibleGenericSignatures, Expression, getInvokedExpression, EmitHint, ListFormat, factory, SignatureHelpParameter, Printer, isTransientSymbol, CheckFlags, ParameterDeclaration, ConciseBody, tryGetTextOfPropertyName, isInMacroContext } from "./_namespaces/lpc.js";
 
 const enum InvocationKind {
     Call,
@@ -268,6 +268,12 @@ export function getSignatureHelpItems(program: Program, sourceFile: SourceFile, 
     const startingToken = findTokenOnLeftOfPosition(sourceFile, position);
     if (!startingToken) {
         // We are at the beginning of the file
+        return undefined;
+    }
+
+    if (isInMacroContext(startingToken)) {
+        // abort if we are in a macro context
+        // TOOD - show macro fn signature help
         return undefined;
     }
 
