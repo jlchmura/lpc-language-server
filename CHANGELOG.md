@@ -1,5 +1,10 @@
 # LPC Language Services Changelog
 
+## 1.1.32
+
+-   [Function macro with array arg parsed incorrectly. #220](https://github.com/jlchmura/lpc-language-server/issues/220)
+-   Fix crash on signature help when typing a macro function without args.
+
 ## 1.1.31
 
 -   [Allow deprecated modifier #209](https://github.com/jlchmura/lpc-language-server/issues/209)
