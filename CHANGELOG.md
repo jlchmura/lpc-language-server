@@ -3,6 +3,7 @@
 ## 1.1.32
 
 -   [Function macro with array arg parsed incorrectly. #220](https://github.com/jlchmura/lpc-language-server/issues/220)
+-   [Inline closure should allow statements #206](https://github.com/jlchmura/lpc-language-server/issues/206)
 -   Fix crash on signature help when typing a macro function without args.
 -   Fix possible max call stack crash with large or open-ended code ranges that are disabled.
 -   Fix: `buffer` and `in` are not reserved words in LD.

@@ -1533,7 +1533,7 @@ export namespace LpcParser {
             case ParsingContext.ObjectBindingElements:
             case ParsingContext.ImportOrExportSpecifiers:
             case ParsingContext.ImportAttributes:
-                return token() === SyntaxKind.CloseBraceToken || token() === SyntaxKind.ColonCloseParenToken || token() === SyntaxKind.NewLineTrivia;
+                return token() === SyntaxKind.CloseBraceToken || token() === SyntaxKind.ColonCloseParenToken || token() === SyntaxKind.NewLineTrivia || token() === SyntaxKind.ColonToken;
             case ParsingContext.InlineClosure:
                 return token() === SyntaxKind.ColonToken;
             case ParsingContext.ObjectLiteralMembers:
@@ -5292,7 +5292,8 @@ export namespace LpcParser {
             // up preemptively closing the containing construct.
             //
             // Note: even when 'IgnoreMissingOpenBrace' is passed, parseBody will still error.
-            return parseFunctionBlock(SignatureFlags.IgnoreMissingOpenBrace | SignatureFlags.None);
+            const funcBlock = disallowInAnd(() => parseFunctionBlock(SignatureFlags.IgnoreMissingOpenBrace | SignatureFlags.None));            
+            return funcBlock;
         }
 
         const savedTopLevel = topLevel;
