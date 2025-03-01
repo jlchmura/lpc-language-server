@@ -84,6 +84,7 @@ export interface Scanner {
     reScanQuestionToken(): SyntaxKind;
     reScanInvalidIdentifier(): SyntaxKind;    
     reScanInclude(pos: number): SyntaxKind;
+    reScanMacroName(): SyntaxKind;    
     scanJsDocToken(): JSDocSyntaxKind;
     /** @internal */
     scanJSDocCommentTextToken(inBackticks: boolean): JSDocSyntaxKind | SyntaxKind.JSDocCommentTextToken;
@@ -953,6 +954,10 @@ export function isIdentifierStart(ch: number, languageVersion: ScriptTarget | un
         ch > CharacterCodes.maxAsciiCharacter && isUnicodeIdentifierStart(ch, languageVersion);
 }
 
+export function isMacroNamePart(ch: number): boolean {
+    return isIdentifierPart(ch, ScriptTarget.Latest);
+}
+
 export function isIdentifierPart(ch: number, languageVersion: ScriptTarget | undefined, identifierVariant?: LanguageVariant): boolean {
     return isWordCharacter(ch) || ch === CharacterCodes.$ ||        
         ch > CharacterCodes.maxAsciiCharacter && isUnicodeIdentifierPart(ch, languageVersion);
@@ -1076,7 +1081,8 @@ export function createScanner(
         reScanHashToken,
         reScanQuestionToken,
         reScanInvalidIdentifier,
-        reScanInclude,
+        reScanInclude,        
+        reScanMacroName,
         scanJsDocToken,
         scanJSDocCommentTextToken,
         scan,
@@ -2673,6 +2679,14 @@ export function createScanner(
         return t;
     }
 
+    function reScanMacroName(): SyntaxKind {
+        pos = tokenStart;
+        tokenFlags = 0;
+        const ch = codePointUnchecked(pos);
+        const identifierKind = scanMacroName(ch, ScriptTarget.LPC);
+        return token = identifierKind;        
+    }
+
     function reScanInvalidIdentifier(): SyntaxKind {
         Debug.assert(token === SyntaxKind.Unknown, "'reScanInvalidIdentifier' should only be called when the current token is 'SyntaxKind.Unknown'.");
         pos = tokenStart = fullStartPos;
@@ -2697,6 +2711,21 @@ export function createScanner(
             }
             
             return getIdentifierToken();
+        }
+    }
+
+    function scanMacroName(startCharacter: number, languageVersion: ScriptTarget): SyntaxKind.Identifier {
+        let ch = startCharacter;
+        if (isIdentifierStart(ch, languageVersion)) {
+            pos += charSize(ch);
+            while (pos < end && isMacroNamePart(ch = codePointUnchecked(pos))) pos += charSize(ch);
+            tokenValue = text.substring(tokenStart, pos);
+            if (ch === CharacterCodes.backslash) {
+                tokenValue += scanIdentifierParts();
+            }
+            
+            // macro name bypasses the reserved word check
+            return SyntaxKind.Identifier;
         }
     }
 

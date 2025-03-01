@@ -2113,6 +2113,13 @@ export namespace LpcParser {
         return withJSDoc(finishNode(factory.createIncludeDirective(directiveContent, localFirst), pos), hasJSDoc);
     }
 
+    function parseMacroNameIdentifier(): Identifier {
+        const posIdentifier = getPositionState();
+        currentToken = scanner.reScanMacroName();
+        const identifier = parseIdentifier();
+        return finishNode(identifier, posIdentifier);
+    }
+
     function parseDefineDirective(): PreprocessorDirective {
         const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
@@ -2120,9 +2127,13 @@ export namespace LpcParser {
         parseExpected(SyntaxKind.DefineDirective);
         
         const posIdentifier = getPositionState();
-        const identifierStart = scanner.getTokenStart();        
-        const identifierText = internIdentifier(scanner.getTokenValue());
-        let identifier = token() === SyntaxKind.Identifier ? parseIdentifier() : parseKeywordAndNoDot();
+        const identifierStart = scanner.getTokenStart();
+
+        // currentToken = scanner.reScanMacroName();
+        // const identifierText = internIdentifier(scanner.getTokenValue());        
+        // let identifier = token() === SyntaxKind.Identifier ? parseIdentifier() : parseKeywordAndNoDot();
+
+        let identifier = parseMacroNameIdentifier();
 
         if ((identifier as Node).kind === SyntaxKind.NewLineTrivia) {
             parseErrorAtPosition(posIdentifier.pos, posIdentifier.pos, pos.fileName, Diagnostics.Identifier_expected);
@@ -2131,6 +2142,7 @@ export namespace LpcParser {
 
         let args: NodeArray<ParameterDeclaration> | undefined;
                 
+        const identifierText = identifier.text || "";
         const identifierEnd = identifierStart + identifierText.length;
         if (identifierEnd === scanner.getTokenStart() && token() === SyntaxKind.OpenParenToken) {
             args = disallowTypes(parseParameters);
@@ -2199,7 +2211,7 @@ export namespace LpcParser {
 
         parseExpected(SyntaxKind.UndefDirective);
         
-        const identifier = parseIdentifier();
+        const identifier = parseMacroNameIdentifier();
         
         macroTable.delete(identifier.text);
         return withJSDoc(finishNode(factory.createUndefDirective(identifier), pos), hasJSDoc);
