@@ -5292,7 +5292,7 @@ export namespace LpcParser {
             // up preemptively closing the containing construct.
             //
             // Note: even when 'IgnoreMissingOpenBrace' is passed, parseBody will still error.
-            const funcBlock = disallowInAnd(() => parseFunctionBlock(SignatureFlags.IgnoreMissingOpenBrace | SignatureFlags.None));            
+            const funcBlock = parseFunctionBlock(SignatureFlags.IgnoreMissingOpenBrace | SignatureFlags.None);
             return funcBlock;
         }
 
