@@ -1470,8 +1470,7 @@ export namespace LpcParser {
                 case SyntaxKind.NoShadowKeyword:
                 case SyntaxKind.BytesKeyword:                
                 case SyntaxKind.LwObjectKeyword:
-                // case SyntaxKind.ClosureKeyword:                
-                case SyntaxKind.BufferKeyword:
+                // case SyntaxKind.ClosureKeyword:                                
                 case SyntaxKind.IntKeyword:
                 case SyntaxKind.FloatKeyword:
                 case SyntaxKind.StringKeyword:
@@ -1492,12 +1491,16 @@ export namespace LpcParser {
                     // //     // report Line_break_not_permitted_here if needed.
                     // //     return true;
                     // // }
-                    // continue;        
+                    // continue;                        
                 case SyntaxKind.ObjectKeyword:
                     return lookAhead(()=>nextToken() !== SyntaxKind.ColonColonToken);        
                 case SyntaxKind.StatusKeyword:
                 case SyntaxKind.SymbolKeyword:
+                    // LD only
                     return languageVariant === LanguageVariant.LDMud;
+                case SyntaxKind.BufferKeyword:
+                    // Fluff only
+                    return languageVariant === LanguageVariant.FluffOS;
                 case SyntaxKind.Identifier:
                     // probably a function without modifier or type
                     // but that can only happen if we're parsing in the source context
@@ -3161,8 +3164,7 @@ export namespace LpcParser {
             case SyntaxKind.StatusKeyword:
             case SyntaxKind.LwObjectKeyword:
             case SyntaxKind.ClosureKeyword:
-            case SyntaxKind.SymbolKeyword:
-            case SyntaxKind.BufferKeyword:
+            case SyntaxKind.SymbolKeyword:            
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
             case SyntaxKind.MixedKeyword:
@@ -3203,6 +3205,9 @@ export namespace LpcParser {
                     return true;
                 }
                 // fall through
+            case SyntaxKind.BufferKeyword:
+                // fluff-only keywords                
+                return languageVariant === LanguageVariant.FluffOS;
             default:
                 return isIdentifier();
         }
@@ -3220,8 +3225,7 @@ export namespace LpcParser {
             case SyntaxKind.StringKeyword:
             case SyntaxKind.BytesKeyword:            
             case SyntaxKind.LwObjectKeyword:
-            case SyntaxKind.ClosureKeyword:            
-            case SyntaxKind.BufferKeyword:            
+            case SyntaxKind.ClosureKeyword:                        
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
             case SyntaxKind.FunctionKeyword:
@@ -3234,6 +3238,9 @@ export namespace LpcParser {
             case SyntaxKind.SymbolKeyword:  
                 // status is only available in LD           
                 return languageVariant === LanguageVariant.LDMud ? parseKeywordAndNoDot() : undefined;
+            case SyntaxKind.BufferKeyword:            
+                // buffer is only available in FluffOS
+                return languageVariant === LanguageVariant.FluffOS ? parseKeywordAndNoDot() : undefined;
             case SyntaxKind.ObjectKeyword:
                 // LD has "named" objects.  
                 const pos = getPositionState();              
@@ -3579,8 +3586,7 @@ export namespace LpcParser {
         switch (token()) {
             case SyntaxKind.BytesKeyword:            
             case SyntaxKind.LwObjectKeyword:
-            case SyntaxKind.ClosureKeyword:            
-            case SyntaxKind.BufferKeyword:
+            case SyntaxKind.ClosureKeyword:                        
             case SyntaxKind.TrueKeyword:
             case SyntaxKind.FalseKeyword:
             case SyntaxKind.IntKeyword:
@@ -3603,6 +3609,8 @@ export namespace LpcParser {
             case SyntaxKind.StatusKeyword:
             case SyntaxKind.SymbolKeyword:
                 return languageVariant === LanguageVariant.LDMud;
+            case SyntaxKind.BufferKeyword:
+                return languageVariant === LanguageVariant.FluffOS;
             case SyntaxKind.NullKeyword:
                 return languageVersion === ScriptTarget.JSON;
         }        

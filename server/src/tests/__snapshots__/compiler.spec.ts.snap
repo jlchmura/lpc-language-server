@@ -98,6 +98,8 @@ Found 1 error in server/src/tests/cases/compiler/badSwitch.c[90m:7[0m
 
 exports[`Compiler compiler/buffer1.c Reports correct errors for compiler/buffer1.c: diags-compiler/buffer1.c 1`] = `""`;
 
+exports[`Compiler compiler/buffer2.c Reports correct errors for compiler/buffer2.c: diags-compiler/buffer2.c 1`] = `""`;
+
 exports[`Compiler compiler/bytes1.c Reports correct errors for compiler/bytes1.c: diags-compiler/bytes1.c 1`] = `""`;
 
 exports[`Compiler compiler/callOther1.c Reports correct errors for compiler/callOther1.c: diags-compiler/callOther1.c 1`] = `""`;
@@ -346,6 +348,8 @@ exports[`Compiler compiler/if2.c Reports correct errors for compiler/if2.c: diag
 exports[`Compiler compiler/if3.c Reports correct errors for compiler/if3.c: diags-compiler/if3.c 1`] = `""`;
 
 exports[`Compiler compiler/ifelse.c Reports correct errors for compiler/ifelse.c: diags-compiler/ifelse.c 1`] = `""`;
+
+exports[`Compiler compiler/in1.c Reports correct errors for compiler/in1.c: diags-compiler/in1.c 1`] = `""`;
 
 exports[`Compiler compiler/include1.c Reports correct errors for compiler/include1.c: diags-compiler/include1.c 1`] = `""`;
 
