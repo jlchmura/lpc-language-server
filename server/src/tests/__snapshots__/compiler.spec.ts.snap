@@ -512,6 +512,10 @@ Found 3 errors in the same file, starting at: server/src/tests/cases/compiler/na
 "
 `;
 
+exports[`Compiler compiler/namedObject4.c Reports correct errors for compiler/namedObject4.c: diags-compiler/namedObject4.c 1`] = `""`;
+
+exports[`Compiler compiler/namedObject5.c Reports correct errors for compiler/namedObject5.c: diags-compiler/namedObject5.c 1`] = `""`;
+
 exports[`Compiler compiler/new1.c Reports correct errors for compiler/new1.c: diags-compiler/new1.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/new1.c[90m:6[0m

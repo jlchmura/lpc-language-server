@@ -1155,7 +1155,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createNamedObjectTypeNode(name: StringLiteral, objectKeyword: TypeNode): NamedObjectTypeNode {
+    function createNamedObjectTypeNode(name: StringLiteral | BinaryExpression | ParenthesizedExpression, objectKeyword: TypeNode): NamedObjectTypeNode {
         const node = createBaseNode<NamedObjectTypeNode>(SyntaxKind.NamedObjectType);
         node.objectKeyword = objectKeyword;
         node.name = name;
