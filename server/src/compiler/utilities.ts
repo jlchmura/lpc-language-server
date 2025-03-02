@@ -7242,3 +7242,16 @@ export function isThisObjectExpression(node: Expression | QualifiedName): node i
     return false;
 }
 
+export function getStringLiteralsTextRecursively(node: Node): string[] {
+    // do a quick traversal to join strings together
+    const parts: string[] = [];
+    
+    if (isStringLiteral(node)) parts.push(node.text);
+    forEachChildRecursively(node, n => {
+        if (isStringLiteral(n)) {
+            parts.push(n.text);
+        }
+    });
+
+    return parts;
+}
