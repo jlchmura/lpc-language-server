@@ -2132,7 +2132,9 @@ export namespace LpcParser {
         const posIdentifier = getPositionState();
         const identifierStart = scanner.getTokenStart();        
         const identifierText = internIdentifier(scanner.getTokenValue());
-        let identifier = token() === SyntaxKind.Identifier ? parseIdentifier() : parseKeywordAndNoDot();
+        let identifier = token() === SyntaxKind.EndOfFileToken ? createMissingNode(SyntaxKind.Identifier, true, Diagnostics.Identifier_expected) as Identifier :
+            token() === SyntaxKind.Identifier ? parseIdentifier() : 
+            parseKeywordAndNoDot();
 
         if ((identifier as Node).kind === SyntaxKind.NewLineTrivia) {
             parseErrorAtPosition(posIdentifier.pos, posIdentifier.pos, pos.fileName, Diagnostics.Identifier_expected);
