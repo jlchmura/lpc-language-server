@@ -3000,8 +3000,7 @@ export namespace LpcParser {
             case SyntaxKind.OpenParenBraceToken:
             case SyntaxKind.OpenParenBracketToken:                
             case SyntaxKind.OpenParenAsteriskToken:
-            case SyntaxKind.FunctionKeyword:
-            case SyntaxKind.ClassKeyword:
+            case SyntaxKind.FunctionKeyword:            
             case SyntaxKind.NewKeyword:
             case SyntaxKind.CatchKeyword:
             case SyntaxKind.SlashToken:
@@ -3011,6 +3010,9 @@ export namespace LpcParser {
                 return true;
             // case SyntaxKind.ImportKeyword:
             //     return lookAhead(nextTokenIsOpenParenOrLessThanOrDot);
+            case SyntaxKind.ClassKeyword:
+                // Fluff only
+                return languageVariant === LanguageVariant.FluffOS;
             case SyntaxKind.NullKeyword:
                 if (scriptKind === ScriptKind.JSON) {
                     return true;
@@ -3283,14 +3285,12 @@ export namespace LpcParser {
                 return parseTypeLiteral();//return lookAhead(isStartOfMappedType) ? parseMappedType() : parseTypeLiteral();
             // case SyntaxKind.OpenParenToken:
             //     Debug.fail("todo - parse parenthesized type");
-            //     // return parseParenthesizedType();
-            case SyntaxKind.ClassKeyword:
+            //     // return parseParenthesizedType();            
             case SyntaxKind.StructKeyword:
                 return parseStructTypeNode(token() as KeywordSyntaxKind);
-            // case SyntaxKind.ImportKeyword:
-            //     return parseImportType();
-            // case SyntaxKind.AssertsKeyword:
-            //     return lookAhead(nextTokenIsIdentifierOrKeywordOnSameLine) ? parseAssertsTypePredicate() : parseTypeReference();            
+            case SyntaxKind.ClassKeyword:
+                // fluff-only
+                return languageVariant === LanguageVariant.FluffOS && parseStructTypeNode(token() as KeywordSyntaxKind);            
             case SyntaxKind.TrueKeyword:
             case SyntaxKind.FalseKeyword:
             case SyntaxKind.NullKeyword:
@@ -3595,8 +3595,7 @@ export namespace LpcParser {
             case SyntaxKind.MixedKeyword:
             case SyntaxKind.MappingKeyword:
             case SyntaxKind.ObjectKeyword:
-            case SyntaxKind.StructKeyword:
-            case SyntaxKind.ClassKeyword:            
+            case SyntaxKind.StructKeyword:            
             case SyntaxKind.FunctionKeyword:
             case SyntaxKind.VoidKeyword:
                 return true;
@@ -3609,6 +3608,7 @@ export namespace LpcParser {
             case SyntaxKind.StatusKeyword:
             case SyntaxKind.SymbolKeyword:
                 return languageVariant === LanguageVariant.LDMud;
+            case SyntaxKind.ClassKeyword:            
             case SyntaxKind.BufferKeyword:
                 return languageVariant === LanguageVariant.FluffOS;
             case SyntaxKind.NullKeyword:
@@ -3625,7 +3625,8 @@ export namespace LpcParser {
     }
 
     function isStructOrClassKeyword(): boolean {
-        return token() === SyntaxKind.StructKeyword || token() === SyntaxKind.ClassKeyword;
+        return token() === SyntaxKind.StructKeyword || 
+            (token() === SyntaxKind.ClassKeyword && languageVariant === LanguageVariant.FluffOS);
     }
 
     function isStartOfStructDeclaration() {

@@ -136,12 +136,14 @@ exports[`Compiler compiler/class1.c Reports correct errors for compiler/class1.c
 
 exports[`Compiler compiler/class2.c Reports correct errors for compiler/class2.c: diags-compiler/class2.c 1`] = `
 "
-Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/class2.c[90m:5[0m
+Found 4 errors in the same file, starting at: server/src/tests/cases/compiler/class2.c[90m:3[0m
 
 "
 `;
 
 exports[`Compiler compiler/class3.c Reports correct errors for compiler/class3.c: diags-compiler/class3.c 1`] = `""`;
+
+exports[`Compiler compiler/class4.c Reports correct errors for compiler/class4.c: diags-compiler/class4.c 1`] = `""`;
 
 exports[`Compiler compiler/clone_object1.c Reports correct errors for compiler/clone_object1.c: diags-compiler/clone_object1.c 1`] = `""`;
 
