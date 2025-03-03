@@ -1113,17 +1113,17 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
         addFullSymbolName(symbol);
         writeTypeParametersOfSymbol(symbol, sourceFile);
     }    
-    // if ((symbolFlags & SymbolFlags.TypeAlias) && (semanticMeaning & SemanticMeaning.Type)) {
-    //     prefixNextMeaning();
-    //     displayParts.push(keywordPart(SyntaxKind.TypeKeyword));
-    //     displayParts.push(spacePart());
-    //     addFullSymbolName(symbol);
-    //     writeTypeParametersOfSymbol(symbol, sourceFile);
-    //     displayParts.push(spacePart());
-    //     displayParts.push(operatorPart(SyntaxKind.EqualsToken));
-    //     displayParts.push(spacePart());
-    //     addRange(displayParts, typeToDisplayParts(typeChecker, location.parent && isConstTypeReference(location.parent) ? typeChecker.getTypeAtLocation(location.parent) : typeChecker.getDeclaredTypeOfSymbol(symbol), enclosingDeclaration, TypeFormatFlags.InTypeAlias));
-    // }       
+    if ((symbolFlags & SymbolFlags.TypeAlias) && (semanticMeaning & SemanticMeaning.Type)) {
+        prefixNextMeaning();
+        displayParts.push(keywordPart(SyntaxKind.StructKeyword));
+        displayParts.push(spacePart());
+        addFullSymbolName(symbol);
+        writeTypeParametersOfSymbol(symbol, sourceFile);
+        displayParts.push(spacePart());
+        // displayParts.push(operatorPart(SyntaxKind.EqualsToken));
+        displayParts.push(spacePart());
+        addRange(displayParts, typeToDisplayParts(typeChecker, typeChecker.getDeclaredTypeOfSymbol(symbol), enclosingDeclaration, TypeFormatFlags.InTypeAlias));
+    }       
     // don't use symbolFlags since getAliasedSymbol requires the flag on the symbol itself
     if (symbol.flags & SymbolFlags.Alias) {
         prefixNextMeaning();

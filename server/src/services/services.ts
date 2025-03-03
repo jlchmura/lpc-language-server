@@ -769,10 +769,11 @@ class SourceFileObject extends NodeObject<SyntaxKind.SourceFile> implements Sour
                     forEachChild(node, visit);
                     break;
 
-                // case SyntaxKind.ClassDeclaration:
+                case SyntaxKind.ClassDeclaration:
                 case SyntaxKind.ClassExpression:
                 // case SyntaxKind.InterfaceDeclaration:
-                // case SyntaxKind.TypeAliasDeclaration:
+                case SyntaxKind.TypeAliasDeclaration:
+                case SyntaxKind.StructDeclaration:                
                 // case SyntaxKind.EnumDeclaration:
                 // case SyntaxKind.ModuleDeclaration:
                 // case SyntaxKind.ImportEqualsDeclaration:

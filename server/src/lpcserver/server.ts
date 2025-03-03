@@ -474,7 +474,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
                 const contents = new MarkdownString();
                 const { displayString, documentation, tags } = result;
                 if (displayString) {
-                    contents.appendCodeblock('typescript', displayString);
+                    contents.appendCodeblock('lpc', displayString);
                 }
                 addMarkdownDocumentation(contents, documentation, tags, getFileResourceConverter());
                 return {
