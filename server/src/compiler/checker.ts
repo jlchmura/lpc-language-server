@@ -31080,12 +31080,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             
             if (name.kind === SyntaxKind.Identifier) {
                 const result = resolveEntityName(name, meaning, /*ignoreErrors*/ true, /*dontResolveAlias*/ true, getHostSignatureFromJSDoc(name));
-                if (!result && isJSDoc) {
-                    debugger;
-                    // const container = findAncestor(name, or(isClassLike, isInterfaceDeclaration));
-                    // if (container) {
-                    //     return resolveJSDocMemberName(name, /*ignoreErrors*/ true, getSymbolOfDeclaration(container));
-                    // }
+                if (!result && isJSDoc) {                    
+                    const container = findAncestor(name, or(isClassLike, isInterfaceDeclaration));
+                    if (container) {
+                        return resolveJSDocMemberName(name, /*ignoreErrors*/ true, getSymbolOfDeclaration(container));
+                    }
                 }                
                 return result;
             }           
