@@ -19739,10 +19739,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     context.approximateLength += 4;
             //     return factory.createLiteralTypeNode(factory.createNull());
             // }
-            // if (type.flags & TypeFlags.Never) {
-            //     context.approximateLength += 5;
-            //     return factory.createKeywordTypeNode(SyntaxKind.NeverKeyword);
-            // }
+            if (type.flags & TypeFlags.Never) {
+                context.approximateLength += 5;
+                return factory.createKeywordTypeNode(SyntaxKind.NeverKeyword);
+            }
             // if (type.flags & TypeFlags.ESSymbol) {
             //     context.approximateLength += 6;
             //     return factory.createKeywordTypeNode(SyntaxKind.SymbolKeyword);
