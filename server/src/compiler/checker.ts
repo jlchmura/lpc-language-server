@@ -6848,8 +6848,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return anyType;
             case SyntaxKind.PropertyAssignment:
             case SyntaxKind.ShorthandPropertyAssignment:
-                console.warn("todo getContextualType - getContextualTypeForObjectLiteralElement");
-                //return getContextualTypeForObjectLiteralElement(parent as PropertyAssignment | ShorthandPropertyAssignment, contextFlags);
+                return getContextualTypeForObjectLiteralElement(parent as PropertyAssignment | ShorthandPropertyAssignment, contextFlags);
             // case SyntaxKind.SpreadAssignment:
             //     return getContextualType(parent.parent as ObjectLiteralExpression, contextFlags);
             case SyntaxKind.ArrayLiteralExpression: {
@@ -6878,6 +6877,40 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     return tryGetTypeFromEffectiveTypeNode(parent as ExportAssignment);            
             // case SyntaxKind.ImportAttribute:
             //     return getContextualImportAttributeType(parent as ImportAttribute);
+        }
+        return undefined;
+    }
+
+    function getContextualTypeForObjectLiteralElement(element: ObjectLiteralElementLike, contextFlags: ContextFlags | undefined) {
+        const objectLiteral = element.parent as ObjectLiteralExpression;
+        const propertyAssignmentType = isPropertyAssignment(element) && getContextualTypeForVariableLikeDeclaration(element, contextFlags);
+        if (propertyAssignmentType) {
+            return propertyAssignmentType;
+        }
+        const type = getApparentTypeOfContextualType(objectLiteral, contextFlags);
+        if (type) {
+            if (hasBindableName(element)) {
+                // For a (non-symbol) computed property, there is no reason to look up the name
+                // in the type. It will just be "__computed", which does not appear in any
+                // SymbolTable.
+                const symbol = getSymbolOfDeclaration(element);
+                return getTypeOfPropertyOfContextualType(type, symbol.name, getSymbolLinks(symbol).nameType);
+            }
+            if (hasDynamicName(element)) {
+                const name = getNameOfDeclaration(element);
+                if (name && isComputedPropertyName(name)) {
+                    const exprType = checkExpression(name.expression);
+                    const propType = isTypeUsableAsPropertyName(exprType) && getTypeOfPropertyOfContextualType(type, getPropertyNameFromType(exprType));
+                    if (propType) {
+                        return propType;
+                    }
+                }
+            }
+            if (element.name) {
+                const nameType = getLiteralTypeFromPropertyName(element.name);
+                // We avoid calling getApplicableIndexInfo here because it performs potentially expensive intersection reduction.
+                return mapType(type, t => findApplicableIndexInfo(getIndexInfosOfStructuredType(t), nameType)?.type, /*noReductions*/ true);
+            }
         }
         return undefined;
     }
@@ -19875,7 +19908,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // return noInferSymbol ? symbolToTypeNode(noInferSymbol, context, SymbolFlags.Type, [typeNode]) : typeNode;
                 return Debug.fail("Should be unreachable.");
             }
-
+            if (type.flags & TypeFlags.Object) {
+                // fallback for untyped objects
+                return factory.createKeywordTypeNode(SyntaxKind.ObjectKeyword);
+            }
             return undefined;
 
             // function conditionalTypeToTypeNode(type: ConditionalType) {
@@ -32111,6 +32147,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const typeNode = nodeBuilder.typeToTypeNode(type, enclosingDeclaration, toNodeBuilderFlags(flags) | NodeBuilderFlags.IgnoreErrors | (noTruncation ? NodeBuilderFlags.NoTruncation : 0));
         if (typeNode === undefined) {
             console.warn("expected a type node but didn't get one");
+            const typeNode2 = nodeBuilder.typeToTypeNode(type, enclosingDeclaration, toNodeBuilderFlags(flags) | NodeBuilderFlags.IgnoreErrors | (noTruncation ? NodeBuilderFlags.NoTruncation : 0));
             return "<never>";
         }
         // The unresolved type gets a synthesized comment on `any` to hint to users that it's not a plain `any`.
