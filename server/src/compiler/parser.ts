@@ -6246,7 +6246,7 @@ export namespace LpcParser {
                     : factory.createJSDocLinkPlain;
                 return finishNode(create(name, text.join("")), start, scanner.getTokenEnd());
             }
-
+           
             function parseJSDocLinkName() {
                 if (tokenIsIdentifierOrKeyword(token())) {
                     const pos = getPositionState();;

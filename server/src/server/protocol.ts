@@ -1218,3 +1218,9 @@ export interface OpenRequest extends Request {
     command: CommandTypes.Open;
     arguments: OpenRequestArgs;
 }
+
+/** A part of a symbol description that links from a jsdoc @link tag to a declaration */
+export interface JSDocLinkDisplayPart extends SymbolDisplayPart {
+    /** The location of the declaration that the @link tag links to. */
+    target: FileSpan;
+}

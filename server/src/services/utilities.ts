@@ -219,6 +219,9 @@ import {
     isJSDocTypeAlias,
     isParenthesizedExpression,
     ParenthesizedExpression,
+    isJSDocNameReference,
+    isJSDocLinkLike,
+    isJSDocMemberName,
 } from "./_namespaces/lpc.js";
 
 // Matches the beginning of a triple slash directive
@@ -918,9 +921,9 @@ export function getMeaningFromLocation(node: Node): SemanticMeaning {
     else if (isDeclarationName(node)) {
         return getMeaningFromDeclaration(parent);
     }
-    // else if (isEntityName(node) && findAncestor(node, or(isJSDocNameReference, isJSDocLinkLike, isJSDocMemberName))) {
-    //     return SemanticMeaning.All;
-    // }
+    else if (isEntityName(node) && findAncestor(node, or(isJSDocNameReference, isJSDocLinkLike, isJSDocMemberName))) {
+        return SemanticMeaning.All;
+    }
     // else if (isTypeReference(node)) {
     //     return SemanticMeaning.Type;
     // }

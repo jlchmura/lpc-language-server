@@ -1,10 +1,11 @@
 import * as vscode from "vscode-languageserver";
 import * as Proto from "../server/_namespaces/lpc.server.protocol.js";
 import { protocol } from "../server/_namespaces/lpc.server.js";
-import { ScriptElementKind, SymbolDisplayPart, diagnosticPrefix, isString } from "../server/_namespaces/lpc.js";
+import { DocumentSpan, ScriptElementKind, SymbolDisplayPart, TextSpan, diagnosticPrefix, isString } from "../server/_namespaces/lpc.js";
 import { URI } from "vscode-uri";
 import { KindModifiers } from "./protocol.const.js";
 import { IFilePathToResourceConverter, asPlainTextWithLinks, documentationToMarkdown, tagsToMarkdown } from "./textRendering.js";
+import { getFileResourceConverter } from "./utils.js";
 
 export namespace Range {
 	export const fromTextSpan = (span: Proto.TextSpan): vscode.Range =>
@@ -59,7 +60,7 @@ export namespace Location {
 
 	export function fromFileSpan(span: Proto.FileSpan): vscode.Location {
 		return vscode.Location.create(URI.file(span.file).toString(), Range.fromTextSpan(span));
-	}
+	}	
 }
 
 
@@ -179,51 +180,53 @@ export namespace CompletionEntryDetails {
 		item.detail = entry.displayParts.map(part => part.text).join('');								
 		item.documentation = {
 			kind: "markdown",
-			value: DisplayPart.documentationToMarkdown(entry.documentation, entry.tags, baseUri)
+			value: documentationToMarkdown(entry.documentation, entry.tags, undefined, baseUri)
 		} satisfies vscode.MarkupContent;								
 		return item;		
 	}
 }
 
-export namespace DisplayPart {	
-	export function documentationToMarkdown(
-		documentation: readonly SymbolDisplayPart[],
-		tags: readonly Proto.JSDocTagInfo[],
-		baseUri: URI | undefined		
-	) {
-		let markdown = '';		
-		if (isString(documentation)) {
-			markdown += documentation;
-		} else if (documentation) {
-			markdown += documentation.map(part => part.text).join('');
-		}
-		if (tags) {
-			const converter: IFilePathToResourceConverter = { toResource: (file: string) => URI.file(file) };
-			const tagsMarkdown = tagsToMarkdown(tags, converter );
-			markdown += ('\n\n' + tagsMarkdown);
-		}
+// export namespace DisplayPart {	
+// 	export function documentationToMarkdown(
+// 		documentation: readonly SymbolDisplayPart[],
+// 		tags: readonly Proto.JSDocTagInfo[],
+// 		baseUri: URI | undefined		
+// 	) {
+// 		let markdown = '';		
+// 		if (isString(documentation)) {
+// 			markdown += documentation;
+// 		} else if (documentation) {
+// 			markdown += documentation.map(part => part.text).join('');
+// 		}
+// 		if (tags) {
+// 			const converter: IFilePathToResourceConverter = { toResource: (file: string) => URI.file(file) };
+// 			const tagsMarkdown = tagsToMarkdown(tags, converter );
+// 			markdown += ('\n\n' + tagsMarkdown);
+// 		}
 
-		return markdown;
-	}	
-}
+// 		return markdown;
+// 	}	
+// }
 
 export namespace SignatureHelp {
 	export function convertSignature(item: Proto.SignatureHelpItem, baseUri: URI) {
+		const converter = getFileResourceConverter();
+
 		const signature = vscode.SignatureInformation.create(
-			asPlainTextWithLinks(item.prefixDisplayParts, this.client),
-			documentationToMarkdown(item.documentation, item.tags.filter(x => x.name !== 'param'), this.client, baseUri)
+			asPlainTextWithLinks(item.prefixDisplayParts, converter),
+			documentationToMarkdown(item.documentation, item.tags.filter(x => x.name !== 'param'), converter, baseUri)
 		);
 
 		let textIndex = signature.label.length;
-		const separatorLabel = asPlainTextWithLinks(item.separatorDisplayParts, this.client);
+		const separatorLabel = asPlainTextWithLinks(item.separatorDisplayParts, converter);
 		for (let i = 0; i < item.parameters.length; ++i) {
 			const parameter = item.parameters[i];
-			const label = asPlainTextWithLinks(parameter.displayParts, this.client);
+			const label = asPlainTextWithLinks(parameter.displayParts, converter);
 
 			signature.parameters.push(
 				vscode.ParameterInformation.create(
 					[textIndex, textIndex + label.length],
-					documentationToMarkdown(parameter.documentation, [], this.client, baseUri)));
+					documentationToMarkdown(parameter.documentation, [], converter, baseUri)));
 
 			textIndex += label.length;
 			signature.label += label;
@@ -234,7 +237,7 @@ export namespace SignatureHelp {
 			}
 		}
 
-		signature.label += asPlainTextWithLinks(item.suffixDisplayParts, this.client);
+		signature.label += asPlainTextWithLinks(item.suffixDisplayParts, converter);
 		return signature;
 	}
 }
@@ -279,3 +282,4 @@ export namespace Diagnostic {
 		return d;				
 	}
 }
+

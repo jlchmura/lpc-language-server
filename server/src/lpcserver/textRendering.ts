@@ -3,6 +3,9 @@ import * as Proto from "../server/_namespaces/lpc.server.protocol.js";
 import { protocol } from "../server/_namespaces/lpc.server.js";
 import { Debug, JSDocLinkDisplayPart, ScriptElementKind, SymbolDisplayPart } from "../server/_namespaces/lpc.js";
 import { URI } from "vscode-uri";
+import { OpenJsDocLinkCommand_Args } from "./openJsDocLink.js";
+import { Position } from "./typeConverters.js";
+import { MarkdownString } from "./MarkdownString.js";
 
 export interface IFilePathToResourceConverter {
     /**
@@ -89,17 +92,14 @@ function convertLinkTags(
 		switch (part.kind) {
 			case 'link':
 				if (currentLink) {
-					if (currentLink.target) {
-                        Debug.fail("todo");
-						// const file = filePathConverter.toResource(currentLink.target.file);
-						// const args: OpenJsDocLinkCommand_Args = {
-						// 	file: { ...file.toJSON(), $mid: undefined }, // Prevent VS Code from trying to transform the uri,
-						// 	position: typeConverters.Position.fromLocation(currentLink.target.start)
-						// };
-						// const command = `command:${OpenJsDocLinkCommand.id}?${encodeURIComponent(JSON.stringify([args]))}`;
+					if (currentLink.target) {                        
+						const link = filePathConverter.toResource(currentLink.target.file)
+                            .with({
+                                fragment: `L${currentLink.target.start.line},${currentLink.target.start.offset}`,
+                            });
 
-						// const linkText = currentLink.text ? currentLink.text : escapeMarkdownSyntaxTokensForCode(currentLink.name ?? '');
-						// out.push(`[${currentLink.linkcode ? '`' + linkText + '`' : linkText}](${command})`);
+                        const linkText = currentLink.text ? currentLink.text : escapeMarkdownSyntaxTokensForCode(currentLink.name ?? '');
+                        out.push(`[${currentLink.linkcode ? '`' + linkText + '`' : linkText}](${link.toString()})`);
 					} else {
 						const text = currentLink.text ?? currentLink.name;
 						if (text) {
@@ -127,7 +127,7 @@ function convertLinkTags(
 			case 'linkName':
 				if (currentLink) {
 					currentLink.name = part.text;                    
-					// currentLink.target = (part as JSDocLinkDisplayPart).target;
+					currentLink.target = (part as JSDocLinkDisplayPart).target as any;
 				}
 				break;
 
@@ -263,4 +263,22 @@ export function documentationToMarkdown(
 	baseUri: URI | undefined,
 ): string {	
 	return appendDocumentationAsMarkdown(documentation, tags, filePathConverter);	
+}
+
+export function addMarkdownDocumentation(
+    out: MarkdownString,
+    documentation: string | SymbolDisplayPart[] | undefined,
+    tags: protocol.JSDocTagInfo[] | undefined,
+    converter: IFilePathToResourceConverter,
+): MarkdownString {
+    if (documentation) {
+        out.appendMarkdown(asPlainTextWithLinks(documentation, converter));
+    }
+    if (tags) {
+        const tagsPreview = tagsToMarkdown(tags, converter);
+        if (tagsPreview) {
+            out.appendMarkdown('\n\n' + tagsPreview);
+        }
+    }
+    return out;
 }
