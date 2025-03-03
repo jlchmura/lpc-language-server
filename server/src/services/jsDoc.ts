@@ -4,14 +4,11 @@ import {
     // ArrowFunction,
     AssignmentDeclarationKind,
     BinaryExpression,
-    buildLinkParts,
-    ClassExpression,
-    // ClassExpression,
+    buildLinkParts,        
     CompletionEntry,
     CompletionEntryDetails,
     Completions,
-    concatenate,
-    // ConstructorDeclaration,
+    concatenate,    
     contains,
     Debug,
     Declaration,
@@ -33,24 +30,26 @@ import {
     getJSDocCommentsAndTags,
     getJSDocTags,
     getLineStartPositionForPosition,
+    getStringLiteralsTextRecursively,
     getTokenAtPosition,
     hasJSDocNodes,    
     intersperse,
     isArrowFunction,
-    isBlock,
-    isConstructorDeclaration,
+    isBinaryExpression,
+    isBlock,    
     isExpression,
     isFunctionExpression,
     isFunctionLike,
     isFunctionLikeDeclaration,
     isFunctionTypeNode,
-    isIdentifier,
+    isIdentifier,    
     isJSDoc,
     isJSDocOverloadTag,
     isJSDocParameterTag,
     isJSDocPropertyLikeTag,
     isJSDocText,
     isJSDocTypeLiteral,
+    isLiteralTypeNode,    
     isWhiteSpaceSingleLine,
     JSDoc,
     JSDocAugmentsTag,
@@ -80,8 +79,7 @@ import {
     ParenthesizedExpression,
     PropertyAssignment,
     PropertyDeclaration,
-    propertyNamePart,
-    PropertySignature,
+    propertyNamePart,    
     punctuationPart,
     ScriptElementKind,
     SourceFile,
@@ -324,7 +322,13 @@ function getCommentDisplayParts(tag: JSDocTag, checker?: TypeChecker): SymbolDis
             return displayParts;
         case SyntaxKind.JSDocTypeTag:
         case SyntaxKind.JSDocSatisfiesTag:
-            return withNode((tag as JSDocTypeTag | JSDocSatisfiesTag).typeExpression);
+            const te = (tag as JSDocTypeTag | JSDocSatisfiesTag).typeExpression;
+            if (isLiteralTypeNode(te.type) && isBinaryExpression(te.type.literal)) {
+                // this is a special situation where we want to render the result of the binary expression
+                // not the expression (or macro name) itself
+                return addComment(`"${getStringLiteralsTextRecursively(te.type).join("")}"`);
+            }
+            return withNode(te);
         case SyntaxKind.JSDocTypedefTag:
         case SyntaxKind.JSDocCallbackTag:
         case SyntaxKind.JSDocPropertyTag:

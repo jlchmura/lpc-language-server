@@ -3203,6 +3203,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.JSDocTypeLiteral:            
                 forEachChild(node, checkSourceElement);
                 return;
+            case SyntaxKind.NamedObjectType:
+                return checkSourceElement((node as NamedObjectTypeNode).name);
             case SyntaxKind.JSDocVariadicType:
                 console.debug("todo - checkJSDocVariadicType");
                 // checkJSDocVariadicType(node as JSDocVariadicType);
@@ -3280,7 +3282,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.BinaryExpression:
             case SyntaxKind.IntKeyword:
             case SyntaxKind.StringKeyword:
-            case SyntaxKind.ObjectKeyword:
+            case SyntaxKind.ObjectKeyword:            
             case SyntaxKind.VoidKeyword:
             case SyntaxKind.FunctionKeyword:
             case SyntaxKind.MixedKeyword:
@@ -3302,10 +3304,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.PragmaDirective:
             case SyntaxKind.ElementAccessExpression:
             case SyntaxKind.JSDocTag:
+            case SyntaxKind.JSDocSeeTag:
             case SyntaxKind.EmptyStatement:            
             case SyntaxKind.JSDocClassTag:
             case SyntaxKind.JSDocSignature:
             case SyntaxKind.UndefDirective:
+            case SyntaxKind.ParenthesizedExpression:
                 return;
         }
 
