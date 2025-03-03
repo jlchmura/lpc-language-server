@@ -10,6 +10,7 @@
 -   Fix crash on signature help when typing a macro function without args.
 -   Fix possible max call stack crash with large or open-ended code ranges that are disabled.
 -   Fix: `buffer` and `in` are not reserved words in LD.
+-   Fix name resolution in JSDocLink and JSDocNameReference nodes.
 
 ## 1.1.31
 
