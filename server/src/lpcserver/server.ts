@@ -6,11 +6,13 @@ import { Logger } from "./nodeServer";
 import { Position, TextDocument } from "vscode-languageserver-textdocument";
 import { URI } from "vscode-uri";
 import EventEmitter from "events";
-import { convertNavTree } from "./utils.js";
+import { convertNavTree, getFileResourceConverter } from "./utils.js";
 import * as typeConverters from './typeConverters';
 import { KindModifiers } from "./protocol.const.js";
-import { CompletionEntryDetails, SignatureHelp } from "./typeConverters";
+import { CompletionEntryDetails, Range, SignatureHelp } from "./typeConverters";
 import { getHeapStatistics } from "v8";
+import { addMarkdownDocumentation, documentationToMarkdown, IFilePathToResourceConverter } from "./textRendering.js";
+import { MarkdownString } from "./MarkdownString.js";
 
 // generate a unique 5 digit it
 // const randomId = Math.floor(Math.random() * 90000) + 10000;
@@ -465,22 +467,20 @@ export function start(connection: Connection, platform: string, args: string[]) 
                 ...posParamToLpcPos(requestParams),
             };
             
-            const result = executeRequest<protocol.QuickInfoRequest, lpc.QuickInfo>(protocol.CommandTypes.Quickinfo, args);
+            const result = executeRequest<protocol.QuickInfoRequest, lpc.server.protocol.QuickInfoResponseBody>(protocol.CommandTypes.Quickinfo, args);
             if (!result) return undefined;
 
-            try {                
-                const displayParts: string[] = result?.displayParts?.map(pt=>pt.text) ?? [];
-                let md = "```lpc\n" + displayParts.join("") + "\n```";
-                
-                const docMd = typeConverters.DisplayPart.documentationToMarkdown(result.documentation, result.tags, undefined);
-                md += "\n" + docMd;
-                
+            try {     
+                const contents = new MarkdownString();
+                const { displayString, documentation, tags } = result;
+                if (displayString) {
+                    contents.appendCodeblock('typescript', displayString);
+                }
+                addMarkdownDocumentation(contents, documentation, tags, getFileResourceConverter());
                 return {
-                    contents: {
-                        kind: MarkupKind.Markdown,                    
-                        value: md,
-                    }
-                } satisfies Hover;
+                    contents: contents.toMarkupContent(),
+                    range: Range.fromTextSpan(result),
+                };                
             }
             catch(e) {                
                 console.error(e);

@@ -11,6 +11,7 @@
 -   Fix possible max call stack crash with large or open-ended code ranges that are disabled.
 -   Fix: `buffer` and `in` are not reserved words in LD.
 -   Fix name resolution in JSDocLink and JSDocNameReference nodes.
+-   Fix markdown link rendering in hover info.
 
 ## 1.1.31
 
