@@ -222,6 +222,7 @@ import {
     isJSDocNameReference,
     isJSDocLinkLike,
     isJSDocMemberName,
+    isStructTypeNode,
 } from "./_namespaces/lpc.js";
 
 // Matches the beginning of a triple slash directive
@@ -933,8 +934,8 @@ export function getMeaningFromLocation(node: Node): SemanticMeaning {
     else if (isTypeParameterDeclaration(parent)) {
         Debug.assert(isJSDocTemplateTag(parent.parent)); // Else would be handled by isDeclarationName
         return SemanticMeaning.Type;
-    }
-    else if (isLiteralTypeNode(parent)) {
+    }    
+    else if (isLiteralTypeNode(parent) || isStructTypeNode(parent)) {
         // This might be T["name"], which is actually referencing a property and not a type. So allow both meanings.
         return SemanticMeaning.Type | SemanticMeaning.Value;
     }

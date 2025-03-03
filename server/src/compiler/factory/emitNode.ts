@@ -144,3 +144,11 @@ export function setIdentifierAutoGenerate<T extends Identifier >(node: T, autoGe
     getOrCreateEmitNode(node).autoGenerate = autoGenerate;
     return node;
 }
+
+/**
+ * Sets a custom text range to use when emitting comments.
+ */
+export function setCommentRange<T extends Node>(node: T, range: TextRange) {
+    getOrCreateEmitNode(node).commentRange = range;
+    return node;
+}
