@@ -1201,7 +1201,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         function populateSymbols() {
             while (location) {
-                if (canHaveLocals(location) && location.locals && !isGlobalSourceFile(location)) {
+                if (canHaveLocals(location) && location.locals) { // && !isGlobalSourceFile(location)) {
                     copySymbols(location.locals, meaning);
                 }
 
