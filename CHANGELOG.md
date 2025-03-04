@@ -7,6 +7,7 @@
 -   Fix: Display `mapping` keyword instead of global mapping symbol name.
 -   Fix: Function return type was not displayed in completions detail.
 -   Fix: Signature help return type should be LPC-style, not TypeScript.
+-   Fix: Incorrect node positions causing synthetic node warnings.
 -   Add `never` type to type checker node builder.
 
 ## 1.1.32

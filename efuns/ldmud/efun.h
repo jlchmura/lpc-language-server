@@ -4814,20 +4814,22 @@ int mkdir(string path);
  * argument, it returns the minimum value of the array contents.
  *
  * @example 
- * min(1)                     - returns 1
- * min(1, -1.1)               - returns -1.1
- * min("foo", "bar")          - returns "bar"
- * min( ({ "foo", "bar" }) )  - returns "bar"
+ * min(1)                     // returns 1
+ * min(1, -1.1)               // returns -1.1
+ * min("foo", "bar")          // returns "bar"
+ * min( ({ "foo", "bar" }) )  // returns "bar"
  *
  * @since Introduced in LDMud 3.2.9.
  *
  */
-int          min(varargs int arg );
-float        min(varargs float arg );
-int          min(int *arg_array);
-float        min(float *arg_array);
-string|bytes min(varargs string|bytes arg );
-string|bytes min(string|bytes *arg_array);
+int    min(varargs int arg );
+float  min(varargs float arg );
+int    min(int *arg_array);
+float  min(float *arg_array);
+string min(varargs string arg );
+bytes  min(varargs bytes arg );
+string min(string|bytes *arg_array);
+bytes  min(bytes *arg_array);
 
 /**
  * member
