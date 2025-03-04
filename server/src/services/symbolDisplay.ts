@@ -11,6 +11,7 @@ import {
     displayPart,    
     find,
     first,    
+    firstOrUndefined,    
     forEach,
     getCombinedLocalAndExportSymbolFlags,
     getDeclarationOfKind,
@@ -1177,7 +1178,7 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
                     symbolKind === ScriptElementKind.localVariableElement ||
                     symbolKind === ScriptElementKind.indexSignatureElement ||
                     symbolKind === ScriptElementKind.variableUsingElement ||
-                    symbolKind === ScriptElementKind.variableAwaitUsingElement ||
+                    symbolKind === ScriptElementKind.variableAwaitUsingElement ||                    
                     isThisExpression
                 ) {
                     // displayParts.push(punctuationPart(SyntaxKind.ColonToken));                    
@@ -1194,6 +1195,15 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
                     addRange(displayParts, typeToDisplayParts(typeChecker, type, enclosingDeclaration));
                     displayParts.push(spacePart());
                     // }                    
+                }
+                else if (symbolKind === ScriptElementKind.functionElement) {
+                    // add the return type for a function
+                    const callSig = firstOrUndefined(type.getCallSignatures());
+                    const callSignReturnType = callSig?.getReturnType();
+                    if (callSignReturnType) {
+                        addRange(displayParts, typeToDisplayParts(typeChecker, callSignReturnType));
+                        displayParts.push(spacePart());
+                    }
                 }
 
                 addFullSymbolName(symbol);
