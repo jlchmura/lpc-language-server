@@ -1380,7 +1380,8 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
     }
 
     function addSignatureDisplayPartsHelper(signature: Signature, allSignatures: readonly Signature[], flags = TypeFormatFlags.None) {
-        if (allSignatures.length > 1) {
+        // only display overload indicator for efuns        
+        if (allSignatures.length > 1 && signature.declaration && getSourceFileOfNode(signature.declaration)?.isDefaultLib) {
             displayParts.push(spacePart());
             displayParts.push(punctuationPart(SyntaxKind.OpenParenToken));
             displayParts.push(operatorPart(SyntaxKind.PlusToken));
