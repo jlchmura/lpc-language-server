@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.34
+
+-   Fix: Completions not displaying object-level variables
+
 ## 1.1.33
 
 -   [LPCDoc param names garbled when forward define is in another file #233](https://github.com/jlchmura/lpc-language-server/issues/233)
