@@ -600,8 +600,8 @@ const separatorDisplayParts: SymbolDisplayPart[] = [punctuationPart(SyntaxKind.C
 function getSignatureHelpItem(candidateSignature: Signature, callTargetDisplayParts: readonly SymbolDisplayPart[], isTypeParameterList: boolean, checker: TypeChecker, enclosingDeclaration: Node, sourceFile: SourceFile): SignatureHelpItem[] {
     const infos = (isTypeParameterList ? itemInfoForTypeParameters : itemInfoForParameters)(candidateSignature, checker, enclosingDeclaration, sourceFile);
     return map(infos, ({ isVariadic, parameters, prefix, suffix }) => {
-        const prefixDisplayParts = [...callTargetDisplayParts, ...prefix];
-        const suffixDisplayParts = [...suffix, ...returnTypeToDisplayParts(candidateSignature, enclosingDeclaration, checker)];
+        const prefixDisplayParts = [...returnTypeToDisplayParts(candidateSignature, enclosingDeclaration, checker), ...callTargetDisplayParts, ...prefix];
+        const suffixDisplayParts = [...suffix];
         const documentation = candidateSignature.getDocumentationComment(checker);
         const tags = candidateSignature.getJsDocTags();
         return { isVariadic, prefixDisplayParts, suffixDisplayParts, separatorDisplayParts, parameters, documentation, tags };
@@ -640,14 +640,15 @@ function createSignatureHelpParameterForParameter(parameter: Symbol, checker: Ty
 
 function returnTypeToDisplayParts(candidateSignature: Signature, enclosingDeclaration: Node, checker: TypeChecker): readonly SymbolDisplayPart[] {
     return mapToDisplayParts(writer => {
-        writer.writePunctuation(":");
-        writer.writeSpace(" ");
+        // writer.writePunctuation(":");
+        // writer.writeSpace(" ");
         const predicate = checker.getTypePredicateOfSignature(candidateSignature);
         if (predicate) {
             checker.writeTypePredicate(predicate, enclosingDeclaration, /*flags*/ undefined, writer);
         }
         else {
             checker.writeType(checker.getReturnTypeOfSignature(candidateSignature), enclosingDeclaration, /*flags*/ undefined, writer);
+            writer.writeSpace(" ");
         }
     });
 }

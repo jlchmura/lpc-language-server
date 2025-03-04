@@ -6,6 +6,7 @@
 -   [Feat: get it to stop counting forward declaration as an overload #229](https://github.com/jlchmura/lpc-language-server/issues/229)
 -   Fix: Display `mapping` keyword instead of global mapping symbol name.
 -   Fix: Function return type was not displayed in completions detail.
+-   Fix: Signature help return type should be LPC-style, not TypeScript.
 -   Add `never` type to type checker node builder.
 
 ## 1.1.32
