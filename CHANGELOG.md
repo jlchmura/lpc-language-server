@@ -2,6 +2,7 @@
 
 ## 1.1.33
 
+-   [LPCDoc param names garbled when forward define is in another file #233](https://github.com/jlchmura/lpc-language-server/issues/233)
 -   Add `never` type to type checker node builder.
 
 ## 1.1.32
