@@ -571,7 +571,7 @@ function createChildren(
         //         Debug.assert(n.pos >= node.pos);
         //     }
         // });
-        addSyntheticNodes(children, pos, nodes.pos, node, sourceFile.inactiveCodeRanges);                        
+        addSyntheticNodes(children, pos, nodes.pos, node, sourceFile.inactiveCodeRanges);
         pushIfDefined(children, createSyntaxList(nodes, node, sourceFile.inactiveCodeRanges));
         pos = nodes.end ?? 0;
         Debug.assertIsDefined(pos);
@@ -997,7 +997,9 @@ function createSyntaxList(nodes: NodeArray<Node>, parent: Node, skipRanges: read
     }
     
     // if (children.length > 0) {
+    if ((parent.flags & NodeFlags.MacroContext) === 0) {
         addSyntheticNodes(children, pos, nodes.end, parent, skipRanges);    
+    }
     // }
     list._children = children;    
     return list;

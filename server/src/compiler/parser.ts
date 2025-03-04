@@ -1787,7 +1787,7 @@ export namespace LpcParser {
                 
                 const rootMacro = pos.macro ? getRootMacro(pos.macro) : undefined;            
                 const currentState = getPositionState();
-                const endToUse = (currentState.fileName === fileName && !currentState.macro) ? currentState.pos : rootMacro.end;
+                const endToUse = Math.max((currentState.fileName === fileName && !currentState.macro) ? currentState.pos : rootMacro.end, end || 0);
 
                 arrayPos = rootMacro.pos.pos;
                 end = endToUse;
@@ -2466,7 +2466,7 @@ export namespace LpcParser {
     }
 
     function finishNode<T extends Node>(node: T, pos: number, end: number): T
-    function finishNode<T extends Node>(node: T, pos: PositionState): T 
+    function finishNode<T extends Node>(node: T, pos: PositionState, end?: number): T 
     function finishNode<T extends Node>(node: T, pos: number | PositionState, end?: number): T {
         if (typeof pos !== "number") {
             const scannerState = scanner.getState(pos.stateId);            
@@ -2487,7 +2487,7 @@ export namespace LpcParser {
             if (macroState) {
                 // use the macro end pos, if we're in a macro
                 const currentState = getPositionState();
-                const endToUse = Math.max((currentState.fileName === fileName && !currentState.macro) ? currentState.pos : 0, rootMacro.end);
+                const endToUse = Math.max((currentState.fileName === fileName && !currentState.macro) ? currentState.pos : 0, rootMacro.end, end || 0);
                 
                 setTextRangePosEnd(node, macroState.pos, endToUse);//end ?? rootMacro.end);                                           
             } else {
@@ -2861,7 +2861,7 @@ export namespace LpcParser {
             hasJSDoc = false;
         }
         // }
-        return withJSDoc(finishNode(node, pos), hasJSDoc);
+        return withJSDoc(finishNode(node, pos, expression.end), hasJSDoc);
     }
 
     function getSpaceSuggestion(expressionText: string) {
@@ -4223,7 +4223,8 @@ export namespace LpcParser {
         // was a trailing comma.
         // Check if the last token was a comma.
         // Always preserve a trailing comma by marking it on the NodeArray
-        return createNodeArray(list, listPos, /*end*/ undefined, commaStart >= 0);
+        const endPos = !!listPos.macro || inContext(NodeFlags.MacroContext) ? lastOrUndefined(list)?.end : undefined;
+        return createNodeArray(list, listPos, /*end*/ endPos, commaStart >= 0);
     }
 
     /**

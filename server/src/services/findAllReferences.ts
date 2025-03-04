@@ -2087,7 +2087,9 @@ export namespace Core {
         allowBaseTypes: (rootSymbol: Symbol) => boolean,
     ): T | undefined {
         const containingObjectLiteralElement = getContainingObjectLiteralElement(location);
-        // if (containingObjectLiteralElement) {
+        if (containingObjectLiteralElement) {
+            console.info("todo - containingObjectLiteralElement");
+        }
         //     /* Because in short-hand property assignment, location has two meaning : property name and as value of the property
         //     * When we do findAllReference at the position of the short-hand property assignment, we would want to have references to position of
         //     * property name and variable declaration of the identifier.
