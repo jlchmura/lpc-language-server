@@ -70,6 +70,7 @@ declare module "../compiler/types.js" {
     // Module transform: converted from interface augmentation
     export interface Node {
         getSourceFile(): SourceFile;
+        getSourceFileOrInclude(): SourceFileBase;
         getChildCount(sourceFile?: SourceFile): number;
         getChildAt(index: number, sourceFile?: SourceFile): Node;
         getChildren(sourceFile?: SourceFile): readonly Node[];

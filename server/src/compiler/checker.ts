@@ -19739,10 +19739,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             //     context.approximateLength += 4;
             //     return factory.createLiteralTypeNode(factory.createNull());
             // }
-            // if (type.flags & TypeFlags.Never) {
-            //     context.approximateLength += 5;
-            //     return factory.createKeywordTypeNode(SyntaxKind.NeverKeyword);
-            // }
+            if (type.flags & TypeFlags.Never) {
+                context.approximateLength += 5;
+                return factory.createKeywordTypeNode(SyntaxKind.NeverKeyword);
+            }
             // if (type.flags & TypeFlags.ESSymbol) {
             //     context.approximateLength += 6;
             //     return factory.createKeywordTypeNode(SyntaxKind.SymbolKeyword);
@@ -20267,7 +20267,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
             function typeReferenceToTypeNode(type: TypeReference) {
                 let typeArguments: readonly Type[] = getTypeArguments(type);
-                if (type.target === globalArrayType || type.target === globalReadonlyArrayType) {
+                
+                if (type.target === globalMappingType) {
+                    return factory.createTypeReferenceNode("mapping");
+                }                
+                else if (type.target === globalArrayType || type.target === globalReadonlyArrayType) {
                     if (context.flags & NodeBuilderFlags.WriteArrayAsGenericType) {
                         const typeArgumentNode = typeToTypeNodeHelper(typeArguments[0], context);
                         return factory.createTypeReferenceNode(type.target === globalArrayType ? "Array" : "ReadonlyArray", [typeArgumentNode]);

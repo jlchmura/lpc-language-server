@@ -204,6 +204,8 @@ import {
     CheckLpcDirective,
     bindSourceFile,
     tryGetTextOfPropertyName,
+    getSourceFileOrIncludeOfNode,
+    SourceFileBase,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 import { computeSuggestionDiagnostics } from "./suggestionDiagnostics.js";
@@ -256,6 +258,10 @@ class TokenOrIdentifierObject<TKind extends SyntaxKind> implements Node {
         return getSourceFileOfNode(this);
     }
 
+    public getSourceFileOrInclude(): SourceFileBase {
+        return getSourceFileOrIncludeOfNode(this);
+    }
+
     public getStart(
         sourceFile?: SourceFileLike,
         includeJsDocComment?: boolean
@@ -271,7 +277,7 @@ class TokenOrIdentifierObject<TKind extends SyntaxKind> implements Node {
         return this.end;
     }
 
-    public getWidth(sourceFile?: SourceFile): number {        
+    public getWidth(sourceFile?: SourceFileBase): number {        
         return this.getEnd() - this.getStart(sourceFile);        
     }
 
@@ -279,20 +285,20 @@ class TokenOrIdentifierObject<TKind extends SyntaxKind> implements Node {
         return this.end - this.pos;
     }
 
-    public getLeadingTriviaWidth(sourceFile?: SourceFile): number {
+    public getLeadingTriviaWidth(sourceFile?: SourceFileBase): number {
         return this.getStart(sourceFile) - this.pos;
     }
 
-    public getFullText(sourceFile?: SourceFile): string {
-        return (sourceFile || this.getSourceFile()).text.substring(
+    public getFullText(sourceFile?: SourceFileBase): string {
+        return (sourceFile || this.getSourceFileOrInclude()).text.substring(
             this.pos,
             this.end
         );
     }
 
-    public getText(sourceFile?: SourceFile): string {
+    public getText(sourceFile?: SourceFileBase): string {
         if (!sourceFile) {
-            sourceFile = this.getSourceFile();
+            sourceFile = this.getSourceFileOrInclude();
             Debug.assertIsDefined(sourceFile);
         }
         return sourceFile.text.substring(
@@ -408,6 +414,10 @@ class NodeObject<TKind extends SyntaxKind> implements Node {
         return getSourceFileOfNode(this);
     }
 
+    public getSourceFileOrInclude(): SourceFileBase {
+        return getSourceFileOrIncludeOfNode(this);
+    }
+
     public getStart(
         sourceFile?: SourceFileLike,
         includeJsDocComment?: boolean
@@ -436,23 +446,23 @@ class NodeObject<TKind extends SyntaxKind> implements Node {
         return this.end - this.pos;
     }
 
-    public getLeadingTriviaWidth(sourceFile?: SourceFile): number {
+    public getLeadingTriviaWidth(sourceFile?: SourceFileBase): number {
         this.assertHasRealPosition();
         return this.getStart(sourceFile) - this.pos;
     }
 
-    public getFullText(sourceFile?: SourceFile): string {
+    public getFullText(sourceFile?: SourceFileBase): string {
         this.assertHasRealPosition();
-        return (sourceFile || this.getSourceFile()).text.substring(
+        return (sourceFile || this.getSourceFileOrInclude()).text.substring(
             this.pos,
             this.end
         );
     }
 
-    public getText(sourceFile?: SourceFile): string {
+    public getText(sourceFile?: SourceFileBase): string {
         this.assertHasRealPosition();
         if (!sourceFile) {
-            sourceFile = this.getSourceFile();
+            sourceFile = this.getSourceFileOrInclude();
         }
         return sourceFile.text.substring(
             this.getStart(sourceFile),

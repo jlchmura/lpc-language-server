@@ -659,7 +659,7 @@ export class Session<TMessage = string> implements EventSender {
         const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;
         const position = this.getPosition(args, scriptInfo);
         const helpItems = project.getLanguageService().getSignatureHelpItems(file, position, args);
-        const useDisplayParts = !!this.getPreferences(file).displayPartsForJSDoc;
+        const useDisplayParts = true;//!!this.getPreferences(file).displayPartsForJSDoc;
         if (helpItems && simplifiedResult) {
             const span = helpItems.applicableSpan;
             return {
@@ -1105,7 +1105,7 @@ export class Session<TMessage = string> implements EventSender {
         const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;
         const position = this.getPosition(args, scriptInfo);
         const formattingOptions = project.projectService.getFormatCodeOptions(file);
-        const useDisplayParts = !!this.getPreferences(file).displayPartsForJSDoc;
+        const useDisplayParts = true;// !!this.getPreferences(file).displayPartsForJSDoc;
 
         const result = mapDefined(args.entryNames, entryName => {
             const { name, source, data } = typeof entryName === "string" ? { name: entryName, source: undefined, data: undefined } : entryName;

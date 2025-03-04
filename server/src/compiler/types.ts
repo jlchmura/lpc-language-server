@@ -805,6 +805,7 @@ export const enum SyntaxKind {
     FalseKeyword,       // JSON-only
     TrueKeyword,        // JSON-only
     NullKeyword,        // JSON-only    
+    NeverKeyword,       // typenode only
     FunctionKeyword,    // can be used as a param name
     SymbolKeyword,      // not reserved in fluffos
     ObjectKeyword,      // can occur in a super expr i.e.  object::fn()
@@ -1401,6 +1402,7 @@ export type KeywordTypeSyntaxKind =
     // | SyntaxKind.SymbolKeyword
     | SyntaxKind.UndefinedKeyword
     | SyntaxKind.UnknownKeyword
+    | SyntaxKind.NeverKeyword
     | SyntaxKind.VoidKeyword;    
 
 export type TokenSyntaxKind =
@@ -2388,6 +2390,7 @@ export type KeywordSyntaxKind =
     | SyntaxKind.InheritKeyword
     | SyntaxKind.NewKeyword
     | SyntaxKind.NullKeyword
+    | SyntaxKind.NeverKeyword
     | SyntaxKind.ReturnKeyword
     | SyntaxKind.SwitchKeyword
     | SyntaxKind.WhileKeyword

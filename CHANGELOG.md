@@ -1,12 +1,21 @@
 # LPC Language Services Changelog
 
+## 1.1.33
+
+-   [LPCDoc param names garbled when forward define is in another file #233](https://github.com/jlchmura/lpc-language-server/issues/233)
+-   [Feat: get it to stop counting forward declaration as an overload #229](https://github.com/jlchmura/lpc-language-server/issues/229)
+-   Fix: Display `mapping` keyword instead of global mapping symbol name.
+-   Fix: Function return type was not displayed in completions detail.
+-   Fix: Signature help return type should be LPC-style, not TypeScript.
+-   Add `never` type to type checker node builder.
+
 ## 1.1.32
 
 -   [Function macro with array arg parsed incorrectly. #220](https://github.com/jlchmura/lpc-language-server/issues/220)
 -   [Inline closure should allow statements #206](https://github.com/jlchmura/lpc-language-server/issues/206)
 -   [Class is not a reserved word in LD #224](https://github.com/jlchmura/lpc-language-server/issues/224)
 -   [tooltip for typed object reference from a macro not showing completely or fully, when using LD's syntax #227](https://github.com/jlchmura/lpc-language-server/issues/227)
--   [@type not expanding macros in tooltip #228](https://github.com/jlchmura/lpc-language-server/issues/228)
+-   [`@type` not expanding macros in tooltip #228](https://github.com/jlchmura/lpc-language-server/issues/228)
 -   Fix crash on signature help when typing a macro function without args.
 -   Fix possible max call stack crash with large or open-ended code ranges that are disabled.
 -   Fix: `buffer` and `in` are not reserved words in LD.
