@@ -4,6 +4,7 @@
 
 -   [LPCDoc param names garbled when forward define is in another file #233](https://github.com/jlchmura/lpc-language-server/issues/233)
 -   [Feat: get it to stop counting forward declaration as an overload #229](https://github.com/jlchmura/lpc-language-server/issues/229)
+-   Fix: Display `mapping` keyword instead of global mapping symbol name.
 -   Add `never` type to type checker node builder.
 
 ## 1.1.32

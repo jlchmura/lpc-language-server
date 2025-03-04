@@ -20267,7 +20267,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
             function typeReferenceToTypeNode(type: TypeReference) {
                 let typeArguments: readonly Type[] = getTypeArguments(type);
-                if (type.target === globalArrayType || type.target === globalReadonlyArrayType) {
+                
+                if (type.target === globalMappingType) {
+                    return factory.createTypeReferenceNode("mapping");
+                }                
+                else if (type.target === globalArrayType || type.target === globalReadonlyArrayType) {
                     if (context.flags & NodeBuilderFlags.WriteArrayAsGenericType) {
                         const typeArgumentNode = typeToTypeNodeHelper(typeArguments[0], context);
                         return factory.createTypeReferenceNode(type.target === globalArrayType ? "Array" : "ReadonlyArray", [typeArgumentNode]);
