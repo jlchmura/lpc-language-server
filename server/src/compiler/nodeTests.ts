@@ -492,3 +492,7 @@ export function isSuperAccessExpression(node: Node): node is SuperAccessExpressi
 export function isCatchStatement(node: Node): node is CatchStatement {
     return node.kind === SyntaxKind.CatchStatement;
 }
+
+export function isJSDocCallbackTag(node: Node): node is JSDocCallbackTag {
+    return node.kind === SyntaxKind.JSDocCallbackTag;
+}
