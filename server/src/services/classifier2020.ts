@@ -15,6 +15,7 @@ import {
     isCallExpression,
     isFunctionDeclaration,
     isIdentifier,    
+    isIncludeDirective,    
     isInExternalFileContext,    
     isInfinityOrNaNString,    
     isInIncludeContext,    
@@ -145,7 +146,7 @@ function collectTokens(program: Program, sourceFile: SourceFile, span: TextSpan,
                 cancellationToken.throwIfCancellationRequested();
         }
 
-        if (!node || !isFromFile(node) || !textSpanIntersectsWith(span, node.pos, node.getFullWidth()) || node.getFullWidth() === 0) {
+        if (!node || isInIncludeContext(node) || !textSpanIntersectsWith(span, node.pos, node.getFullWidth()) || node.getFullWidth() === 0) {
             return;
         }                
 
@@ -208,10 +209,13 @@ function collectTokens(program: Program, sourceFile: SourceFile, span: TextSpan,
                         modifierSet |= 1 << TokenModifier.defaultLibrary;
                     }
 
-                    collector(node, typeIdx, modifierSet);
+                    if (isFromFile(node)) {
+                        collector(node, typeIdx, modifierSet);
+                    }
                 }
             }
         }
+        
         forEachChild(node, visit);        
     }    
 }

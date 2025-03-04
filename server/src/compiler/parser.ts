@@ -4223,7 +4223,8 @@ export namespace LpcParser {
         // was a trailing comma.
         // Check if the last token was a comma.
         // Always preserve a trailing comma by marking it on the NodeArray
-        return createNodeArray(list, listPos, /*end*/ lastOrUndefined(list)?.end, commaStart >= 0);
+        const endPos = !!listPos.macro || inContext(NodeFlags.MacroContext) ? lastOrUndefined(list)?.end : undefined;
+        return createNodeArray(list, listPos, /*end*/ endPos, commaStart >= 0);
     }
 
     /**
