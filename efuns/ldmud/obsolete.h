@@ -505,7 +505,7 @@ object query_shadowing (object obj);
  *
  * True if the object is or once was interactive.
  *
- *
+ * @returns {ob is __LPC_CONFIG_LIBFILES_PLAYER} 1 if ob is or once was interactive, 0 otherwise.
  */
 int query_once_interactive(object ob);
 
