@@ -1486,10 +1486,15 @@ export namespace Core {
             return;
         }
 
-        const relatedSymbol = getRelatedSymbol(search, referenceSymbol, referenceLocation, state);
+        let relatedSymbol = getRelatedSymbol(search, referenceSymbol, referenceLocation, state);
         if (!relatedSymbol) {
-            getReferenceForShorthandProperty(referenceSymbol, search, state);
-            return;
+            if (getReferenceForShorthandProperty(referenceSymbol, search, state)) {
+                return;
+            } else {
+                // I had to add this in to get object-level variables to show up 
+                // as references
+                relatedSymbol = { symbol: referenceSymbol, kind: EntryKind.Node };
+            }
         }
 
         switch (state.specialSearchKind) {
@@ -1638,8 +1643,10 @@ export namespace Core {
         // }
     }
 
-    function getReferenceForShorthandProperty({ flags, valueDeclaration }: Symbol, search: Search, state: State): void {
+    function getReferenceForShorthandProperty({ flags, valueDeclaration }: Symbol, search: Search, state: State): boolean {
         const shorthandValueSymbol = state.checker.getShorthandAssignmentValueSymbol(valueDeclaration)!;
+        if (!shorthandValueSymbol) return false;
+
         const name = valueDeclaration && getNameOfDeclaration(valueDeclaration);
         /*
          * Because in short-hand property assignment, an identifier which stored as name of the short-hand property assignment
@@ -1651,6 +1658,8 @@ export namespace Core {
         if (!(flags & SymbolFlags.Transient) && name && search.includes(shorthandValueSymbol)) {
             addReference(name, shorthandValueSymbol, state);
         }
+
+        return true;
     }
 
     function addReference(referenceLocation: Node, relatedSymbol: Symbol | RelatedSymbol, state: State): void {
@@ -2184,12 +2193,13 @@ export namespace Core {
             // If the symbol is an instantiation from a another symbol (e.g. widened symbol):
             //   - In populateSearchSymbolsSet, add the root the list
             //   - In findRelatedSymbol, return the source symbol if that is in the search. (Do not return the instantiation symbol.)
-            return firstDefined(checker.getRootSymbols(sym), rootSymbol =>
+            const fromRootResult = firstDefined(checker.getRootSymbols(sym), rootSymbol =>
                 cbSymbol(sym, rootSymbol, /*baseSymbol*/ undefined, kind)
                 // Add symbol of properties/methods of the same name in base classes and implemented interfaces definitions
                 || (rootSymbol.parent && rootSymbol.parent.flags & (SymbolFlags.Class | SymbolFlags.Interface) && allowBaseTypes(rootSymbol)
                     ? getPropertySymbolsFromBaseTypes(rootSymbol.parent, rootSymbol.name, checker, base => cbSymbol(sym, rootSymbol, base, kind))
                     : undefined));
+            return fromRootResult;
         }
 
         // function getPropertySymbolOfObjectBindingPatternWithoutPropertyName(symbol: Symbol, checker: TypeChecker): Symbol | undefined {

@@ -3,6 +3,7 @@
 ## 1.1.34
 
 -   Fix: Completions not displaying object-level variables
+-   Fix: Object-level variables not shown as references
 
 ## 1.1.33
 
