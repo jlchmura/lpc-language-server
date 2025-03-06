@@ -627,6 +627,8 @@ Found 1 error in server/src/tests/cases/compiler/typePredicate1.c[90m:7[0m
 
 exports[`Compiler compiler/typePredicate2.c Reports correct errors for compiler/typePredicate2.c: diags-compiler/typePredicate2.c 1`] = `""`;
 
+exports[`Compiler compiler/typePredicate3.c Reports correct errors for compiler/typePredicate3.c: diags-compiler/typePredicate3.c 1`] = `""`;
+
 exports[`Compiler compiler/unionTypes.c Reports correct errors for compiler/unionTypes.c: diags-compiler/unionTypes.c 1`] = `""`;
 
 exports[`Compiler compiler/utf8.c Reports correct errors for compiler/utf8.c: diags-compiler/utf8.c 1`] = `""`;

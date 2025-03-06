@@ -2,6 +2,7 @@
 
 ## 1.1.34
 
+-   [Type predicates are not working on object declarations #238](https://github.com/jlchmura/lpc-language-server/issues/238)
 -   Fix: Completions not displaying object-level variables
 -   Fix: Object-level variables not shown as references
 

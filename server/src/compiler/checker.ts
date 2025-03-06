@@ -25102,6 +25102,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return combined;
     }
 
+    function isAnonymousObjectType(type: Type) {
+        return !!(getObjectFlags(type) & ObjectFlags.Anonymous);
+    }
+
     function isEmptyAnonymousObjectType(type: Type) {
         return !!(getObjectFlags(type) & ObjectFlags.Anonymous && (
             (type as ResolvedType).members && isEmptyResolvedType(type as ResolvedType) ||
@@ -29839,6 +29843,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function isTypeStrictSubtypeOf(source: Type, target: Type): boolean {
+        // plain objects are not a subtype of named objects
+        if ((source.flags & TypeFlags.Object) && isAnonymousObjectType(target)) {
+            return false;
+        }
         return isTypeRelatedTo(source, target, strictSubtypeRelation);
     }
     
