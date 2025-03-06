@@ -416,8 +416,8 @@ function getDisplayPartWriter(): DisplayPartsSymbolWriter {
     function writeKind(text: string, kind: SymbolDisplayPartKind) {
         if (length > absoluteMaximumLength) return;
         writeIndent();
-        length += text.length;
-        displayParts.push(displayPart(text, kind));
+        length += text?.length;
+        displayParts.push(displayPart(text || "", kind));
     }
 
     function writeSymbol(text: string, symbol: Symbol) {
