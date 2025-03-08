@@ -16,7 +16,7 @@
  * 
  * s3 = xor_bits(s1, s2);
  * 
- * -> s3 is now "0 (", ie. a bitstring with bits 4 and 15 set.
+ * // -> s3 is now "0 (", ie. a bitstring with bits 4 and 15 set.
  *
  *
  */
@@ -154,9 +154,9 @@ mixed * xml_parse(string xml);
  * })
  * 
  * xml_generate(xml)
- * -> "<book language="common"><title>This is the title</title>"
- * "<chapter>This is a chapter</chapter><chapter>We want "
- * "<b>bold</b> here.</chapter></book>"
+ * // -> "<book language="common"><title>This is the title</title>"
+ * // "<chapter>This is a chapter</chapter><chapter>We want "
+ * // "<b>bold</b> here.</chapter></book>"
  *
  * @since Added in LDMud 3.3.718.
  *
@@ -225,15 +225,15 @@ int write_bytes(string file, int start, bytes str);
  * @example 
  * write("Hello world!\n"); 
  * 
- * Just print out a string.
+ * // Just print out a string.
  * 
  * write(this_player());
  * 
- * This will print out something like "OBJ(std/player#1234)".
+ * // This will print out something like "OBJ(std/player#1234)".
  * 
  * write( ({ "blub" }) );
  * 
- * Will print out "<ARRAY>".
+ * // Will print out "<ARRAY>".
  *
  * @param msg The message to write.
  */
@@ -248,19 +248,20 @@ void write(mixed msg);
  * The result is an array with one entry for every wizard (uid).
  * Every entry is an array itself:
  * 
- * string w[WL_NAME]        = Name of the wizard.
- * int    w[WL_COMMANDS]    = Weighted number of commands execute by
- * objects of this wizard.
+ * ```
+ * string w[WL_NAME]        // = Name of the wizard.
+ * int    w[WL_COMMANDS]    // = Weighted number of commands execute by objects of this wizard.
  * int    w[WL_COST],
- * int    w[WL_GIGACOST]       = Weighted sum of eval_costs.
+ * int    w[WL_GIGACOST]    // = Weighted sum of eval_costs.
  * int    w[WL_TOTAL_COST],
- * int    w[WL_TOTAL_GIGACOST] = Total sum of eval_costs.
- * int    w[WL_HEART_BEATS]   = Weighted count of heart_beats.
- * int    w[WL_CALL_OUT]      = Reserved for call_out() (unused yet).
- * int    w[WL_ARRAY_TOTAL]   = Total size of arrays in elements.
- * int    w[WL_MAPPING_TOTAL] = Total size of mappings in elements.
- * int    w[WL_STRUCT_TOTAL]  = Total size of structs in elements.
- * mixed  w[WL_EXTRA]         = Extra wizlist-info if set.
+ * int    w[WL_TOTAL_GIGACOST] // = Total sum of eval_costs.
+ * int    w[WL_HEART_BEATS]    // = Weighted count of heart_beats.
+ * int    w[WL_CALL_OUT]       // = Reserved for call_out() (unused yet).
+ * int    w[WL_ARRAY_TOTAL]    // = Total size of arrays in elements.
+ * int    w[WL_MAPPING_TOTAL]  // = Total size of mappings in elements.
+ * int    w[WL_STRUCT_TOTAL]   // = Total size of structs in elements.
+ * mixed  w[WL_EXTRA]          // = Extra wizlist-info if set.
+ * ```
  * 
  * The 'weighted' entries decay every hour by 10%.
  *
@@ -403,7 +404,7 @@ string variable_exists(string str, object|lwobject ob, int flags);
  * @example 
  * write(ctime(utime())+"\n");
  * 
- * Print out the current date and time.
+ * // Print out the current date and time.
  *
  * @since Introduced in LDMud 3.2.9.
  *
@@ -415,7 +416,7 @@ int * utime();
  *
  * Return an array containing all interactive users.
  *
- *
+ * @returns {__LPC_CONFIG_LIBFILES_PLAYER*} An array of all interactive users.
  */
 object * users();
 
