@@ -7275,6 +7275,7 @@ export interface PositionState {
 export interface Macro extends MacroIncludedFileRange {
     directive: DefineDirective;
     name: string;
+    isBuiltIn: boolean;
     includeDirPos?: number;
     includeDirEnd?: number;
     includeFilename?: string;    
