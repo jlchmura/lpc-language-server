@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.36
+
+-   [macros named null are not resolving correctly #245](https://github.com/jlchmura/lpc-language-server/issues/245)
+
 ## 1.1.35
 
 -   Fix: `__DIR__` macro set to incorrectly path.

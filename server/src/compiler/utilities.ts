@@ -2619,6 +2619,12 @@ export function isKeyword(token: SyntaxKind): token is KeywordSyntaxKind {
     return SyntaxKind.FirstKeyword <= token && token <= SyntaxKind.LastKeyword;
 }
 
+/** @internal */
+export function isNonReservedKeyword(token: SyntaxKind): token is KeywordSyntaxKind {
+    return token > SyntaxKind.LastReservedWord && token <= SyntaxKind.LastKeyword;
+}
+
+
 /**
  * True if node is of some JSDoc syntax kind.
  *
