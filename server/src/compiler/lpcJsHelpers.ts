@@ -9,6 +9,7 @@ export function createVmHelperContext() {
     return {        
         explode,
         implode,
+        directory_exists,
         __lpcBinaryArrayHelper,
         __lpcBinaryHelper,
         __lpcIndexAccessHelper
@@ -22,6 +23,11 @@ export function createVmHelperContext() {
     /** helper for the LPC implode function */
     function implode(array: string[] | 0, delim: string) {        
         return array ? array.join(delim) : array;
+    }
+
+    /** helper for the LPC directory_exists function */
+    function directory_exists(path: string) {
+        return true;
     }
 
     /**
