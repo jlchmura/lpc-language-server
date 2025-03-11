@@ -3,6 +3,7 @@
 ## 1.1.36
 
 -   [macros named null are not resolving correctly #245](https://github.com/jlchmura/lpc-language-server/issues/245)
+-   [deprecation for enable_commands(void) may not be correct #244](https://github.com/jlchmura/lpc-language-server/issues/244)
 
 ## 1.1.35
 
