@@ -634,27 +634,6 @@ int exec( object to, object from );
  * When setup_actions > 0, Driver will re-setup all the actions by calling
  * init()  on  its  environment,  sibling  and inventory objects. (in that
  * order).
- * @deprecated
- */
-void enable_commands(  );
-
-/**
- * enable_commands() - allow object to use 'player' commands
- *
- * enable_commands() marks this_object() as a living object, and allows it
- * to use commands added with add_action()  (by  using  command()).   When
- * enable_commands()  is called, the driver also looks for the local func‐
- * tion catch_tell(), and if found, it will call it every time  a  message
- * (via say() for example) is given to the object.
- * 
- * Since  FluffOS  3.0-alpha7: This function now accept int, default to 0.
- * which has same meaning of old form.  which merely re-enables  commands,
- * but  don't  setup actions. (it should have been cleared when previously
- * called disable_commands())
- * 
- * When setup_actions > 0, Driver will re-setup all the actions by calling
- * init()  on  its  environment,  sibling  and inventory objects. (in that
- * order).
  * @param {int} setup_actions - if non-zero, re-setup actions by calling init() on its environment, sibling and inventory objects. Defaults to 0
  * @since 3.0-alpha7.1* 
  */

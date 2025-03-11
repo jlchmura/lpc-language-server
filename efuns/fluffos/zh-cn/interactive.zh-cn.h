@@ -519,23 +519,6 @@ object find_player( string str );
  */
 int exec( object to, object from );
 
-/**
- * enable_commands() - 允许对象使用“玩家”命令
- *
- * enable_commands() 将 this_object() 标记为一个活对象，并允许它
- * 使用 add_action() 添加的命令（通过使用 command()）。当
- * enable_commands() 被调用时，驱动程序还会寻找本地功能
- * catch_tell()，如果找到了，每次向该对象发送消息（通过 say() 例如）时都会调用它。
- * 
- * 自 FluffOS 3.0-alpha7 起：此函数现在接受 int，默认为 0。
- * 这与旧形式的含义相同，仅仅是重新启用命令，但并没有
- * 设置动作。（它应该在之前调用 disable_commands() 时被清除）
- * 
- * 当 setup_actions > 0 时，驱动程序将重新设置所有动作，
- * 通过在其环境、兄弟对象和库存对象上调用 init()（按此顺序）。
- * @deprecated
- */
-void enable_commands(  );
 
 /**
  * enable_commands() - 允许对象使用“玩家”命令
