@@ -21,6 +21,7 @@ const macroAllocator = () => Macro as any;
 function Macro(this: Macro, name: string, fileName: string, getText: () => string, range: TextRange) {
     this.directive = undefined;
     this.name = name;
+    this.isBuiltIn = false;
     this.includeFilename = fileName;
     this.includeDirPos = undefined;
     this.includeDirEnd = undefined;
@@ -957,7 +958,7 @@ export namespace LpcParser {
             const parsedMacros = new Map<string, string>();            
             macroTable.forEach((macro, _key) => {
                 // exclude built-in macros
-                if (macro.includeFilename != "macro") {
+                if (macro.includeFilename != "macro" && !macro.isBuiltIn) {
                     const { name, range } = macro;
                     parsedMacros.set(name, range ? macro.getText()?.substring(range.pos, range.end) ?? "" : "");
                 }
@@ -2188,6 +2189,7 @@ export namespace LpcParser {
         // although we only need a range, store the position in a fake node so that v8 doesn't deoptimize the Node object
         const tempNode = setTextRangePosEnd(factory.createBlock([], /*multiLine*/ false), 0, text?.length || 0);
         const macro = createMacroBase(name, "builtin", () => text, tempNode);        
+        macro.isBuiltIn = true;
         return macro;
     }
        

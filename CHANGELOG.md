@@ -2,6 +2,8 @@
 
 ## 1.1.35
 
+-   Fix: `__DIR__` macro set to incorrectly path.
+-   Added support for `file_size` efun in JS helper.
 
 ## 1.1.34
 

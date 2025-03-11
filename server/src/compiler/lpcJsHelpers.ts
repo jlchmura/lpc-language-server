@@ -8,7 +8,8 @@ export function createVmHelperContext() {
     // in vanilla javascript
     return {        
         explode,
-        implode,        
+        implode,
+        file_size,
         __lpcBinaryArrayHelper,
         __lpcBinaryHelper,
         __lpcIndexAccessHelper
@@ -23,6 +24,12 @@ export function createVmHelperContext() {
     function implode(array: string[] | 0, delim: string) {        
         return array ? array.join(delim) : array;
     }    
+
+    function file_size(path: string): number {
+        if (!path) { return -1; }
+        else if (path.endsWith(".c") || path.endsWith(".h")) { return 1; }            
+        else { return -2; }
+    }
 
     /**
      * Performs a binary operation on two arrays
