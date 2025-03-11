@@ -2,7 +2,6 @@
 
 ## 1.1.35
 
--   Added support for `directory_exists` efun use in master apply `get_include_path`.
 
 ## 1.1.34
 
