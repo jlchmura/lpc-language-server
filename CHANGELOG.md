@@ -2,6 +2,7 @@
 
 ## 1.1.35
 
+-   Added support for `file_size` efun in JS helper.
 
 ## 1.1.34
 
