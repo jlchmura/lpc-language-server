@@ -12548,7 +12548,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
             // if an inline closure is set to a single identifier which is a function, use the resolved return type of that function
             if (isInlineClosureExpression(func) && isIdentifier(func.body) && getObjectFlags(returnType) & ObjectFlags.Anonymous) {
-                returnType = firstOrUndefined((returnType as ObjectType).callSignatures)?.resolvedReturnType ?? returnType;
+                const resolvedSig = getSingleCallSignature(returnType);
+
+                if (!resolvedSig.resolvedReturnType) {
+                    returnType = getReturnTypeOfSignature(resolvedSig) || returnType;
+                }                
+                else {
+                    returnType = resolvedSig.resolvedReturnType || returnType;
+                }
             }            
             
             // if (isAsync) {
