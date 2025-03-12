@@ -5,6 +5,7 @@
 -   [macros named null are not resolving correctly #245](https://github.com/jlchmura/lpc-language-server/issues/245)
 -   [deprecation for enable_commands(void) may not be correct #244](https://github.com/jlchmura/lpc-language-server/issues/244)
 -   [Update documentation and hinting for origin() following merge of FluffOS PR #250](https://github.com/jlchmura/lpc-language-server/issues/250)
+-   [Efun signatures do not resolve their return type when access via inline closure #248](https://github.com/jlchmura/lpc-language-server/issues/248)
 
 ## 1.1.35
 
