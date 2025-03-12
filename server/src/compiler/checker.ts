@@ -12550,11 +12550,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (isInlineClosureExpression(func) && isIdentifier(func.body) && getObjectFlags(returnType) & ObjectFlags.Anonymous) {
                 const resolvedSig = getSingleCallSignature(returnType);
 
-                if (!resolvedSig.resolvedReturnType) {
+                if (resolvedSig && !resolvedSig.resolvedReturnType) {
                     returnType = getReturnTypeOfSignature(resolvedSig) || returnType;
                 }                
                 else {
-                    returnType = resolvedSig.resolvedReturnType || returnType;
+                    returnType = resolvedSig?.resolvedReturnType || returnType;
                 }
             }            
             
