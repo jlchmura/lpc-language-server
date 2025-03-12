@@ -98,19 +98,19 @@ mixed previous_object( int | void );
 /**
  * origin() - 确定当前函数是如何被调用的
  *
- * 返回一个整数，指定当前函数是如何被调用的。当前值为：
+ * @returns 一个字符串，指定当前函数是如何被调用的。
+ * 当前值有：
  * 
- * 1    驱动程序（心跳等）
- * 2    本地函数调用
- * 4    call_other()
- * 8    通过一个 simul_efun 调用的 simul_efun 对象
- * 16   call_out()
- * 32   被 efun 调用（sort_array 等）
- * 64   函数指针
- * 128  函数式
- *
+ * "driver"            驱动程序（心跳等）
+ * "local"             本地函数调用
+ * "call_other"        call_other()
+ * "simul"             通过 simul_efun 调用 simul_efun 对象
+ * "internal"          call_out() 等
+ * "efun"              由 efun 调用（如 sort_array 等）
+ * "function pointer"  函数指针
+ * "functional"        功能性
  */
-int origin( void );
+string origin();
 
 /**
  * catch() - 捕获评估错误
