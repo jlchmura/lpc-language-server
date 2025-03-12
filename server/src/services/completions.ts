@@ -1216,16 +1216,16 @@ function completionInfoFromData(
     );
 
     if (keywordFilters !== KeywordCompletionFilters.None) {
-        // for (const keywordEntry of getKeywordCompletions(keywordFilters, !insideJsDocTagTypeExpression && isSourceFileJS(sourceFile))) {
-        //     if (
-        //         isTypeOnlyLocation && isTypeKeyword(stringToToken(keywordEntry.name)!) ||
-        //         !isTypeOnlyLocation && isContextualKeywordInAutoImportableExpressionSpace(keywordEntry.name) ||
-        //         !uniqueNames.has(keywordEntry.name)
-        //     ) {
-        //         uniqueNames.add(keywordEntry.name);
-        //         insertSorted(entries, keywordEntry, compareCompletionEntries, /*equalityComparer*/ undefined, /*allowDuplicates*/ true);
-        //     }
-        // }
+        for (const keywordEntry of getKeywordCompletions(keywordFilters, !insideJsDocTagTypeExpression)) {
+            if (
+                isTypeOnlyLocation && isTypeKeyword(stringToToken(keywordEntry.name)!) ||
+                !isTypeOnlyLocation && isContextualKeywordInAutoImportableExpressionSpace(keywordEntry.name) ||
+                !uniqueNames.has(keywordEntry.name)
+            ) {
+                uniqueNames.add(keywordEntry.name);
+                insertSorted(entries, keywordEntry, compareCompletionEntries, /*equalityComparer*/ undefined, /*allowDuplicates*/ true);
+            }
+        }
     }
 
     for (const keywordEntry of getContextualKeywords(contextToken, position)) {
@@ -3664,12 +3664,12 @@ function getCompletionData(
         if (contextToken) {
             const parentKind = contextToken.parent.kind;
             switch (contextToken.kind) {
-                case SyntaxKind.ColonToken:
-                    return parentKind === SyntaxKind.PropertyDeclaration ||
-                        parentKind === SyntaxKind.PropertySignature ||
-                        parentKind === SyntaxKind.Parameter ||
-                        parentKind === SyntaxKind.VariableDeclaration ||
-                        isFunctionLikeKind(parentKind);
+                // case SyntaxKind.ColonToken:
+                //     return parentKind === SyntaxKind.PropertyDeclaration ||
+                //         parentKind === SyntaxKind.PropertySignature ||
+                //         parentKind === SyntaxKind.Parameter ||
+                //         parentKind === SyntaxKind.VariableDeclaration ||
+                //         isFunctionLikeKind(parentKind);
 
                 case SyntaxKind.EqualsToken:
                     return /*parentKind === SyntaxKind.TypeAliasDeclaration ||*/ parentKind === SyntaxKind.TypeParameter;
@@ -3678,8 +3678,9 @@ function getCompletionData(
                 //     return parentKind === SyntaxKind.AsExpression;
 
                 case SyntaxKind.LessThanToken:
-                    return parentKind === SyntaxKind.TypeReference /*||
-                        parentKind === SyntaxKind.TypeAssertionExpression*/;
+                    return parentKind === SyntaxKind.TypeReference ||
+                        parentKind === SyntaxKind.TypeAssertionExpression ||
+                        parentKind === SyntaxKind.PrefixUnaryExpression;
 
                 // case SyntaxKind.ExtendsKeyword:
                 //     return parentKind === SyntaxKind.TypeParameter;
@@ -4849,7 +4850,7 @@ const allKeywordsCompletions: () => readonly CompletionEntry[] = memoize(() => {
     const res: CompletionEntry[] = [];
     for (let i = SyntaxKind.FirstKeyword; i <= SyntaxKind.LastKeyword; i++) {        
         const name = tokenToString(i); 
-        if (i === SyntaxKind.InheritKeyword) {
+        if (i === SyntaxKind.MappingKeyword) {
             const ii=0;
         }
         if (name) {
@@ -4912,7 +4913,7 @@ function getTypescriptKeywordCompletions(keywordFilter: KeywordCompletionFilters
 function isTypeScriptOnlyKeyword(kind: SyntaxKind) {
     switch (kind) {
         // case SyntaxKind.AbstractKeyword:
-        case SyntaxKind.AnyKeyword:
+        // case SyntaxKind.AnyKeyword:
         case SyntaxKind.IntKeyword:
         case SyntaxKind.FloatKeyword:
         // case SyntaxKind.BooleanKeyword:
