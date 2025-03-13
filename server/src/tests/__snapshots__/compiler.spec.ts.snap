@@ -533,6 +533,15 @@ exports[`Compiler compiler/new3.c Reports correct errors for compiler/new3.c: di
 
 exports[`Compiler compiler/new4.c Reports correct errors for compiler/new4.c: diags-compiler/new4.c 1`] = `""`;
 
+exports[`Compiler compiler/new5.c Reports correct errors for compiler/new5.c: diags-compiler/new5.c 1`] = `""`;
+
+exports[`Compiler compiler/new6.c Reports correct errors for compiler/new6.c: diags-compiler/new6.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/new6.c[90m:11[0m
+
+"
+`;
+
 exports[`Compiler compiler/object.c Reports correct errors for compiler/object.c: diags-compiler/object.c 1`] = `""`;
 
 exports[`Compiler compiler/object2.c Reports correct errors for compiler/object2.c: diags-compiler/object2.c 1`] = `""`;
