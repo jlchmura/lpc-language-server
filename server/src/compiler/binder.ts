@@ -1324,6 +1324,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             // case SyntaxKind.ClassStaticBlockDeclaration:
             case SyntaxKind.TypeAliasDeclaration:
             case SyntaxKind.MappedType:
+            case SyntaxKind.NewExpression:
                 // All the children of these container types are never visible through another
                 // symbol (i.e. through another symbol's 'exports' or 'members').  Instead,
                 // they're only accessed 'lexically' (i.e. from code that exists underneath

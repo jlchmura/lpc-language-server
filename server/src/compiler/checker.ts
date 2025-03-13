@@ -13380,7 +13380,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (isDeclarationNameOrImportPropertyName(node)) {
             // This is a declaration, call getSymbolOfNode
             const parentSymbol = getSymbolOfDeclaration(parent as Declaration);
-            return parentSymbol; // TODO:
+            return parentSymbol; // TODO:            
             // return isImportOrExportSpecifier(node.parent) && node.parent.propertyName === node
             //     ? getImmediateAliasedSymbol(parentSymbol)
             //     : parentSymbol;
@@ -31290,6 +31290,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             
             const isJSDoc = findAncestor(name, or(isJSDocLinkLike, isJSDocNameReference, isJSDocMemberName));
             const meaning = isJSDoc ? SymbolFlags.Type | SymbolFlags.Namespace | SymbolFlags.Value : 
+                            isStructTypeNode(name.parent) ? SymbolFlags.Type :
                             isCallExpression(name.parent) && name.parent.expression === name ? SymbolFlags.Function : 
                             isSuperAccessExpression(name.parent) ? SymbolFlags.Function :
                             SymbolFlags.Value;
