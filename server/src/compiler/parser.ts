@@ -5640,7 +5640,8 @@ export namespace LpcParser {
         scanner.setSkipJsDocLeadingAsterisks(true);
         const pos = getPositionState();
         
-        const hasDotDotDot = parseOptional(SyntaxKind.DotDotDotToken);
+        // jsdoc variadic comes before
+        let hasDotDotDot = parseOptional(SyntaxKind.DotDotDotToken);
         let type = parseTypeOrTypePredicate();
 
         // support JS style array indicators (`arr[]`).. we are in jsdoc after all
@@ -5650,6 +5651,10 @@ export namespace LpcParser {
         }
 
         scanner.setSkipJsDocLeadingAsterisks(false);
+
+        // lpcdoc variadic comes after
+        hasDotDotDot ||= parseOptional(SyntaxKind.DotDotDotToken);
+
         if (hasDotDotDot) {            
             type = finishNode(factory.createJSDocVariadicType(type), pos);
         }

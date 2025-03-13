@@ -680,4 +680,8 @@ Found 1 error in server/src/tests/cases/compiler/varBeforeDecl2.c[90m:2[0m
 
 exports[`Compiler compiler/varBeforeDecl3.c Reports correct errors for compiler/varBeforeDecl3.c: diags-compiler/varBeforeDecl3.c 1`] = `""`;
 
+exports[`Compiler compiler/variadic1.c Reports correct errors for compiler/variadic1.c: diags-compiler/variadic1.c 1`] = `""`;
+
+exports[`Compiler compiler/variadic2.c Reports correct errors for compiler/variadic2.c: diags-compiler/variadic2.c 1`] = `""`;
+
 exports[`Compiler compiler/while1.c Reports correct errors for compiler/while1.c: diags-compiler/while1.c 1`] = `""`;
