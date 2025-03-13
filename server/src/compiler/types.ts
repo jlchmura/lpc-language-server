@@ -1937,6 +1937,7 @@ export type IsContainer =
     // | ClassStaticBlockDeclaration
     | FunctionExpression
     | InlineClosureExpression
+    | NewExpression
     | ArrowFunction;
 
 /**
@@ -4416,7 +4417,7 @@ export interface ObjectLiteralElement extends NamedDeclaration {
 
 export interface PropertyAssignment extends ObjectLiteralElement, JSDocContainer {
     readonly kind: SyntaxKind.PropertyAssignment;
-    readonly parent: ObjectLiteralExpression;
+    readonly parent: NewExpression;
     readonly name: PropertyName;
     readonly initializer: Expression;
 
