@@ -30082,7 +30082,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     return createFlowType(getBaseTypeOfLiteralType(getTypeFromFlowType(flowType)), isIncomplete(flowType));
                 }
                 // LPC object & mixed types should act like auto here.
-                if (declaredType === autoType || declaredType === autoArrayType || declaredType === objectType || declaredType === mixedType || isMappingType(declaredType)) {
+                if (declaredType === autoType || 
+                    declaredType === autoArrayType || 
+                    declaredType === objectType || 
+                    declaredType === mixedType || 
+                    isMappingType(declaredType) ||
+                    // see https://github.com/jlchmura/lpc-language-server/issues/190
+                    (isArrayType(declaredType) && declaredType.resolvedTypeArguments && !isAnonymousObjectType(first(declaredType.resolvedTypeArguments)))
+                ) {
                     if (isEmptyArrayAssignment(node)) {
                         return getEvolvingArrayType(neverType);
                     }

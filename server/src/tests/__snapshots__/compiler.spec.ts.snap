@@ -282,6 +282,8 @@ exports[`Compiler compiler/flowType1.c Reports correct errors for compiler/flowT
 
 exports[`Compiler compiler/flowType2.c Reports correct errors for compiler/flowType2.c: diags-compiler/flowType2.c 1`] = `""`;
 
+exports[`Compiler compiler/flowType3.c Reports correct errors for compiler/flowType3.c: diags-compiler/flowType3.c 1`] = `""`;
+
 exports[`Compiler compiler/fnNoReturn1.c Reports correct errors for compiler/fnNoReturn1.c: diags-compiler/fnNoReturn1.c 1`] = `""`;
 
 exports[`Compiler compiler/fnNoReturn2.c Reports correct errors for compiler/fnNoReturn2.c: diags-compiler/fnNoReturn2.c 1`] = `
