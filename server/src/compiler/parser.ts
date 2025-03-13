@@ -2752,7 +2752,7 @@ export namespace LpcParser {
     function inDisallowInContext() {
         return inContext(NodeFlags.DisallowInContext);
     }
-
+    
     function canParseSemicolon() {
         // If there's a real semicolon, then we can always parse it out.
         if (token() === SyntaxKind.SemicolonToken) {
@@ -3403,7 +3403,8 @@ export namespace LpcParser {
         const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         parseExpected(SyntaxKind.ReturnKeyword);
-        const expression = canParseSemicolon() ? undefined : allowInAnd(parseExpression);
+        
+        const expression = token() === SyntaxKind.SemicolonToken ? undefined : allowInAnd(parseExpression);
         parseSemicolon();
         return withJSDoc(finishNode(factory.createReturnStatement(expression), pos), hasJSDoc);
     }
