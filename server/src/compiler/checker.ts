@@ -4062,12 +4062,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 leftType = checkExpression(varExpr.left);
                 commaRightType = checkExpression(varExpr.right);
                 if (!isTypeAssignableTo(getIndexTypeOrString(rightType), leftType)) {
-                    error(varExpr, Diagnostics.The_left_hand_side_of_a_for_in_statement_must_be_of_type_string_or_any);    
+                    error(varExpr, Diagnostics.The_left_hand_side_of_the_foreach_statement_0_is_not_compatible_with_type_1, typeToString(leftType), typeToString(rightType));
                 }
             } 
+            else if (isArrayType(rightType)) {
+                if (!isTypeAssignableTo(getIndexTypeOrString(rightType), leftType)) {
+                    error(varExpr, Diagnostics.The_left_hand_side_of_the_foreach_statement_0_is_not_compatible_with_type_1, typeToString(leftType), typeToString(rightType));
+                }
+            }
             // else if (!isTypeAssignableTo(getIndexTypeOrString(rightType), leftType)) {
             else if (!isTypeAssignableTo(rightType, leftType)) {
-                error(varExpr, Diagnostics.The_left_hand_side_of_a_for_in_statement_must_be_of_type_string_or_any);
+                error(varExpr, Diagnostics.The_left_hand_side_of_the_foreach_statement_0_is_not_compatible_with_type_1, typeToString(leftType), typeToString(rightType));
             }
             else {            
                 checkReferenceExpression(
