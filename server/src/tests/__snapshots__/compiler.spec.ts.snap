@@ -533,6 +533,8 @@ exports[`Compiler compiler/new3.c Reports correct errors for compiler/new3.c: di
 
 exports[`Compiler compiler/new4.c Reports correct errors for compiler/new4.c: diags-compiler/new4.c 1`] = `""`;
 
+exports[`Compiler compiler/new5.c Reports correct errors for compiler/new5.c: diags-compiler/new5.c 1`] = `""`;
+
 exports[`Compiler compiler/object.c Reports correct errors for compiler/object.c: diags-compiler/object.c 1`] = `""`;
 
 exports[`Compiler compiler/object2.c Reports correct errors for compiler/object2.c: diags-compiler/object2.c 1`] = `""`;

@@ -6916,6 +6916,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function getContextualTypeForObjectLiteralElement(element: ObjectLiteralElementLike, contextFlags: ContextFlags | undefined) {
+        if (isNewExpression(element.parent)) return anyType;
+        
         const objectLiteral = element.parent as ObjectLiteralExpression;
         const propertyAssignmentType = isPropertyAssignment(element) && getContextualTypeForVariableLikeDeclaration(element, contextFlags);
         if (propertyAssignmentType) {
@@ -14940,6 +14942,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return checkSuperExpression(node as SuperAccessExpression);
             case SyntaxKind.CatchExpression:
                 return checkCatchExpression(node as CatchExpression);
+            case SyntaxKind.PropertyAssignment:
+                return checkPropertyAssignment(node as unknown as PropertyAssignment, checkMode);
         }   
         console.warn("Implement me - checkExpressionWorker - " + Debug.formatSyntaxKind(node.kind));
         return errorType;
@@ -15066,6 +15070,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         checkDeprecatedSignature(signature, node);
 
+        if (node.expression && isNewExpression(node) && isStructTypeNode(node.expression)) {
+            // fluff-style new(class foo) syntax
+            checkSourceElement(node.expression);
+            return getTypeFromTypeNode(node.expression);
+        }
         if (isNewExpression(node) && !node.expression && node.arguments?.length) {
             return checkCloneObjectExpression(node);
         }

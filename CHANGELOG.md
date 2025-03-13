@@ -3,6 +3,7 @@
 ## 1.1.37
 
 -   [Return node does not include expression after newline, resulting in unreachable code warning #261](https://github.com/jlchmura/lpc-language-server/issues/261)
+-   [Diagostic about unread variable not correct when being used in class instantiation #259](https://github.com/jlchmura/lpc-language-server/issues/259)
 
 ## 1.1.36
 
