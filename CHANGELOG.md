@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.37
+
+-   [Return node does not include expression after newline, resulting in unreachable code warning #261](https://github.com/jlchmura/lpc-language-server/issues/261)
+
 ## 1.1.36
 
 -   [macros named null are not resolving correctly #245](https://github.com/jlchmura/lpc-language-server/issues/245)
