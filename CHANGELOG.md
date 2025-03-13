@@ -8,6 +8,7 @@
 -   [Not getting hints when new()ing a class #260](https://github.com/jlchmura/lpc-language-server/issues/260)
 -   [FluffOS diagnostic incorrect about parameters not being read in lambda #258](https://github.com/jlchmura/lpc-language-server/issues/258)
 -   [LPCDoc variadic type indicator is on the wrong side #249](https://github.com/jlchmura/lpc-language-server/issues/249)
+-   [diagnostic: after a catch block with a return in it, code after is determined to be unreachable #242](https://github.com/jlchmura/lpc-language-server/issues/242)
 
 ## 1.1.36
 
