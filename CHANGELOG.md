@@ -6,6 +6,7 @@
 -   [Diagostic about unread variable not correct when being used in class instantiation #259](https://github.com/jlchmura/lpc-language-server/issues/259)
 -   [Property types are not checked when using new(class) syntax #263](https://github.com/jlchmura/lpc-language-server/issues/263)
 -   [Not getting hints when new()ing a class #260](https://github.com/jlchmura/lpc-language-server/issues/260)
+-   [FluffOS diagnostic incorrect about parameters not being read in lambda #258](https://github.com/jlchmura/lpc-language-server/issues/258)
 
 ## 1.1.36
 

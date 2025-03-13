@@ -248,6 +248,22 @@ exports[`Compiler compiler/error2.c Reports correct errors for compiler/error2.c
 
 exports[`Compiler compiler/eval1.c Reports correct errors for compiler/eval1.c: diags-compiler/eval1.c 1`] = `""`;
 
+exports[`Compiler compiler/evaluate1.c Reports correct errors for compiler/evaluate1.c: diags-compiler/evaluate1.c 1`] = `""`;
+
+exports[`Compiler compiler/evaluate2.c Reports correct errors for compiler/evaluate2.c: diags-compiler/evaluate2.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/evaluate2.c[90m:5[0m
+
+"
+`;
+
+exports[`Compiler compiler/evaluate3.c Reports correct errors for compiler/evaluate3.c: diags-compiler/evaluate3.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/evaluate3.c[90m:5[0m
+
+"
+`;
+
 exports[`Compiler compiler/expr1.c Reports correct errors for compiler/expr1.c: diags-compiler/expr1.c 1`] = `""`;
 
 exports[`Compiler compiler/expr2.c Reports correct errors for compiler/expr2.c: diags-compiler/expr2.c 1`] = `""`;
