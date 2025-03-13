@@ -4544,7 +4544,7 @@ export interface EvaluateExpression extends PrimaryExpression {
     readonly arguments: NodeArray<Expression>;
 }
 
-export interface NewExpression extends PrimaryExpression, Declaration {
+export interface NewExpression extends PrimaryExpression, Declaration, LocalsContainer {
     readonly kind: SyntaxKind.NewExpression;
     readonly expression?: LeftHandSideExpression | TypeNode | undefined;
     readonly typeArguments?: NodeArray<TypeNode>;
