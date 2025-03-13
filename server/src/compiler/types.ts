@@ -1217,9 +1217,9 @@ export const enum NodeFlags {
     HasAggregatedChildData = 1 << 21, // If we've computed data from children and cached it in this node
     OptionalChain       = 1 << 22, // not used
     DisallowPipeContext = 1 << 23, // If node was parsed in a context where '|' operators are not allowed
-
-    JSDoc                                          = 1 << 24, // If node was parsed inside jsdoc
-    /** @internal */ Ambient                       = 1 << 25, // If node was inside an ambient context -- a declaration file, or inside something with the `declare` modifier.
+    CatchContext        = 1 << 24, // If node was parsed in the 'catch' context created when parsing a catch clause
+    JSDoc                                          = 1 << 25, // If node was parsed inside jsdoc
+    /** @internal */ Ambient                       = 1 << 26, // If node was inside an ambient context -- a declaration file, or inside something with the `declare` modifier.
     /** @internal */ TypeCached                    = 1 << 28, // If a type was cached for node at any point
     /** @internal */ Deprecated                    = 1 << 29, // If has '@deprecated' JSDoc tag
 

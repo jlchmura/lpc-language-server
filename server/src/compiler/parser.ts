@@ -2324,18 +2324,18 @@ export namespace LpcParser {
         parseExpected(SyntaxKind.CatchKeyword);
 
         if (parseOptional(SyntaxKind.OpenParenToken)) {        
-            expression = parseExpression();
+            expression = doInsideOfContext(NodeFlags.CatchContext, parseExpression);
             
             if (parseOptional(SyntaxKind.SemicolonToken)) {
                 modifier = parseIdentifier(Diagnostics.Catch_expression_modifier_expected);
                 if (!nodeIsMissing(modifier) && token() !== SyntaxKind.CloseParenToken) {
-                    modifierExpression = parseExpression();
+                    modifierExpression = doInsideOfContext(NodeFlags.CatchContext, parseExpression);
                 }
             }
 
             parseExpected(SyntaxKind.CloseParenToken);
         } else {
-            block = parseFunctionBlockOrSemicolon(SignatureFlags.None);
+            block = doInsideOfContext(NodeFlags.CatchContext,() => parseFunctionBlockOrSemicolon(SignatureFlags.None));
         }
 
         return finishNode(factory.createCatchExpression(expression, modifier, modifierExpression, block), post);
@@ -2357,7 +2357,7 @@ export namespace LpcParser {
         let modifierExpression: Expression | undefined;
 
         if (parseOptional(SyntaxKind.OpenParenToken)) {
-            expression = parseExpression();
+            expression = doInsideOfContext(NodeFlags.CatchContext, parseExpression);
 
             if (parseOptional(SyntaxKind.SemicolonToken)) {
                 modifier = parseIdentifier(Diagnostics.Catch_expression_modifier_expected);
@@ -2369,7 +2369,7 @@ export namespace LpcParser {
             parseExpected(SyntaxKind.CloseParenToken);
         }        
 
-        const block = parseFunctionBlockOrSemicolon(SignatureFlags.None);
+        const block = doInsideOfContext(NodeFlags.CatchContext,() => parseFunctionBlockOrSemicolon(SignatureFlags.None));
 
         return withJSDoc(finishNode(factory.createCatchStatement(expression, block, modifier, modifierExpression), pos), hasJSDoc);
     }

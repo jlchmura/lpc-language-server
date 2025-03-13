@@ -1201,18 +1201,8 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             }
         }
 
-        // check ancestors until currentFlow node
-        // if any are a catch statement, then the current flow is not unreachable
-        let parent = node.parent;
-        let isCatch = false;
-        while (!isCatch && parent && parent !== currentFlow.node) {
-            if (isCatchStatement(parent) || isCatchExpression(parent)) {
-                isCatch = true;
-            }
-            parent = parent.parent;
-        }
-
-        if (!isCatch) {
+        // if we are in a catch context, don't mark the flow as unreachable
+        if ((node.flags & NodeFlags.CatchContext)==0) {
             currentFlow = unreachableFlow;
         }
         hasFlowEffects = true;
