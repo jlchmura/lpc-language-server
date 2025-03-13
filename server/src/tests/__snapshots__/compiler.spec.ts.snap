@@ -334,6 +334,8 @@ exports[`Compiler compiler/forEach9.c Reports correct errors for compiler/forEac
 
 exports[`Compiler compiler/forEach10.c Reports correct errors for compiler/forEach10.c: diags-compiler/forEach10.c 1`] = `""`;
 
+exports[`Compiler compiler/forEach11.c Reports correct errors for compiler/forEach11.c: diags-compiler/forEach11.c 1`] = `""`;
+
 exports[`Compiler compiler/forEachRef.c Reports correct errors for compiler/forEachRef.c: diags-compiler/forEachRef.c 1`] = `""`;
 
 exports[`Compiler compiler/forEachRef2.c Reports correct errors for compiler/forEachRef2.c: diags-compiler/forEachRef2.c 1`] = `""`;
