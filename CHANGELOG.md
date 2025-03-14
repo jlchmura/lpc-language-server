@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.38
+
+-   ['undefined' as a symbol name is reported as invalid #272](https://github.com/jlchmura/lpc-language-server/issues/272)
+
 ## 1.1.37
 
 -   [Return node does not include expression after newline, resulting in unreachable code warning #261](https://github.com/jlchmura/lpc-language-server/issues/261)
