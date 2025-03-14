@@ -759,8 +759,7 @@ export const enum SyntaxKind {
     IntKeyword, // FIrst Keyword, FirstReserved Word
     FloatKeyword,    
     StringKeyword,
-    LwObjectKeyword,        
-    UndefinedKeyword,
+    LwObjectKeyword,            
     AnyKeyword,    
     ClosureKeyword,
     StructKeyword,
@@ -802,6 +801,7 @@ export const enum SyntaxKind {
     // non-reserved keywords go below this line
     ClassKeyword,
     StatusKeyword,
+    UndefinedKeyword,
     FalseKeyword,       // JSON-only
     TrueKeyword,        // JSON-only
     NullKeyword,        // JSON-only    
