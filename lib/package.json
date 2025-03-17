@@ -2,7 +2,7 @@
     "name": "@lpc-lang/core",
     "displayName": "LPC",
     "description": "LPC Language Compiler Library",
-    "version": "1.1.37",
+    "version": "1.1.38",
     "scripts": {      
     },
     "author": "jlchmura",
