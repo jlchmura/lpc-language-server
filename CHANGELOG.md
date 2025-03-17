@@ -3,6 +3,7 @@
 ## 1.1.38
 
 -   ['undefined' as a symbol name is reported as invalid #272](https://github.com/jlchmura/lpc-language-server/issues/272)
+-   [Language server crashes when VSCode does not have a workspace open #274](https://github.com/jlchmura/lpc-language-server/issues/274)
 
 ## 1.1.37
 
