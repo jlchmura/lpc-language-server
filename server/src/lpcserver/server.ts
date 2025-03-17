@@ -166,7 +166,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
 
     connection.onInitialize((params) => {                
         const capabilities = params.capabilities;
-        const rootFolder = lpc.normalizePath(fromUri(params.workspaceFolders[0].uri));
+        const rootFolder = params.workspaceFolders ? lpc.normalizePath(fromUri(params.workspaceFolders[0].uri)) : "";
         // const projectFileName = lpc.normalizePath(lpc.combinePaths(rootFolder, "lpc-config.json"));
 
         // const config = loadLpcConfig(projectFileName);
