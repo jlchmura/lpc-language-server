@@ -1529,6 +1529,14 @@ export function createScanner(
             }
             const ch = charCodeUnchecked(pos);
             if (ch === quoteChar || (quoteChar === CharacterCodes.lessThan && ch === CharacterCodes.greaterThan)) {
+                if (quoteChar === CharacterCodes.singleQuote && ch === CharacterCodes.singleQuote && charCodeUnchecked(pos + 1) === CharacterCodes.singleQuote) {
+                    // this is a special case to handle ''' in LD
+                    result += text.substring(start, pos);
+                    result += "'";
+                    pos += 2;
+                    break;
+                }
+                
                 result += text.substring(start, pos);
                 pos++;
                 // offset = 1;

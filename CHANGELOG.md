@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.39
+
+-   [problem with ''' #276](https://github.com/jlchmura/lpc-language-server/issues/276)
+
 ## 1.1.38
 
 -   ['undefined' as a symbol name is reported as invalid #272](https://github.com/jlchmura/lpc-language-server/issues/272)

@@ -134,6 +134,8 @@ exports[`Compiler compiler/catchBlock5.c Reports correct errors for compiler/cat
 
 exports[`Compiler compiler/catchExpr1.c Reports correct errors for compiler/catchExpr1.c: diags-compiler/catchExpr1.c 1`] = `""`;
 
+exports[`Compiler compiler/charLiteral1.c Reports correct errors for compiler/charLiteral1.c: diags-compiler/charLiteral1.c 1`] = `""`;
+
 exports[`Compiler compiler/class1.c Reports correct errors for compiler/class1.c: diags-compiler/class1.c 1`] = `""`;
 
 exports[`Compiler compiler/class2.c Reports correct errors for compiler/class2.c: diags-compiler/class2.c 1`] = `
