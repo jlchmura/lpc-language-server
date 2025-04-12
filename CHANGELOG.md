@@ -3,6 +3,7 @@
 ## 1.1.39
 
 -   [problem with ''' #276](https://github.com/jlchmura/lpc-language-server/issues/276)
+-   [hover information does not love when the param description spans multiple lines #281](https://github.com/jlchmura/lpc-language-server/issues/281)
 
 ## 1.1.38
 

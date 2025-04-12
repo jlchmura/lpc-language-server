@@ -31,7 +31,8 @@ function getTagDocumentation(
                 if (!doc) {
                     return label;
                 }
-                return label + (doc.match(/\r\n|\n/g) ? '  \n' + processInlineTags(doc) : ` \u2014 ${processInlineTags(doc)}`);
+                // return label + (doc.match(/\r\n|\n/g) ? '  \n' + processInlineTags(doc) : ` \u2014 ${processInlineTags(doc)}`);
+				return `${label} \u2014 ${processInlineTags(doc)}`;
             }
             break;
         }
