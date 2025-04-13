@@ -145,6 +145,7 @@ import {
     LiteralTypeNode,
     MappingEntryExpression,
     MappingLiteralExpression,
+    MappingTypeNode,
     MemberName,
     memoize,
     memoizeOne,
@@ -322,6 +323,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createTypePredicateNode,
         updateTypePredicateNode,
         createArrayTypeNode,
+        createMappingTypeNode,
         createNamedObjectTypeNode,
         createUnionTypeNode,
         createIntersectionTypeNode,
@@ -1153,6 +1155,15 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.elementType = elementType; // parenthesizerRules().parenthesizeNonArrayTypeOfPostfixType(elementType);
         return node;
     }
+
+    // @api
+    function createMappingTypeNode(keyType: TypeNode, valueTypes: NodeArray<TypeNode>): MappingTypeNode {
+        const node = createBaseNode<MappingTypeNode>(SyntaxKind.MappingType);
+        node.keyType = keyType;
+        node.elements = asNodeArray(valueTypes);
+        return node;
+    }
+
 
     // @api
     function createNamedObjectTypeNode(name: StringLiteral | BinaryExpression | ParenthesizedExpression, objectKeyword: TypeNode): NamedObjectTypeNode {
