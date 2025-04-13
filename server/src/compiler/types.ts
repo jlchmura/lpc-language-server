@@ -842,8 +842,9 @@ export const enum SyntaxKind {
     FunctionType,
     IntersectionType,
     RestType,
-    ArrayType,
-    TupleType,
+    ArrayType,    
+    MappingType,
+    TupleType,    
     TypeLiteral,
     TypeQuery,
     ParenthesizedType,
@@ -1425,6 +1426,7 @@ export type TypeNodeSyntaxKind =
     | SyntaxKind.IndexedAccessType
     | SyntaxKind.StructType
     | SyntaxKind.ArrayType
+    | SyntaxKind.MappingType
     | SyntaxKind.LiteralType
     | SyntaxKind.ThisType
     | SyntaxKind.TypePredicate
@@ -1572,6 +1574,7 @@ export interface NodeFactory {
     createUnionTypeNode(types: readonly TypeNode[]): UnionTypeNode;
     createIntersectionTypeNode(types: readonly TypeNode[]): IntersectionTypeNode;
     createArrayTypeNode(elementType: TypeNode): ArrayTypeNode;
+    createMappingTypeNode(keyType: TypeNode, valueTypes: NodeArray<TypeNode>): MappingTypeNode;
     createNamedObjectTypeNode(name: StringLiteral | BinaryExpression | ParenthesizedExpression, objectKeyword: TypeNode): NamedObjectTypeNode;
     createParenthesizedType(type: TypeNode): ParenthesizedTypeNode;
     createLiteralTypeNode(literal: LiteralTypeNode["literal"]): LiteralTypeNode;
@@ -3455,6 +3458,8 @@ export interface IntersectionTypeNode extends TypeNode {
     readonly types: NodeArray<TypeNode>;
 }
 
+
+
 export interface ArrayTypeNode extends TypeNode {
     readonly kind: SyntaxKind.ArrayType;
     readonly elementType: TypeNode;
@@ -4707,7 +4712,8 @@ export interface TypeLiteralNode extends TypeNode, Declaration {
 }
 
 
-export type ObjectTypeDeclaration =    TypeLiteralNode;
+
+export type ObjectTypeDeclaration = TypeLiteralNode;
 
 export interface IndexSignatureDeclaration extends SignatureDeclarationBase, ClassElement, TypeElement, LocalsContainer {
     readonly kind: SyntaxKind.IndexSignature;
@@ -7838,6 +7844,11 @@ export interface ConditionalType extends InstantiableType {
     combinedMapper?: TypeMapper;
 }
 
+export interface MappingTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.MappingType;
+    readonly keyType: TypeNode;
+    readonly elements: NodeArray<TypeNode>;   
+}
 export interface TupleTypeNode extends TypeNode {
     readonly kind: SyntaxKind.TupleType;
     readonly elements: NodeArray<TypeNode | NamedTupleMember>;

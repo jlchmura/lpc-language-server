@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.40
+
+-   [Parser does not allow mapping type nodes #280](https://github.com/jlchmura/lpc-language-server/issues/280)
+
 ## 1.1.39
 
 -   [problem with ''' #276](https://github.com/jlchmura/lpc-language-server/issues/276)

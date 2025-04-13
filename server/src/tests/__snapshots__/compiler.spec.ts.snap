@@ -503,6 +503,15 @@ Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/ma
 
 exports[`Compiler compiler/mapping6.c Reports correct errors for compiler/mapping6.c: diags-compiler/mapping6.c 1`] = `""`;
 
+exports[`Compiler compiler/mappingType1.c Reports correct errors for compiler/mappingType1.c: diags-compiler/mappingType1.c 1`] = `""`;
+
+exports[`Compiler compiler/mappingType2.c Reports correct errors for compiler/mappingType2.c: diags-compiler/mappingType2.c 1`] = `
+"
+Found 5 errors in the same file, starting at: server/src/tests/cases/compiler/mappingType2.c[90m:3[0m
+
+"
+`;
+
 exports[`Compiler compiler/missingFunc.c Reports correct errors for compiler/missingFunc.c: diags-compiler/missingFunc.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/missingFunc.c[90m:3[0m
