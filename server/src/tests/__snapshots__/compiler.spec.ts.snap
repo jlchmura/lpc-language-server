@@ -39,6 +39,10 @@ Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/as
 
 exports[`Compiler compiler/assignment3.c Reports correct errors for compiler/assignment3.c: diags-compiler/assignment3.c 1`] = `""`;
 
+exports[`Compiler compiler/assignment4.c Reports correct errors for compiler/assignment4.c: diags-compiler/assignment4.c 1`] = `""`;
+
+exports[`Compiler compiler/assignment5.c Reports correct errors for compiler/assignment5.c: diags-compiler/assignment5.c 1`] = `""`;
+
 exports[`Compiler compiler/assignmentArraySpread.c Reports correct errors for compiler/assignmentArraySpread.c: diags-compiler/assignmentArraySpread.c 1`] = `""`;
 
 exports[`Compiler compiler/atBlock1.c Reports correct errors for compiler/atBlock1.c: diags-compiler/atBlock1.c 1`] = `""`;
