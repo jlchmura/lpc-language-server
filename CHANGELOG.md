@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.41
+
+-   Maintenance release - no user-facing changes.
+
 ## 1.1.40
 
 -   [Parser does not allow mapping type nodes #280](https://github.com/jlchmura/lpc-language-server/issues/280)
