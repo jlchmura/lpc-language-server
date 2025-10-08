@@ -3,6 +3,7 @@
 ## 1.1.40
 
 -   [Parser does not allow mapping type nodes #280](https://github.com/jlchmura/lpc-language-server/issues/280)
+-   [catch statement not being checked #284](https://github.com/jlchmura/lpc-language-server/issues/284)
 
 ## 1.1.39
 
