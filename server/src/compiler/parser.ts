@@ -3041,7 +3041,7 @@ export namespace LpcParser {
             return true;
         }
 
-        switch (token()) {
+        switch (token()) {            
             case SyntaxKind.PlusToken:
             case SyntaxKind.MinusToken:
             case SyntaxKind.TildeToken:
@@ -3052,6 +3052,7 @@ export namespace LpcParser {
             case SyntaxKind.PlusPlusToken:
             case SyntaxKind.MinusMinusToken:
             case SyntaxKind.LessThanToken:
+            case SyntaxKind.StringizedIdentifier:
             // case SyntaxKind.AwaitKeyword:
             // case SyntaxKind.YieldKeyword:
             // case SyntaxKind.PrivateIdentifier:            

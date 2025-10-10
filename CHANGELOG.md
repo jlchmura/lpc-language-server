@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.42
+
+-   [Hash operator in macros does not parse correctly #286](https://github.com/jlchmura/lpc-language-server/issues/286)
+
 ## 1.1.41
 
 -   Maintenance release - no user-facing changes.
