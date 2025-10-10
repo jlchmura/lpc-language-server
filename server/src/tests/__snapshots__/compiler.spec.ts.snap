@@ -628,6 +628,8 @@ Found 6 errors in the same file, starting at: server/src/tests/cases/compiler/st
 
 exports[`Compiler compiler/string2.c Reports correct errors for compiler/string2.c: diags-compiler/string2.c 1`] = `""`;
 
+exports[`Compiler compiler/stringizedIdentifier.c Reports correct errors for compiler/stringizedIdentifier.c: diags-compiler/stringizedIdentifier.c 1`] = `""`;
+
 exports[`Compiler compiler/struct1.c Reports correct errors for compiler/struct1.c: diags-compiler/struct1.c 1`] = `""`;
 
 exports[`Compiler compiler/struct2.c Reports correct errors for compiler/struct2.c: diags-compiler/struct2.c 1`] = `""`;
