@@ -156,5 +156,47 @@ void test() { mapping m = ([ KEY: VALUE ]); }`;
             // And thus should also match the last expression
             expect(mappingEntry.end).toBe(valueExpr.end);
         });
+
+        it("should correctly set end position for union types with macro constituents", () => {
+            const source = `#define TYPE1 int
+#define TYPE2 string
+void test() { TYPE1 | TYPE2 x; }`;
+            
+            const compilerOptions: lpc.CompilerOptions = {
+                driverType: lpc.LanguageVariant.FluffOS,
+                diagnostics: true
+            };
+
+            const compilerHost = lpc.createCompilerHost(compilerOptions);
+            compilerHost.getDefaultLibFileName = () => lpc.combinePaths(root, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
+
+            const sourceFile = lpc.createSourceFile("test.c", source, lpc.ScriptTarget.Latest, /*setParentNodes*/ false);
+            
+            // Find the union type by traversing the AST
+            let unionType: lpc.UnionTypeNode | undefined;
+            const visitNode = (node: lpc.Node): void => {
+                if (node.kind === lpc.SyntaxKind.UnionType) {
+                    unionType = node as lpc.UnionTypeNode;
+                }
+                lpc.forEachChild(node, visitNode);
+            };
+            visitNode(sourceFile);
+
+            expect(unionType).toBeDefined();
+            expect(unionType!.types).toBeDefined();
+            expect(unionType!.types.length).toBe(2);
+
+            const firstType = unionType!.types[0];
+            const lastType = unionType!.types[1];
+            
+            // The end position of the types array should match the end of the last type
+            expect(unionType!.types.end).toBe(lastType.end);
+            
+            // The end position of the union type itself should match the end of the last type
+            expect(unionType!.end).toBe(lastType.end);
+            
+            // And thus the union type end should match the types array end
+            expect(unionType!.end).toBe(unionType!.types.end);
+        });
     });
 });
