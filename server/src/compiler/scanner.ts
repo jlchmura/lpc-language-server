@@ -277,7 +277,8 @@ const textToToken = new Map(Object.entries({
     "&=": SyntaxKind.AmpersandEqualsToken,
     "|=": SyntaxKind.BarEqualsToken,
     "^=": SyntaxKind.CaretEqualsToken,
-    "||=": SyntaxKind.BarBarEqualsToken,    
+    "||=": SyntaxKind.BarBarEqualsToken,
+    "&&=": SyntaxKind.AmpersandAmpersandEqualsToken,
     "??=": SyntaxKind.QuestionQuestionEqualsToken,
     "@": SyntaxKind.AtToken,
     "@@": SyntaxKind.AtAtToken,
@@ -2152,9 +2153,9 @@ export function createScanner(
                     return token = SyntaxKind.PercentToken;
                 case CharacterCodes.ampersand:
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.ampersand) {
-                        // if (charCodeUnchecked(pos + 2) === CharacterCodes.equals) {
-                        //     // return pos += 3, token = SyntaxKind.AmpersandAmpersandEqualsToken;
-                        // }
+                        if (charCodeUnchecked(pos + 2) === CharacterCodes.equals) {
+                            return pos += 3, token = SyntaxKind.AmpersandAmpersandEqualsToken;
+                        }
                         return pos += 2, token = SyntaxKind.AmpersandAmpersandToken;
                     }
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.equals) {

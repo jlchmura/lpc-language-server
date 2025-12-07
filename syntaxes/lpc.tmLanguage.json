@@ -679,7 +679,11 @@
                     "name": "keyword.operator.relational.lpc"
                 },
                 {
-                    "match": "&&|!|\\|\\|",
+                    "match": "&&=|\\|\\|=|\\?\\?=",
+                    "name": "keyword.operator.assignment.compound.logical.lpc"
+                },
+                {
+                    "match": "&&|!|\\|\\||\\?\\?",
                     "name": "keyword.operator.logical.lpc"
                 },
                 {

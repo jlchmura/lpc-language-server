@@ -1849,8 +1849,8 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         switch (expr.operatorToken.kind) {
             case SyntaxKind.EqualsToken:
             case SyntaxKind.BarBarEqualsToken:
-            // case SyntaxKind.AmpersandAmpersandEqualsToken:
-            // case SyntaxKind.QuestionQuestionEqualsToken:
+            case SyntaxKind.AmpersandAmpersandEqualsToken:
+            case SyntaxKind.QuestionQuestionEqualsToken:
                 return containsNarrowableReference(expr.left);
             case SyntaxKind.EqualsEqualsToken:
             case SyntaxKind.ExclamationEqualsToken:

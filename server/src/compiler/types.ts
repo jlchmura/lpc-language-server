@@ -740,7 +740,8 @@ export const enum SyntaxKind {
     GreaterThanGreaterThanGreaterThanEqualsToken,
     AmpersandEqualsToken,
     BarEqualsToken,
-    BarBarEqualsToken,    
+    BarBarEqualsToken,
+    AmpersandAmpersandEqualsToken,
     QuestionQuestionEqualsToken,
     CaretEqualsToken, // last assignment
 
@@ -2582,7 +2583,7 @@ export type EqualityOperator =
 export type EqualityOperatorOrHigher = RelationalOperatorOrHigher | EqualityOperator;
 export type BitwiseOperator = SyntaxKind.AmpersandToken | SyntaxKind.BarToken | SyntaxKind.CaretToken;
 export type BitwiseOperatorOrHigher = EqualityOperatorOrHigher | BitwiseOperator;
-export type LogicalOperator = SyntaxKind.AmpersandAmpersandToken | SyntaxKind.BarBarToken;
+export type LogicalOperator = SyntaxKind.AmpersandAmpersandToken | SyntaxKind.BarBarToken | SyntaxKind.QuestionQuestionToken;
 export type LogicalOperatorOrHigher = BitwiseOperatorOrHigher | LogicalOperator;
 
 export type CompoundAssignmentOperator =
@@ -2599,6 +2600,8 @@ export type CompoundAssignmentOperator =
     | SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken
     | SyntaxKind.GreaterThanGreaterThanEqualsToken
     | SyntaxKind.BarBarEqualsToken
+    | SyntaxKind.AmpersandAmpersandEqualsToken
+    | SyntaxKind.QuestionQuestionEqualsToken
     ;
 
 export type AssignmentOperator = | SyntaxKind.EqualsToken | CompoundAssignmentOperator;
@@ -2607,7 +2610,10 @@ export type AssignmentOperatorOrHigher = | LogicalOperatorOrHigher | AssignmentO
 export type BinaryOperator = AssignmentOperatorOrHigher | SyntaxKind.CommaToken;
 export type BinaryOperatorToken = Token<BinaryOperator>;
 
-export type LogicalOrCoalescingAssignmentOperator = SyntaxKind.BarBarEqualsToken;
+export type LogicalOrCoalescingAssignmentOperator =
+    | SyntaxKind.BarBarEqualsToken
+    | SyntaxKind.AmpersandAmpersandEqualsToken
+    | SyntaxKind.QuestionQuestionEqualsToken;
 
 export type LambdaOperatorToken = Token<PunctuationSyntaxKind>;
 

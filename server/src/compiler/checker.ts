@@ -6966,12 +6966,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const { left, operatorToken, right } = binaryExpression;
         switch (operatorToken.kind) {
             case SyntaxKind.EqualsToken:
-            // case SyntaxKind.AmpersandAmpersandEqualsToken:
             case SyntaxKind.BarBarEqualsToken:
-            // case SyntaxKind.QuestionQuestionEqualsToken:
+            case SyntaxKind.AmpersandAmpersandEqualsToken:
+            case SyntaxKind.QuestionQuestionEqualsToken:
                 return node === right ? getContextualTypeForAssignmentDeclaration(binaryExpression) : undefined;
             case SyntaxKind.BarBarToken:
-            // case SyntaxKind.QuestionQuestionToken:
+            case SyntaxKind.QuestionQuestionToken:
                 // When an || expression has a contextual type, the operands are contextually typed by that type, except
                 // when that type originates in a binding pattern, the right operand is contextually typed by the type of
                 // the left operand. When an || expression has no contextual type, the right operand is contextually typed
@@ -16200,13 +16200,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return booleanType;            
             case SyntaxKind.InKeyword:
                 return checkInExpression(left, right, leftType, rightType);
-            case SyntaxKind.AmpersandAmpersandToken: {
+            case SyntaxKind.AmpersandAmpersandToken:
+            case SyntaxKind.AmpersandAmpersandEqualsToken: {
                 const resultType = hasTypeFacts(leftType, TypeFacts.Truthy) ?
                     getUnionType([extractDefinitelyFalsyTypes(strictNullChecks ? leftType : getBaseTypeOfLiteralType(rightType)), rightType]) :
                     leftType;
-                // if (operator === SyntaxKind.AmpersandAmpersandEqualsToken) {
-                //     checkAssignmentOperator(rightType);
-                // }
+                if (operator === SyntaxKind.AmpersandAmpersandEqualsToken) {
+                    checkAssignmentOperator(rightType);
+                }
                 return resultType;
             }
             case SyntaxKind.BarBarToken:
@@ -16219,16 +16220,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 }
                 return resultType;
             }
-            // case SyntaxKind.QuestionQuestionToken:
-            // case SyntaxKind.QuestionQuestionEqualsToken: {
-            //     const resultType = hasTypeFacts(leftType, TypeFacts.EQUndefinedOrNull) ?
-            //         getUnionType([getNonNullableType(leftType), rightType], UnionReduction.Subtype) :
-            //         leftType;
-            //     if (operator === SyntaxKind.QuestionQuestionEqualsToken) {
-            //         checkAssignmentOperator(rightType);
-            //     }
-            //     return resultType;
-            // }
+            case SyntaxKind.QuestionQuestionToken:
+            case SyntaxKind.QuestionQuestionEqualsToken: {
+                const resultType = hasTypeFacts(leftType, TypeFacts.EQUndefinedOrNull) ?
+                    getUnionType([getNonNullableType(leftType), rightType], UnionReduction.Subtype) :
+                    leftType;
+                if (operator === SyntaxKind.QuestionQuestionEqualsToken) {
+                    checkAssignmentOperator(rightType);
+                }
+                return resultType;
+            }
             case SyntaxKind.EqualsToken:
                 const declKind = isBinaryExpression(left.parent) ? getAssignmentDeclarationKind(left.parent) : AssignmentDeclarationKind.None;
                 checkAssignmentDeclaration(declKind, rightType);
@@ -29651,7 +29652,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.BinaryExpression:
                 switch ((node as BinaryExpression).operatorToken.kind) {
                     case SyntaxKind.EqualsToken:
-                    case SyntaxKind.BarBarEqualsToken:                    
+                    case SyntaxKind.BarBarEqualsToken:
+                    case SyntaxKind.AmpersandAmpersandEqualsToken:
+                    case SyntaxKind.QuestionQuestionEqualsToken:
                         return getReferenceCandidate((node as BinaryExpression).left);
                     case SyntaxKind.CommaToken:
                         return getReferenceCandidate((node as BinaryExpression).right);
@@ -30602,8 +30605,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             switch (expr.operatorToken.kind) {
                 case SyntaxKind.EqualsToken:
                 case SyntaxKind.BarBarEqualsToken:
-                // case SyntaxKind.AmpersandAmpersandEqualsToken:
-                // case SyntaxKind.QuestionQuestionEqualsToken:
+                case SyntaxKind.AmpersandAmpersandEqualsToken:
+                case SyntaxKind.QuestionQuestionEqualsToken:
                     return narrowTypeByTruthiness(narrowType(type, expr.right, assumeTrue), expr.left, assumeTrue);
                 case SyntaxKind.EqualsEqualsToken:
                 case SyntaxKind.ExclamationEqualsToken:
