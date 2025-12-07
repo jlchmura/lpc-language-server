@@ -3127,7 +3127,8 @@ export namespace LpcParser {
                     types.push(t);
                 }
             }
-            type = finishNode(createTypeNode(createNodeArray(types, pos)), pos);
+            const endPos = !!pos.macro || inContext(NodeFlags.MacroContext) ? lastOrUndefined(types)?.end : undefined;
+            type = finishNode(createTypeNode(createNodeArray(types, pos, endPos)), pos, endPos);
         }
         
         return type;
