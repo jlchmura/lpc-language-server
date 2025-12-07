@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.43
+
+-   [macros expand on hover when in keys for a mapping, but not as values #278](https://github.com/jlchmura/lpc-language-server/issues/278)
+
 ## 1.1.42
 
 -   [Hash operator in macros does not parse correctly #286](https://github.com/jlchmura/lpc-language-server/issues/286)

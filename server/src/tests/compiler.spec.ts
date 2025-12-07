@@ -49,7 +49,7 @@ describe("Compiler", () => {
 
     testFiles = enumerateFiles(basePath, /\.c$/);
     console.info(`Got ${testFiles.length} test files in ${basePath}`);
-
+   
     const singleTestFile = "";//"typeInference3.c";    
 
     testFiles.filter(f => singleTestFile.length==0 || f.endsWith(singleTestFile)).forEach(testCaseFile => {
@@ -105,5 +105,56 @@ describe("Compiler", () => {
             });                        
         });
     });
+
     
+     describe("Parser Node Positions", () => {
+        it("should correctly set end position for mapping literal elements with macro key and value", () => {
+            const source = `#define KEY 123
+#define VALUE 456
+void test() { mapping m = ([ KEY: VALUE ]); }`;
+            
+            const compilerOptions: lpc.CompilerOptions = {
+                driverType: lpc.LanguageVariant.FluffOS,
+                diagnostics: true
+            };
+
+            const compilerHost = lpc.createCompilerHost(compilerOptions);
+            compilerHost.getDefaultLibFileName = () => lpc.combinePaths(root, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
+
+            const sourceFile = lpc.createSourceFile("test.c", source, lpc.ScriptTarget.Latest, /*setParentNodes*/ false);
+            
+            // Find the mapping literal expression by traversing the AST
+            let mappingLiteral: lpc.MappingLiteralExpression | undefined;
+            const visitNode = (node: lpc.Node): void => {
+                if (node.kind === lpc.SyntaxKind.MappingLiteralExpression) {
+                    mappingLiteral = node as lpc.MappingLiteralExpression;
+                }
+                lpc.forEachChild(node, visitNode);
+            };
+            visitNode(sourceFile);
+
+            expect(mappingLiteral).toBeDefined();
+            expect(mappingLiteral!.elements).toBeDefined();
+            expect(mappingLiteral!.elements!.length).toBe(1);
+
+            const mappingEntry = mappingLiteral!.elements![0] as lpc.MappingEntryExpression;
+            expect(mappingEntry.kind).toBe(lpc.SyntaxKind.MappingEntryExpression);
+            
+            // The key and value are both macros, so they should expand to their values
+            const elements = mappingEntry.elements;
+            expect(elements).toBeDefined();
+            expect(elements!.length).toBe(1);
+
+            const valueExpr = elements![0];
+            
+            // The end position of the elements array should match the end of the last expression
+            expect(elements!.end).toBe(valueExpr.end);
+            
+            // The end position of the mapping entry should match the end of its elements array
+            expect(mappingEntry.end).toBe(elements!.end);
+            
+            // And thus should also match the last expression
+            expect(mappingEntry.end).toBe(valueExpr.end);
+        });
+    });
 });
