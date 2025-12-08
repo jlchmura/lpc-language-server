@@ -790,12 +790,12 @@ export function isLogicalOrCoalescingAssignmentExpression(expr: Node): expr is A
 /** @internal */
 export function isLogicalOrCoalescingAssignmentOperator(token: SyntaxKind): token is LogicalOrCoalescingAssignmentOperator {
     return token === SyntaxKind.BarBarEqualsToken
-        //|| token === SyntaxKind.AmpersandAmpersandEqualsToken
+        || token === SyntaxKind.AmpersandAmpersandEqualsToken
         || token === SyntaxKind.QuestionQuestionEqualsToken;
 }
 
 export function isBinaryLogicalOperator(token: SyntaxKind): boolean {
-    return token === SyntaxKind.BarBarToken || token === SyntaxKind.AmpersandAmpersandToken;
+    return token === SyntaxKind.BarBarToken || token === SyntaxKind.AmpersandAmpersandToken || token === SyntaxKind.QuestionQuestionToken;
 }
 
 /** @internal */
@@ -3765,8 +3765,8 @@ export function getOperatorPrecedence(nodeKind: SyntaxKind, operatorKind: Syntax
 /** @internal */
 export function getBinaryOperatorPrecedence(kind: SyntaxKind): OperatorPrecedence {
     switch (kind) {
-        // case SyntaxKind.QuestionQuestionToken:
-        //     return OperatorPrecedence.Coalesce;
+        case SyntaxKind.QuestionQuestionToken:
+            return OperatorPrecedence.Coalesce;
         case SyntaxKind.BarBarToken:
             return OperatorPrecedence.LogicalOR;
         case SyntaxKind.AmpersandAmpersandToken:
