@@ -2455,9 +2455,19 @@ export function createScanner(
                     }
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.question) {
                         if (charCodeUnchecked(pos + 2) === CharacterCodes.equals) {
-                            return pos += 3, token = SyntaxKind.QuestionQuestionEqualsToken;
+                            pos += 3;
+                            token = SyntaxKind.QuestionQuestionEqualsToken;
+                            if (languageVariant === LanguageVariant.LDMud) {
+                                error(Diagnostics.Operator_0_is_not_supported_in_LDMud, pos - 3, 3, "??=");
+                            }
+                            return token;
                         }
-                        return pos += 2, token = SyntaxKind.QuestionQuestionToken;
+                        pos += 2;
+                        token = SyntaxKind.QuestionQuestionToken;
+                        if (languageVariant === LanguageVariant.LDMud) {
+                            error(Diagnostics.Operator_0_is_not_supported_in_LDMud, pos - 2, 2, "??");
+                        }
+                        return token;
                     }
                     pos++;
                     return token = SyntaxKind.QuestionToken;

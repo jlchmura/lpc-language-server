@@ -597,6 +597,13 @@ Found 1 error in server/src/tests/cases/compiler/new6.c[90m:11[0m
 
 exports[`Compiler compiler/nullishCoalescing.c Reports correct errors for compiler/nullishCoalescing.c: diags-compiler/nullishCoalescing.c 1`] = `""`;
 
+exports[`Compiler compiler/nullishCoalescingLdmud.c Reports correct errors for compiler/nullishCoalescingLdmud.c: diags-compiler/nullishCoalescingLdmud.c 1`] = `
+"
+Found 4 errors in the same file, starting at: server/src/tests/cases/compiler/nullishCoalescingLdmud.c[90m:10[0m
+
+"
+`;
+
 exports[`Compiler compiler/object.c Reports correct errors for compiler/object.c: diags-compiler/object.c 1`] = `""`;
 
 exports[`Compiler compiler/object2.c Reports correct errors for compiler/object2.c: diags-compiler/object2.c 1`] = `""`;
