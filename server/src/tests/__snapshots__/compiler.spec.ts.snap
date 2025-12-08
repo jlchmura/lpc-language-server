@@ -106,6 +106,8 @@ exports[`Compiler compiler/buffer2.c Reports correct errors for compiler/buffer2
 
 exports[`Compiler compiler/bytes1.c Reports correct errors for compiler/bytes1.c: diags-compiler/bytes1.c 1`] = `""`;
 
+exports[`Compiler compiler/c99VariableDeclarations.c Reports correct errors for compiler/c99VariableDeclarations.c: diags-compiler/c99VariableDeclarations.c 1`] = `""`;
+
 exports[`Compiler compiler/callOther1.c Reports correct errors for compiler/callOther1.c: diags-compiler/callOther1.c 1`] = `""`;
 
 exports[`Compiler compiler/callOther2.c Reports correct errors for compiler/callOther2.c: diags-compiler/callOther2.c 1`] = `""`;
@@ -429,6 +431,10 @@ Found 1 error in server/src/tests/cases/compiler/jsDocParam.c[90m:4[0m
 
 exports[`Compiler compiler/lambda1.c Reports correct errors for compiler/lambda1.c: diags-compiler/lambda1.c 1`] = `""`;
 
+exports[`Compiler compiler/logicalAssignment.c Reports correct errors for compiler/logicalAssignment.c: diags-compiler/logicalAssignment.c 1`] = `""`;
+
+exports[`Compiler compiler/logicalAssignmentTypeNarrowing.c Reports correct errors for compiler/logicalAssignmentTypeNarrowing.c: diags-compiler/logicalAssignmentTypeNarrowing.c 1`] = `""`;
+
 exports[`Compiler compiler/lpc-ignore.c Reports correct errors for compiler/lpc-ignore.c: diags-compiler/lpc-ignore.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/lpc-ignore.c[90m:5[0m
@@ -527,6 +533,8 @@ Found 1 error in server/src/tests/cases/compiler/missingFunc.c[90m:3[0m
 "
 `;
 
+exports[`Compiler compiler/mixedOperators.c Reports correct errors for compiler/mixedOperators.c: diags-compiler/mixedOperators.c 1`] = `""`;
+
 exports[`Compiler compiler/modifiers1.c Reports correct errors for compiler/modifiers1.c: diags-compiler/modifiers1.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/modifiers1.c[90m:3[0m
@@ -586,6 +594,8 @@ Found 1 error in server/src/tests/cases/compiler/new6.c[90m:11[0m
 
 "
 `;
+
+exports[`Compiler compiler/nullishCoalescing.c Reports correct errors for compiler/nullishCoalescing.c: diags-compiler/nullishCoalescing.c 1`] = `""`;
 
 exports[`Compiler compiler/object.c Reports correct errors for compiler/object.c: diags-compiler/object.c 1`] = `""`;
 
