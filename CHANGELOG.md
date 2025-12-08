@@ -2,8 +2,9 @@
 
 ## 1.1.43
 
--   [macros expand on hover when in keys for a mapping, but not as values #278](https://github.com/jlchmura/lpc-language-server/issues/278)
--   [Macro in union type does not show quickinfo on hover #290](https://github.com/jlchmura/lpc-language-server/issues/290)
+-   Fix: [macros expand on hover when in keys for a mapping, but not as values #278](https://github.com/jlchmura/lpc-language-server/issues/278)
+-   Fix: [Macro in union type does not show quickinfo on hover #290](https://github.com/jlchmura/lpc-language-server/issues/290)
+-   [Add FluffOS grammar support for new operators and syntax #292](https://github.com/jlchmura/lpc-language-server/pull/292) (thanks @gesslar!)
 
 ## 1.1.42
 
