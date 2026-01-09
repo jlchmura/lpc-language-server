@@ -585,7 +585,8 @@ export function getCompletionsAtPosition(
     formatContext?: formatting.FormatContext,
     includeSymbol = false,
 ): CompletionInfo | undefined {
-    const { previousToken } = getRelevantTokens(position, sourceFile);
+    try {
+        const { previousToken } = getRelevantTokens(position, sourceFile);
     if (triggerCharacter && !isInCallExpression(sourceFile, position, previousToken) && !isInString(sourceFile, position, previousToken) && !isValidTrigger(sourceFile, triggerCharacter, previousToken, position)) {
         return undefined;
     }
@@ -669,6 +670,15 @@ export function getCompletionsAtPosition(
             return specificKeywordCompletionInfo(completionData.keywordCompletions, completionData.isNewIdentifierLocation);
         default:
             return Debug.assertNever(completionData);
+    }
+    } catch (e) {
+        // 处理循环检测错误，优雅降级
+        if (e instanceof Error && e.message.includes("getTokenAtPositionWorker")) {
+            log?.(`Completion failed due to token search loop: ${e.message}`);
+            return undefined;
+        }
+        // 其他错误继续抛出
+        throw e;
     }
 }
 

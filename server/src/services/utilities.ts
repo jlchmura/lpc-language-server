@@ -1320,6 +1320,39 @@ export function isInComment(sourceFile: SourceFile, position: number, tokenAtPos
     return formatting.getRangeOfEnclosingComment(sourceFile, position, /*precedingToken*/ undefined, tokenAtPosition);
 }
 
+/**
+ * 全局循环检测计数器，用于统计和监控
+ * @internal
+ */
+let globalLoopDetectionCount = 0;
+
+/**
+ * 创建循环检测错误对象
+ * @internal
+ */
+function createLoopError(
+    sourceFile: SourceFile,
+    position: number,
+    currentNode: Node,
+    iterations: number
+): Error {
+    const error = new Error(
+        `getTokenAtPositionWorker: Loop detected after ${iterations} iterations\n` +
+        `  File: ${sourceFile.fileName}\n` +
+        `  Position: ${position}\n` +
+        `  Current node: kind=${currentNode.kind} (${currentNode.pos}-${currentNode.end})`
+    ) as any;
+    error.fileName = sourceFile.fileName;
+    error.position = position;
+    error.currentNode = {
+        kind: currentNode.kind,
+        pos: currentNode.pos,
+        end: currentNode.end
+    };
+    error.iterations = iterations;
+    return error;
+}
+
 /** @internal */
 export function rangeContainsPositionExclusive(r: TextRange, pos: number) {
     return r.pos < pos && pos < r.end;
@@ -1335,15 +1368,56 @@ export function getTokenAtPosition(sourceFile: SourceFile, position: number): No
 }
 
 
-/** Get the token whose text contains the position */
+/**
+ * Get the token whose text contains the position
+ *
+ * 防御机制：
+ * 1. 使用 Set 检测循环引用（使用 Node.id 作为键，性能优化）
+ * 2. 超过最大迭代次数（100）时抛出异常
+ * 3. 提供详细的错误上下文用于调试
+ *
+ * 性能优化说明：
+ * - 使用 Node.id 而非 Node 对象作为 Set 键，减少内存占用
+ * - Set 操作是 O(1)，对性能影响最小
+ *
+ * @internal
+ */
 function getTokenAtPositionWorker(sourceFile: SourceFile, position: number, allowPositionInLeadingTrivia: boolean, includePrecedingTokenAtEndPosition: ((n: Node) => boolean) | undefined, includeEndPosition: boolean): Node {
+    const visitedNodeIds = new Set<number>(); // 使用节点 ID 而非对象引用
     let current: Node = sourceFile;
     let foundToken: Node | undefined;
-    let count=0;
+    let count = 0;
+
     outer:
     while (true) {
+        // 检测循环引用 - 使用节点 ID 检测
+        // Node ID 为 0 通常是 SourceFile，允许重复访问（不是真正的循环）
+        if (current.id !== 0 && visitedNodeIds.has(current.id)) {
+            const error = new Error(
+                `getTokenAtPositionWorker: Circular reference detected\n` +
+                `  File: ${sourceFile.fileName}\n` +
+                `  Position: ${position}\n` +
+                `  Node ID: ${current.id}\n` +
+                `  Node kind: ${current.kind}\n` +
+                `  Iterations: ${count}`
+            );
+            (error as any).fileName = sourceFile.fileName;
+            (error as any).position = position;
+            (error as any).nodeId = current.id;
+            (error as any).nodeKind = current.kind;
+            throw error;
+        }
+        visitedNodeIds.add(current.id);
+
+        // 检测迭代次数 - 防止无限循环
         if (count++ > 100) {
-            console.warn("Bailed out of getTokenAtPositionWorker loop");
+            // 更新全局计数器
+            globalLoopDetectionCount++;
+            if (globalLoopDetectionCount % 10 === 0) {
+                console.warn(`Loop detection triggered ${globalLoopDetectionCount} times total`);
+            }
+
+            throw createLoopError(sourceFile, position, current, count);
         }
         // find the child that contains 'position'
         // TODO - don't filter -- skip them inside the binary search

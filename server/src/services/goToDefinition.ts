@@ -3,30 +3,31 @@ import { isContextWithStartAndEndNode } from "./_namespaces/lpc.FindAllReference
 
 /** @internal */
 export function getDefinitionAtPosition(program: Program, sourceFile: SourceFile, position: number, searchOtherFilesOnly?: boolean, stopAtAlias?: boolean): readonly DefinitionInfo[] | undefined {
-    const resolvedRef = getReferenceAtPosition(sourceFile, position, program);
-    const fileReferenceDefinition = resolvedRef && [getDefinitionInfoForFileReference(resolvedRef.reference.fileName, resolvedRef.fileName, resolvedRef.unverified)] || emptyArray;
-    if (resolvedRef?.file) {
-        // If `file` is missing, do a symbol-based lookup as well
-        return fileReferenceDefinition;
-    }
+    try {
+        const resolvedRef = getReferenceAtPosition(sourceFile, position, program);
+        const fileReferenceDefinition = resolvedRef && [getDefinitionInfoForFileReference(resolvedRef.reference.fileName, resolvedRef.fileName, resolvedRef.unverified)] || emptyArray;
+        if (resolvedRef?.file) {
+            // If `file` is missing, do a symbol-based lookup as well
+            return fileReferenceDefinition;
+        }
 
-    const node = getTouchingPropertyName(sourceFile, position);
-    if (node === sourceFile) {
-        return undefined;
-    }
+        const node = getTouchingPropertyName(sourceFile, position);
+        if (node === sourceFile) {
+            return undefined;
+        }
 
-    const { parent } = node;
-    const typeChecker = program.getTypeChecker();
-    
-    // run the type checker if it hasn't been run yet.
-    getPreEmitDiagnostics(program, sourceFile);
+        const { parent } = node;
+        const typeChecker = program.getTypeChecker();
 
-    // TODO: detect super here
-    // if (node.kind === SyntaxKind.OverrideKeyword || (isIdentifier(node) && isJSDocOverrideTag(parent) && parent.tagName === node)) {
-    //     return getDefinitionFromOverriddenMember(typeChecker, node) || emptyArray;
-    // }
+        // run the type checker if it hasn't been run yet.
+        getPreEmitDiagnostics(program, sourceFile);
 
-    switch (node.kind) {
+        // TODO: detect super here
+        // if (node.kind === SyntaxKind.OverrideKeyword || (isIdentifier(node) && isJSDocOverrideTag(parent) && parent.tagName === node)) {
+        //     return getDefinitionFromOverriddenMember(typeChecker, node) || emptyArray;
+        // }
+
+        switch (node.kind) {
         case SyntaxKind.ReturnKeyword:
             const functionDeclaration = findAncestor(node.parent, n => isFunctionLikeDeclaration(n)) as FunctionLikeDeclaration | undefined;
             return functionDeclaration
@@ -127,8 +128,17 @@ export function getDefinitionAtPosition(program: Program, sourceFile: SourceFile
     //     });
     // }
 
-    const objectLiteralElementDefinition = [];//getDefinitionFromObjectLiteralElement(typeChecker, node);
-    return concatenate(fileReferenceDefinition, objectLiteralElementDefinition.length ? objectLiteralElementDefinition : getDefinitionFromSymbol(typeChecker, symbol, node, failedAliasResolution));
+        const objectLiteralElementDefinition = [];//getDefinitionFromObjectLiteralElement(typeChecker, node);
+        return concatenate(fileReferenceDefinition, objectLiteralElementDefinition.length ? objectLiteralElementDefinition : getDefinitionFromSymbol(typeChecker, symbol, node, failedAliasResolution));
+    } catch (e) {
+        // 处理循环检测错误，优雅降级
+        if (e instanceof Error && e.message.includes("getTokenAtPositionWorker")) {
+            console.error(`Go to definition failed due to token search loop: ${e.message}`);
+            return undefined;
+        }
+        // 其他错误继续抛出
+        throw e;
+    }
 }
 
 // At 'x.foo', see if the type of 'x' has an index signature, and if so find its declarations.

@@ -74,7 +74,12 @@ class LspSession extends lpc.server.Session {
     }
 
     override exit() {
-        this.logger.info("Exiting...");                
+        this.logger.info("Exiting...");
+
+        // 清理 Event 监听器，防止内存泄漏
+        this.onOutput.removeAllListeners();
+        this.onOutput = null as any;
+
         // tracing?.stopTracing();
         process.exit(0);
     }
@@ -159,9 +164,93 @@ export function start(connection: Connection, platform: string, args: string[]) 
         cancellationToken = lpc.server.nullCancellationToken;
     }
     
-    
-    function fromUri(uri: string): string {        
+
+    function fromUri(uri: string): string {
         return uri.startsWith("file://") ? URI.parse(uri).fsPath : uri;
+    }
+
+    /**
+     * 创建防抖函数
+     * @param func 要防抖的函数
+     * @param delay 延迟时间（毫秒）
+     * @returns 防抖后的函数
+     */
+    function debounce<T extends (...args: any[]) => any>(func: T, delay: number): (...args: Parameters<T>) => void {
+        let timeoutId: any;
+        return function(this: any, ...args: Parameters<T>) {
+            if (timeoutId !== undefined) {
+                clearTimeout(timeoutId);
+            }
+            timeoutId = setTimeout(() => {
+                func.apply(this, args);
+                timeoutId = undefined;
+            }, delay);
+        };
+    }
+
+    /**
+     * 内存监控类，用于跟踪和报告内存使用情况
+     * @internal
+     */
+    class MemoryMonitor {
+        private checkInterval: NodeJS.Timeout;
+        private threshold: number;
+        private lastLogTime = 0;
+        private logCooldown = 60000; // 60秒冷却时间
+
+        constructor(
+            private logger: any,
+            threshold: number = 0.8, // 默认阈值的80%
+            private checkIntervalMs: number = 30000 // 每30秒检查一次
+        ) {
+            this.threshold = threshold;
+            this.start();
+        }
+
+        private start() {
+            this.checkInterval = setInterval(() => {
+                this.checkMemory();
+            }, this.checkIntervalMs);
+        }
+
+        private checkMemory() {
+            const usage = process.memoryUsage();
+            const heapUsed = usage.heapUsed / 1024 / 1024;
+            const heapTotal = usage.heapTotal / 1024 / 1024;
+            const rss = usage.rss / 1024 / 1024;
+            const ratio = heapUsed / heapTotal;
+
+            // 如果内存使用超过阈值，发出警告（带冷却时间）
+            if (ratio > this.threshold) {
+                const now = Date.now();
+                if (now - this.lastLogTime > this.logCooldown) {
+                    this.logger.err(
+                        `Memory usage high: ${(ratio * 100).toFixed(1)}% ` +
+                        `(heap: ${heapUsed.toFixed(2)}MB/${heapTotal.toFixed(2)}MB, ` +
+                        `rss: ${rss.toFixed(2)}MB)`
+                    );
+                    this.lastLogTime = now;
+                }
+            } else {
+                // 定期记录正常内存使用（每5分钟）
+                const now = Date.now();
+                if (now - this.lastLogTime > 300000) {
+                    this.logger.info(
+                        `Memory usage: ${(ratio * 100).toFixed(1)}% ` +
+                        `(heap: ${heapUsed.toFixed(2)}MB/${heapTotal.toFixed(2)}MB, ` +
+                        `rss: ${rss.toFixed(2)}MB)`
+                    );
+                    this.lastLogTime = now;
+                }
+            }
+        }
+
+        stop() {
+            if (this.checkInterval) {
+                clearInterval(this.checkInterval);
+                this.checkInterval = null as any;
+            }
+        }
     }
 
     connection.onInitialize((params) => {                
@@ -195,6 +284,9 @@ export function start(connection: Connection, platform: string, args: string[]) 
         inferredOptions.driverType = driverTypeArg === "fluffos" ? lpc.LanguageVariant.FluffOS : lpc.LanguageVariant.LDMud;        
 
         session.setCompilerOptionsForInferredProjects({options:inferredOptions});
+
+        // 启动内存监控（阈值80%，每30秒检查）
+        const memoryMonitor = new MemoryMonitor(logger, 0.8, 30000);
 
         session.onOutput.on("message", (msg: lpc.server.protocol.Message) => {
             if (msg.type === "event") {
@@ -281,6 +373,11 @@ export function start(connection: Connection, platform: string, args: string[]) 
             }
         });
                 
+        // 创建防抖的错误检测函数（200ms 延迟）
+        const debouncedGetErr = debounce((getErrDocs: string[]) => {
+            executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: DIAG_DELAY, files: getErrDocs});
+        }, 200);
+
         connection.onDidChangeTextDocument((e: vscode.DidChangeTextDocumentParams) => {
             try {                
                 const filename = fromUri(e.textDocument.uri);
@@ -319,21 +416,25 @@ export function start(connection: Connection, platform: string, args: string[]) 
                         insertString: lspChange.text,
                     });
                 }
-                
-                if (serverMode !== lpc.LanguageServiceMode.Syntactic) {                    
+
+                if (serverMode !== lpc.LanguageServiceMode.Syntactic) {
                     const allDocs = documents.all().map(d => fromUri(d.uri));
                     const docSet = new Set(allDocs);
                     docSet.add(filename);
                     const getErrDocs = Array.from(docSet);
-                    executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: DIAG_DELAY, files: getErrDocs});
+                    // 使用防抖函数减少频繁的错误检测
+                    debouncedGetErr(getErrDocs);
                 }
             } catch(ex) {
-                console.error(ex);
-                debugger;
+                console.error("Document change error:", ex);
+                // 不再使用 debugger，改为日志记录
             }
         });        
 
         connection.onShutdown(e=>{
+            // 停止内存监控
+            memoryMonitor.stop();
+            // 退出session（会清理Event监听器）
             session.exit();
         });
 
@@ -376,9 +477,9 @@ export function start(connection: Connection, platform: string, args: string[]) 
                     const location = typeConverters.Location.fromTextSpan(URI.file(ref.file), ref);
                     result.push(location);
                 }                
-            } catch(e) {                
-                console.error(e);
-                debugger;
+            } catch(e) {
+                console.error("Operation error:", e);
+                // 不再使用 debugger，改为日志记录
             }
 
             return result;
@@ -550,7 +651,13 @@ export function start(connection: Connection, platform: string, args: string[]) 
                 )    
                 return [def];
             } catch(e) {
-                console.error('onDefinition error', e);                
+                // 增强错误处理 - 特别处理循环检测错误
+                if (e instanceof Error && e.message.includes("getTokenAtPositionWorker")) {
+                    console.warn(`Go to definition failed due to token search loop, returning empty results`);
+                    return []; // 返回空数组而不是 undefined
+                }
+                console.error('onDefinition error:', e);
+                return []; // 默认返回空数组
             }
         });
 
@@ -601,8 +708,13 @@ export function start(connection: Connection, platform: string, args: string[]) 
 
                 return items;
             } catch(e) {
-                console.error(e);
-                debugger;
+                // 增强错误处理 - 特别处理循环检测错误
+                if (e instanceof Error && e.message.includes("getTokenAtPositionWorker")) {
+                    console.warn(`Completion failed due to token search loop, returning empty results`);
+                    return []; // 返回空数组而不是 undefined，让 IDE 保持响应
+                }
+                console.error('onCompletion error:', e);
+                return []; // 默认返回空数组
             }
         });
 
