@@ -672,12 +672,12 @@ export function getCompletionsAtPosition(
             return Debug.assertNever(completionData);
     }
     } catch (e) {
-        // 处理循环检测错误，优雅降级
+        // Handle loop detection errors, graceful degradation
         if (e instanceof Error && e.message.includes("getTokenAtPositionWorker")) {
             log?.(`Completion failed due to token search loop: ${e.message}`);
             return undefined;
         }
-        // 其他错误继续抛出
+        // Re-throw other errors
         throw e;
     }
 }

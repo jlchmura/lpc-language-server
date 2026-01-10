@@ -76,7 +76,7 @@ class LspSession extends lpc.server.Session {
     override exit() {
         this.logger.info("Exiting...");
 
-        // 清理 Event 监听器，防止内存泄漏
+        // Clean up event listeners to prevent memory leaks
         this.onOutput.removeAllListeners();
         this.onOutput = null as any;
 
@@ -170,10 +170,10 @@ export function start(connection: Connection, platform: string, args: string[]) 
     }
 
     /**
-     * 创建防抖函数
-     * @param func 要防抖的函数
-     * @param delay 延迟时间（毫秒）
-     * @returns 防抖后的函数
+     * Creates a debounced function
+     * @param func Function to debounce
+     * @param delay Delay in milliseconds
+     * @returns Debounced function
      */
     function debounce<T extends (...args: any[]) => any>(func: T, delay: number): (...args: Parameters<T>) => void {
         let timeoutId: any;
@@ -189,19 +189,19 @@ export function start(connection: Connection, platform: string, args: string[]) 
     }
 
     /**
-     * 内存监控类，用于跟踪和报告内存使用情况
+     * Memory monitoring class for tracking and reporting memory usage
      * @internal
      */
     class MemoryMonitor {
         private checkInterval: NodeJS.Timeout;
         private threshold: number;
         private lastLogTime = 0;
-        private logCooldown = 60000; // 60秒冷却时间
+        private logCooldown = 60000; // 60 seconds cooldown
 
         constructor(
             private logger: any,
-            threshold: number = 0.8, // 默认阈值的80%
-            private checkIntervalMs: number = 30000 // 每30秒检查一次
+            threshold: number = 0.8, // Default threshold at 80%
+            private checkIntervalMs: number = 30000 // Check every 30 seconds
         ) {
             this.threshold = threshold;
             this.start();
@@ -220,7 +220,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
             const rss = usage.rss / 1024 / 1024;
             const ratio = heapUsed / heapTotal;
 
-            // 如果内存使用超过阈值，发出警告（带冷却时间）
+            // Log warning if memory usage exceeds threshold (with cooldown)
             if (ratio > this.threshold) {
                 const now = Date.now();
                 if (now - this.lastLogTime > this.logCooldown) {
@@ -232,7 +232,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
                     this.lastLogTime = now;
                 }
             } else {
-                // 定期记录正常内存使用（每5分钟）
+                // Periodically log normal memory usage (every 5 minutes)
                 const now = Date.now();
                 if (now - this.lastLogTime > 300000) {
                     this.logger.info(
@@ -285,7 +285,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
 
         session.setCompilerOptionsForInferredProjects({options:inferredOptions});
 
-        // 启动内存监控（阈值80%，每30秒检查）
+        // Start memory monitoring (80% threshold, check every 30s)
         const memoryMonitor = new MemoryMonitor(logger, 0.8, 30000);
 
         session.onOutput.on("message", (msg: lpc.server.protocol.Message) => {
@@ -373,7 +373,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
             }
         });
                 
-        // 创建防抖的错误检测函数（200ms 延迟）
+        // Create debounced error detection function (200ms delay)
         const debouncedGetErr = debounce((getErrDocs: string[]) => {
             executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: DIAG_DELAY, files: getErrDocs});
         }, 200);
@@ -422,19 +422,19 @@ export function start(connection: Connection, platform: string, args: string[]) 
                     const docSet = new Set(allDocs);
                     docSet.add(filename);
                     const getErrDocs = Array.from(docSet);
-                    // 使用防抖函数减少频繁的错误检测
+                    // Use debounced function to reduce frequent error detection
                     debouncedGetErr(getErrDocs);
                 }
             } catch(ex) {
                 console.error("Document change error:", ex);
-                // 不再使用 debugger，改为日志记录
+                // No longer using debugger, changed to logging
             }
         });        
 
         connection.onShutdown(e=>{
-            // 停止内存监控
+            // Stop memory monitoring
             memoryMonitor.stop();
-            // 退出session（会清理Event监听器）
+            // Exit session (will clean up event listeners)
             session.exit();
         });
 

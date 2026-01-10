@@ -31355,7 +31355,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             else if (isJSDocMemberName(name)) {
                 return resolveJSDocMemberName(name);
             }
-            // 未处理的名称类型，记录日志并返回 unknown symbol
+            // Unhandled name kind, log and return unknown symbol
             return Debug.fail("Unexpected name kind in getSymbolOfNode");
         }
         else if (isTypeReferenceIdentifier(name as EntityName)) {

@@ -1,7 +1,7 @@
 import { CachedDirectoryStructureHost, clearMap, closeFileWatcher, closeFileWatcherOf, CompilerOptions, createMultiMap, Debug, Diagnostics, directorySeparator, DirectoryWatcherCallback, emptyArray, endsWith, Extension, extensionIsLPC, fileExtensionIs, FileReference, FileWatcher, FileWatcherCallback, firstDefinedIterator, GetCanonicalFileName, getDirectoryPath, getNormalizedAbsolutePath, getPathComponents, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ignoredPaths, isDiskPathRoot, isExternalModuleNameRelative, isExternalOrCommonJsModule, isNodeModulesDirectory, memoize, MinimalResolutionCacheHost, moduleResolutionNameAndModeGetter, mutateMap, noopFileWatcher, PackageId, packageIdToString, Path, PathPathComponents, Program, removeSuffix, removeTrailingDirectorySeparator, ResolutionLoader, ResolutionMode, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, returnTrue, some, SourceFile, startsWith, StringLiteralLike, WatchDirectoryFlags, resolveModuleName as lpc_resolveModuleName, createModeAwareCache, isTraceEnabled, ModeAwareCache, ModuleResolutionCache, trace, updateResolutionField, loadModuleFromGlobalCache, createModuleResolutionCache, resolutionExtensionIsTSOrJson } from "./_namespaces/lpc";
 
 /**
- * LRU (Least Recently Used) Map 实现用于限制缓存大小
+ * LRU (Least Recently Used) Map implementation to limit cache size
  * @internal
  */
 class LRUCache<K, V> extends Map<K, V> {
@@ -13,7 +13,7 @@ class LRUCache<K, V> extends Map<K, V> {
     }
 
     set(key: K, value: V): this {
-        // 如果缓存已满，删除最旧的条目（第一个）
+        // If cache is full, remove oldest entry (first one)
         if (this.size >= this.maxSize && !this.has(key)) {
             const firstKey = this.keys().next().value;
             if (firstKey !== undefined) {
@@ -24,11 +24,11 @@ class LRUCache<K, V> extends Map<K, V> {
     }
 
     /**
-     * 更新缓存的最大大小
+     * Update cache max size
      */
     setMaxSize(size: number): void {
         this.maxSize = size;
-        // 如果当前缓存超过新的大小，清理多余的条目
+        // If current cache exceeds new size, clean up excess entries
         while (this.size > this.maxSize) {
             const firstKey = this.keys().next().value;
             if (firstKey !== undefined) {
@@ -40,7 +40,7 @@ class LRUCache<K, V> extends Map<K, V> {
     }
 
     /**
-     * 获取当前缓存统计信息
+     * Get current cache statistics
      */
     getStats(): { size: number; maxSize: number } {
         return {
@@ -161,7 +161,7 @@ export function createResolutionCache(resolutionHost: ResolutionCacheHost, rootD
     // The resolvedModuleNames and resolvedTypeReferenceDirectives are the cache of resolutions per file.
     // The key in the map is source file's path.
     // The values are Map of resolutions with key being name lookedup.
-    // 使用 LRU 缓存来限制内存使用，最大缓存 5000 个文件
+    // Use LRU cache to limit memory usage, max 5000 files
     const resolvedModuleNames = new LRUCache<Path, ModeAwareCache<CachedResolvedModuleWithFailedLookupLocations>>(5000);
     const moduleResolutionCache = createModuleResolutionCache(
         getCurrentDirectory(),

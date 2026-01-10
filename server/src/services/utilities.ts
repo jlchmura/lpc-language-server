@@ -1321,13 +1321,13 @@ export function isInComment(sourceFile: SourceFile, position: number, tokenAtPos
 }
 
 /**
- * 全局循环检测计数器，用于统计和监控
+ * Global loop detection counter for statistics and monitoring
  * @internal
  */
 let globalLoopDetectionCount = 0;
 
 /**
- * 创建循环检测错误对象
+ * Create loop detection error object
  * @internal
  */
 function createLoopError(
@@ -1371,27 +1371,27 @@ export function getTokenAtPosition(sourceFile: SourceFile, position: number): No
 /**
  * Get the token whose text contains the position
  *
- * 防御机制：
- * 1. 使用 Set 检测循环引用（使用 Node.id 作为键，性能优化）
- * 2. 超过最大迭代次数（100）时抛出异常
- * 3. 提供详细的错误上下文用于调试
+ * Defensive mechanisms:
+ * 1. Use Set to detect circular references (using Node.id as key for performance)
+ * 2. Throw exception when exceeding max iterations (100)
+ * 3. Provide detailed error context for debugging
  *
- * 性能优化说明：
- * - 使用 Node.id 而非 Node 对象作为 Set 键，减少内存占用
- * - Set 操作是 O(1)，对性能影响最小
+ * Performance optimization notes:
+ * - Use Node.id instead of Node object as Set key to reduce memory usage
+ * - Set operations are O(1), minimal performance impact
  *
  * @internal
  */
 function getTokenAtPositionWorker(sourceFile: SourceFile, position: number, allowPositionInLeadingTrivia: boolean, includePrecedingTokenAtEndPosition: ((n: Node) => boolean) | undefined, includeEndPosition: boolean): Node {
-    const visitedNodeIds = new Set<number>(); // 使用节点 ID 而非对象引用
+    const visitedNodeIds = new Set<number>(); // Use node ID instead of object reference
     let current: Node = sourceFile;
     let foundToken: Node | undefined;
     let count = 0;
 
     outer:
     while (true) {
-        // 检测循环引用 - 使用节点 ID 检测
-        // Node ID 为 0 通常是 SourceFile，允许重复访问（不是真正的循环）
+        // Detect circular references - using node ID
+        // Node ID 0 is usually SourceFile, allow repeated visits (not a real loop)
         if (current.id !== 0 && visitedNodeIds.has(current.id)) {
             const error = new Error(
                 `getTokenAtPositionWorker: Circular reference detected\n` +
@@ -1409,9 +1409,9 @@ function getTokenAtPositionWorker(sourceFile: SourceFile, position: number, allo
         }
         visitedNodeIds.add(current.id);
 
-        // 检测迭代次数 - 防止无限循环
+        // Check iteration count - prevent infinite loops
         if (count++ > 100) {
-            // 更新全局计数器
+            // Update global counter
             globalLoopDetectionCount++;
             if (globalLoopDetectionCount % 10 === 0) {
                 console.warn(`Loop detection triggered ${globalLoopDetectionCount} times total`);
