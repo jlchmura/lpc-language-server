@@ -129,7 +129,7 @@
             {
                 "name": "lpc",
                 "label": "LPC Compiler Diagnostics",
-                "owner": "lpc",                
+                "owner": "lpc",
                 "source": "LPC",
                 "applyTo": "closedDocuments",
                 "fileLocation": [
