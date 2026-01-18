@@ -4909,7 +4909,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (!name) {
             return unknownSymbol;
         }
-        const symbol = resolveEntityName(name, meaning, ignoreErrors);
+        // Pass the typeReference node as location so name resolution starts from the correct context
+        // This ensures typedefs bound to file scope can be found
+        const symbol = resolveEntityName(name, meaning, ignoreErrors, /*dontResolveAlias*/ false, typeReference);
         return symbol && symbol !== unknownSymbol ? symbol :
             ignoreErrors ? unknownSymbol : getUnresolvedSymbolForEntityName(name);
     }
@@ -5650,6 +5652,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         let covariant = true;
         while (node && !isStatement(node) && node.kind !== SyntaxKind.JSDoc) {
             const parent = node.parent;
+            if (!parent) {
+                break;
+            }
             // only consider variance flipped by parameter locations - `keyof` types would usually be considered variance inverting, but
             // often get used in indexed accesses where they behave sortof invariantly, but our checking is lax            
             if (parent.kind === SyntaxKind.Parameter) {
