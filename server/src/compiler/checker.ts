@@ -32118,8 +32118,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      */
     function isUntypedFunctionCall(funcType: Type, apparentFuncType: Type, numCallSignatures: number, numConstructSignatures: number): boolean {
         // We exclude union types because we may have a union of function types that happen to have no common signatures.
+        const isClosureCallable = funcType === globalClosureType || apparentFuncType === globalClosureType;
         return isTypeAny(funcType) || isTypeAny(apparentFuncType) && !!(funcType.flags & TypeFlags.TypeParameter) ||
-            !numCallSignatures && !numConstructSignatures && !(apparentFuncType.flags & TypeFlags.Union) && !(getReducedType(apparentFuncType).flags & TypeFlags.Never) && isTypeAssignableTo(funcType, globalFunctionType);
+            !numCallSignatures && !numConstructSignatures && !(apparentFuncType.flags & TypeFlags.Union) && 
+            !(getReducedType(apparentFuncType).flags & TypeFlags.Never) && 
+            (isTypeAssignableTo(funcType, globalFunctionType) || isClosureCallable);
     }
 
     function resolveCallExpression(node: CallExpression, candidatesOutArray: Signature[] | undefined, checkMode: CheckMode): Signature {
@@ -32150,7 +32153,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
 
         let callChainFlags: SignatureFlags;
-        let funcType = checkExpression(node.expression, undefined, undefined, SymbolFlags.Function);
+        const callSymbolFlags = languageVariant === LanguageVariant.FluffOS
+            ? SymbolFlags.Value
+            : SymbolFlags.Function;
+        let funcType = checkExpression(node.expression, undefined, undefined, callSymbolFlags);
         if (isCallChain(node)) {
             console.debug("todo - call chain");
             // const nonOptionalType = getOptionalExpressionType(funcType, node.expression);

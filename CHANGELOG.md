@@ -4,6 +4,7 @@
 
 - Fix: [Type 'int' is not assignable to type '**LS**Closure' on function variable #298](https://github.com/jlchmura/lpc-language-server/issues/298)
 - Fix: [Language server doesn't recognize efun-only closures #299](https://github.com/jlchmura/lpc-language-server/issues/299)
+- Fix: [Language server doesn't recognize function pointer variable can be called directly #297](https://github.com/jlchmura/lpc-language-server/issues/297)
 
 ## 1.1.43
 
