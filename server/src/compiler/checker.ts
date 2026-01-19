@@ -12559,15 +12559,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
             returnType = checkExpressionCached(func.body, checkMode && checkMode & ~CheckMode.SkipGenericFunctions);            
 
-            // if an inline closure is set to a single identifier which is a function, use the resolved return type of that function
-            if (isInlineClosureExpression(func) && isIdentifier(func.body) && getObjectFlags(returnType) & ObjectFlags.Anonymous) {
-                const resolvedSig = getSingleCallSignature(returnType);
-
-                if (resolvedSig && !resolvedSig.resolvedReturnType) {
-                    returnType = getReturnTypeOfSignature(resolvedSig) || returnType;
-                }                
-                else {
-                    returnType = resolvedSig?.resolvedReturnType || returnType;
+            // if an inline closure is set to a single identifier which is callable, use the return type(s) of that function
+            if (isInlineClosureExpression(func) && isIdentifier(func.body)) {
+                const callSignatures = getSignaturesOfType(returnType, SignatureKind.Call);
+                if (callSignatures.length === 1) {
+                    const resolvedSig = callSignatures[0];
+                    returnType = resolvedSig.resolvedReturnType ?? getReturnTypeOfSignature(resolvedSig) ?? returnType;
+                }
+                else if (callSignatures.length > 1) {
+                    returnType = getUnionType(map(callSignatures, getReturnTypeOfSignature), UnionReduction.Subtype);
                 }
             }            
             
