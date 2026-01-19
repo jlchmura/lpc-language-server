@@ -33,6 +33,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { URI } from "vscode-uri";
 import * as fs from "fs";
 import * as path from "path";
+import * as os from "os";
 import * as lpc from "../../lpc/lpc.js";
 import { start as startLspServer } from "../../lpcserver/server.js";
 
@@ -287,6 +288,7 @@ export interface LspTestHarnessOptions {
     writeFile?: boolean;
     executingFilePath?: string;
     captureSessionMessages?: boolean;
+    useTempWorkspace?: boolean;
 }
 
 export class LspTestHarness {
@@ -304,9 +306,20 @@ export class LspTestHarness {
     private removeSessionListener?: () => void;
     private readonly sessionMessages: { command: string; request: unknown; response: unknown }[] = [];
     private restoreProcessExit?: () => void;
+    private tempWorkspaceRoot?: string;
 
     constructor(options: LspTestHarnessOptions = {}) {
-        this.rootPath = options.rootPath ?? process.cwd();
+        const baseRoot = options.rootPath ?? process.cwd();
+        if (options.useTempWorkspace) {
+            const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "lpc-lsp-tests-"));
+            const sourceConfig = path.join(baseRoot, "server/src/tests/lsp/workspace/lpc-config.json");
+            const destConfig = path.join(tempRoot, "lpc-config.json");
+            fs.copyFileSync(sourceConfig, destConfig);
+            this.rootPath = tempRoot;
+            this.tempWorkspaceRoot = tempRoot;
+        } else {
+            this.rootPath = baseRoot;
+        }
         this.writeFile = options.writeFile ?? false;
 
         // Prevent process.exit from killing the test process
@@ -361,6 +374,10 @@ export class LspTestHarness {
             this.restoreProcessExit?.();
             this.restoreProcessExit = undefined;
             this.initialized = false;
+            if (this.tempWorkspaceRoot) {
+                fs.rmSync(this.tempWorkspaceRoot, { recursive: true, force: true });
+                this.tempWorkspaceRoot = undefined;
+            }
         }
     }
 

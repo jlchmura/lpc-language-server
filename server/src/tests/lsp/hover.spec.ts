@@ -56,7 +56,7 @@ describe("LSP Hover", () => {
     ];
 
     async function runHoverCase(testCase: typeof hoverCases[number]) {
-        const harness = new LspTestHarness();
+        const harness = new LspTestHarness({ writeFile: true, useTempWorkspace: true });
         try {
             await harness.initialize();
             const doc = await harness.openFile(testCase.file, testCase.source);

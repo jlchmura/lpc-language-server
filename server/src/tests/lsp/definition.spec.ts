@@ -35,7 +35,7 @@ describe("LSP Go To Definition", () => {
     ];
 
     async function runDefinitionCase(testCase: typeof definitionCases[number]) {
-        const harness = new LspTestHarness();
+        const harness = new LspTestHarness({ writeFile: true, useTempWorkspace: true });
         try {
             await harness.initialize();
             const doc = await harness.openFile(testCase.file, testCase.source);
