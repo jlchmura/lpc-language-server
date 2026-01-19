@@ -121,7 +121,7 @@ void test() { mapping m = ([ KEY: VALUE ]); }`;
             const compilerHost = lpc.createCompilerHost(compilerOptions);
             compilerHost.getDefaultLibFileName = () => lpc.combinePaths(root, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
 
-            const sourceFile = lpc.createSourceFile("test.c", source, lpc.ScriptTarget.Latest, /*setParentNodes*/ false);
+            const sourceFile = lpc.createSourceFile("test.c", source, lpc.ScriptTarget.Latest, /*setParentNodes*/ false, lpc.ScriptKind.LPC, lpc.LanguageVariant.FluffOS);
             
             // Find the mapping literal expression by traversing the AST
             let mappingLiteral: lpc.MappingLiteralExpression | undefined;
@@ -170,7 +170,7 @@ void test() { TYPE1 | TYPE2 x; }`;
             const compilerHost = lpc.createCompilerHost(compilerOptions);
             compilerHost.getDefaultLibFileName = () => lpc.combinePaths(root, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
 
-            const sourceFile = lpc.createSourceFile("test.c", source, lpc.ScriptTarget.Latest, /*setParentNodes*/ false);
+            const sourceFile = lpc.createSourceFile("test.c", source, lpc.ScriptTarget.Latest, /*setParentNodes*/ false, lpc.ScriptKind.LPC, lpc.LanguageVariant.FluffOS);
             
             // Find the union type by traversing the AST
             let unionType: lpc.UnionTypeNode | undefined;

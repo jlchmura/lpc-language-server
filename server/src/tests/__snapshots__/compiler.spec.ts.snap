@@ -194,6 +194,10 @@ exports[`Compiler compiler/closure7.c Reports correct errors for compiler/closur
 
 exports[`Compiler compiler/closure8.c Reports correct errors for compiler/closure8.c: diags-compiler/closure8.c 1`] = `""`;
 
+exports[`Compiler compiler/closure9.c Reports correct errors for compiler/closure9.c: diags-compiler/closure9.c 1`] = `""`;
+
+exports[`Compiler compiler/closureAssignment1.c Reports correct errors for compiler/closureAssignment1.c: diags-compiler/closureAssignment1.c 1`] = `""`;
+
 exports[`Compiler compiler/closureFuncShortcut1.c Reports correct errors for compiler/closureFuncShortcut1.c: diags-compiler/closureFuncShortcut1.c 1`] = `""`;
 
 exports[`Compiler compiler/closureFuncShortcut2.c Reports correct errors for compiler/closureFuncShortcut2.c: diags-compiler/closureFuncShortcut2.c 1`] = `
@@ -382,6 +386,8 @@ exports[`Compiler compiler/functionCall4.c Reports correct errors for compiler/f
 exports[`Compiler compiler/functionCall5.c Reports correct errors for compiler/functionCall5.c: diags-compiler/functionCall5.c 1`] = `""`;
 
 exports[`Compiler compiler/functionCall6.c Reports correct errors for compiler/functionCall6.c: diags-compiler/functionCall6.c 1`] = `""`;
+
+exports[`Compiler compiler/functionPointerCall1.c Reports correct errors for compiler/functionPointerCall1.c: diags-compiler/functionPointerCall1.c 1`] = `""`;
 
 exports[`Compiler compiler/identifier1.c Reports correct errors for compiler/identifier1.c: diags-compiler/identifier1.c 1`] = `""`;
 
