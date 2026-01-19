@@ -1,0 +1,7 @@
+{
+    "driver": {
+        "type": "ldmud"
+    },
+    "include": ["./"],
+    "diagnostics": true
+}
