@@ -693,14 +693,14 @@ export class Session<TMessage = string> implements EventSender {
     
     private getQuickInfoWorker(args: protocol.FileLocationRequestArgs, simplifiedResult: boolean): protocol.QuickInfoResponseBody | QuickInfo | undefined {
         const { file, project } = this.getFileAndProject(args);
-        const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;        
-        const quickInfo = project.getLanguageService().getQuickInfoAtPosition(file, this.getPosition(args, scriptInfo));
+        const scriptInfo = this.projectService.getScriptInfoForNormalizedPath(file)!;                
+        const quickInfo = project.getLanguageService().getQuickInfoAtPosition(file, this.getPosition(args, scriptInfo));        
         if (!quickInfo) {
             return undefined;
         }                
         const useDisplayParts = true;//!!this.getPreferences(file).displayPartsForJSDoc;
         if (simplifiedResult) {
-            const displayString = displayPartsToString(quickInfo.displayParts);
+            const displayString = displayPartsToString(quickInfo.displayParts);            
             return {
                 kind: quickInfo.kind,
                 kindModifiers: quickInfo.kindModifiers,
@@ -711,7 +711,7 @@ export class Session<TMessage = string> implements EventSender {
                 tags: this.mapJSDocTagInfo(quickInfo.tags, project, useDisplayParts),
             };
         }
-        else {
+        else {            
             return useDisplayParts ? quickInfo : {
                 ...quickInfo,
                 tags: this.mapJSDocTagInfo(quickInfo.tags, project, /*richResponse*/ false) as JSDocTagInfo[],
@@ -1197,7 +1197,7 @@ export class Session<TMessage = string> implements EventSender {
         [protocol.CommandTypes.SignatureHelp]: (request: protocol.SignatureHelpRequest) => {
             return this.requiredResponse(this.getSignatureHelpItems(request.arguments, /*simplifiedResult*/ true));
         },
-        [protocol.CommandTypes.Quickinfo]: (request: protocol.QuickInfoRequest) => {
+        [protocol.CommandTypes.Quickinfo]: (request: protocol.QuickInfoRequest) => {            
             return this.requiredResponse(this.getQuickInfoWorker(request.arguments, /*simplifiedResult*/ true));
         },
         [protocol.CommandTypes.EncodedSemanticClassificationsFull]: (request: protocol.EncodedSemanticClassificationsRequest) => {
@@ -1221,7 +1221,7 @@ export class Session<TMessage = string> implements EventSender {
         const handler = this.handlers.get(request.command);
         if (handler) {
             const response = this.executeWithRequestId(request.seq, () => handler(request));
-            // this.projectService.enableRequestedPlugins();
+            // this.projectService.enableRequestedPlugins();        
             return response;
         }
         else {
