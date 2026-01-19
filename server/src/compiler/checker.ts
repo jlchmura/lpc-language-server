@@ -6098,16 +6098,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     !!symbol.exports?.size;
                 if (!isJSObjectLiteralInitializer && node.parent.parent.kind !== SyntaxKind.ForEachStatement) {
                     let initializerType: Type;
-                    // check the closure, but don't use its type
+                    // check the closure, but don't use its type unless assigning to a function type
                     if (isInlineClosureExpression(initializer)) {                        
-                        checkExpressionCached(initializer);
+                        const closureType = checkExpressionCached(initializer);
 
-                        // if (isParameter(node)) {
-                            // however, if we're initializing a parameter then get the closures
-                            // result type
+                        if (isFunctionType(type) || type === globalClosureType) {
+                            initializerType = closureType;
+                        }
+                        else {
                             const sig = getResolvedSignature(initializer);
                             initializerType = getReturnTypeOfSignature(sig);
-                        // }
+                        }
                     } 
                     else if (!initializerType) {
                         initializerType = checkExpressionCached(initializer);
@@ -12558,15 +12559,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
             returnType = checkExpressionCached(func.body, checkMode && checkMode & ~CheckMode.SkipGenericFunctions);            
 
-            // if an inline closure is set to a single identifier which is a function, use the resolved return type of that function
-            if (isInlineClosureExpression(func) && isIdentifier(func.body) && getObjectFlags(returnType) & ObjectFlags.Anonymous) {
-                const resolvedSig = getSingleCallSignature(returnType);
-
-                if (resolvedSig && !resolvedSig.resolvedReturnType) {
-                    returnType = getReturnTypeOfSignature(resolvedSig) || returnType;
-                }                
-                else {
-                    returnType = resolvedSig?.resolvedReturnType || returnType;
+            // if an inline closure is set to a single identifier which is callable, use the return type(s) of that function
+            if (isInlineClosureExpression(func) && isIdentifier(func.body)) {
+                const callSignatures = getSignaturesOfType(returnType, SignatureKind.Call);
+                if (callSignatures.length === 1) {
+                    const resolvedSig = callSignatures[0];
+                    returnType = resolvedSig.resolvedReturnType ?? getReturnTypeOfSignature(resolvedSig) ?? returnType;
+                }
+                else if (callSignatures.length > 1) {
+                    returnType = getUnionType(map(callSignatures, getReturnTypeOfSignature), UnionReduction.Subtype);
                 }
             }            
             
@@ -32117,8 +32118,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      */
     function isUntypedFunctionCall(funcType: Type, apparentFuncType: Type, numCallSignatures: number, numConstructSignatures: number): boolean {
         // We exclude union types because we may have a union of function types that happen to have no common signatures.
+        const isClosureCallable = funcType === globalClosureType || apparentFuncType === globalClosureType;
         return isTypeAny(funcType) || isTypeAny(apparentFuncType) && !!(funcType.flags & TypeFlags.TypeParameter) ||
-            !numCallSignatures && !numConstructSignatures && !(apparentFuncType.flags & TypeFlags.Union) && !(getReducedType(apparentFuncType).flags & TypeFlags.Never) && isTypeAssignableTo(funcType, globalFunctionType);
+            !numCallSignatures && !numConstructSignatures && !(apparentFuncType.flags & TypeFlags.Union) && 
+            !(getReducedType(apparentFuncType).flags & TypeFlags.Never) && 
+            (isTypeAssignableTo(funcType, globalFunctionType) || isClosureCallable);
     }
 
     function resolveCallExpression(node: CallExpression, candidatesOutArray: Signature[] | undefined, checkMode: CheckMode): Signature {
@@ -32149,7 +32153,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
 
         let callChainFlags: SignatureFlags;
-        let funcType = checkExpression(node.expression, undefined, undefined, SymbolFlags.Function);
+        const callSymbolFlags = languageVariant === LanguageVariant.FluffOS
+            ? SymbolFlags.Value
+            : SymbolFlags.Function;
+        let funcType = checkExpression(node.expression, undefined, undefined, callSymbolFlags);
         if (isCallChain(node)) {
             console.debug("todo - call chain");
             // const nonOptionalType = getOptionalExpressionType(funcType, node.expression);
