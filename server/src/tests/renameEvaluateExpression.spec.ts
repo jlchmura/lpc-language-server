@@ -3,7 +3,7 @@ import * as path from "path";
 
 describe("LanguageService", () => {
     it("includes EvaluateExpression arguments in findReferences/findRenameLocations", () => {
-        const fileName = path.join(process.cwd(), "test.c");
+        const fileName = lpc.normalizePath(path.join(process.cwd(), "test.c"));
         const source = `test(object who) {
     fn(who);
 
@@ -23,9 +23,10 @@ fn(object o) {}
         const fileText = new Map<string, string>([[fileName, source]]);
         const scriptVersions = new Map<string, string>([[fileName, "1"]]);
 
-        const currentDirectory = process.cwd();
-        const useCaseSensitiveFileNames = true;
+        const currentDirectory = lpc.normalizePath(process.cwd());
+        const useCaseSensitiveFileNames = lpc.sys.useCaseSensitiveFileNames;
         const getCanonicalFileName = lpc.createGetCanonicalFileName(useCaseSensitiveFileNames);
+        const normalizeHostFileName = (name: string | undefined) => (name ? lpc.normalizePath(name) : name);
 
         const host: lpc.LanguageServiceHost = {
             getCompilationSettings: () => options,
@@ -36,14 +37,25 @@ fn(object o) {}
             getParseableFiles: () => new Set(scriptFiles.map((f) => lpc.toPath(f, currentDirectory, getCanonicalFileName))),
             getScriptFileNames: () => scriptFiles,
             getScriptSnapshot: (name) => {
-                const text = fileText.get(name) ?? lpc.sys.readFile(name);
+                const normalizedName = normalizeHostFileName(name);
+                if (!normalizedName) return undefined;
+                const text = fileText.get(normalizedName) ?? lpc.sys.readFile(normalizedName);
                 return text === undefined ? undefined : lpc.ScriptSnapshot.fromString(text);
             },
-            getScriptVersion: (name) => scriptVersions.get(name) ?? "0",
+            getScriptVersion: (name) => {
+                const normalizedName = normalizeHostFileName(name);
+                return normalizedName ? scriptVersions.get(normalizedName) ?? "0" : "0";
+            },
             isKnownTypesPackageName: () => false,
             useCaseSensitiveFileNames: () => useCaseSensitiveFileNames,
-            fileExists: (name) => fileText.has(name) || lpc.sys.fileExists(name),
-            readFile: (name) => fileText.get(name) ?? lpc.sys.readFile(name),
+            fileExists: (name) => {
+                const normalizedName = normalizeHostFileName(name);
+                return !!normalizedName && (fileText.has(normalizedName) || lpc.sys.fileExists(normalizedName));
+            },
+            readFile: (name) => {
+                const normalizedName = normalizeHostFileName(name);
+                return normalizedName ? fileText.get(normalizedName) ?? lpc.sys.readFile(normalizedName) : undefined;
+            },
             onAllFilesNeedReparse: () => undefined,
             onReleaseOldSourceFile: () => undefined,
             onReleaseParsedCommandLine: () => undefined,
