@@ -6098,16 +6098,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     !!symbol.exports?.size;
                 if (!isJSObjectLiteralInitializer && node.parent.parent.kind !== SyntaxKind.ForEachStatement) {
                     let initializerType: Type;
-                    // check the closure, but don't use its type
+                    // check the closure, but don't use its type unless assigning to a function type
                     if (isInlineClosureExpression(initializer)) {                        
-                        checkExpressionCached(initializer);
+                        const closureType = checkExpressionCached(initializer);
 
-                        // if (isParameter(node)) {
-                            // however, if we're initializing a parameter then get the closures
-                            // result type
+                        if (isFunctionType(type) || type === globalClosureType) {
+                            initializerType = closureType;
+                        }
+                        else {
                             const sig = getResolvedSignature(initializer);
                             initializerType = getReturnTypeOfSignature(sig);
-                        // }
+                        }
                     } 
                     else if (!initializerType) {
                         initializerType = checkExpressionCached(initializer);

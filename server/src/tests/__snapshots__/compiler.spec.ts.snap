@@ -194,6 +194,8 @@ exports[`Compiler compiler/closure7.c Reports correct errors for compiler/closur
 
 exports[`Compiler compiler/closure8.c Reports correct errors for compiler/closure8.c: diags-compiler/closure8.c 1`] = `""`;
 
+exports[`Compiler compiler/closureAssignment1.c Reports correct errors for compiler/closureAssignment1.c: diags-compiler/closureAssignment1.c 1`] = `""`;
+
 exports[`Compiler compiler/closureFuncShortcut1.c Reports correct errors for compiler/closureFuncShortcut1.c: diags-compiler/closureFuncShortcut1.c 1`] = `""`;
 
 exports[`Compiler compiler/closureFuncShortcut2.c Reports correct errors for compiler/closureFuncShortcut2.c: diags-compiler/closureFuncShortcut2.c 1`] = `
