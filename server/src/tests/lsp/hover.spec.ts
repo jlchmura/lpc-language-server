@@ -2,30 +2,82 @@ import { MarkupKind } from "vscode-languageserver";
 import { LspTestHarness } from "./lspTestHarness.js";
 
 describe("LSP Hover", () => {
-    // TODO: This test currently fails because hover/quickinfo returns undefined
-    // even after semantic analysis completes. This works when running with --detectOpenHandles
-    // or in the debugger, suggesting a deeper issue with how the language service
-    // is initialized or used in the test environment. Further investigation needed.
-    it("shows variable hover info", async () => {
-        const harness = new LspTestHarness({ writeFile: false});
-        try {
-            await harness.initialize();
-
-            const source = [
+    const hoverCases = [
+        {
+            name: "global variable",
+            file: "server/src/tests/lsp/workspace/hover-global.c",
+            source: [
                 "// test hover",
                 "int /*@*/myGlobal;",
-            ].join("\n");
+            ].join("\n"),
+            marker: "cursor",
+            expected: ["myGlobal", "int"],
+        },
+        {
+            name: "local variable",
+            file: "server/src/tests/lsp/workspace/hover-local.c",
+            source: [
+                "// test hover",
+                "void testLocal() {",
+                "    int /*@*/localValue = 1;",
+                "}",
+            ].join("\n"),
+            marker: "cursor",
+            expected: ["localValue", "int"],
+        },
+        {
+            name: "function declaration",
+            file: "server/src/tests/lsp/workspace/hover-function.c",
+            source: [
+                "// test hover",
+                "void /*@*/doThing(int arg) {",
+                "    return;",
+                "}",
+                "",
+                "void callIt() {",
+                "    doThing(1);",
+                "}",
+            ].join("\n"),
+            marker: "cursor",
+            expected: ["doThing", "function"],
+        },
+        {
+            name: "function parameter",
+            file: "server/src/tests/lsp/workspace/hover-parameter.c",
+            source: [
+                "// test hover",
+                "void takesParam(int param) {",
+                "    int value = /*@*/param;",
+                "}",
+            ].join("\n"),
+            marker: "cursor",
+            expected: ["param", "int"],
+        },
+    ];
 
-            const doc = await harness.openFile("server/src/tests/lsp/workspace/hover.c", source);                        
-            const hover = await harness.waitForHoverAt(doc, "cursor", { timeoutMs: 10000, pollMs: 100 });
-            
+    async function runHoverCase(testCase: typeof hoverCases[number]) {
+        const harness = new LspTestHarness();
+        try {
+            await harness.initialize();
+            const doc = await harness.openFile(testCase.file, testCase.source);
+            await harness.waitForProjectInfo(doc, { timeoutMs: 10000 });
+            await harness.waitForDiagnostics(doc, 10000);
+            const hover = await harness.waitForHoverAt(doc, testCase.marker, { timeoutMs: 10000, pollMs: 100 });
+
             expect(hover).toBeDefined();
             const contents = hover!.contents as { kind: string; value: string; };
             expect(contents.kind).toBe(MarkupKind.Markdown);
-            expect(contents.value).toContain("myGlobal");
-            expect(contents.value).toContain("int");
-        } finally {            
+            for (const token of testCase.expected) {
+                expect(contents.value).toContain(token);
+            }
+        } finally {
             await harness.dispose();
         }
-    }, 30000); // Increase Jest timeout to 30 seconds
+    }
+
+    for (const testCase of hoverCases) {
+        it(`shows hover for ${testCase.name}`, async () => {
+            await runHoverCase(testCase);
+        }, 30000);
+    }
 });
