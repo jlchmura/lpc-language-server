@@ -1836,6 +1836,7 @@ export function isExpressionNode(node: Node): boolean {
         case SyntaxKind.ElementAccessExpression:
         case SyntaxKind.CallExpression:
         case SyntaxKind.NewExpression:        
+        case SyntaxKind.EvaluateExpression:
         case SyntaxKind.ParenthesizedExpression:
         case SyntaxKind.FunctionExpression:
         case SyntaxKind.ClassExpression:
