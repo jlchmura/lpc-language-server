@@ -349,7 +349,7 @@ mixed filter(string|mapping|mixed* source,
  * @template T
  * @callback filterCallback
  * @param {T} element The element to map
- * @returns The map callback return value
+ * @returns {int} Nonzero to keep the element, zero to discard it
  */
 /**
  * filter
@@ -395,10 +395,10 @@ string|mapping filter(string|mapping source, function f, mixed *extra... );
  * If the first syntax is used, the filter function is performed as a
  * call_other. If ob is a string, it is assumed to be the filename of an
  * object to load and call the filter function on.   
- * @template T - string, mapping, or array
- * @param {T*} source - The source to filter
+ * @template T - array element type
+ * @param {T*} source - The source array to filter
  * @param {filterCallback<T>} f - The filter function
- * @returns {T*} - The filtered source
+ * @returns {T*} - The filtered array
  */       
 mixed* filter(mixed* source, function f, mixed *extra... );
 
@@ -545,4 +545,3 @@ float angle(int * | float *, int * | float *);
  *
  */
 void act_mxp();
-

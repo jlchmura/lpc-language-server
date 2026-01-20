@@ -108,6 +108,10 @@ exports[`Compiler compiler/bytes1.c Reports correct errors for compiler/bytes1.c
 
 exports[`Compiler compiler/c99VariableDeclarations.c Reports correct errors for compiler/c99VariableDeclarations.c: diags-compiler/c99VariableDeclarations.c 1`] = `""`;
 
+exports[`Compiler compiler/callExprLocalConflict.c Reports correct errors for compiler/callExprLocalConflict.c: diags-compiler/callExprLocalConflict.c 1`] = `""`;
+
+exports[`Compiler compiler/callExprLocalConflict2.c Reports correct errors for compiler/callExprLocalConflict2.c: diags-compiler/callExprLocalConflict2.c 1`] = `""`;
+
 exports[`Compiler compiler/callOther1.c Reports correct errors for compiler/callOther1.c: diags-compiler/callOther1.c 1`] = `""`;
 
 exports[`Compiler compiler/callOther2.c Reports correct errors for compiler/callOther2.c: diags-compiler/callOther2.c 1`] = `""`;
@@ -193,6 +197,10 @@ exports[`Compiler compiler/closure6.c Reports correct errors for compiler/closur
 exports[`Compiler compiler/closure7.c Reports correct errors for compiler/closure7.c: diags-compiler/closure7.c 1`] = `""`;
 
 exports[`Compiler compiler/closure8.c Reports correct errors for compiler/closure8.c: diags-compiler/closure8.c 1`] = `""`;
+
+exports[`Compiler compiler/closure9.c Reports correct errors for compiler/closure9.c: diags-compiler/closure9.c 1`] = `""`;
+
+exports[`Compiler compiler/closureAssignment1.c Reports correct errors for compiler/closureAssignment1.c: diags-compiler/closureAssignment1.c 1`] = `""`;
 
 exports[`Compiler compiler/closureFuncShortcut1.c Reports correct errors for compiler/closureFuncShortcut1.c: diags-compiler/closureFuncShortcut1.c 1`] = `""`;
 
@@ -290,6 +298,15 @@ exports[`Compiler compiler/expr4.c Reports correct errors for compiler/expr4.c: 
 
 exports[`Compiler compiler/expr5.c Reports correct errors for compiler/expr5.c: diags-compiler/expr5.c 1`] = `""`;
 
+exports[`Compiler compiler/filterClosureInference1.c Reports correct errors for compiler/filterClosureInference1.c: diags-compiler/filterClosureInference1.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/filterClosureInference1.c[90m:5[0m
+
+"
+`;
+
+exports[`Compiler compiler/filterClosureInference2.c Reports correct errors for compiler/filterClosureInference2.c: diags-compiler/filterClosureInference2.c 1`] = `""`;
+
 exports[`Compiler compiler/flowNode1.c Reports correct errors for compiler/flowNode1.c: diags-compiler/flowNode1.c 1`] = `""`;
 
 exports[`Compiler compiler/flowType1.c Reports correct errors for compiler/flowType1.c: diags-compiler/flowType1.c 1`] = `""`;
@@ -382,6 +399,8 @@ exports[`Compiler compiler/functionCall4.c Reports correct errors for compiler/f
 exports[`Compiler compiler/functionCall5.c Reports correct errors for compiler/functionCall5.c: diags-compiler/functionCall5.c 1`] = `""`;
 
 exports[`Compiler compiler/functionCall6.c Reports correct errors for compiler/functionCall6.c: diags-compiler/functionCall6.c 1`] = `""`;
+
+exports[`Compiler compiler/functionPointerCall1.c Reports correct errors for compiler/functionPointerCall1.c: diags-compiler/functionPointerCall1.c 1`] = `""`;
 
 exports[`Compiler compiler/identifier1.c Reports correct errors for compiler/identifier1.c: diags-compiler/identifier1.c 1`] = `""`;
 
