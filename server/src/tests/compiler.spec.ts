@@ -50,7 +50,11 @@ describe("Compiler", () => {
     testFiles = enumerateFiles(basePath, /\.c$/);
     console.info(`Got ${testFiles.length} test files in ${basePath}`);
    
-    const singleTestFile = "";//"typeInference3.c";    
+    const singleTestFile = "";
+
+    if (singleTestFile.length > 0) {
+        console.warn(`Running single test case: ${singleTestFile}`);
+    }
 
     testFiles.filter(f => singleTestFile.length==0 || f.endsWith(singleTestFile)).forEach(testCaseFile => {
         const testCaseName = "compiler/" + lpc.getBaseFileName(testCaseFile);
@@ -99,8 +103,15 @@ describe("Compiler", () => {
             it(`Reports correct number of errors for ${testCaseName}`, () => {
                 expect(diags.length).toEqual(expectedErrorCount);
             });
-            
+                        
             it(`Reports correct errors for ${testCaseName}`, () => {
+                // If the error count doesn't match the expected count, fail early
+                // so we don't write/update a snapshot for a mismatched run.
+                if (diags.length !== expectedErrorCount) {
+                    fail("Mismatch in expected error count - snapshot check skipped.");                    
+                    return;
+                }
+
                 expect(diagsText).toMatchSnapshot(`diags-${testCaseName}`);
             });                        
         });

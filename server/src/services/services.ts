@@ -115,6 +115,7 @@ import {
     GoToDefinition,
     PossibleProgramFileInfo,
     QuickInfo,
+    findAncestor,
     getTouchingPropertyName,
     isNewExpression,
     ScriptElementKind,
@@ -2281,6 +2282,13 @@ function getSymbolAtLocationForQuickInfo(node: Node, checker: TypeChecker): Symb
         // the macro name for each node is stored in a map on the sourcefile
         const macroName = node.getSourceFile()?.nodeMacroMap.get(node);
         return macroName && checker.resolveName(macroName, node.parent, SymbolFlags.Define, false);                    
+    }
+
+    if (isIdentifier(node) && /^\$\d+$/.test(node.text)) {
+        const inInlineClosure = !!findAncestor(node, n => n.kind === SyntaxKind.InlineClosureExpression);
+        if (inInlineClosure) {
+            return undefined;
+        }
     }
 
     const symbol = checker.getSymbolAtLocation(node);    
