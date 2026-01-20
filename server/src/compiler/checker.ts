@@ -19775,6 +19775,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     return addSyntheticLeadingComment(factory.createKeywordTypeNode(SyntaxKind.AnyKeyword), SyntaxKind.MultiLineCommentTrivia, "unresolved");
                 }
                 context.approximateLength += 3;                
+                if (type === anyType || type === mixedType) {
+                    return factory.createKeywordTypeNode(SyntaxKind.MixedKeyword);
+                }
                 return factory.createKeywordTypeNode(type === intrinsicMarkerType ? SyntaxKind.IntrinsicKeyword : SyntaxKind.AnyKeyword);
             }
             // if (type.flags & TypeFlags.Object) {

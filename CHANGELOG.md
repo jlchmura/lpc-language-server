@@ -3,6 +3,7 @@
 ## 1.1.45
 
 - Enhancement: Improve completion in closure expressions
+- Fix: Hover/Quickinfo should show `mixed` instead of `any`
 - Fix: [Memory leaks, infinite loops, and stability problems #294](https://github.com/jlchmura/lpc-language-server/issues/294)
 
 ## 1.1.44
