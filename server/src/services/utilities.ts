@@ -1320,6 +1320,39 @@ export function isInComment(sourceFile: SourceFile, position: number, tokenAtPos
     return formatting.getRangeOfEnclosingComment(sourceFile, position, /*precedingToken*/ undefined, tokenAtPosition);
 }
 
+/**
+ * Global loop detection counter for statistics and monitoring
+ * @internal
+ */
+let globalLoopDetectionCount = 0;
+
+/**
+ * Create loop detection error object
+ * @internal
+ */
+function createLoopError(
+    sourceFile: SourceFile,
+    position: number,
+    currentNode: Node,
+    iterations: number
+): Error {
+    const error = new Error(
+        `getTokenAtPositionWorker: Loop detected after ${iterations} iterations\n` +
+        `  File: ${sourceFile.fileName}\n` +
+        `  Position: ${position}\n` +
+        `  Current node: kind=${currentNode.kind} (${currentNode.pos}-${currentNode.end})`
+    ) as any;
+    error.fileName = sourceFile.fileName;
+    error.position = position;
+    error.currentNode = {
+        kind: currentNode.kind,
+        pos: currentNode.pos,
+        end: currentNode.end
+    };
+    error.iterations = iterations;
+    return error;
+}
+
 /** @internal */
 export function rangeContainsPositionExclusive(r: TextRange, pos: number) {
     return r.pos < pos && pos < r.end;
@@ -1335,15 +1368,56 @@ export function getTokenAtPosition(sourceFile: SourceFile, position: number): No
 }
 
 
-/** Get the token whose text contains the position */
+/**
+ * Get the token whose text contains the position
+ *
+ * Defensive mechanisms:
+ * 1. Use Set to detect circular references (using Node.id as key for performance)
+ * 2. Throw exception when exceeding max iterations (100)
+ * 3. Provide detailed error context for debugging
+ *
+ * Performance optimization notes:
+ * - Use Node.id instead of Node object as Set key to reduce memory usage
+ * - Set operations are O(1), minimal performance impact
+ *
+ * @internal
+ */
 function getTokenAtPositionWorker(sourceFile: SourceFile, position: number, allowPositionInLeadingTrivia: boolean, includePrecedingTokenAtEndPosition: ((n: Node) => boolean) | undefined, includeEndPosition: boolean): Node {
+    const visitedNodeIds = new Set<number>(); // Use node ID instead of object reference
     let current: Node = sourceFile;
     let foundToken: Node | undefined;
-    let count=0;
+    let count = 0;
+
     outer:
     while (true) {
+        // Detect circular references - using node ID
+        // Node ID 0 is usually SourceFile, allow repeated visits (not a real loop)
+        if (current.id !== 0 && visitedNodeIds.has(current.id)) {
+            const error = new Error(
+                `getTokenAtPositionWorker: Circular reference detected\n` +
+                `  File: ${sourceFile.fileName}\n` +
+                `  Position: ${position}\n` +
+                `  Node ID: ${current.id}\n` +
+                `  Node kind: ${current.kind}\n` +
+                `  Iterations: ${count}`
+            );
+            (error as any).fileName = sourceFile.fileName;
+            (error as any).position = position;
+            (error as any).nodeId = current.id;
+            (error as any).nodeKind = current.kind;
+            throw error;
+        }
+        visitedNodeIds.add(current.id);
+
+        // Check iteration count - prevent infinite loops
         if (count++ > 100) {
-            console.warn("Bailed out of getTokenAtPositionWorker loop");
+            // Update global counter
+            globalLoopDetectionCount++;
+            if (globalLoopDetectionCount % 10 === 0) {
+                console.warn(`Loop detection triggered ${globalLoopDetectionCount} times total`);
+            }
+
+            throw createLoopError(sourceFile, position, current, count);
         }
         // find the child that contains 'position'
         // TODO - don't filter -- skip them inside the binary search

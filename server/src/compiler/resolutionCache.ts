@@ -1,6 +1,70 @@
 import { CachedDirectoryStructureHost, clearMap, closeFileWatcher, closeFileWatcherOf, CompilerOptions, createMultiMap, Debug, Diagnostics, directorySeparator, DirectoryWatcherCallback, emptyArray, endsWith, Extension, extensionIsLPC, fileExtensionIs, FileReference, FileWatcher, FileWatcherCallback, firstDefinedIterator, GetCanonicalFileName, getDirectoryPath, getNormalizedAbsolutePath, getPathComponents, HasInvalidatedLibResolutions, HasInvalidatedResolutions, ignoredPaths, isDiskPathRoot, isExternalModuleNameRelative, isExternalOrCommonJsModule, isNodeModulesDirectory, memoize, MinimalResolutionCacheHost, moduleResolutionNameAndModeGetter, mutateMap, noopFileWatcher, PackageId, packageIdToString, Path, PathPathComponents, Program, removeSuffix, removeTrailingDirectorySeparator, ResolutionLoader, ResolutionMode, ResolvedModuleWithFailedLookupLocations, ResolvedProjectReference, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, returnTrue, some, SourceFile, startsWith, StringLiteralLike, WatchDirectoryFlags, resolveModuleName as lpc_resolveModuleName, createModeAwareCache, isTraceEnabled, ModeAwareCache, ModuleResolutionCache, trace, updateResolutionField, loadModuleFromGlobalCache, createModuleResolutionCache, resolutionExtensionIsTSOrJson } from "./_namespaces/lpc";
 
 /**
+ * LRU (Least Recently Used) Map implementation to limit cache size
+ * Implements proper access-order tracking: frequently accessed items are retained
+ * @internal
+ */
+class LRUCache<K, V> extends Map<K, V> {
+    private maxSize: number;
+
+    constructor(maxSize: number = 1000) {
+        super();
+        this.maxSize = maxSize;
+    }
+
+    get(key: K): V | undefined {
+        const value = super.get(key);
+        // Update access order: move to end (most recently used)
+        if (value !== undefined && this.has(key)) {
+            super.delete(key);
+            super.set(key, value);
+        }
+        return value;
+    }
+
+    set(key: K, value: V): this {
+        // If key exists, delete it first so we can re-insert at the end (most recently used)
+        if (this.has(key)) {
+            super.delete(key);
+        } else if (this.size >= this.maxSize) {
+            // Cache is full and adding new key, remove oldest entry (first one = least recently used)
+            const firstKey = this.keys().next().value;
+            if (firstKey !== undefined) {
+                this.delete(firstKey);
+            }
+        }
+        return super.set(key, value);
+    }
+
+    /**
+     * Update cache max size
+     */
+    setMaxSize(size: number): void {
+        this.maxSize = size;
+        // If current cache exceeds new size, clean up excess entries
+        while (this.size > this.maxSize) {
+            const firstKey = this.keys().next().value;
+            if (firstKey !== undefined) {
+                this.delete(firstKey);
+            } else {
+                break;
+            }
+        }
+    }
+
+    /**
+     * Get current cache statistics
+     */
+    getStats(): { size: number; maxSize: number } {
+        return {
+            size: this.size,
+            maxSize: this.maxSize
+        };
+    }
+}
+
+/**
  * This is the cache of module/typedirectives resolution that can be retained across program
  *
  * @internal
@@ -111,7 +175,8 @@ export function createResolutionCache(resolutionHost: ResolutionCacheHost, rootD
     // The resolvedModuleNames and resolvedTypeReferenceDirectives are the cache of resolutions per file.
     // The key in the map is source file's path.
     // The values are Map of resolutions with key being name lookedup.
-    const resolvedModuleNames = new Map<Path, ModeAwareCache<CachedResolvedModuleWithFailedLookupLocations>>();
+    // Use LRU cache to limit memory usage, max 5000 files
+    const resolvedModuleNames = new LRUCache<Path, ModeAwareCache<CachedResolvedModuleWithFailedLookupLocations>>(5000);
     const moduleResolutionCache = createModuleResolutionCache(
         getCurrentDirectory(),
         resolutionHost.getCanonicalFileName,

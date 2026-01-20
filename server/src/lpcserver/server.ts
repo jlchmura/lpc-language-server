@@ -70,13 +70,26 @@ class LspSession extends lpc.server.Session {
             logger.info(`${msg.type}:${lpc.server.indent(json)}`);
         }
 
-        this.onOutput.emit("message", msg);        
+        this.onOutput.emit("message", msg);
     }
 
     override exit() {
-        this.logger.info("Exiting...");                
+        this.logger.info("Exiting...");
+
+        // Clean up event listeners to prevent memory leaks
+        this.onOutput.removeAllListeners();
+        this.onOutput = null as any;
+
         // tracing?.stopTracing();
         process.exit(0);
+    }
+
+    /**
+     * Get the project service's throttled operations
+     * @internal
+     */
+    public getThrottledOperations(): lpc.server.ThrottledOperations {
+        return this.projectService.throttledOperations;
     }
 }
 
@@ -159,9 +172,75 @@ export function start(connection: Connection, platform: string, args: string[]) 
         cancellationToken = lpc.server.nullCancellationToken;
     }
     
-    
-    function fromUri(uri: string): string {        
+
+    function fromUri(uri: string): string {
         return uri.startsWith("file://") ? URI.parse(uri).fsPath : uri;
+    }
+
+    /**
+     * Memory monitoring class for tracking and reporting memory usage
+     * @internal
+     */
+    class MemoryMonitor {
+        private checkInterval: NodeJS.Timeout;
+        private threshold: number;
+        private lastLogTime = 0;
+        private logCooldown = 60000; // 60 seconds cooldown
+
+        constructor(
+            private logger: any,
+            threshold: number = 0.8, // Default threshold at 80%
+            private checkIntervalMs: number = 30000 // Check every 30 seconds
+        ) {
+            this.threshold = threshold;
+            this.start();
+        }
+
+        private start() {
+            this.checkInterval = setInterval(() => {
+                this.checkMemory();
+            }, this.checkIntervalMs);
+        }
+
+        private checkMemory() {
+            const usage = process.memoryUsage();
+            const heapUsed = usage.heapUsed / 1024 / 1024;      // current heap used          
+            const heapTotal = usage.heapTotal / 1024 / 1024;    // current heap allocated
+            const heapSizeLimit = getHeapStatistics().heap_size_limit / 1024 / 1024;  // maximum heap size limit
+            const rss = usage.rss / 1024 / 1024;
+            const ratio = heapUsed / heapSizeLimit;
+
+            // Log warning if memory usage exceeds threshold (with cooldown)
+            if (ratio > this.threshold) {
+                const now = Date.now();
+                if (now - this.lastLogTime > this.logCooldown) {
+                    this.logger.warn(
+                        `Memory usage high: ${(ratio * 100).toFixed(1)}% ` +
+                        `(heap: ${heapUsed.toFixed(2)}MB/${heapSizeLimit.toFixed(2)}MB, ` +
+                        `rss: ${rss.toFixed(2)}MB)`
+                    );
+                    this.lastLogTime = now;
+                }
+            } else {
+                // Periodically log normal memory usage (every 5 minutes)
+                const now = Date.now();
+                if (now - this.lastLogTime > 300000) {
+                    this.logger.info(
+                        `Memory usage: ${(ratio * 100).toFixed(1)}% ` +
+                        `(heap: ${heapUsed.toFixed(2)}MB/${heapSizeLimit.toFixed(2)}MB, ` +
+                        `rss: ${rss.toFixed(2)}MB)`
+                    );
+                    this.lastLogTime = now;
+                }
+            }
+        }
+
+        stop() {
+            if (this.checkInterval) {
+                clearInterval(this.checkInterval);
+                this.checkInterval = null as any;
+            }
+        }
     }
 
     connection.onInitialize((params) => {                
@@ -195,6 +274,9 @@ export function start(connection: Connection, platform: string, args: string[]) 
         inferredOptions.driverType = driverTypeArg === "fluffos" ? lpc.LanguageVariant.FluffOS : lpc.LanguageVariant.LDMud;        
 
         session.setCompilerOptionsForInferredProjects({options:inferredOptions});
+
+        // Start memory monitoring (80% threshold, check every 30s)
+        const memoryMonitor = new MemoryMonitor(logger, 0.8, 30000);
 
         session.onOutput.on("message", (msg: lpc.server.protocol.Message) => {
             if (msg.type === "event") {
@@ -280,7 +362,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
                 executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: 2550, files: getErrDocs});
             }
         });
-                
+
         connection.onDidChangeTextDocument((e: vscode.DidChangeTextDocumentParams) => {
             try {                
                 const filename = fromUri(e.textDocument.uri);
@@ -319,21 +401,27 @@ export function start(connection: Connection, platform: string, args: string[]) 
                         insertString: lspChange.text,
                     });
                 }
-                
-                if (serverMode !== lpc.LanguageServiceMode.Syntactic) {                    
+
+                if (serverMode !== lpc.LanguageServiceMode.Syntactic) {
                     const allDocs = documents.all().map(d => fromUri(d.uri));
                     const docSet = new Set(allDocs);
                     docSet.add(filename);
                     const getErrDocs = Array.from(docSet);
-                    executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: DIAG_DELAY, files: getErrDocs});
+                    // Use throttled operations to reduce frequent error detection (200ms delay)
+                    session.getThrottledOperations().schedule("getErr", 200, () => {
+                        executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: DIAG_DELAY, files: getErrDocs});
+                    });
                 }
             } catch(ex) {
-                console.error(ex);
-                debugger;
+                console.error("Document change error:", ex);
+                // No longer using debugger, changed to logging
             }
         });        
 
         connection.onShutdown(e=>{
+            // Stop memory monitoring
+            memoryMonitor.stop();
+            // Exit session (will clean up event listeners)
             session.exit();
         });
 
@@ -376,9 +464,9 @@ export function start(connection: Connection, platform: string, args: string[]) 
                     const location = typeConverters.Location.fromTextSpan(URI.file(ref.file), ref);
                     result.push(location);
                 }                
-            } catch(e) {                
-                console.error(e);
-                debugger;
+            } catch(e) {
+                console.error("Operation error:", e);
+                // Use logging instead of debugger
             }
 
             return result;
@@ -550,7 +638,13 @@ export function start(connection: Connection, platform: string, args: string[]) 
                 )    
                 return [def];
             } catch(e) {
-                console.error('onDefinition error', e);                
+                // Enhanced error handling - specifically handle loop detection errors
+                if (e instanceof Error && e.message.includes("getTokenAtPositionWorker")) {
+                    console.warn(`Go to definition failed due to token search loop, returning empty results`);
+                    return []; // Return empty array instead of undefined
+                }
+                console.error('onDefinition error:', e);
+                return []; // Default return empty array
             }
         });
 
@@ -601,8 +695,13 @@ export function start(connection: Connection, platform: string, args: string[]) 
 
                 return items;
             } catch(e) {
-                console.error(e);
-                debugger;
+                // Enhanced error handling - specifically handle loop detection errors
+                if (e instanceof Error && e.message.includes("getTokenAtPositionWorker")) {
+                    console.warn(`Completion failed due to token search loop, returning empty results`);
+                    return []; // Return empty array instead of undefined to keep IDE responsive
+                }
+                console.error('onCompletion error:', e);
+                return []; // Default return empty array
             }
         });
 

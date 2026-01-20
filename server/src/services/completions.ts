@@ -585,7 +585,8 @@ export function getCompletionsAtPosition(
     formatContext?: formatting.FormatContext,
     includeSymbol = false,
 ): CompletionInfo | undefined {
-    const { previousToken } = getRelevantTokens(position, sourceFile);
+    try {
+        const { previousToken } = getRelevantTokens(position, sourceFile);
     if (triggerCharacter && !isInCallExpression(sourceFile, position, previousToken) && !isInString(sourceFile, position, previousToken) && !isValidTrigger(sourceFile, triggerCharacter, previousToken, position)) {
         return undefined;
     }
@@ -669,6 +670,15 @@ export function getCompletionsAtPosition(
             return specificKeywordCompletionInfo(completionData.keywordCompletions, completionData.isNewIdentifierLocation);
         default:
             return Debug.assertNever(completionData);
+    }
+    } catch (e) {
+        // Handle loop detection errors, graceful degradation
+        if (e instanceof Error && e.message.includes("getTokenAtPositionWorker")) {
+            log?.(`Completion failed due to token search loop: ${e.message}`);
+            return undefined;
+        }
+        // Re-throw other errors
+        throw e;
     }
 }
 

@@ -31464,7 +31464,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             else if (isJSDocMemberName(name)) {
                 return resolveJSDocMemberName(name);
             }
-            debugger;
+            // Unhandled name kind, log and return unknown symbol
+            return Debug.fail("Unexpected name kind in getSymbolOfNode");
         }
         else if (isTypeReferenceIdentifier(name as EntityName)) {
             const meaning = name.parent.kind === SyntaxKind.TypeReference ? SymbolFlags.Type : SymbolFlags.Namespace;
@@ -31674,7 +31675,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     //     }
                     // }
 
-                    debugger;
+                    Debug.fail("Unexpected namespace resolution failure");
                     //error(right, Diagnostics.Namespace_0_has_no_exported_member_1, namespaceName, declarationName);
                 }
                 return undefined;
