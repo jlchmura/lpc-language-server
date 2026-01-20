@@ -213,7 +213,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
             if (ratio > this.threshold) {
                 const now = Date.now();
                 if (now - this.lastLogTime > this.logCooldown) {
-                    this.logger.err(
+                    this.logger.warn(
                         `Memory usage high: ${(ratio * 100).toFixed(1)}% ` +
                         `(heap: ${heapUsed.toFixed(2)}MB/${heapTotal.toFixed(2)}MB, ` +
                         `rss: ${rss.toFixed(2)}MB)`
