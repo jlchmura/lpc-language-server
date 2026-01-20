@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.45
+
+- Fix: [Memory leaks, infinite loops, and stability problems #294](https://github.com/jlchmura/lpc-language-server/issues/294)
+
 ## 1.1.44
 
 - Enhancement: [Infer types of inline closure arguments #88](https://github.com/jlchmura/lpc-language-server/issues/88)
