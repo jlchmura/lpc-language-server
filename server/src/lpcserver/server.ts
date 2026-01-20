@@ -204,10 +204,11 @@ export function start(connection: Connection, platform: string, args: string[]) 
 
         private checkMemory() {
             const usage = process.memoryUsage();
-            const heapUsed = usage.heapUsed / 1024 / 1024;
-            const heapTotal = usage.heapTotal / 1024 / 1024;
+            const heapUsed = usage.heapUsed / 1024 / 1024;      // current heap used          
+            const heapTotal = usage.heapTotal / 1024 / 1024;    // current heap allocated
+            const heapSizeLimit = getHeapStatistics().heap_size_limit / 1024 / 1024;  // maximum heap size limit
             const rss = usage.rss / 1024 / 1024;
-            const ratio = heapUsed / heapTotal;
+            const ratio = heapUsed / heapSizeLimit;
 
             // Log warning if memory usage exceeds threshold (with cooldown)
             if (ratio > this.threshold) {
@@ -215,7 +216,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
                 if (now - this.lastLogTime > this.logCooldown) {
                     this.logger.warn(
                         `Memory usage high: ${(ratio * 100).toFixed(1)}% ` +
-                        `(heap: ${heapUsed.toFixed(2)}MB/${heapTotal.toFixed(2)}MB, ` +
+                        `(heap: ${heapUsed.toFixed(2)}MB/${heapSizeLimit.toFixed(2)}MB, ` +
                         `rss: ${rss.toFixed(2)}MB)`
                     );
                     this.lastLogTime = now;
@@ -226,7 +227,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
                 if (now - this.lastLogTime > 300000) {
                     this.logger.info(
                         `Memory usage: ${(ratio * 100).toFixed(1)}% ` +
-                        `(heap: ${heapUsed.toFixed(2)}MB/${heapTotal.toFixed(2)}MB, ` +
+                        `(heap: ${heapUsed.toFixed(2)}MB/${heapSizeLimit.toFixed(2)}MB, ` +
                         `rss: ${rss.toFixed(2)}MB)`
                     );
                     this.lastLogTime = now;
