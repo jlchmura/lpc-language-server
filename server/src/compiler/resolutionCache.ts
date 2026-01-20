@@ -2,6 +2,7 @@ import { CachedDirectoryStructureHost, clearMap, closeFileWatcher, closeFileWatc
 
 /**
  * LRU (Least Recently Used) Map implementation to limit cache size
+ * Implements proper access-order tracking: frequently accessed items are retained
  * @internal
  */
 class LRUCache<K, V> extends Map<K, V> {
@@ -12,9 +13,22 @@ class LRUCache<K, V> extends Map<K, V> {
         this.maxSize = maxSize;
     }
 
+    get(key: K): V | undefined {
+        const value = super.get(key);
+        // Update access order: move to end (most recently used)
+        if (value !== undefined && this.has(key)) {
+            super.delete(key);
+            super.set(key, value);
+        }
+        return value;
+    }
+
     set(key: K, value: V): this {
-        // If cache is full, remove oldest entry (first one)
-        if (this.size >= this.maxSize && !this.has(key)) {
+        // If key exists, delete it first so we can re-insert at the end (most recently used)
+        if (this.has(key)) {
+            super.delete(key);
+        } else if (this.size >= this.maxSize) {
+            // Cache is full and adding new key, remove oldest entry (first one = least recently used)
             const firstKey = this.keys().next().value;
             if (firstKey !== undefined) {
                 this.delete(firstKey);

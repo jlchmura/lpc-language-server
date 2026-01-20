@@ -70,7 +70,7 @@ class LspSession extends lpc.server.Session {
             logger.info(`${msg.type}:${lpc.server.indent(json)}`);
         }
 
-        this.onOutput.emit("message", msg);        
+        this.onOutput.emit("message", msg);
     }
 
     override exit() {
@@ -82,6 +82,14 @@ class LspSession extends lpc.server.Session {
 
         // tracing?.stopTracing();
         process.exit(0);
+    }
+
+    /**
+     * Get the project service's throttled operations
+     * @internal
+     */
+    public getThrottledOperations(): lpc.server.ThrottledOperations {
+        return this.projectService.throttledOperations;
     }
 }
 
@@ -167,25 +175,6 @@ export function start(connection: Connection, platform: string, args: string[]) 
 
     function fromUri(uri: string): string {
         return uri.startsWith("file://") ? URI.parse(uri).fsPath : uri;
-    }
-
-    /**
-     * Creates a debounced function
-     * @param func Function to debounce
-     * @param delay Delay in milliseconds
-     * @returns Debounced function
-     */
-    function debounce<T extends (...args: any[]) => any>(func: T, delay: number): (...args: Parameters<T>) => void {
-        let timeoutId: any;
-        return function(this: any, ...args: Parameters<T>) {
-            if (timeoutId !== undefined) {
-                clearTimeout(timeoutId);
-            }
-            timeoutId = setTimeout(() => {
-                func.apply(this, args);
-                timeoutId = undefined;
-            }, delay);
-        };
     }
 
     /**
@@ -372,11 +361,6 @@ export function start(connection: Connection, platform: string, args: string[]) 
                 executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: 2550, files: getErrDocs});
             }
         });
-                
-        // Create debounced error detection function (200ms delay)
-        const debouncedGetErr = debounce((getErrDocs: string[]) => {
-            executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: DIAG_DELAY, files: getErrDocs});
-        }, 200);
 
         connection.onDidChangeTextDocument((e: vscode.DidChangeTextDocumentParams) => {
             try {                
@@ -422,8 +406,10 @@ export function start(connection: Connection, platform: string, args: string[]) 
                     const docSet = new Set(allDocs);
                     docSet.add(filename);
                     const getErrDocs = Array.from(docSet);
-                    // Use debounced function to reduce frequent error detection
-                    debouncedGetErr(getErrDocs);
+                    // Use throttled operations to reduce frequent error detection (200ms delay)
+                    session.getThrottledOperations().schedule("getErr", 200, () => {
+                        executeRequest<protocol.GeterrRequest>(protocol.CommandTypes.Geterr, {delay: DIAG_DELAY, files: getErrDocs});
+                    });
                 }
             } catch(ex) {
                 console.error("Document change error:", ex);
@@ -479,7 +465,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
                 }                
             } catch(e) {
                 console.error("Operation error:", e);
-                // 不再使用 debugger，改为日志记录
+                // Use logging instead of debugger
             }
 
             return result;
@@ -651,13 +637,13 @@ export function start(connection: Connection, platform: string, args: string[]) 
                 )    
                 return [def];
             } catch(e) {
-                // 增强错误处理 - 特别处理循环检测错误
+                // Enhanced error handling - specifically handle loop detection errors
                 if (e instanceof Error && e.message.includes("getTokenAtPositionWorker")) {
                     console.warn(`Go to definition failed due to token search loop, returning empty results`);
-                    return []; // 返回空数组而不是 undefined
+                    return []; // Return empty array instead of undefined
                 }
                 console.error('onDefinition error:', e);
-                return []; // 默认返回空数组
+                return []; // Default return empty array
             }
         });
 
@@ -708,13 +694,13 @@ export function start(connection: Connection, platform: string, args: string[]) 
 
                 return items;
             } catch(e) {
-                // 增强错误处理 - 特别处理循环检测错误
+                // Enhanced error handling - specifically handle loop detection errors
                 if (e instanceof Error && e.message.includes("getTokenAtPositionWorker")) {
                     console.warn(`Completion failed due to token search loop, returning empty results`);
-                    return []; // 返回空数组而不是 undefined，让 IDE 保持响应
+                    return []; // Return empty array instead of undefined to keep IDE responsive
                 }
                 console.error('onCompletion error:', e);
-                return []; // 默认返回空数组
+                return []; // Default return empty array
             }
         });
 
