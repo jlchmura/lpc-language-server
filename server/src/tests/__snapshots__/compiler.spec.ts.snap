@@ -301,6 +301,10 @@ Found 1 error in server/src/tests/cases/compiler/filterClosureInference1.c[90m:
 "
 `;
 
+exports[`Compiler compiler/filterClosureInference2.c Reports correct errors for compiler/filterClosureInference2.c: diags-compiler/filterClosureInference2.c 1`] = `""`;
+
+exports[`Compiler compiler/filterClosureInferenceNested.c Reports correct errors for compiler/filterClosureInferenceNested.c: diags-compiler/filterClosureInferenceNested.c 1`] = `""`;
+
 exports[`Compiler compiler/flowNode1.c Reports correct errors for compiler/flowNode1.c: diags-compiler/flowNode1.c 1`] = `""`;
 
 exports[`Compiler compiler/flowType1.c Reports correct errors for compiler/flowType1.c: diags-compiler/flowType1.c 1`] = `""`;

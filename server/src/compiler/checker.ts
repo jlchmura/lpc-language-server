@@ -3804,6 +3804,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     
     function checkInlineClosureExpression(node: InlineClosureExpression, checkMode: CheckMode) {
         checkNodeDeferred(node);
+        // Inline closure bodies are checked later (deferred). Capture the contextual signature and inference
+        // context now so `$1`, `$2`, ... inside the closure can still be typed during the deferred pass.
+        ensureInlineClosureContext(node);
 
         // The identityMapper object is used to indicate that function expressions are wildcards
         if (checkMode && checkMode & CheckMode.SkipContextSensitive && isContextSensitive(node)) {
@@ -3833,17 +3836,6 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // }
 
         contextuallyCheckFunctionExpressionOrObjectLiteralMethod(node, checkMode);
-
-        // Inline closure bodies are checked later (deferred). Capture the contextual signature now
-        // so `$1`, `$2`, ... inside the closure can still be typed during deferred checking.
-        const links = getNodeLinks(node) as any;
-        if (!links.contextualSignature) {
-            const contextualSignature = getContextualSignature(node);
-            if (contextualSignature) {
-                const inferenceContext = getInferenceContext(node);
-                links.contextualSignature = inferenceContext ? instantiateSignature(contextualSignature, inferenceContext.mapper) : contextualSignature;
-            }
-        }
 
         return getTypeOfSymbol(getSymbolOfDeclaration(node));
     }
@@ -14987,6 +14979,37 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return errorType;
     }
 
+    interface InlineClosureNodeLinks extends NodeLinks {
+        contextualSignatureInferenceContext?: InferenceContext;
+    }
+
+    function ensureInlineClosureContext(node: InlineClosureExpression): InlineClosureNodeLinks {
+        const links = getNodeLinks(node) as InlineClosureNodeLinks;
+        if (!links.contextualSignature) {
+            const contextualSignature = getContextualSignature(node);
+            if (contextualSignature) {
+                links.contextualSignature = contextualSignature;
+            }
+        }
+        if (links.contextualSignature && !links.contextualSignatureInferenceContext) {
+            const inferenceContext = getInferenceContext(node);
+            if (inferenceContext) {
+                links.contextualSignatureInferenceContext = inferenceContext;
+            }
+        }
+        return links;
+    }
+
+    function getInlineClosureContextualSignature(node: InlineClosureExpression): Signature | undefined {
+        const links = ensureInlineClosureContext(node);
+        const contextualSignature = links.contextualSignature;
+        if (!contextualSignature) {
+            return undefined;
+        }
+        const inferenceContext = links.contextualSignatureInferenceContext;
+        return inferenceContext ? instantiateSignature(contextualSignature, inferenceContext.mapper) : contextualSignature;
+    }
+
     function checkLambdaIdentifierExpression(node: LambdaIdentifierExpression, checkMode: CheckMode | undefined): Type {
         // inline closures use `$1`, `$2`, ... for implicit parameters.
         // We infer their types from the contextual signature of the containing `(: ... :)` closure.
@@ -14997,8 +15020,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (!Number.isNaN(index) && index > 0) {
                 const closure = findAncestor(node, isInlineClosureExpression);
                 if (closure) {
-                    const closureLinks = getNodeLinks(closure) as any;
-                    const contextualSignature = closureLinks.contextualSignature ?? getContextualSignature(closure);
+                    const contextualSignature = getInlineClosureContextualSignature(closure);
                     const contextualType = contextualSignature && getTypeAtPosition(contextualSignature, index - 1);
                     if (contextualType) {
                         return contextualType;
@@ -24668,8 +24690,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 if (index > 0) {
                     const closure = findAncestor(node, isInlineClosureExpression);
                     if (closure) {
-                        const closureLinks = getNodeLinks(closure) as any;
-                        const contextualSignature = closureLinks.contextualSignature ?? getContextualSignature(closure);
+                        const contextualSignature = getInlineClosureContextualSignature(closure);
                         const contextualType = contextualSignature && getTypeAtPosition(contextualSignature, index - 1);
                         if (contextualType) {
                             return contextualType;
