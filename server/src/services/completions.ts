@@ -2520,6 +2520,9 @@ export function getCompletionEntriesFromSymbols(
         if (typeChecker.isArgumentsSymbol(symbol)) {
             return false;
         }
+        if (symbol.name === InternalSymbolName.ExportEquals) {
+            return false;
+        }
         if (!isSourceFile(location)) {
             // export = /**/ here we want to get all meanings, so any symbol is ok
             // if (isExportAssignment(location.parent)) {
