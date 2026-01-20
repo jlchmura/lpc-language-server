@@ -1346,15 +1346,15 @@ export function getEffectiveTypeParameterDeclarations(node: DeclarationWithTypeP
     if (canHaveIllegalTypeParameters(node) && node.typeParameters) {
         return node.typeParameters;
     }
-    if (isInJSFile(node)) {
-        const decls = getJSDocTypeParameterDeclarations(node);
-        if (decls.length) {
-            return decls;
-        }
-        const typeTag = getJSDocType(node);
-        if (typeTag && isFunctionTypeNode(typeTag) && typeTag.typeParameters) {
-            return typeTag.typeParameters;
-        }
+    // LPC uses JSDoc `@template` extensively (e.g. efun headers) to express generics.
+    // Unlike upstream TypeScript, we want to honor those tags in non-JS files too.
+    const decls = getJSDocTypeParameterDeclarations(node);
+    if (decls.length) {
+        return decls;
+    }
+    const typeTag = getJSDocType(node);
+    if (typeTag && isFunctionTypeNode(typeTag) && typeTag.typeParameters) {
+        return typeTag.typeParameters;
     }
     return emptyArray;
 }

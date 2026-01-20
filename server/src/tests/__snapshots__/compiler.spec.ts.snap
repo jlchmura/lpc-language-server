@@ -294,6 +294,13 @@ exports[`Compiler compiler/expr4.c Reports correct errors for compiler/expr4.c: 
 
 exports[`Compiler compiler/expr5.c Reports correct errors for compiler/expr5.c: diags-compiler/expr5.c 1`] = `""`;
 
+exports[`Compiler compiler/filterClosureInference1.c Reports correct errors for compiler/filterClosureInference1.c: diags-compiler/filterClosureInference1.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/filterClosureInference1.c[90m:5[0m
+
+"
+`;
+
 exports[`Compiler compiler/flowNode1.c Reports correct errors for compiler/flowNode1.c: diags-compiler/flowNode1.c 1`] = `""`;
 
 exports[`Compiler compiler/flowType1.c Reports correct errors for compiler/flowType1.c: diags-compiler/flowType1.c 1`] = `""`;
