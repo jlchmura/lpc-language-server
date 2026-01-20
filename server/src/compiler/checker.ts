@@ -32260,11 +32260,26 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return anySignature;
         }
 
-        let callChainFlags: SignatureFlags;
-        const callSymbolFlags = languageVariant === LanguageVariant.FluffOS
-            ? SymbolFlags.Value
-            : SymbolFlags.Function;
-        let funcType = checkExpression(node.expression, undefined, undefined, callSymbolFlags);
+        let callChainFlags: SignatureFlags;        
+        let funcType: Type;
+        if (node.expression.kind === SyntaxKind.Identifier) {
+            const identifier = node.expression as Identifier;
+            const functionSymbol = resolveName(
+                identifier,
+                identifier,
+                SymbolFlags.Function,
+                /*nameNotFoundMessage*/ undefined,
+                !isWriteOnlyAccess(identifier),
+                /*excludeGlobals*/ false,
+            );
+            funcType = functionSymbol
+                ? checkExpression(identifier, undefined, undefined, SymbolFlags.Function)
+                : checkExpression(identifier, undefined, undefined, SymbolFlags.Value);
+        }
+        else {
+            const callSymbolFlags = languageVariant === LanguageVariant.FluffOS ? SymbolFlags.Value : SymbolFlags.Function;
+            funcType = checkExpression(node.expression, undefined, undefined, callSymbolFlags);
+        }
         if (isCallChain(node)) {
             console.debug("todo - call chain");
             // const nonOptionalType = getOptionalExpressionType(funcType, node.expression);
