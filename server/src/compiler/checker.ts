@@ -19783,7 +19783,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     return undefined!; // TODO: GH#18217
                 }
                 context.approximateLength += 3;
-                return factory.createKeywordTypeNode(SyntaxKind.AnyKeyword);
+                return factory.createKeywordTypeNode(SyntaxKind.MixedKeyword);
             }
 
             if (!(context.flags & NodeBuilderFlags.NoTypeReduction)) {
@@ -19795,13 +19795,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     return factory.createTypeReferenceNode(symbolToEntityNameNode(type.aliasSymbol), mapToTypeNodes(type.aliasTypeArguments, context));
                 }
                 if (type === unresolvedType) {
-                    return addSyntheticLeadingComment(factory.createKeywordTypeNode(SyntaxKind.AnyKeyword), SyntaxKind.MultiLineCommentTrivia, "unresolved");
+                    return addSyntheticLeadingComment(factory.createKeywordTypeNode(SyntaxKind.MixedKeyword), SyntaxKind.MultiLineCommentTrivia, "unresolved");
                 }
                 context.approximateLength += 3;                
                 if (type === anyType || type === mixedType) {
                     return factory.createKeywordTypeNode(SyntaxKind.MixedKeyword);
                 }
-                return factory.createKeywordTypeNode(type === intrinsicMarkerType ? SyntaxKind.IntrinsicKeyword : SyntaxKind.AnyKeyword);
+                return factory.createKeywordTypeNode(type === intrinsicMarkerType ? SyntaxKind.IntrinsicKeyword : SyntaxKind.MixedKeyword);
             }
             // if (type.flags & TypeFlags.Object) {
             //     // if (type.aliasSymbol) {
