@@ -2291,7 +2291,10 @@ function getSymbolAtLocationForQuickInfo(node: Node, checker: TypeChecker): Symb
         }
     }
 
-    const symbol = checker.getSymbolAtLocation(node);    
+    const symbol = checker.getSymbolAtLocation(node);
+    if ((!symbol || checker.isUnknownSymbol(symbol)) && isIdentifier(node) && node.parent.kind === SyntaxKind.PropertySignature) {
+        return (node.parent as Declaration).symbol;
+    }
     return symbol;
 }
 

@@ -677,8 +677,14 @@ export function start(connection: Connection, platform: string, args: string[]) 
                         detail: typeConverters.CompletionKind.getDetails(entry),                                        
                         sortText: entry.sortText,
                         insertText: entry.insertText,
-                        insertTextFormat: entry.isSnippet ? vscode.InsertTextFormat.Snippet : vscode.InsertTextFormat.PlainText,
+                        insertTextFormat: entry.isSnippet ? vscode.InsertTextFormat.Snippet : vscode.InsertTextFormat.PlainText,                        
                     };
+
+                    if (entry.replacementSpan) {
+                        const range = typeConverters.Range.fromTextSpan(entry.replacementSpan);
+                        item.textEdit = vscode.TextEdit.replace(range, entry.insertText ?? entry.name);
+                        item.insertText = undefined;
+                    }
                     
                     if (kindModifiers.has(KindModifiers.deprecated)) {
                         item.tags = [vscode.CompletionItemTag.Deprecated];
@@ -687,7 +693,7 @@ export function start(connection: Connection, platform: string, args: string[]) 
                     item.data = {
                         uri: requestParams.textDocument.uri,
                         entryName: entry.name,
-                        position: requestParams.position,
+                        position: requestParams.position,                        
                     } satisfies CompletionData;
 
                     items.push(item);
