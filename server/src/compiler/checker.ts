@@ -19746,6 +19746,24 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return node;
         }
 
+        function getCallbackTypeKeyword(type: Type): SyntaxKind.ClosureKeyword | SyntaxKind.FunctionKeyword | undefined {
+            const alias = type.aliasSymbol ?? type.symbol;
+            if (!alias || !alias.declarations?.length) {
+                return undefined;
+            }
+            if (!isJSDocCallbackTag(alias.declarations[0])) {
+                return undefined;
+            }
+            const sourceFile = getSourceFileOfNode(alias.declarations[0]);
+            const fileName = sourceFile?.fileName;
+            if (!fileName || fileName.indexOf("/efuns/") === -1) {
+                return undefined;
+            }
+            if (getSignaturesOfType(type, SignatureKind.Call).length === 0) {
+                return undefined;
+            }
+            return languageVariant === LanguageVariant.LDMud ? SyntaxKind.ClosureKeyword : SyntaxKind.FunctionKeyword;
+        }
 
         function typeToTypeNodeWorker(type: Type, context: NodeBuilderContext): TypeNode {
             if (cancellationToken && cancellationToken.throwIfCancellationRequested) {
@@ -19753,6 +19771,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
             const inTypeAlias = context.flags & NodeBuilderFlags.InTypeAlias;
             context.flags &= ~NodeBuilderFlags.InTypeAlias;
+            const callbackKeyword = getCallbackTypeKeyword(type);
+            if (callbackKeyword !== undefined) {
+                context.approximateLength += callbackKeyword === SyntaxKind.ClosureKeyword ? 7 : 8;
+                return factory.createKeywordTypeNode(callbackKeyword);
+            }
 
             if (!type) {
                 if (!(context.flags & NodeBuilderFlags.AllowEmptyUnionOrIntersection)) {

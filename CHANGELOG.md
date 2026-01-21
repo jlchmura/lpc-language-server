@@ -4,6 +4,8 @@
 
 - Enhancement: Improve completion in closure expressions
 - Fix: Hover/Quickinfo should show `mixed` instead of `any`
+- Fix: Hover/Quickinfo should show correct type for callbacks
+- Fix: Hover/Quickinfo should show correct type for inline closure arguments
 - Fix: [Memory leaks, infinite loops, and stability problems #294](https://github.com/jlchmura/lpc-language-server/issues/294)
 
 ## 1.1.44
