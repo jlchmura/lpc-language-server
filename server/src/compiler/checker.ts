@@ -19817,6 +19817,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 context.approximateLength += 5;
                 return factory.createKeywordTypeNode(SyntaxKind.FloatKeyword);
             }
+            if (type.flags & TypeFlags.Object && (type === globalClosureType || type.symbol?.name === "__LS__Closure")) {
+                context.approximateLength += 8;
+                return factory.createKeywordTypeNode(SyntaxKind.FunctionKeyword);
+            }
             // if (type.flags & TypeFlags.Boolean && !type.aliasSymbol) {
             //     context.approximateLength += 7;
             //     return factory.createKeywordTypeNode(SyntaxKind.BooleanKeyword);
