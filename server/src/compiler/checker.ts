@@ -3314,7 +3314,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
 
         // TODO
-        console.warn("Implement me - checkSourceElementWorker - " + Debug.formatSyntaxKind(node.kind));
+        // console.warn("Implement me - checkSourceElementWorker - " + Debug.formatSyntaxKind(node.kind));
     }
 
     function checkMissingDeclaration(node: Node) {
