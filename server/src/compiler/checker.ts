@@ -3204,9 +3204,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return;
             case SyntaxKind.NamedObjectType:
                 return checkSourceElement((node as NamedObjectTypeNode).name);
-            case SyntaxKind.JSDocVariadicType:
-                console.debug("todo - checkJSDocVariadicType");
-                // checkJSDocVariadicType(node as JSDocVariadicType);
+            case SyntaxKind.JSDocVariadicType:                
+                checkJSDocVariadicType(node as JSDocVariadicType);
                 return;
             case SyntaxKind.JSDocTypeExpression:
                 return checkSourceElement((node as JSDocTypeExpression).type);
@@ -3315,7 +3314,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
 
         // TODO
-        console.warn("Implement me - checkSourceElementWorker - " + Debug.formatSyntaxKind(node.kind));
+        // console.warn("Implement me - checkSourceElementWorker - " + Debug.formatSyntaxKind(node.kind));
     }
 
     function checkMissingDeclaration(node: Node) {
@@ -10112,6 +10111,40 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
     }
     
+    function checkJSDocVariadicType(node: JSDocVariadicType): void {
+        checkSourceElement(node.type);
+
+        // Only legal location is in the *last* parameter tag or last parameter of a JSDoc function.
+        const { parent } = node;
+        if (isParameter(parent) && isJSDocFunctionType(parent.parent)) {
+            if (last(parent.parent.parameters) !== parent) {
+                error(node, Diagnostics.A_rest_parameter_must_be_last_in_a_parameter_list);
+            }
+            return;
+        }
+
+        // if (!isJSDocTypeExpression(parent)) {
+        //     error(node, Diagnostics.JSDoc_may_only_appear_in_the_last_parameter_of_a_signature);
+        // }
+
+        const paramTag = node.parent.parent;
+        if (!isJSDocParameterTag(paramTag)) {
+            error(node, Diagnostics.LPCDoc_may_only_appear_in_the_last_parameter_of_a_signature);
+            return;
+        }
+
+        const param = getParameterSymbolFromJSDoc(paramTag);
+        if (!param) {
+            // We will error in `checkJSDocParameterTag`.
+            return;
+        }
+
+        const host = getHostSignatureFromJSDoc(paramTag);
+        if (!host || last(host.parameters).symbol !== param) {
+            error(node, Diagnostics.A_rest_parameter_must_be_last_in_a_parameter_list);
+        }
+    }
+
     function checkJSDocVariableTag(node: JSDocVariableTag) {
         let lastErr: Diagnostic;
         if (!node.typeExpression) {            
@@ -19783,7 +19816,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     return undefined!; // TODO: GH#18217
                 }
                 context.approximateLength += 3;
-                return factory.createKeywordTypeNode(SyntaxKind.AnyKeyword);
+                return factory.createKeywordTypeNode(SyntaxKind.MixedKeyword);
             }
 
             if (!(context.flags & NodeBuilderFlags.NoTypeReduction)) {
@@ -19795,13 +19828,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     return factory.createTypeReferenceNode(symbolToEntityNameNode(type.aliasSymbol), mapToTypeNodes(type.aliasTypeArguments, context));
                 }
                 if (type === unresolvedType) {
-                    return addSyntheticLeadingComment(factory.createKeywordTypeNode(SyntaxKind.AnyKeyword), SyntaxKind.MultiLineCommentTrivia, "unresolved");
+                    return addSyntheticLeadingComment(factory.createKeywordTypeNode(SyntaxKind.MixedKeyword), SyntaxKind.MultiLineCommentTrivia, "unresolved");
                 }
                 context.approximateLength += 3;                
                 if (type === anyType || type === mixedType) {
                     return factory.createKeywordTypeNode(SyntaxKind.MixedKeyword);
                 }
-                return factory.createKeywordTypeNode(type === intrinsicMarkerType ? SyntaxKind.IntrinsicKeyword : SyntaxKind.AnyKeyword);
+                return factory.createKeywordTypeNode(type === intrinsicMarkerType ? SyntaxKind.IntrinsicKeyword : SyntaxKind.MixedKeyword);
             }
             // if (type.flags & TypeFlags.Object) {
             //     // if (type.aliasSymbol) {
