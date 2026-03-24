@@ -13,7 +13,7 @@ string zonetime(string timezone, int timestamp);
  *
  * int == 0:
  * returns array of global variable names
- * 
+ *
  * int != 0
  * returns array of arrays of variable name & type
  * @param {object} ob - object to query
@@ -52,23 +52,23 @@ supplied mapping.
  * mapping: 'KEY:value' pairs
  * 1st int: wrap after int printed symbols
  * if int < 0 fillout lines with blank's
- * 
+ *
  * wrap = 4:
  * '12\n345'
  * wrap = -4:
  * '12 \n345 '
- * 
+ *
  * minwrap: 2
- * 
+ *
  * 2nd int: indent by int blanks
  * maxindent: wrap-2
- * 
+ *
  * returns wrapped and indented string with each '%^KEY%^' replaced by KEY's value
  * or original string if no '%^KEY%^' sequence is found
  * (shouldn't it at least be wrapped and indented?)
  *
  */
-string terminal_colour(string, mapping, int | void, int | void);
+string terminal_colour(string str, mapping colours, int | void wrap, int | void indent);
 
 /**
  * string_difference - return levenshtein difference
@@ -76,21 +76,21 @@ string terminal_colour(string, mapping, int | void, int | void);
  * returns levenshtein difference
  *
  */
-int string_difference(string, string);
+int string_difference(string str1, string str2);
 
 /**
  * store_variable - store a value in an object's global variable
  *
  * This efun stores the value in the global variable variable_name in `ob`.
- * 
+ *
  * `variable_name` is name of the global variable.
  * `value` is the data to be stored in the global variable.
  * `ob` defaults to this_object() if not specified.
- * 
+ *
  * If `ob` is not specified, then `variable_name` can be any global variable
  * in the inheritance hierarchy, regardless of scope.  If `ob` is specified,
  * then `variable_name` must be public scope.
- * 
+ *
  * This is a potential security hazard and, therefore, you may wish to overload
  * this function to perform security checks.
  *
@@ -103,7 +103,7 @@ void store_variable(string variable_name, mixed value, void|object ob);
  * store_class_member
  *
  * Store <value> in the <class_element>th member of an <instantiated_class>.
- * 
+ *
  * Returns an updated version of the <instantiated_class>.
  *
  * class person {
@@ -111,28 +111,28 @@ void store_variable(string variable_name, mixed value, void|object ob);
  * int age ;
  * string city ;
  * }
- * 
+ *
  * void fun()
  * {
  * class person me = new(class person) ;
- * 
+ *
  * me->name = "Foo" ;
  * me->age = 42 ;
  * me->city = "Fooville" ;
- * 
+ *
  * write( sprintf("%O\n", me) ) ;
- * 
+ *
  * // Result:
  * // CLASS( 3 elements
  * //   "Foo",
  * //   42,
  * //   "Fooville"
  * //  )
- * 
+ *
  * me = store_class_member( me, 1, 43 ) ;
- * 
+ *
  * write( sprintf("%O\n", me) ) ;
- * 
+ *
  * // Result:
  * // CLASS( 3 elements
  * //   "Foo",
@@ -153,9 +153,9 @@ mixed store_class_member(mixed instantiated_class, int class_element, mixed valu
 mixed *shuffle(mixed *arr);
 
 /**
- * 
  *
- * 
+ *
+ *
  *
  */
 
@@ -166,7 +166,7 @@ mixed *shuffle(mixed *arr);
  * sends '\0' to interactive, returns -2 in case of error 1 otherwise
  *
  */
-int send_nullbyte(object);
+int send_nullbyte(object interactive);
 
 /**
  * roll_MdN() - dice roll generator where you specify the number of dice and
@@ -174,15 +174,15 @@ the number of sides to each die, with bonus if supplied.
  *
  * rolls `sides`-sided die `rolls` number of times and returns the sum
  * of all rolls
- * 
+ *
  * if `bonus` is supplied, will add the bonus and return the result.
  *
  * // roll a 1d4
  * roll_MdN(1, 4)
- * 
+ *
  * // roll 2d6
  * roll_MdN(2, 6)
- * 
+ *
  * // roll 1d10 and add 15
  * roll_MdN(1, 10, 15)
  * @param {int} rolls - number of dice
@@ -206,27 +206,27 @@ void restore_from_string(string str, int flag);
  *
  * string *func defaults to ({ "create", "__INIT" }) and contains a list of
  * functions which may be ignored for checking
- * 
+ *
  * checks if object defines any functions itself (beside create)
- * 
+ *
  * returns 1 if no and object is not simul_efun object and not ???
  * 0 otherwise
  *
  */
-int replaceable(object, void | string *func);
+int replaceable(object ob, void | string *func);
 
 /**
  * repeat_string() - repeat a string a certain number of times.
  *
  * returns a new string
- * 
+ *
  * - repeats <= 0: ""
  * - repeats > 0 original string repeated either int times or the maximum
  * number of times without getting greater than the maximum string length
- * 
+ *
  * maxstrlen = 5:
  * repeat_string("ab", 3) = "abab"
- * 
+ *
  * maxstrlen >=6:
  * repeat_string("ab", 3) = "ababab"
  *
@@ -240,13 +240,13 @@ a specified shadow from another object. does not destruct the shadow.
  * ob defaults to this_object()
  * returns 0 if object is either destroyed or is no shadow and isn't shadowed
  * returns 1 otherwise
- * 
+ *
  * ob <- shadow1 <- shadow2
- * 
+ *
  * remove(shadow2): ob <- shadow1 shadow2
  * remove(shadow1): ob <- shadow2 shadow1
  * remove(ob): shadow1 <- shadow2 ob
- * 
+ *
  * #ifndef NO_SHADOWS
  *
  */
@@ -258,7 +258,7 @@ int remove_shadow(object ob);
  * If the argument object is interactive and not destructed, cause it to be
  * disconnected and lose interactive status. Returns 1 when the operation is
  * successful.
- * 
+ *
  * This function requires PACKAGE_CONTRIB to be defined in the options file.
  *
  */
@@ -270,7 +270,7 @@ int remove_interactive(object interactive);
  * cancels active input_to
  * set's interactive->carryover = NULL
  * set's interactive->num_carry = 0
- * 
+ *
  * returns -3 if argument missing
  * -2 if object destroyed or not interactive
  * -1 if no input_to active
@@ -283,13 +283,13 @@ int remove_get_char(object interactive);
  * remove_charmode() - switches interactive object into linemode
  *
  * switches interactive object into linemode
- * 
+ *
  * returns -1 if argument missing
  * -2 in case of error (object destroyed or not interactive)
  * current input_to flags with char_mode unset
  *
  */
-int remove_charmode(object);
+int remove_charmode(object interactive);
 
 /**
  * real_time
@@ -303,21 +303,21 @@ int real_time();
  * query_replaced_program
  *
  * obiect defaults to this_object()
- * 
+ *
  * if object called replace_program this function returns the path to the object
  * it was replaced with
  *
  */
-string query_replaced_program(void | object);
+string query_replaced_program(void | object ob);
 
 /**
  * query_num
  *
  * Warning: English only!!!
- * 
+ *
  * Converts `num` into a string representation. If `many` is greater than 0
  * and `num` is greater than `many`, the resulting string is "many".
- * 
+ *
  * Any `num` greater than 99,999 is always "many", the same for any `num` less
  * than 0.
  * @param {int} num - number to convert
@@ -338,11 +338,11 @@ mixed query_notify_fail();
  * query_ip_port - returns local_port of connection
  *
  * object defaults to this_player()
- * 
+ *
  * returns local_port of connection or 0 if object not interactive
  *
  */
-int query_ip_port(void | object);
+int query_ip_port(void | object ob);
 
 /**
  * query_charmode
@@ -353,15 +353,15 @@ int query_ip_port(void | object);
  * !0 otherwise (actual value depends on compile time define)
  *
  */
-int query_charmode(object);
+int query_charmode(object interactive);
 
 /**
  * program_info
  *
  * object defaults to ALL objects
- * 
+ *
  * returns mapping consinsting of:
- * 
+ *
  * - header size : int
  * - code size : int
  * - function size : int
@@ -372,19 +372,19 @@ int query_charmode(object);
  * - total size : int
  *
  */
-mapping program_info(void | object);
+mapping program_info(void | object ob);
 
 /**
  * pluralize - return plural form
  *
  * for english only!
- * 
+ *
  * returns plural form:
  * 'a red house' -> 'red houses'
  * 'a sack of rice' -> 'sacks of rice'
  *
  */
-string pluralize(string);
+string pluralize(string str);
 
 /**
  * num_classes - returns the number of classes used by object
@@ -392,25 +392,25 @@ string pluralize(string);
  * returns the number of classes used by object
  *
  */
-int num_classes(object);
+int num_classes(object ob);
 
 /**
  * network_stats
  *
  * returns mapping:
- * 
+ *
  * - incoming packets total : int
  * - incoming volume total : int
  * - outgoing packets total : int
  * - outgoing volume total : int
- * 
+ *
  * - incoming packets port X : int
  * - incoming volume port X : int
  * - outgoing packets port X : int
  * - outgoing volume port X : int
- * 
+ *
  * #ifdef PACKAGE_SOCKETS:
- * 
+ *
  * - incoming packets sockets : int
  * - incoming volume sockets : int
  * - outgoing packets sockets : int
@@ -462,7 +462,7 @@ mapping memory_summary();
  * of its occurrence.
  *
  */
-mixed max(mixed * arr); 
+mixed max(mixed * arr);
 mixed max(mixed * arr, int flag);
 
 /**
@@ -473,7 +473,7 @@ mixed max(mixed * arr, int flag);
  * -1 on error
  *
  */
-int is_daylight_savings_time(string, int);
+int is_daylight_savings_time(string timezone, int timestamp);
 
 /**
  * heart_beats - returns an array of all objects with enabled heartbeat
@@ -501,16 +501,16 @@ information for all functions in a passed object.
  * Returns an array of strings containing the function names found in
  * <ob>. The functions returned will include all functions, whether public,
  * protected, or private. The <flag> parameter is by default zero.
- * 
+ *
  * Flag: 0
  * Returns: a string array containing function names, including all inherited
  * functions.
  * ({ "func1", "func2", "func3", "func4", ... })
- * 
+ *
  * Flag: 1
  * Returns: A two-dimensional array of mixed arrays containing additional
  * information about each function, including all inherited functions.
- * 
+ *
  * ({
  * ({
  * "func1",    // function name
@@ -521,15 +521,15 @@ information for all functions in a passed object.
  * }),
  * ...
  * })
- * 
+ *
  * Flag: 2
  * Like Flag 0, but excludes inherited functions.
- * 
+ *
  * Flag: 3
  * Like Flag 1, but excludes inherited functions.
  *
  * @param {object} ob - object to query
- * @param {int} flag (optional) defaults to 0
+ * @param {int} [flag] (optional) defaults to 0
  */
 mixed *functions(object ob, int flag);
 
@@ -539,39 +539,39 @@ mixed *functions(object ob, int flag);
  * returns the object defining the given function.
  *
  */
-object function_owner(function);
+object function_owner(function f);
 
 /**
  * file_length - return the line count of a file
  *
  * returns
- * 
+ *
  * - line count
  * - -1 in case of error (e.g insufficient privs)
  * - -2 if file is directory
  *
  */
-int file_length(string);
+int file_length(string file);
 
 /**
  * fetch_variable - fetch a value stored in an object's global variable
  *
  * This efun returns the value stored in the global variable `variable_name`
  * in ob.
- * 
+ *
  * `variable_name` is name of the global variable.
  * `ob` defaults to this_object() if not specified.
- * 
+ *
  * If `ob` is not specified, then `variable_name` can be any global variable
  * in the inheritance hierarchy, regardless of scope.  If `ob` is specified,
  * then `variable_name` must be public scope.
- * 
+ *
  * This is a potential security hazard and, therefore, you may wish to overload
  * this function to perform security checks.
  *
  * int weight = fetch_variable( "weight", this_player() ) ;
  * printf("%d\n", weight") ;
- * 
+ *
  * // result: 150
  *
  */
@@ -588,7 +588,7 @@ an instantiated class.
  * mixed me = assemble_class( ({ "Foo", 42, "Fooville" }) ) ;
  * int age ;
  * string name, city ;
- * 
+ *
  * name = fetch_class_member( me, 0 ) ;
  * age = fetch_class_member( me, 1 ) ;
  * city = fetch_class_member( me, 2 ) ;
@@ -602,30 +602,30 @@ to call_other, but with no return type.
  *
  * Calls "event_" + event_name in target. "event_" + event_name must be a
  * public function.
- * 
+ *
  * Target can be a single object or an array of objects.
- * 
+ *
  * If the target is a single object, the event efun will first call the event
  * function in the object and then it will call the event function all of the
  * objects in the target's all_inventory().
- * 
+ *
  * If the target is an array of objects, the event efun will call the event
  * function in all of the objects specified. Unlike the single-target version,
  * it will not cascade to each of the object's inventories.
- * 
+ *
  * The efun will pass as its first argument the calling object followed by
  * all of the specified arguments.
  *
  * // In a room
- * 
+ *
  * // will call event_heal_up on the room, and then every object in the room
  * event( this_object(), "heal_up", 50, 50 ) ;
- * 
+ *
  * // will call event_heal_up in the results of users() efun
  * event( users(), "heal_up", 25, 25 ) ;
- * 
+ *
  * // In a player object
- * 
+ *
  * // To take advantage of this event, write an event_heal_up in the player
  * // object to receive the call
  * void event_heal_up(object source, int health, int mana)
@@ -656,20 +656,20 @@ with elements comprised of the values of each member of the class.
  * int age ;
  * string city ;
  * }
- * 
+ *
  * void fun()
  * {
  * mixed *result ;
  * class person me = new(class person);
- * 
+ *
  * me->name = "Foo" ;
  * me->age = 42 ;
  * me->city = "Fooville" ;
- * 
+ *
  * result = disassemble_class( me ) ;
- * 
+ *
  * write( sprintf("%O\n", result ) ) ;
- * 
+ *
  * // ({ /* sizeof() == 3 *\/
  * //   "Foo",
  * //   42,
@@ -694,14 +694,14 @@ void debug_message(string msg);
 mapping
  *
  * arg is either one of:
- * 
+ *
  * - array
  * - buffer (if compiled into driver)
  * - class
  * - mapping
- * 
+ *
  * returns deep copy
- * 
+ *
  * This is particularly useful when you wish to have data that is passed
  * by reference, but do not want to alter the original.
  *
@@ -721,17 +721,17 @@ int compressedp(object ob);
  * classes() - return names of classes used by object
  *
  * Return a string array consisting of names of classes used by <ob>.
- * 
+ *
  * The <verbose> parameter is optional and by default 0.
- * 
+ *
  * If <verbose> is non-zero, then  additional  information  will  be
  * returned.
  *
  * string *classes_used = classes( ob ) ;
  * // ({ "class_name", }) ;
- * 
+ *
  * mixed *classes_used = classes( ob, 1 ) ;
- * 
+ *
  * // ({
  * //     ({
  * //         "class_name",
@@ -752,16 +752,16 @@ mixed *classes(object ob, int verbose);
  *
  * In the first version, return the segment of the <text> up to, but
  * not including the first occurrence of #.
- * 
+ *
  * Like the first version, but performs file_name on <ob> first.
- * 
+ *
  * Like the second version, but the object is this_object().
  *
  * string path = base_name( "/std/object#123" ) ;  // "/std/object"
- * 
+ *
  * object ob = new("/std/object) ;
  * string path = base_name( ob ) ;                 // "/std/object"
- * 
+ *
  * // in /std/object
  * string path = base_name() ;                     // "/std/object"
  *
@@ -778,9 +778,9 @@ of that array.
  *
  * mixed *elements = ({ "Foo", 42, "Fooville" }) ;
  * mixed cl = assemble_class( elements ) ;
- * 
+ *
  * write( sprintf( "%O\n", cl ) ) ;
- * 
+ *
  * // CLASS( 3 elements
  * //   "Foo",
  * //   42,
@@ -802,4 +802,3 @@ mixed assemble_class( mixed *elements );
  *
  */
 mixed abs( int | float number );
-
