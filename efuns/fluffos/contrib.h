@@ -531,7 +531,7 @@ information for all functions in a passed object.
  * @param {object} ob - object to query
  * @param {int} [flag] (optional) defaults to 0
  */
-varargs mixed *functions(object ob, int flag);
+mixed *functions(object ob, int flag);
 
 /**
  * function_owner - returns the object defining the given function
