@@ -199,6 +199,33 @@ export async function activate(context: ExtensionContext) {
         ]);
     }
     
+    async function restartClient(c: LanguageClient): Promise<void> {
+        // Temporarily suppress handleConnectionClosed to work around
+        // vscode-languageclient v8 bug that shows "Server will not be
+        // restarted" error during intentional stop/restart.
+        const origHandler = (c as any).handleConnectionClosed;
+        (c as any).handleConnectionClosed = async () => {};
+        try {
+            await c.stop();
+        } catch {
+            // Pending requests may be rejected during stop
+        } finally {
+            (c as any).handleConnectionClosed = origHandler;
+        }
+        await c.start();
+    }
+
+    context.subscriptions.push(
+        commands.registerCommand("lpc.restartLanguageServer", async () => {
+            window.showInformationMessage("Restarting LPC Language Server...");
+            await restartClient(client);
+        }),
+        commands.registerCommand("lpc.restartSyntaxServer", async () => {
+            window.showInformationMessage("Restarting LPC Syntax Server...");
+            await restartClient(syntaxClient);
+        })
+    );
+
     window.onDidChangeActiveTextEditor(async (editor) => {
         await getLpcConfigForActiveFile();
     });
