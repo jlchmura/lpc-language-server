@@ -20493,7 +20493,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                         const typeArgumentNode = typeToTypeNodeHelper(typeArguments[0], context);
                         return factory.createTypeReferenceNode(type.target === globalArrayType ? "Array" : "ReadonlyArray", [typeArgumentNode]);
                     }
-                    const elementType = typeToTypeNodeHelper(typeArguments[0], context);
+                    let elementType = typeToTypeNodeHelper(typeArguments[0], context);
+                    if (elementType.kind === SyntaxKind.UnionType || elementType.kind === SyntaxKind.IntersectionType) {
+                        elementType = factory.createParenthesizedType(elementType);
+                    }
                     const arrayType = factory.createArrayTypeNode(elementType);
                     // Debug.fail("not supported");
                     // return type.target === globalArrayType ? arrayType : factory.createTypeOperatorNode(SyntaxKind.ReadonlyKeyword, arrayType);
