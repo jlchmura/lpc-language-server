@@ -1088,6 +1088,7 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
                         // functionDeclaration.kind === SyntaxKind.CallSignature &&
                         //     !(type.symbol.flags & SymbolFlags.TypeLiteral || type.symbol.flags & SymbolFlags.ObjectLiteral) ? type.symbol : symbol,
                         symbolKind,
+                        signature,
                     );
                 // }
                 if (signature) {
