@@ -2665,6 +2665,7 @@ export type JSDocSyntaxKind =
     | SyntaxKind.DotToken
     | SyntaxKind.Identifier    
     | SyntaxKind.BacktickToken
+    | SyntaxKind.AmpersandToken
     | SyntaxKind.HashToken
     | SyntaxKind.Unknown
     | KeywordSyntaxKind;

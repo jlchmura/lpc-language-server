@@ -6361,6 +6361,8 @@ export namespace LpcParser {
                 }
                 // a markdown-quoted name: `arg` is not legal jsdoc, but occurs in the wild
                 const isBackquoted = parseOptionalJsdoc(SyntaxKind.BacktickToken);
+                // allow &name for pass-by-reference params (LPC ref keyword)
+                parseOptionalJsdoc(SyntaxKind.AmpersandToken);
                 const name = parseJSDocEntityName();
                 let expr: Expression = undefined;
 
