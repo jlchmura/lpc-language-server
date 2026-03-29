@@ -448,6 +448,20 @@ Found 1 error in server/src/tests/cases/compiler/jsDocParam.c[90m:4[0m
 "
 `;
 
+exports[`Compiler compiler/jsDocParamRefMismatch.c Reports correct errors for compiler/jsDocParamRefMismatch.c: diags-compiler/jsDocParamRefMismatch.c 1`] = `
+"
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/jsDocParamRefMismatch.c[90m:3[0m
+
+"
+`;
+
+exports[`Compiler compiler/jsDocParamTypeMismatch.c Reports correct errors for compiler/jsDocParamTypeMismatch.c: diags-compiler/jsDocParamTypeMismatch.c 1`] = `
+"
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/jsDocParamTypeMismatch.c[90m:3[0m
+
+"
+`;
+
 exports[`Compiler compiler/lambda1.c Reports correct errors for compiler/lambda1.c: diags-compiler/lambda1.c 1`] = `""`;
 
 exports[`Compiler compiler/logicalAssignment.c Reports correct errors for compiler/logicalAssignment.c: diags-compiler/logicalAssignment.c 1`] = `""`;
