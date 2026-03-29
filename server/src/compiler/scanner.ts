@@ -2924,6 +2924,8 @@ export function createScanner(
                 return token = SyntaxKind.BacktickToken;
             case CharacterCodes.hash:
                 return token = SyntaxKind.HashToken;
+            case CharacterCodes.ampersand:
+                return token = SyntaxKind.AmpersandToken;
             case CharacterCodes.backslash:
                 pos--;
                 const extendedCookedChar = peekExtendedUnicodeEscape();

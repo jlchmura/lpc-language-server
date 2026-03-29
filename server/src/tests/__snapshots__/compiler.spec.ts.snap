@@ -448,6 +448,8 @@ Found 1 error in server/src/tests/cases/compiler/jsDocParam.c[90m:4[0m
 "
 `;
 
+exports[`Compiler compiler/jsDocParamRef.c Reports correct errors for compiler/jsDocParamRef.c: diags-compiler/jsDocParamRef.c 1`] = `""`;
+
 exports[`Compiler compiler/lambda1.c Reports correct errors for compiler/lambda1.c: diags-compiler/lambda1.c 1`] = `""`;
 
 exports[`Compiler compiler/logicalAssignment.c Reports correct errors for compiler/logicalAssignment.c: diags-compiler/logicalAssignment.c 1`] = `""`;
