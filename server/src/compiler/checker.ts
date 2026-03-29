@@ -10236,10 +10236,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         const isJs = isInJSFile(node);
         const parameters = new Set<string>();
+        const parametersByName = new Map<string, ParameterDeclaration>();
         const excludedParameters = new Set<number>();
-        forEach(node.parameters, ({ name }, index) => {
+        forEach(node.parameters, (param, index) => {
+            const { name } = param;
             if (name && isIdentifier(name)) {
                 parameters.add(name.text);
+                parametersByName.set(name.text, param);
             }
             if (name && isBindingPattern(name)) {
                 excludedParameters.add(index);
@@ -10274,6 +10277,39 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 }
             });
         }
+
+        // Check JSDoc param types and ref modifiers against actual parameter declarations
+        forEach(jsdocParameters, (jsdocParam) => {
+            if (!isIdentifier(jsdocParam.name)) return;
+            const actualParam = parametersByName.get(jsdocParam.name.text);
+            if (!actualParam) return;
+
+            // Check type compatibility: JSDoc type must be assignable to the declared type
+            // (JSDoc may narrow e.g. mapping to ([ string: int ]), or object to object "file.c")
+            if (jsdocParam.typeExpression && actualParam.type) {
+                const jsdocType = getTypeFromTypeNode(jsdocParam.typeExpression.type);
+                const paramType = getTypeFromTypeNode(actualParam.type);
+                if (!isTypeAssignableTo(jsdocType, paramType) && !isTypeAssignableTo(paramType, jsdocType)) {
+                    error(
+                        jsdocParam.typeExpression,
+                        Diagnostics.LPCDoc_param_tag_has_type_0_but_parameter_has_type_1,
+                        typeToString(jsdocType),
+                        idText(jsdocParam.name),
+                        typeToString(paramType),
+                    );
+                }
+            }
+
+            // Check ref modifier consistency
+            const actualIsRef = !!actualParam.ampToken;
+            const docIsRef = !!jsdocParam.isRef;
+            if (docIsRef && !actualIsRef) {
+                error(jsdocParam.name, Diagnostics.LPCDoc_param_tag_has_ref_modifier_but_parameter_0_is_not_pass_by_reference, idText(jsdocParam.name));
+            }
+            else if (!docIsRef && actualIsRef) {
+                error(jsdocParam.name, Diagnostics.LPCDoc_param_tag_is_missing_ref_modifier_but_parameter_0_is_pass_by_reference, idText(jsdocParam.name));
+            }
+        });
     }
 
     function isContextSensitiveFunctionOrObjectLiteralMethod(func: Node): func is FunctionExpression | InlineClosureExpression  {

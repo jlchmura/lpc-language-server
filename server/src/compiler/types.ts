@@ -1648,7 +1648,7 @@ export interface NodeFactory {
     // JSDoc
     createJSDocText(text: string): JSDocText;
     createJSDocComment(comment?: string | NodeArray<JSDocComment> | undefined, tags?: readonly JSDocTag[] | undefined): JSDoc;
-    createJSDocParameterTag(tagName: Identifier | undefined, name: EntityName, defaultExpression: Expression | undefined, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocParameterTag;
+    createJSDocParameterTag(tagName: Identifier | undefined, name: EntityName, defaultExpression: Expression | undefined, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>, isRef?: boolean): JSDocParameterTag;
     createJSDocReturnTag(tagName: Identifier | undefined, typeExpression?: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocReturnTag;
     createJSDocOptionalType(type: TypeNode): JSDocOptionalType;
     createJSDocTypeTag(tagName: Identifier | undefined, typeExpression: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocTypeTag;
@@ -2665,6 +2665,7 @@ export type JSDocSyntaxKind =
     | SyntaxKind.DotToken
     | SyntaxKind.Identifier    
     | SyntaxKind.BacktickToken
+    | SyntaxKind.AmpersandToken
     | SyntaxKind.HashToken
     | SyntaxKind.Unknown
     | KeywordSyntaxKind;
@@ -3501,6 +3502,8 @@ export interface JSDocPropertyLikeTag extends JSDocTag, Declaration {
     /** Whether the property name came before the type -- non-standard for JSDoc, but Typescript-like */
     readonly isNameFirst: boolean;
     readonly isBracketed: boolean;
+    /** Whether the parameter name was prefixed with & (pass-by-reference) */
+    readonly isRef: boolean;
 }
 
 // represents a top level: { type } expression in a JSDoc comment.
