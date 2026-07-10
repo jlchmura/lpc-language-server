@@ -137,7 +137,7 @@ varargs void set_reset( object ob, int time );
  * remaining evaluation cost.
  *
  */
-void set_eval_limit( int );
+int set_eval_limit( int );
 
 /**
  * reset_eval_cost() - resets the evaluation cost remaining
@@ -257,7 +257,7 @@ string *inherit_list( object obj );
  * piled with PROFILE_FUNCTIONS defined.
  *
  */
-mixed *function_profile( object ob );
+mapping *function_profile( object ob );
 
 /**
  * function_exists()  -  find  the  file containing a given function in an
@@ -287,8 +287,8 @@ varargs string function_exists( string str, object ob );
  * are flushed.
  *
  */
-int flush_messages();
-int flush_messages(object user);
+void flush_messages();
+void flush_messages(object user);
 
 /**
  * find_call_out() - find a call out scheduled to be called
@@ -405,3 +405,17 @@ current function
  *
  */
 object *all_previous_objects();
+
+/**
+ * request_clean_up() - ask the driver to resume clean_up() queries on an object
+ *
+ * When an object's clean_up() apply returns 0, the driver stops asking
+ * that object about cleaning up forever. request_clean_up() flags 'ob'
+ * (this_object() if omitted) so the periodic sweep will start calling
+ * its clean_up() again.
+ *
+ * Returns 1 if the request took effect, 0 if the object does not define
+ * a clean_up() apply (or is destructed).
+ *
+ */
+varargs int request_clean_up( object ob );

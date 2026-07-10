@@ -460,6 +460,7 @@ string lower_case( string str );
  *
  */
 string implode( mixed *arr, string del );
+mixed implode( mixed *arr, function f, void | mixed extra );
 
 /**
  * hash() - hash a string with the specified algorithm
