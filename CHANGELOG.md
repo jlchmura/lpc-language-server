@@ -11,6 +11,8 @@
 - Fix: [Infer nested-mapping value type in foreach instead of mixed\*
   #319](https://github.com/jlchmura/lpc-language-server/issues/319)
 - Fix: [foreach: explicit type annotation on destructured value variable is validated then discarded #318](https://github.com/jlchmura/lpc-language-server/issues/318)
+- Fix: [trying to += the result of a function call to an array of an object
+  #317](https://github.com/jlchmura/lpc-language-server/issues/317)
 
 ## 1.1.45
 
