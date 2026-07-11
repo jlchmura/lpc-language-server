@@ -8,6 +8,8 @@
 - Validate LPCDoc @param types and ref modifiers against signatures
 - Fix: Resolve inherit/object paths to .lpc files
 - Fix: Show return type on function declaration hover
+- Fix: [Infer nested-mapping value type in foreach instead of mixed*
+#325](https://github.com/jlchmura/lpc-language-server/issues/319)
 
 ## 1.1.45
 
