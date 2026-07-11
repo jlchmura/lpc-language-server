@@ -13,6 +13,8 @@
 - Fix: [foreach: explicit type annotation on destructured value variable is validated then discarded #318](https://github.com/jlchmura/lpc-language-server/issues/318)
 - Fix: [trying to += the result of a function call to an array of an object
   #317](https://github.com/jlchmura/lpc-language-server/issues/317)
+- Fix: [incorrect data type being represented in diagnostic: bytes != buffer
+  #311](https://github.com/jlchmura/lpc-language-server/issues/311)
 
 ## 1.1.45
 

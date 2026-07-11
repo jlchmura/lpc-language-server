@@ -19914,6 +19914,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return factory.createKeywordTypeNode(SyntaxKind.UnknownKeyword);
             }
             if (type.flags & TypeFlags.Bytes) {
+                // The same intrinsic type is spelled `buffer` in FluffOS and `bytes` in LDMud.
+                // Render it using the driver-appropriate keyword (see #311).
+                if (languageVariant === LanguageVariant.FluffOS) {
+                    context.approximateLength += 6;
+                    return factory.createKeywordTypeNode(SyntaxKind.BufferKeyword);
+                }
                 context.approximateLength += 5;
                 return factory.createKeywordTypeNode(SyntaxKind.BytesKeyword);
             }

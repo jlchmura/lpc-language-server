@@ -685,6 +685,8 @@ Found 1 error in server/src/tests/cases/compiler/preproc_conditional_macro.c[90
 "
 `;
 
+exports[`Compiler compiler/readBuffer1.c Reports correct errors for compiler/readBuffer1.c: diags-compiler/readBuffer1.c 1`] = `""`;
+
 exports[`Compiler compiler/return1.c Reports correct errors for compiler/return1.c: diags-compiler/return1.c 1`] = `""`;
 
 exports[`Compiler compiler/string1.c Reports correct errors for compiler/string1.c: diags-compiler/string1.c 1`] = `
