@@ -98,6 +98,24 @@ varargs int restore_object( string name, int flag );
 void reload_object( object ob );
 
 /**
+ * recompile_object() - recompile an object's program in place
+ *
+ * Recompiles 'ob's program from its source file and swaps the fresh program
+ * into the live master copy and every clone sharing it.  The object is not
+ * destructed: its identity, name, inventory, shadows, interactive state,
+ * call_outs, and heart_beat are all preserved.  Global variables carry over
+ * by name -- the new program's __INIT runs first, then every variable whose
+ * name also existed in the old program keeps its old value; new variables
+ * keep their initializers and vanished names are dropped.
+ *
+ * 'ob' must be the master copy, not a clone, and must not currently be
+ * executing.  Returns the number of objects (master plus clones) whose
+ * program was updated.
+ *
+ */
+int recompile_object( object ob );
+
+/**
  * query_heart_beat() - query the status of an object's heartbeat
  *
  * Returns  the  value with which set_heart_beat() has been called with on
