@@ -1208,6 +1208,7 @@ function tryAddingExtensions(candidate: string, extensions: Extensions, original
         case "":
             return extensions & Extensions.LPC && (tryExtension(Extension.C, originalExtension === Extension.C || originalExtension === Extension.H))
                 || extensions & Extensions.LPC && (tryExtension(Extension.H, originalExtension === Extension.C || originalExtension === Extension.H))
+                || extensions & Extensions.LPC && (tryExtension(Extension.Lpc, originalExtension === Extension.Lpc))
                 // || extensions & Extensions.JavaScript && (tryExtension(Extension.Js) || tryExtension(Extension.Jsx))
                 || state.isConfigLookup && tryExtension(Extension.Json)
                 || undefined;
