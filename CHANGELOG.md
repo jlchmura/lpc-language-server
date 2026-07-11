@@ -1,5 +1,14 @@
 # LPC Language Services Changelog
 
+## 1.1.46
+
+- Update FluffOS efun signatures; add new efuns and variants
+- Add FluffOS mapping dot-access and optional chaining
+- Add FluffOS template literal support
+- Validate LPCDoc @param types and ref modifiers against signatures
+- Fix: Resolve inherit/object paths to .lpc files
+- Fix: Show return type on function declaration hover
+
 ## 1.1.45
 
 - Enhancement: Improve completion in closure expressions

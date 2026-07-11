@@ -202,7 +202,7 @@ void opcprof( string | void );
  * tables' commands in vanilla 3.1.2.
  *
  */
-void mud_status( int extra );
+string mud_status( int extra );
 
 /**
  * moncontrol() - turns on/off profiling during execution
@@ -239,7 +239,7 @@ varargs int memory_info( object ob );
  * driver.
  *
  */
-void malloc_status( void );
+string malloc_status( void );
 
 /**
  * get_config() - query various driver config settings
@@ -342,7 +342,7 @@ varargs void dump_prog(object ob, int flags, string file);
  * 7    79      7   164601  f  644   2862      1         506
  *
  */
-void dump_file_descriptors( void );
+string dump_file_descriptors( void );
 
 /**
  * debugmalloc() - dumps information on malloc'd memory to a file.
@@ -355,7 +355,7 @@ void dump_file_descriptors( void );
  * config.h in the driver source for more information.
  *
  */
-void debugmalloc( string filename, int mask );
+string debugmalloc( string filename, int mask );
 
 /**
  * debug_levels
@@ -451,5 +451,5 @@ mixed debug_info( int operation... );
  * cache hit rate to the caller's screen.
  *
  */
-void cache_stats( void );
+string cache_stats( void );
 

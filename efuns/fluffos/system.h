@@ -15,11 +15,11 @@ int uptime( void );
  *
  * Calling this function will start collecting tracing information from the
  * driver. This includes LPC function level execution information.
- * 
+ *
  * The trace collection will stop and write the json data to  `filename` on
  * `trace_end()`  or after  `auto_stop_sec`  seconds,  which defaults to 30
  * seconds.
- * 
+ *
  * Note: do not leave tracing enabled for too long or you will risk running
  * out of memory.
  * @param filename the file to write the trace data to
@@ -32,7 +32,7 @@ varargs void trace_start(string filename, int auto_stop_sec);
  *
  * Calling this function will stop an active trace and write out the result
  * to the file provided by `trace_start(filename)`.
- * 
+ *
  * Note: do not leave tracing enabled for too long or you will risk running
  * out of memory.
  *
@@ -59,10 +59,10 @@ int time( void );
  * sys_reload_tls() - Reload the TLS certificate and key for given port.
  *
  * Reload the TLS certificate and key for given port index, as specified in config file.
- * 
+ *
  * For example, if you defined external_port_1_tls in the config then you can calling sys_reload_tls(1) to reload
  * it. This allows you to update the certificate and key without restarting the server.
- * 
+ *
  * Note:
  * - you have to overwrite the previous cert/key file on disk before calling this function.
  * - reloading TLS for websocket port is not currently supported.
@@ -121,7 +121,7 @@ varargs void shutdown( int how );
  * Sets  the  time  until  reset  on  'ob' to 'time' seconds from now.  If
  * 'time' is omitted, the driver's normal reset time  setting  formula  is
  * applied to 'ob', that is,
- * 
+ *
  * reset time = current_time + reset_time / 2 + random(reset_time / 2)
  *
  */
@@ -137,14 +137,14 @@ varargs void set_reset( object ob, int time );
  * remaining evaluation cost.
  *
  */
-void set_eval_limit( int );
+int set_eval_limit( int );
 
 /**
  * reset_eval_cost() - resets the evaluation cost remaining
  *
  * reset_eval_cost(),  resets the evaluation cost remaining to the maximum
  * evaluation cost.
- * 
+ *
  * Returns the new eval cost.
  *
  */
@@ -191,7 +191,7 @@ int perf_counter_ns( void );
  * before the driver decides it is in an infinite loop.
  *
  */
-void max_eval_cost();
+int max_eval_cost();
 
 /**
  * localtime() - convert to local time
@@ -205,11 +205,11 @@ void max_eval_cost();
  * the  local  timezone and how far the MUD is from GMT.  This information
  * is retrieved directly from the operating system and made  available  to
  * the driver without the use of MUD-specific configuration files.
- * 
+ *
  * localtime()  returns  an  array  containing the values specified above.
  * The index for each value is defined symbolically in  localtime.h.   The
  * following table summarizes the array returned by localtime().
- * 
+ *
  * int        LT_SEC      Seconds after the minute (0..59)
  * int        LT_MIN      Minutes after the hour (0..59)
  * int        LT_HOUR     Hour since midnight (0..23)
@@ -230,7 +230,7 @@ mixed *localtime( int time );
  *
  * inherits() returns 0 if obj does not inherit file, 1 if it inherits the
  * most recent copy of file, and 2 if it inherits an old copy of file.
- * 
+ *
  * If no object is passed as the second argument, this efun will default
  * to this_object().
  *
@@ -243,7 +243,7 @@ int inherits( string file, object obj );
  * Returns  an  array  of  filenames  of  objects  inherited by obj.  Only
  * directly inherited files are returned.  E.g.  if  A  inherits  B  which
  * inherits C, inherit_list(A) will return an array with B, but not C.
- * 
+ *
  * If no object is supplied, this efun will default to this_object().
  *
  */
@@ -257,7 +257,7 @@ string *inherit_list( object obj );
  * piled with PROFILE_FUNCTIONS defined.
  *
  */
-mixed *function_profile( object ob );
+mapping *function_profile( object ob );
 
 /**
  * function_exists()  -  find  the  file containing a given function in an
@@ -267,11 +267,11 @@ object
  * @returns the file name of the object that defines the function  'str'  in
  * object  'ob'.  The  returned value can be other than 'file_name(ob)' if
  * the function is defined by an inherited object.
- * 
+ *
  * 0 is returned if the function was not defined.
- * 
+ *
  * Note that function_exists() does not check shadows.
- * 
+ *
  * If no object is passed as the second argument, this efun will default
  * to this_object().
  *
@@ -287,37 +287,37 @@ varargs string function_exists( string str, object ob );
  * are flushed.
  *
  */
-int flush_messages();
-int flush_messages(object user);
+void flush_messages();
+void flush_messages(object user);
 
 /**
  * find_call_out() - find a call out scheduled to be called
  *
  * Find a call out scheduled to be called either by function name or by
  * handle.
- * 
+ *
  * If the argument is a string, then the first call out due to be executed
  * for function 'func' is found, and the time left in seconds is returned.
  * If no call out is found, then return -1.
- * 
+ *
  * If the argument is an integer, then the call out with handle 'handle'
  * is found, and the time left in seconds is returned. If no call out is
  * found, then return -1.
- * 
+ *
  * This will find call outs scheduled by call_out() or call_out_walltime().
- * 
+ *
  * If the time remaining is fractional, then the result will be an integer,
  * the value of which will be floored.
- * 
+ *
  * Example:
  * int handle = call_out("func", 10);
  * printf("Remaining time: %O\n", find_call_out(handle));
  * // Remaining time: 10
- * 
+ *
  * int handle = call_out("func", 10.75);
  * printf("Remaining time: %O\n", find_call_out(handle));
  * // Remaining time: 10
- * 
+ *
  * This efun will only find call outs initiated by this_object().
  *
  */
@@ -337,13 +337,13 @@ int eval_cost();
  * errorp() - determine whether or not a given variable is an error code
  *
  * Returns 1 if 'arg' is an integer that is an error code.
- * 
+ *
  * Eventually  efuns  will  be  modified to return standard error codes so
  * that code like this will be possible:
- * 
+ *
  * if (errorp(result = efun_call()))
  * printf("error = %d\n", result);
- * 
+ *
  * In future, there will also be a perror(result)  efun  to  return  error
  * string that goes with a particular error integer.
  *
@@ -368,7 +368,7 @@ void error( string err );
  *
  * Returns  an  array  of filenames of all objects inherited (directly and
  * indirectly) by obj.
- * 
+ *
  * If no object is supplied, this efun will default to this_object().
  *
  */
@@ -379,7 +379,7 @@ string *deep_inherit_list( object obj );
  *
  * Gives  a  nice  string  with  current  date and time, with the argument
  * 'clock' that is the number of seconds since 1970.
- * 
+ *
  * If no arguments are provided, it will use the current time.
  *
  */
@@ -406,3 +406,16 @@ current function
  */
 object *all_previous_objects();
 
+/**
+ * request_clean_up() - ask the driver to resume clean_up() queries on an object
+ *
+ * When an object's clean_up() apply returns 0, the driver stops asking
+ * that object about cleaning up forever. request_clean_up() flags 'ob'
+ * (this_object() if omitted) so the periodic sweep will start calling
+ * its clean_up() again.
+ *
+ * Returns 1 if the request took effect, 0 if the object does not define
+ * a clean_up() apply (or is destructed).
+ *
+ */
+varargs int request_clean_up( object ob );

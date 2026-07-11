@@ -203,6 +203,8 @@ import {
     SpreadElement,
     Statement,
     StringLiteral,
+    TemplateExpression,
+    TemplateSpan,
     stringToToken,
     StructDeclaration,
     StructKeywordSyntaxKind,
@@ -296,6 +298,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createIntLiteral,
         createFloatLiteral,
         createStringLiteral,
+        createTemplateExpression,
+        createTemplateSpan,
         createBytesLiteral,
         createLiteralLikeNode,
         createTrue,
@@ -1483,6 +1487,22 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
+    function createTemplateExpression(head: StringLiteral, templateSpans: readonly TemplateSpan[]): TemplateExpression {
+        const node = createBaseNode<TemplateExpression>(SyntaxKind.TemplateExpression);
+        node.head = head;
+        node.templateSpans = createNodeArray(templateSpans);
+        return node;
+    }
+
+    // @api
+    function createTemplateSpan(expression: Expression, literal: StringLiteral): TemplateSpan {
+        const node = createBaseNode<TemplateSpan>(SyntaxKind.TemplateSpan);
+        node.expression = expression;
+        node.literal = literal;
+        return node;
+    }
+
+    // @api
     function createCloneObjectExpression(expression: LeftHandSideExpression, argumentsArray: readonly Expression[] | undefined): CloneObjectExpression {
         const node = createBaseDeclaration<CloneObjectExpression>(SyntaxKind.CloneObjectExpression);
         node.expression = expression;                
@@ -2134,13 +2154,14 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createJSDocParameterTag(tagName: Identifier | undefined, name: EntityName, defaultExpression: Expression | undefined, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocParameterTag {
+    function createJSDocParameterTag(tagName: Identifier | undefined, name: EntityName, defaultExpression: Expression | undefined, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>, isRef?: boolean): JSDocParameterTag {
         const node = createBaseJSDocTagDeclaration<JSDocParameterTag>(SyntaxKind.JSDocParameterTag, tagName ?? createIdentifier("param"), comment);
         node.typeExpression = typeExpression;
         node.name = name;
         node.defaultExpression = defaultExpression;
         node.isNameFirst = !!isNameFirst;
         node.isBracketed = isBracketed;
+        node.isRef = !!isRef;
         return node;
     }
 
@@ -2194,6 +2215,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.name = name;
         node.isNameFirst = !!isNameFirst;
         node.isBracketed = isBracketed;
+        node.isRef = false;
         return node;
     }
 
@@ -2204,6 +2226,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.name = name;
         node.isNameFirst = !!isNameFirst;
         node.isBracketed = isBracketed;
+        node.isRef = false;
         return node;
     }
 
