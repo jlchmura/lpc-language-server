@@ -2155,7 +2155,14 @@ export function createScanner(
                     tokenValue = scanString();
                     return token = SyntaxKind.StringLiteral;
                 case CharacterCodes.backtick:
-                    return token = scanTemplateAndSetTokenValue(/*shouldEmitInvalidEscapeError*/ false);
+                    // Template literals (`...${expr}...`) are a FluffOS-only feature.
+                    // For other drivers (LDMud/Standard) a backtick is an invalid character.
+                    if (languageVariant === LanguageVariant.FluffOS) {
+                        return token = scanTemplateAndSetTokenValue(/*shouldEmitInvalidEscapeError*/ false);
+                    }
+                    error(Diagnostics.Invalid_character, pos, charSize(ch));
+                    pos += charSize(ch);
+                    return token = SyntaxKind.Unknown;
                 case CharacterCodes.percent:
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.equals) {
                         return pos += 2, token = SyntaxKind.PercentEqualsToken;

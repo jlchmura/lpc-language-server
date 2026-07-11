@@ -85,6 +85,21 @@ describe("Template literals", () => {
             expect(t.templateSpans[0].literal.text).toBe("*");
         });
 
+        it("treats a backtick as an invalid character for non-FluffOS drivers", () => {
+            // Template literals are FluffOS-only; LDMud should flag the backtick.
+            const sf = lpc.createSourceFile(
+                "test.c",
+                "string x = `a${1}b`;",
+                lpc.ScriptTarget.Latest,
+                /*setParentNodes*/ true,
+                lpc.ScriptKind.LPC,
+                lpc.LanguageVariant.LDMud,
+            );
+            // 1127 === Diagnostics.Invalid_character
+            expect(sf.parseDiagnostics.some(d => d.code === 1127)).toBe(true);
+            expect(collect(sf, lpc.SyntaxKind.TemplateExpression).length).toBe(0);
+        });
+
         it("honors escaped backtick and escaped dollar (no interpolation)", () => {
             const sf = parse("string x = `esc \\` and \\${name}`;");
             expect(sf.parseDiagnostics.length).toBe(0);
