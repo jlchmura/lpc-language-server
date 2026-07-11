@@ -274,3 +274,13 @@ int socket_accept( int s, string read_callback,
  * @param host 
  */
 void socket_set_option(int socket, int option, int|string host);
+
+/**
+ * socket_get_option - get socket option values
+ *
+ * Retrieves the current value of a socket option. This efun allows you to
+ * query socket configuration parameters, particularly those related to
+ * TLS/SSL connections.
+ *
+ */
+mixed socket_get_option( int socket, int option );

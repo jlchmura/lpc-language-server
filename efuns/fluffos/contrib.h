@@ -802,3 +802,129 @@ mixed assemble_class( mixed *elements );
  *
  */
 mixed abs( int | float number );
+
+/**
+ * add_a() - prefix a string with the correct indefinite article
+ *
+ * Returns `str` with "a " or "an " prepended, choosing the article
+ * from the following word's sound rather than just its first letter:
+ * vowels take "an", but the special cases "us..." ("a user", "a use"),
+ * "hour..." ("an hour"), and words already beginning "a "/"an " are
+ * handled. A string of only spaces yields "a ".
+ *
+ */
+string add_a( string str );
+
+/**
+ * vowel() - test whether a character is a vowel
+ *
+ * Returns 1 if the character code `c` is an ASCII vowel
+ * (a, e, i, o, u in either case), 0 otherwise. Used together with
+ * add_a() for article selection.
+ *
+ */
+int vowel( int c );
+
+/**
+ * replace() - replace occurrences of a substring, or of many substrings
+ *
+ * Two forms:
+ *
+ * - `replace(str, from, to)` returns `str` with every occurrence of the
+ *   string `from` replaced by `to` (this is the plain string form,
+ *   equivalent to the replace_string() efun).
+ * - `replace(str, arr)` takes an even-length array `arr` of
+ *   `({ from1, to1, from2, to2, ... })` pairs and applies each
+ *   replacement in turn.
+ *
+ * Errors on an odd-length pair array.
+ *
+ */
+string replace( string str, string *|string from, string|void to );
+
+/**
+ * replace_dollars() - expand $-markers in a string
+ *
+ * Scans `str` for `$`-prefixed markers and substitutes them using
+ * `pairs`, an even-length array alternating a marker and its
+ * replacement text, e.g.
+ * `({ "$name", "Bob", "$place", "the docks" })`. Text that matches no
+ * marker is copied through unchanged; if nothing matches, the original
+ * string is returned.
+ *
+ */
+string replace_dollars( string str, string *pairs );
+
+/**
+ * replace_html() - escape a string for HTML
+ *
+ * Returns `str` with the HTML-significant characters escaped:
+ * `&` becomes `&amp;`, `<` becomes `&lt;`, `>` becomes `&gt;`, and
+ * `"` becomes `&quot;`. The result is capped at the driver's maximum
+ * string length.
+ *
+ */
+string replace_html( string str );
+
+/**
+ * replace_mxp() - escape a string for MXP
+ *
+ * Returns `str` escaped for MXP output: `&`, `<` and `>` become their
+ * entity forms (`&amp;`, `&lt;`, `&gt;`) and each newline is turned into
+ * a secure-line MXP `<BR>` tag. The result is capped at the driver's
+ * maximum string length.
+ *
+ */
+string replace_mxp( string str );
+
+/**
+ * replace_objects() - recursively render objects in a value as strings
+ *
+ * Walks `value` (an object, array, class, or mapping, to any depth) and
+ * returns a copy in which every object is replaced by a descriptive
+ * string — its object name plus, via the master apply object_name(),
+ * a readable label, or "(destructed)" for a destructed object. Arrays,
+ * classes and mappings keep their structure; other values pass through
+ * unchanged. Chiefly a debugging / dump helper.
+ *
+ */
+mixed replace_objects( mixed value );
+
+/**
+ * roulette_wheel() - weighted-random pick of a mapping key
+ *
+ * Given a mapping whose values are non-negative integer weights,
+ * returns one of its keys chosen at random with probability
+ * proportional to that key's weight ("roulette-wheel" selection).
+ * Errors on an empty mapping or a negative/non-integer weight.
+ *
+ */
+mixed roulette_wheel( mapping weights );
+
+/**
+ * query_multiple_short() - combine several objects into one short description
+ *
+ * Formats an array of items (objects, or their short strings) into a
+ * single natural-language list — grouping identical shorts and counting
+ * them, e.g. "two swords, a shield and some coins".
+ *
+ * The optional arguments tune the output: `type` selects which short
+ * (a named category) to query from the objects; `no_dollars` suppresses
+ * the `$`-markup used for colour/where clauses; `quiet` omits items
+ * flagged as quiet; and `dark` produces the description as seen in the
+ * dark. This is a Discworld-mudlib inventory helper.
+ *
+ */
+string query_multiple_short( mixed *items, int|string|void type, int|void no_dollars, int|void quiet, int|void dark );
+
+/**
+ * reference_allowed() - Discworld playtester reference check
+ *
+ * Discworld-mudlib helper: returns whether `referrer` (defaulting to
+ * this_player(), or looked up by name if a string is given) is allowed
+ * to hold a reference to `referee`, consulting the mudlib's playtester
+ * and player handlers. Returns 0 when the handlers are absent, so it is
+ * only meaningful in a mudlib that provides them.
+ *
+ */
+int reference_allowed( object referee, string|object|void referrer );
