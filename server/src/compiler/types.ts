@@ -666,10 +666,16 @@ export const enum SyntaxKind {
     FloatLiteral,
     BytesLiteral,
     StringArrayLiteral,
-    StringLiteral,                
+    StringLiteral,
+    NoSubstitutionTemplateLiteral,
+
+    // Pseudo-literals (template literal parts)
+    TemplateHead,
+    TemplateMiddle,
+    TemplateTail,
 
     // Punctuation
-    OpenBraceToken, 
+    OpenBraceToken,
     BacktickToken,
     CloseBraceToken,
     OpenParenToken,
@@ -1010,8 +1016,10 @@ export const enum SyntaxKind {
     CastExpression,
     OmittedExpression,
     PrefixUnaryExpression,
-    
-    // Clauses    
+    TemplateExpression,
+    TemplateSpan,
+
+    // Clauses
     CaseClause,
     HeritageClause,
     DefaultClause,    
@@ -1040,6 +1048,8 @@ export const enum SyntaxKind {
     LastJSDocNode = JSDocImportTag,
     FirstLiteralToken = IntLiteral,
     LastLiteralToken = StringLiteral,
+    FirstTemplateToken = NoSubstitutionTemplateLiteral,
+    LastTemplateToken = TemplateTail,
     FirstJSDocTagNode = JSDocTypeExpression,
     LastJSDocTagNode = JSDocImportTag,
     FirstTriviaToken = SingleLineCommentTrivia,
@@ -1531,6 +1541,8 @@ export interface NodeFactory {
     createIdentifier(text: string): Identifier;
     /** @internal */ createIdentifier(text: string, originalKeywordKind?: SyntaxKind, hasExtendedUnicodeEscape?: boolean): Identifier; // eslint-disable-line @typescript-eslint/unified-signatures
     createLiteralLikeNode(kind: LiteralToken["kind"], text: string): LiteralToken;
+    createTemplateExpression(head: StringLiteral, templateSpans: readonly TemplateSpan[]): TemplateExpression;
+    createTemplateSpan(expression: Expression, literal: StringLiteral): TemplateSpan;
     
     // element
     createEmptyStatement(): EmptyStatement;
@@ -2285,7 +2297,9 @@ export type HasChildren =
     | PrefixUnaryExpression
     | PostfixUnaryExpression
     | BinaryExpression
-    | ConditionalExpression    
+    | ConditionalExpression
+    | TemplateExpression
+    | TemplateSpan
     // | YieldExpression
     | SpreadElement
     | ClassExpression
@@ -3429,6 +3443,24 @@ export interface BytesLiteral extends LiteralExpression, Declaration {
     readonly kind: SyntaxKind.BytesLiteral;
     /** @internal */ readonly textSourceNode?: Identifier | StringLiteral | IntLiteral | FloatLiteral;// | JsxNamespacedName; // Allows a StringLiteral to get its text from another node (used by transforms).
 }
+
+// FluffOS template literals (`...${expr}...`). The literal chunks (head/middle/tail)
+// are represented as ordinary StringLiteral nodes; only the composite expression and
+// its interpolation spans get dedicated node kinds.
+export interface TemplateExpression extends PrimaryExpression {
+    readonly kind: SyntaxKind.TemplateExpression;
+    readonly head: StringLiteral;
+    readonly templateSpans: NodeArray<TemplateSpan>;
+}
+
+export interface TemplateSpan extends Node {
+    readonly kind: SyntaxKind.TemplateSpan;
+    readonly parent: TemplateExpression;
+    readonly expression: Expression;
+    readonly literal: StringLiteral;
+}
+
+export type TemplateLiteral = TemplateExpression | StringLiteral;
 
 export type TriviaSyntaxKind =
     | SyntaxKind.SingleLineCommentTrivia

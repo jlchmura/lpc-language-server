@@ -1845,9 +1845,10 @@ export function isExpressionNode(node: Node): boolean {
         case SyntaxKind.PostfixUnaryExpression:
         case SyntaxKind.BinaryExpression:
         case SyntaxKind.ConditionalExpression:
-        case SyntaxKind.SpreadElement: 
-        case SyntaxKind.ByRefElement:       
-            return true;        
+        case SyntaxKind.TemplateExpression:
+        case SyntaxKind.SpreadElement:
+        case SyntaxKind.ByRefElement:
+            return true;
         case SyntaxKind.QualifiedName:
             while (node.parent.kind === SyntaxKind.QualifiedName) {
                 node = node.parent;

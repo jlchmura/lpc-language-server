@@ -203,6 +203,8 @@ import {
     SpreadElement,
     Statement,
     StringLiteral,
+    TemplateExpression,
+    TemplateSpan,
     stringToToken,
     StructDeclaration,
     StructKeywordSyntaxKind,
@@ -296,6 +298,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createIntLiteral,
         createFloatLiteral,
         createStringLiteral,
+        createTemplateExpression,
+        createTemplateSpan,
         createBytesLiteral,
         createLiteralLikeNode,
         createTrue,
@@ -1480,6 +1484,22 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
             case SyntaxKind.StringLiteral:
                 return createStringLiteral(text, /*isSingleQuote*/ undefined);
         }
+    }
+
+    // @api
+    function createTemplateExpression(head: StringLiteral, templateSpans: readonly TemplateSpan[]): TemplateExpression {
+        const node = createBaseNode<TemplateExpression>(SyntaxKind.TemplateExpression);
+        node.head = head;
+        node.templateSpans = createNodeArray(templateSpans);
+        return node;
+    }
+
+    // @api
+    function createTemplateSpan(expression: Expression, literal: StringLiteral): TemplateSpan {
+        const node = createBaseNode<TemplateSpan>(SyntaxKind.TemplateSpan);
+        node.expression = expression;
+        node.literal = literal;
+        return node;
     }
 
     // @api

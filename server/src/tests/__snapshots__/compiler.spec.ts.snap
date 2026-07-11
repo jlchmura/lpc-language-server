@@ -703,6 +703,8 @@ exports[`Compiler compiler/switch2.c Reports correct errors for compiler/switch2
 
 exports[`Compiler compiler/switch3.c Reports correct errors for compiler/switch3.c: diags-compiler/switch3.c 1`] = `""`;
 
+exports[`Compiler compiler/templateLiterals.c Reports correct errors for compiler/templateLiterals.c: diags-compiler/templateLiterals.c 1`] = `""`;
+
 exports[`Compiler compiler/ternary.c Reports correct errors for compiler/ternary.c: diags-compiler/ternary.c 1`] = `""`;
 
 exports[`Compiler compiler/thisObject1.c Reports correct errors for compiler/thisObject1.c: diags-compiler/thisObject1.c 1`] = `""`;
