@@ -6428,7 +6428,7 @@ export namespace LpcParser {
              * @param [foo=1] somethig
              * @returns 
              */
-            function parseBracketNameInPropertyAndParamTag(foo: number=1): { name: EntityName; isBracketed: boolean; expr: Expression | undefined } {
+            function parseBracketNameInPropertyAndParamTag(foo: number=1): { name: EntityName; isBracketed: boolean; isRef: boolean; expr: Expression | undefined } {
                 // Looking for something like '[foo]', 'foo', '[foo.bar]' or 'foo.bar'
                 const isBracketed = parseOptionalJsdoc(SyntaxKind.OpenBracketToken);
                 if (isBracketed) {
@@ -6436,6 +6436,8 @@ export namespace LpcParser {
                 }
                 // a markdown-quoted name: `arg` is not legal jsdoc, but occurs in the wild
                 const isBackquoted = parseOptionalJsdoc(SyntaxKind.BacktickToken);
+                // allow &name for pass-by-reference params (LPC ref keyword)
+                const isRef = !!parseOptionalJsdoc(SyntaxKind.AmpersandToken);
                 const name = parseJSDocEntityName();
                 let expr: Expression = undefined;
 
@@ -6452,7 +6454,7 @@ export namespace LpcParser {
                     parseExpected(SyntaxKind.CloseBracketToken);
                 }
 
-                return { name, isBracketed, expr };
+                return { name, isBracketed, isRef, expr };
             }
 
             function isObjectOrObjectArrayTypeReference(node: TypeNode): boolean {
@@ -6471,7 +6473,7 @@ export namespace LpcParser {
                 let isNameFirst = !typeExpression;
                 skipWhitespaceOrAsterisk();
 
-                const { name, isBracketed, expr } = parseBracketNameInPropertyAndParamTag();
+                const { name, isBracketed, isRef, expr } = parseBracketNameInPropertyAndParamTag();
                 const indentText = skipWhitespaceOrAsterisk();
 
                 if (isNameFirst && !lookAhead(parseJSDocLinkPrefix)) {
@@ -6487,7 +6489,7 @@ export namespace LpcParser {
                 }
                 const result = target === PropertyLikeParse.Property ? factory.createJSDocPropertyTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment) :
                     target === PropertyLikeParse.Variable ? factory.createJSDocVariableTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment) :
-                    factory.createJSDocParameterTag(tagName, name, expr, isBracketed, typeExpression, isNameFirst, comment);
+                    factory.createJSDocParameterTag(tagName, name, expr, isBracketed, typeExpression, isNameFirst, comment, isRef);
                 return addImportCandidate(finishNode(result, start));
             }
 

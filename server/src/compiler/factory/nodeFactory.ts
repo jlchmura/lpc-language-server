@@ -2154,13 +2154,14 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createJSDocParameterTag(tagName: Identifier | undefined, name: EntityName, defaultExpression: Expression | undefined, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocParameterTag {
+    function createJSDocParameterTag(tagName: Identifier | undefined, name: EntityName, defaultExpression: Expression | undefined, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>, isRef?: boolean): JSDocParameterTag {
         const node = createBaseJSDocTagDeclaration<JSDocParameterTag>(SyntaxKind.JSDocParameterTag, tagName ?? createIdentifier("param"), comment);
         node.typeExpression = typeExpression;
         node.name = name;
         node.defaultExpression = defaultExpression;
         node.isNameFirst = !!isNameFirst;
         node.isBracketed = isBracketed;
+        node.isRef = !!isRef;
         return node;
     }
 
@@ -2214,6 +2215,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.name = name;
         node.isNameFirst = !!isNameFirst;
         node.isBracketed = isBracketed;
+        node.isRef = false;
         return node;
     }
 
@@ -2224,6 +2226,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.name = name;
         node.isNameFirst = !!isNameFirst;
         node.isBracketed = isBracketed;
+        node.isRef = false;
         return node;
     }
 
