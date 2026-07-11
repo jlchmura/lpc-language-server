@@ -34,9 +34,8 @@ a buffer as a string
  * runtime config file.
  *
  */
-string | buffer read_buffer( string | buffer src,
-                             int start,
-                             int len );
+buffer read_buffer( string src, void | int start, void | int len );
+string read_buffer( buffer src, void | int start, void | int len );
 
 /**
  * crc32() - compute the cycle redundancy code for a buffer or string
