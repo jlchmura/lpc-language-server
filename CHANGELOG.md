@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.46
+
+- Enhancement: Add FluffOS mapping dot-access and optional chaining
+
 ## 1.1.45
 
 - Enhancement: Improve completion in closure expressions
