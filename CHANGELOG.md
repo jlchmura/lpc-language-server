@@ -8,8 +8,9 @@
 - Validate LPCDoc @param types and ref modifiers against signatures
 - Fix: Resolve inherit/object paths to .lpc files
 - Fix: Show return type on function declaration hover
-- Fix: [Infer nested-mapping value type in foreach instead of mixed*
-#325](https://github.com/jlchmura/lpc-language-server/issues/319)
+- Fix: [Infer nested-mapping value type in foreach instead of mixed\*
+  #319](https://github.com/jlchmura/lpc-language-server/issues/319)
+- Fix: [foreach: explicit type annotation on destructured value variable is validated then discarded #318](https://github.com/jlchmura/lpc-language-server/issues/318)
 
 ## 1.1.45
 
