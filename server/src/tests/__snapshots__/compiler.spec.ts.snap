@@ -428,6 +428,12 @@ exports[`Compiler compiler/inherit1.base2.c Reports correct errors for compiler/
 
 exports[`Compiler compiler/inherit1.c Reports correct errors for compiler/inherit1.c: diags-compiler/inherit1.c 1`] = `""`;
 
+exports[`Compiler compiler/inheritExplicitLpc.c Reports correct errors for compiler/inheritExplicitLpc.c: diags-compiler/inheritExplicitLpc.c 1`] = `""`;
+
+exports[`Compiler compiler/inheritExplicitLpcBase.c Reports correct errors for compiler/inheritExplicitLpcBase.c: diags-compiler/inheritExplicitLpcBase.c 1`] = `""`;
+
+exports[`Compiler compiler/inheritLpcExtensionless.c Reports correct errors for compiler/inheritLpcExtensionless.c: diags-compiler/inheritLpcExtensionless.c 1`] = `""`;
+
 exports[`Compiler compiler/intLiteral1.c Reports correct errors for compiler/intLiteral1.c: diags-compiler/intLiteral1.c 1`] = `""`;
 
 exports[`Compiler compiler/intLiteral2.c Reports correct errors for compiler/intLiteral2.c: diags-compiler/intLiteral2.c 1`] = `""`;
@@ -536,6 +542,8 @@ Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/ma
 
 exports[`Compiler compiler/mapping6.c Reports correct errors for compiler/mapping6.c: diags-compiler/mapping6.c 1`] = `""`;
 
+exports[`Compiler compiler/mappingDotAccess.c Reports correct errors for compiler/mappingDotAccess.c: diags-compiler/mappingDotAccess.c 1`] = `""`;
+
 exports[`Compiler compiler/mappingType1.c Reports correct errors for compiler/mappingType1.c: diags-compiler/mappingType1.c 1`] = `""`;
 
 exports[`Compiler compiler/mappingType2.c Reports correct errors for compiler/mappingType2.c: diags-compiler/mappingType2.c 1`] = `
@@ -632,6 +640,8 @@ exports[`Compiler compiler/operatorBitwise.c Reports correct errors for compiler
 exports[`Compiler compiler/operatorDoubleBang.c Reports correct errors for compiler/operatorDoubleBang.c: diags-compiler/operatorDoubleBang.c 1`] = `""`;
 
 exports[`Compiler compiler/operatorLogical.c Reports correct errors for compiler/operatorLogical.c: diags-compiler/operatorLogical.c 1`] = `""`;
+
+exports[`Compiler compiler/optionalChaining.c Reports correct errors for compiler/optionalChaining.c: diags-compiler/optionalChaining.c 1`] = `""`;
 
 exports[`Compiler compiler/paramRef.c Reports correct errors for compiler/paramRef.c: diags-compiler/paramRef.c 1`] = `""`;
 

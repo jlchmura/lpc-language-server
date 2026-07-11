@@ -8,7 +8,7 @@ import { URI } from "vscode-uri";
 export function normalizeFileExtension(filename: string) {
     if (!filename) return filename;
 
-    if (!filename.endsWith(".c") && !filename.endsWith(".h")) {
+    if (!filename.endsWith(".c") && !filename.endsWith(".h") && !filename.endsWith(".lpc")) {
         filename += ".c";
     }
 

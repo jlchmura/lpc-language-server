@@ -1,0 +1,10 @@
+
+string which_file() {
+    return "inheritExplicitLpcBase.lpc";
+}
+
+// Defined only in the .lpc version, so an inherit that wrongly binds to the
+// sibling .c file will fail to resolve this symbol.
+int is_lpc_version() {
+    return 1;
+}

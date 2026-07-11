@@ -94,7 +94,16 @@
                 ]
             }
         ],
-        "commands": [],
+        "commands": [
+            {
+                "command": "lpc.restartLanguageServer",
+                "title": "LPC: Restart LPC Language Server"
+            },
+            {
+                "command": "lpc.restartSyntaxServer",
+                "title": "LPC: Restart LPC Syntax Server"
+            }
+        ],
         "taskDefinitions": [
             {
                 "type": "LPC",

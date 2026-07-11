@@ -2646,10 +2646,13 @@ export type BarBarEqualsToken = PunctuationToken<SyntaxKind.BarBarEqualsToken>;
 export type AsteriskToken = PunctuationToken<SyntaxKind.AsteriskToken>;
 export type EqualsGreaterThanToken = PunctuationToken<SyntaxKind.EqualsGreaterThanToken>;
 export type MinusGreaterThanToken = PunctuationToken<SyntaxKind.MinusGreaterThanToken>;
+export type QuestionDotToken = PunctuationToken<SyntaxKind.QuestionDotToken>;
 export type PlusToken = PunctuationToken<SyntaxKind.PlusToken>;
 export type MinusToken = PunctuationToken<SyntaxKind.MinusToken>;
 
-export type PropertyAccessToken = DotToken | MinusGreaterThanToken;
+// QuestionDotToken records FluffOS optional chaining ("m?.key"); the node also
+// carries NodeFlags.OptionalChain to route the checker to the chain path.
+export type PropertyAccessToken = DotToken | MinusGreaterThanToken | QuestionDotToken;
 
 export type JSDocImportCandidateNode = 
     | JSDocParameterTag
