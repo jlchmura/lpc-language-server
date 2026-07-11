@@ -2451,7 +2451,15 @@ export function createScanner(
                     return token = SyntaxKind.GreaterThanToken;
                 case CharacterCodes.question:
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.dot && !isDigit(charCodeUnchecked(pos + 2))) {
-                        return pos += 2, token = SyntaxKind.QuestionDotToken;
+                        // FluffOS optional chaining "?." (mapping member/bracket access,
+                        // e.g. m?.key, m?.[idx]). Not matched before a digit so a ternary's
+                        // float branch ("cond ? .5 : x") still lexes as '?' then ".5".
+                        pos += 2;
+                        token = SyntaxKind.QuestionDotToken;
+                        if (languageVariant === LanguageVariant.LDMud) {
+                            error(Diagnostics.Operator_0_is_not_supported_in_LDMud, pos - 2, 2, "?.");
+                        }
+                        return token;
                     }
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.question) {
                         if (charCodeUnchecked(pos + 2) === CharacterCodes.equals) {

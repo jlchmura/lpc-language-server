@@ -2830,7 +2830,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }    
 
     function getOptionalExpressionType(exprType: Type, expression: Expression) {
-        console.debug("todo - getOptionalExpressionType");
+        // TODO: narrow away the short-circuited branch of an optional chain. When the base
+        // isn't a mapping the driver yields undefined (const0u) rather than erroring; until
+        // that's modelled, the chain's type is just the non-optional access type.
         return exprType;
         // TODO: 
         // return isExpressionOfOptionalChainRoot(expression) ? getNonNullableType(exprType) :
@@ -14849,6 +14851,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function checkElementAccessChain(node: ElementAccessChain, checkMode: CheckMode | undefined) {
         const exprType = checkExpression(node.expression);
         const nonOptionalType = getOptionalExpressionType(exprType, node.expression);
+        // FluffOS optional index `m?.[idx]` is mapping-only and short-circuits to undefined
+        // when the base isn't a mapping, so it never faults. Mappings resolve normally; any
+        // other (non-any) base returns mixed here instead of erroring on a bad index.
+        if (languageVariant === LanguageVariant.FluffOS && !isTypeAny(nonOptionalType) && !isMappingType(nonOptionalType)) {
+            checkExpression(node.argumentExpression);
+            return anyType;
+        }
         return propagateOptionalTypeMarker(checkElementAccessExpression(node, checkNonNullType(nonOptionalType, node.expression), checkMode), node, nonOptionalType !== exprType);
     }
 
@@ -24543,9 +24552,28 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         
         if (isParenthesizedExpression(right)) {
             // if right is a parenthesized expr, we can shortcut this whole check and just return any
-            // TODO - if right is a string literal - we can technically narrow validate the property access?            
+            // TODO - if right is a string literal - we can technically narrow validate the property access?
             const rigthExprType = checkExpression(right); // check the expression - but don't use its type
             return anyType;
+        }
+
+        // FluffOS mapping dot-access `m.key` is purely syntactic sugar for `m["key"]`,
+        // so it must resolve to the same type. Route through the same indexed-access
+        // machinery with the property name as a string-literal key; pass no access node so
+        // the resolver does a value lookup (yielding the mapping's value type, or mixed for
+        // an absent key / untyped mapping) instead of reporting a missing named property.
+        // Applies to `m?.key` too - the chain checker delegates here. Gated to FluffOS;
+        // LDMud, which has no mapping dot-access, falls through to normal member checking
+        // and rejects it.
+        const isOptionalAccess = !!(node.flags & NodeFlags.OptionalChain);
+        if (languageVariant === LanguageVariant.FluffOS && isMappingType(leftType)) {
+            const valueType = getIndexedAccessTypeOrUndefined(leftType, getStringLiteralType(right.text), AccessFlags.ExpressionPosition, /*accessNode*/ undefined) ?? anyType;
+            return getFlowTypeOfAccessExpression(node, /*prop*/ undefined, valueType, right, checkMode);
+        }
+        // Optional access `m?.key` on a non-mapping base short-circuits to undefined at
+        // runtime rather than erroring, so its type is just mixed (never a compile error).
+        if (languageVariant === LanguageVariant.FluffOS && isOptionalAccess) {
+            return getFlowTypeOfAccessExpression(node, /*prop*/ undefined, anyType, right, checkMode);
         }
 
         prop = getPropertyOfType(apparentType, right.text, /*skipObjectFunctionPropertyAugment*/ false, /*includeTypeOnlyMembers*/ node.kind === SyntaxKind.QualifiedName);
