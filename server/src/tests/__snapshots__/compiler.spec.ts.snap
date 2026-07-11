@@ -454,6 +454,7 @@ Found 1 error in server/src/tests/cases/compiler/jsDocParam.c[90m:4[0m
 "
 `;
 
+exports[`Compiler compiler/jsDocParamRef.c Reports correct errors for compiler/jsDocParamRef.c: diags-compiler/jsDocParamRef.c 1`] = `""`;
 exports[`Compiler compiler/jsDocParamRefMismatch.c Reports correct errors for compiler/jsDocParamRefMismatch.c: diags-compiler/jsDocParamRefMismatch.c 1`] = `
 "
 Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/jsDocParamRefMismatch.c[90m:3[0m
