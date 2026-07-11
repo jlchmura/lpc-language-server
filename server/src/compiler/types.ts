@@ -666,10 +666,16 @@ export const enum SyntaxKind {
     FloatLiteral,
     BytesLiteral,
     StringArrayLiteral,
-    StringLiteral,                
+    StringLiteral,
+    NoSubstitutionTemplateLiteral,
+
+    // Pseudo-literals (template literal parts)
+    TemplateHead,
+    TemplateMiddle,
+    TemplateTail,
 
     // Punctuation
-    OpenBraceToken, 
+    OpenBraceToken,
     BacktickToken,
     CloseBraceToken,
     OpenParenToken,
@@ -1010,8 +1016,10 @@ export const enum SyntaxKind {
     CastExpression,
     OmittedExpression,
     PrefixUnaryExpression,
-    
-    // Clauses    
+    TemplateExpression,
+    TemplateSpan,
+
+    // Clauses
     CaseClause,
     HeritageClause,
     DefaultClause,    
@@ -1040,6 +1048,8 @@ export const enum SyntaxKind {
     LastJSDocNode = JSDocImportTag,
     FirstLiteralToken = IntLiteral,
     LastLiteralToken = StringLiteral,
+    FirstTemplateToken = NoSubstitutionTemplateLiteral,
+    LastTemplateToken = TemplateTail,
     FirstJSDocTagNode = JSDocTypeExpression,
     LastJSDocTagNode = JSDocImportTag,
     FirstTriviaToken = SingleLineCommentTrivia,
@@ -1531,6 +1541,8 @@ export interface NodeFactory {
     createIdentifier(text: string): Identifier;
     /** @internal */ createIdentifier(text: string, originalKeywordKind?: SyntaxKind, hasExtendedUnicodeEscape?: boolean): Identifier; // eslint-disable-line @typescript-eslint/unified-signatures
     createLiteralLikeNode(kind: LiteralToken["kind"], text: string): LiteralToken;
+    createTemplateExpression(head: StringLiteral, templateSpans: readonly TemplateSpan[]): TemplateExpression;
+    createTemplateSpan(expression: Expression, literal: StringLiteral): TemplateSpan;
     
     // element
     createEmptyStatement(): EmptyStatement;
@@ -1648,7 +1660,7 @@ export interface NodeFactory {
     // JSDoc
     createJSDocText(text: string): JSDocText;
     createJSDocComment(comment?: string | NodeArray<JSDocComment> | undefined, tags?: readonly JSDocTag[] | undefined): JSDoc;
-    createJSDocParameterTag(tagName: Identifier | undefined, name: EntityName, defaultExpression: Expression | undefined, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocParameterTag;
+    createJSDocParameterTag(tagName: Identifier | undefined, name: EntityName, defaultExpression: Expression | undefined, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>, isRef?: boolean): JSDocParameterTag;
     createJSDocReturnTag(tagName: Identifier | undefined, typeExpression?: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocReturnTag;
     createJSDocOptionalType(type: TypeNode): JSDocOptionalType;
     createJSDocTypeTag(tagName: Identifier | undefined, typeExpression: JSDocTypeExpression, comment?: string | NodeArray<JSDocComment>): JSDocTypeTag;
@@ -2285,7 +2297,9 @@ export type HasChildren =
     | PrefixUnaryExpression
     | PostfixUnaryExpression
     | BinaryExpression
-    | ConditionalExpression    
+    | ConditionalExpression
+    | TemplateExpression
+    | TemplateSpan
     // | YieldExpression
     | SpreadElement
     | ClassExpression
@@ -2632,10 +2646,13 @@ export type BarBarEqualsToken = PunctuationToken<SyntaxKind.BarBarEqualsToken>;
 export type AsteriskToken = PunctuationToken<SyntaxKind.AsteriskToken>;
 export type EqualsGreaterThanToken = PunctuationToken<SyntaxKind.EqualsGreaterThanToken>;
 export type MinusGreaterThanToken = PunctuationToken<SyntaxKind.MinusGreaterThanToken>;
+export type QuestionDotToken = PunctuationToken<SyntaxKind.QuestionDotToken>;
 export type PlusToken = PunctuationToken<SyntaxKind.PlusToken>;
 export type MinusToken = PunctuationToken<SyntaxKind.MinusToken>;
 
-export type PropertyAccessToken = DotToken | MinusGreaterThanToken;
+// QuestionDotToken records FluffOS optional chaining ("m?.key"); the node also
+// carries NodeFlags.OptionalChain to route the checker to the chain path.
+export type PropertyAccessToken = DotToken | MinusGreaterThanToken | QuestionDotToken;
 
 export type JSDocImportCandidateNode = 
     | JSDocParameterTag
@@ -3428,6 +3445,24 @@ export interface BytesLiteral extends LiteralExpression, Declaration {
     /** @internal */ readonly textSourceNode?: Identifier | StringLiteral | IntLiteral | FloatLiteral;// | JsxNamespacedName; // Allows a StringLiteral to get its text from another node (used by transforms).
 }
 
+// FluffOS template literals (`...${expr}...`). The literal chunks (head/middle/tail)
+// are represented as ordinary StringLiteral nodes; only the composite expression and
+// its interpolation spans get dedicated node kinds.
+export interface TemplateExpression extends PrimaryExpression {
+    readonly kind: SyntaxKind.TemplateExpression;
+    readonly head: StringLiteral;
+    readonly templateSpans: NodeArray<TemplateSpan>;
+}
+
+export interface TemplateSpan extends Node {
+    readonly kind: SyntaxKind.TemplateSpan;
+    readonly parent: TemplateExpression;
+    readonly expression: Expression;
+    readonly literal: StringLiteral;
+}
+
+export type TemplateLiteral = TemplateExpression | StringLiteral;
+
 export type TriviaSyntaxKind =
     | SyntaxKind.SingleLineCommentTrivia
     | SyntaxKind.MultiLineCommentTrivia
@@ -3502,6 +3537,8 @@ export interface JSDocPropertyLikeTag extends JSDocTag, Declaration {
     /** Whether the property name came before the type -- non-standard for JSDoc, but Typescript-like */
     readonly isNameFirst: boolean;
     readonly isBracketed: boolean;
+    /** Whether the parameter name was prefixed with & (pass-by-reference) */
+    readonly isRef: boolean;
 }
 
 // represents a top level: { type } expression in a JSDoc comment.

@@ -35,7 +35,7 @@ int write_bytes( string path, int start, string series );
  * @param {string} str - the file or directory to get information about
  * @param {int} flag defaults 0, if 0, return an array of information, if -1, return an array of subarrays
  */
-mixed stat( string str, int flag );
+varargs mixed stat( string str, int flag );
 
 /**
  * rmdir() - remove a directory
@@ -109,7 +109,7 @@ int mkdir( string directory );
  * https://www.geeksforgeeks.org/difference-between-hard-link-and-soft-link/
  *
  */
-void link( string original, string reference );
+int link( string original, string reference );
 
 /**
  * get_dir() - returns information pertaining to a filesystem directory

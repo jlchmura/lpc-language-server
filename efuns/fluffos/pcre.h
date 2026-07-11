@@ -15,8 +15,12 @@ string pcre_version(void);
  * value of function pointer fun or function fun in object ob. (called with the
  * matched string and match number, starting with 0)
  *
+ * Any extra arguments are forwarded to the callback; an optional trailing
+ * integer is treated as PCRE flags.
+ *
  */
-string pcre_replace_callback(string input, string pattern, string|function, mixed *args...);
+string pcre_replace_callback( string subject, string pattern, function fun, mixed extra... );
+string pcre_replace_callback( string subject, string pattern, string fun, object | string ob, mixed extra... );
 
 /**
  * pcre_replace()
@@ -69,7 +73,7 @@ mapping pcre_cache(void);
  * the PCRE library.
  *
  */
-varargs mixed *pcre_assoc(string input, string *patterns, 
-    mixed *token_aray, 
-    mixed default_value);
+varargs mixed *pcre_assoc(string input, string *patterns,
+    mixed *token_aray,
+    mixed default_value, int pcre_flags);
 

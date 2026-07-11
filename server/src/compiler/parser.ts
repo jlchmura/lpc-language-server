@@ -1,4 +1,4 @@
-import { AmpersandToken, ArrayLiteralExpression, ArrayTypeNode, BaseNodeFactory, BinaryExpression, BinaryOperatorToken, BindingPattern, Block, BooleanLiteral, BreakOrContinueStatement, BreakStatement, ByRefElement, CallExpression, CaseBlock, CaseClause, CaseOrDefaultClause, CastExpression, CatchExpression, CatchStatement, CharacterCodes, CloneObjectExpression, CommaListExpression, CommentRange, ConditionalExpression, ContinueStatement, Debug, DefaultClause, DefineDirective, Diagnostic, DiagnosticArguments, DiagnosticMessage, DiagnosticWithDetachedLocation, Diagnostics, DoWhileStatement, ElementAccessExpression, EndOfFileToken, EntityName, EvaluateExpression, Expression, ExpressionStatement, ExpressionWithTypeArguments, Extension, ForEachChildNodes, ForEachStatement, ForStatement, FunctionDeclaration, FunctionExpression, HasJSDoc, Identifier, IfStatement, ImpliedStringConcatExpression, ImportCandidateNode, IncludeDirective, InferTypeNode, InheritClauseNodeType, InheritDeclaration, InlineClosureExpression, IntersectionTypeNode, IterationStatement, JSDoc, JSDocAugmentsTag, JSDocAuthorTag, JSDocCallbackTag, JSDocClassTag, JSDocComment, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocOverrideTag, JSDocParameterTag, JSDocParsingMode, JSDocPrivateTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocProtectedTag, JSDocPublicTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocTypedefTag, JSDocUnknownTag, JSDocVariableTag, JSDocVariadicType, JsonMinusNumericLiteral, JsonObjectExpressionStatement, JsonSourceFile, KeywordSyntaxKind, LabeledStatement, LambdaExpression, LambdaIdentifierExpression, LambdaOperatorExpression, LambdaOperatorToken, LanguageVariant, LeftHandSideExpression, LiteralExpression, LiteralLikeNode, LiteralTypeNode, LpcFileHandler, LpcLoadImportResult, Macro, MacroParameter, MapLike, MappingEntryExpression, MappingLiteralExpression, MappingTypeNode, MemberExpression, MethodSignature, MissingDeclaration, Modifier, ModifierLike, Mutable, MutableNodeArray, NamedObjectTypeNode, NewExpression, NewExpressionArgument, NewStructExpression, Node, NodeArray, NodeFactory, NodeFactoryFlags, NodeFlags, NullLiteral, NumericLiteral, ObjectLiteralElementLike, ObjectLiteralExpression, OperatorPrecedence, ParameterDeclaration, ParenthesizedExpression, PositionState, PostfixUnaryExpression, PostfixUnaryOperator, PragmaContext, PragmaDefinition, PragmaDirective, PragmaKindFlags, PragmaMap, PragmaPseudoMap, PragmaPseudoMapEntry, PrefixUnaryExpression, PrefixUnaryOperator, PreprocessorDirective, PrimaryExpression, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAccessToken, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, QualifiedName, RangeExpression, RefToken, ResolutionMode, ReturnStatement, ScriptKind, ScriptTarget, ShorthandPropertyAssignment, SourceFile, SpreadElement, Statement, StringLiteral, StructDeclaration, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, Ternary, TextChangeRange, TextRange, Token, TupleTypeNode, TypeAssertion, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnaryExpression, UndefDirective, UnionTypeNode, UpdateExpression, VariableDeclaration, VariableDeclarationList, VariableStatement, WhileStatement, addRange, addRelatedInfo, append, attachFileToDiagnostics, canHaveJSDoc, commentPragmas, concatenate, containsParseError, createDetachedDiagnostic, createNodeFactory, createScanner, emptyArray, emptyMap, fileExtensionIs, first, firstOrUndefined, flatten, forEach, forEachEntry, getAnyExtensionFromPath, getBaseFileName, getBinaryOperatorPrecedence, getDirectoryPath, getFullWidth, getJSDocCommentRanges, getLeadingCommentRanges, getSpellingSuggestion, idText, identity, isArray, isArrayTypeNode, isAssignmentOperator, isBinaryExpression, isIdentifier as isIdentifierNode, isIdentifierText, isJSDocReturnTag, isJSDocTypeTag, isKeyword, isKeywordOrPunctuation, isLeftHandSideExpression, isLiteralKind, isModifierKind, isNonReservedKeyword, isParenthesizedExpression, isStringLiteral, isStringOrNumericLiteralLike, isStructTypeNode, isTypeReferenceNode, last, lastOrUndefined, map, mapDefined, nodeIsMissing, nodeIsPresent, objectAllocator, performance, setNodeFlags, setParent, setParentRecursive, setTextRangePos, setTextRangePosEnd, setTextRangePosWidth, skipTrivia, some, startsWith, supportedDeclarationExtensions, textToKeywordObj, toArray, tokenIsIdentifierOrKeyword, tokenToString, tracing } from "./_namespaces/lpc";
+import { AmpersandToken, ArrayLiteralExpression, ArrayTypeNode, BaseNodeFactory, BinaryExpression, BinaryOperatorToken, BindingPattern, Block, BooleanLiteral, BreakOrContinueStatement, BreakStatement, ByRefElement, CallExpression, CaseBlock, CaseClause, CaseOrDefaultClause, CastExpression, CatchExpression, CatchStatement, CharacterCodes, CloneObjectExpression, CommaListExpression, CommentRange, ConditionalExpression, ContinueStatement, Debug, DefaultClause, DefineDirective, Diagnostic, DiagnosticArguments, DiagnosticMessage, DiagnosticWithDetachedLocation, Diagnostics, DoWhileStatement, ElementAccessExpression, EndOfFileToken, EntityName, EvaluateExpression, Expression, ExpressionStatement, ExpressionWithTypeArguments, Extension, ForEachChildNodes, ForEachStatement, ForStatement, FunctionDeclaration, FunctionExpression, HasJSDoc, Identifier, IfStatement, ImpliedStringConcatExpression, ImportCandidateNode, IncludeDirective, InferTypeNode, InheritClauseNodeType, InheritDeclaration, InlineClosureExpression, IntersectionTypeNode, IterationStatement, JSDoc, JSDocAugmentsTag, JSDocAuthorTag, JSDocCallbackTag, JSDocClassTag, JSDocComment, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocOverrideTag, JSDocParameterTag, JSDocParsingMode, JSDocPrivateTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocProtectedTag, JSDocPublicTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocTypedefTag, JSDocUnknownTag, JSDocVariableTag, JSDocVariadicType, JsonMinusNumericLiteral, JsonObjectExpressionStatement, JsonSourceFile, KeywordSyntaxKind, LabeledStatement, LambdaExpression, LambdaIdentifierExpression, LambdaOperatorExpression, LambdaOperatorToken, LanguageVariant, LeftHandSideExpression, LiteralExpression, LiteralLikeNode, LiteralTypeNode, LpcFileHandler, LpcLoadImportResult, Macro, MacroParameter, MapLike, MappingEntryExpression, MappingLiteralExpression, MappingTypeNode, MemberExpression, MethodSignature, MissingDeclaration, Modifier, ModifierLike, Mutable, MutableNodeArray, NamedObjectTypeNode, NewExpression, NewExpressionArgument, NewStructExpression, Node, NodeArray, NodeFactory, NodeFactoryFlags, NodeFlags, NullLiteral, NumericLiteral, ObjectLiteralElementLike, ObjectLiteralExpression, OperatorPrecedence, ParameterDeclaration, ParenthesizedExpression, PositionState, PostfixUnaryExpression, PostfixUnaryOperator, PragmaContext, PragmaDefinition, PragmaDirective, PragmaKindFlags, PragmaMap, PragmaPseudoMap, PragmaPseudoMapEntry, PrefixUnaryExpression, PrefixUnaryOperator, PreprocessorDirective, PrimaryExpression, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAccessToken, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, QualifiedName, QuestionDotToken, RangeExpression, RefToken, ResolutionMode, ReturnStatement, ScriptKind, ScriptTarget, ShorthandPropertyAssignment, SourceFile, SpreadElement, Statement, StringLiteral, StructDeclaration, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, TemplateExpression, TemplateSpan, Ternary, TextChangeRange, TextRange, Token, TupleTypeNode, TypeAssertion, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnaryExpression, UndefDirective, UnionTypeNode, UpdateExpression, VariableDeclaration, VariableDeclarationList, VariableStatement, WhileStatement, addRange, addRelatedInfo, append, attachFileToDiagnostics, canHaveJSDoc, commentPragmas, concatenate, containsParseError, createDetachedDiagnostic, createNodeFactory, createScanner, emptyArray, emptyMap, fileExtensionIs, first, firstOrUndefined, flatten, forEach, forEachEntry, getAnyExtensionFromPath, getBaseFileName, getBinaryOperatorPrecedence, getDirectoryPath, getFullWidth, getJSDocCommentRanges, getLeadingCommentRanges, getSpellingSuggestion, idText, identity, isArray, isArrayTypeNode, isAssignmentOperator, isBinaryExpression, isIdentifier as isIdentifierNode, isIdentifierText, isJSDocReturnTag, isJSDocTypeTag, isKeyword, isKeywordOrPunctuation, isLeftHandSideExpression, isLiteralKind, isModifierKind, isNonReservedKeyword, isParenthesizedExpression, isStringLiteral, isStringOrNumericLiteralLike, isStructTypeNode, isTemplateExpression, isTypeReferenceNode, last, lastOrUndefined, map, mapDefined, nodeIsMissing, nodeIsPresent, objectAllocator, performance, setNodeFlags, setParent, setParentRecursive, setTextRangePos, setTextRangePosEnd, setTextRangePosWidth, skipTrivia, some, startsWith, supportedDeclarationExtensions, textToKeywordObj, toArray, tokenIsIdentifierOrKeyword, tokenToString, tracing } from "./_namespaces/lpc";
 
 const enum SpeculationKind {
     TryParse,
@@ -3004,8 +3004,8 @@ export namespace LpcParser {
             case SyntaxKind.FloatLiteral:
             case SyntaxKind.StringLiteral:
             case SyntaxKind.StringArrayLiteral:
-            // case SyntaxKind.NoSubstitutionTemplateLiteral:
-            // case SyntaxKind.TemplateHead:
+            case SyntaxKind.NoSubstitutionTemplateLiteral:
+            case SyntaxKind.TemplateHead:
             case SyntaxKind.OpenParenToken:
             case SyntaxKind.OpenBracketToken:
             case SyntaxKind.OpenParenColonToken:
@@ -4477,7 +4477,7 @@ export namespace LpcParser {
             // reScanGreaterToken so that we merge token sequences like > and = into >=
 
             reScanGreaterToken(); 
-            const impliedStringConcat = canImplyStringConcat(leftOperand) && token() == SyntaxKind.StringLiteral;           
+            const impliedStringConcat = canImplyStringConcat(leftOperand) && (token() == SyntaxKind.StringLiteral || token() === SyntaxKind.NoSubstitutionTemplateLiteral || token() === SyntaxKind.TemplateHead);
             // LPC's = precedence is relational, but if this is the first entry into the parse loop
             // when precendence is lowest, we should treat it as assignment
             const newPrecedence = precedence == OperatorPrecedence.Lowest && token() == SyntaxKind.EqualsToken ?
@@ -4996,17 +4996,30 @@ export namespace LpcParser {
     }
 
     function parseMemberExpressionRest(pos: PositionState, expression: LeftHandSideExpression, allowOptionalChain: boolean): MemberExpression {
-        while (true) {   
+        while (true) {
             let isPropertyAccess = false;
-            let propertyAccessToken: Token<SyntaxKind.DotToken | SyntaxKind.MinusGreaterThanToken> | undefined;            
+            let propertyAccessToken: Token<SyntaxKind.DotToken | SyntaxKind.MinusGreaterThanToken> | undefined;
 
             if (token() == SyntaxKind.ColonColonToken) {
                 expression = parseSuperExpression(pos, expression)
             }
 
+            // FluffOS optional chaining: expr?.name (optional member) and expr?.[idx]
+            // (optional index), both lexed with a leading QuestionDotToken.
+            if (allowOptionalChain && token() === SyntaxKind.QuestionDotToken) {
+                const questionDotToken = parseTokenNode<QuestionDotToken>();
+                if (parseOptional(SyntaxKind.OpenBracketToken)) {
+                    expression = parseElementAccessExpressionRest(pos, expression, /*optionalChain*/ true);
+                }
+                else {
+                    expression = parsePropertyAccessExpressionRest(pos, expression, questionDotToken, /*optionalChain*/ true);
+                }
+                continue;
+            }
+
             if (token() == SyntaxKind.DotToken || token() == SyntaxKind.MinusGreaterThanToken) {
                 isPropertyAccess = true;
-                propertyAccessToken = parseTokenNode();                
+                propertyAccessToken = parseTokenNode();
             }
 
             if (isPropertyAccess) {
@@ -5014,21 +5027,21 @@ export namespace LpcParser {
                 continue;
             }
 
-            // handle implied string concatenation - consume all string literal nodes to the right            
+            // handle implied string concatenation - consume all string literal nodes to the right
             expression = tryParseImpliedStringConcatExpression(expression, pos);
-            
+
             if (parseOptional(SyntaxKind.OpenBracketToken)) {
                 expression = parseElementAccessExpressionRest(pos, expression);
                 continue;
             }
-                        
+
             return expression as MemberExpression;
         }
     }
 
     function tryParseImpliedStringConcatExpression(expression: LeftHandSideExpression, pos: PositionState): LeftHandSideExpression {
         let tempBinaryExpression: Expression | undefined;
-        while (canImplyStringConcat(expression) && (token() == SyntaxKind.StringLiteral || token() === SyntaxKind.StringizedIdentifier)) {
+        while (canImplyStringConcat(expression) && isStartOfImpliedStringConcat()) {
             const tokenNode = finishNode(factoryCreateToken(SyntaxKind.PlusToken), getPositionState());
             tempBinaryExpression = makeBinaryExpression(tempBinaryExpression ?? expression, tokenNode, parsePrimaryExpression(), pos);
         }
@@ -5040,7 +5053,17 @@ export namespace LpcParser {
     }
 
     function canImplyStringConcat(expression: Node): boolean {
-        return isStringLiteral(expression) || isBinaryExpression(expression);
+        return isStringLiteral(expression) || isBinaryExpression(expression) || isTemplateExpression(expression);
+    }
+
+    // FluffOS allows a template literal to sit adjacent to a string or another template
+    // literal and implicitly concatenate (unlike JavaScript). These are the tokens that
+    // begin such an adjacent operand.
+    function isStartOfImpliedStringConcat(): boolean {
+        return token() === SyntaxKind.StringLiteral
+            || token() === SyntaxKind.StringizedIdentifier
+            || token() === SyntaxKind.NoSubstitutionTemplateLiteral
+            || token() === SyntaxKind.TemplateHead;
     }
 
     function parseMaybeRangeExpression(rangeTerminatorToken:PunctuationSyntaxKind): RangeExpression | Expression {        
@@ -5058,7 +5081,7 @@ export namespace LpcParser {
         return expression;
     }
 
-    function parseElementAccessExpressionRest(pos: PositionState, expression: LeftHandSideExpression) {
+    function parseElementAccessExpressionRest(pos: PositionState, expression: LeftHandSideExpression, optionalChain?: boolean) {
         let argumentExpression: Expression;
         if (token() === SyntaxKind.CloseBracketToken) {
             argumentExpression = createMissingNode(SyntaxKind.Identifier, /*reportAtCurrentPosition*/ true, Diagnostics.An_element_access_expression_should_take_an_argument);
@@ -5091,10 +5114,15 @@ export namespace LpcParser {
         parseExpected(SyntaxKind.CloseBracketToken);
 
         const indexedAccess = factoryCreateElementAccessExpression(expression, argumentExpression);
+        if (optionalChain) {
+            // FluffOS optional element access (m?.[idx]); routes the checker to the
+            // mapping-optional chain path.
+            setNodeFlags(indexedAccess, indexedAccess.flags | NodeFlags.OptionalChain);
+        }
         return finishNode(indexedAccess, pos);
     }
 
-    function parsePropertyAccessExpressionRest(pos: PositionState, expression: LeftHandSideExpression, propertyAccessToken: PropertyAccessToken) {
+    function parsePropertyAccessExpressionRest(pos: PositionState, expression: LeftHandSideExpression, propertyAccessToken: PropertyAccessToken, optionalChain?: boolean) {
         let name: Expression | Identifier;
 
         if (token() === SyntaxKind.OpenParenToken) {
@@ -5103,9 +5131,13 @@ export namespace LpcParser {
             name = parseRightSideOfDot(/*allowIdentifierNames*/ true, /*allowPrivateIdentifiers*/ true, /*allowUnicodeEscapeSequenceInIdentifierName*/ true);
         }
 
-        const isOptionalChain = false;
         const propertyAccess = factoryCreatePropertyAccessExpression(expression, name, propertyAccessToken);
-        
+        if (optionalChain) {
+            // FluffOS optional member access (m?.key); routes the checker to the
+            // mapping-optional chain path.
+            setNodeFlags(propertyAccess, propertyAccess.flags | NodeFlags.OptionalChain);
+        }
+
         return addImportCandidate(finishNode(propertyAccess, pos));
     }
 
@@ -5421,13 +5453,56 @@ export namespace LpcParser {
         return expression;
     }
     
+    // Builds a StringLiteral node out of the current template literal token
+    // (NoSubstitutionTemplateLiteral / TemplateHead / TemplateMiddle / TemplateTail)
+    // and advances the scanner. The literal chunks of a template are represented as
+    // plain StringLiteral nodes.
+    function parseTemplateLiteralLikeString(): StringLiteral {
+        const pos = getPositionState();
+        const node = factoryCreateStringLiteral(internStringIfNeeded(scanner.getTokenValue()), /*isSingleQuote*/ undefined, scanner.hasExtendedUnicodeEscape());
+        if (scanner.isUnterminated()) {
+            node.isUnterminated = true;
+        }
+        nextToken();
+        return finishNode(node, pos);
+    }
+
+    function parseTemplateExpression(isTaggedTemplate: boolean): TemplateExpression {
+        const pos = getPositionState();
+        const head = parseTemplateLiteralLikeString(); // consumes the TemplateHead token
+        const templateSpans: TemplateSpan[] = [];
+        let isTail = false;
+        do {
+            const span = parseTemplateSpan(isTaggedTemplate);
+            templateSpans.push(span.node);
+            isTail = span.isTail;
+        } while (!isTail);
+        return finishNode(factory.createTemplateExpression(head, templateSpans), pos);
+    }
+
+    function parseTemplateSpan(isTaggedTemplate: boolean): { node: TemplateSpan; isTail: boolean } {
+        const pos = getPositionState();
+        const expression = allowInAnd(parseExpression);
+        let literal: StringLiteral;
+        let isTail: boolean;
+        if (token() === SyntaxKind.CloseBraceToken) {
+            // Re-scan the '}' as the continuation of the template (TemplateMiddle or TemplateTail).
+            currentToken = scanner.reScanTemplateToken(isTaggedTemplate);
+            isTail = token() === SyntaxKind.TemplateTail;
+            literal = parseTemplateLiteralLikeString();
+        } else {
+            parseExpected(SyntaxKind.CloseBraceToken);
+            isTail = true;
+            literal = createMissingNode<StringLiteral>(SyntaxKind.StringLiteral, /*reportAtCurrentPosition*/ false);
+        }
+        const node = finishNode(factory.createTemplateSpan(expression, literal), pos);
+        return { node, isTail };
+    }
+
     function parsePrimaryExpression(): PrimaryExpression {
         switch (token()) {
-            // case SyntaxKind.NoSubstitutionTemplateLiteral:
-            //     if (scanner.getTokenFlags() & TokenFlags.IsInvalid) {
-            //         reScanTemplateToken(/*isTaggedTemplate*/ false);
-            //     }
-            // falls through
+            case SyntaxKind.NoSubstitutionTemplateLiteral:
+                return parseTemplateLiteralLikeString();
             case SyntaxKind.NumericLiteral:
             case SyntaxKind.IntLiteral:
             case SyntaxKind.CharLiteral:
@@ -5474,8 +5549,8 @@ export namespace LpcParser {
                 return parseFunctionExpression();
             case SyntaxKind.CatchKeyword:
                 return parseCatchExpression();                        
-            // case SyntaxKind.TemplateHead:
-            //     return parseTemplateExpression(/*isTaggedTemplate*/ false);            
+            case SyntaxKind.TemplateHead:
+                return parseTemplateExpression(/*isTaggedTemplate*/ false);
             case SyntaxKind.LambdaToken:
                 return parseLambdaExpression();                      
             case SyntaxKind.OpenBracketToken:
@@ -6353,7 +6428,7 @@ export namespace LpcParser {
              * @param [foo=1] somethig
              * @returns 
              */
-            function parseBracketNameInPropertyAndParamTag(foo: number=1): { name: EntityName; isBracketed: boolean; expr: Expression | undefined } {
+            function parseBracketNameInPropertyAndParamTag(foo: number=1): { name: EntityName; isBracketed: boolean; isRef: boolean; expr: Expression | undefined } {
                 // Looking for something like '[foo]', 'foo', '[foo.bar]' or 'foo.bar'
                 const isBracketed = parseOptionalJsdoc(SyntaxKind.OpenBracketToken);
                 if (isBracketed) {
@@ -6362,7 +6437,7 @@ export namespace LpcParser {
                 // a markdown-quoted name: `arg` is not legal jsdoc, but occurs in the wild
                 const isBackquoted = parseOptionalJsdoc(SyntaxKind.BacktickToken);
                 // allow &name for pass-by-reference params (LPC ref keyword)
-                parseOptionalJsdoc(SyntaxKind.AmpersandToken);
+                const isRef = !!parseOptionalJsdoc(SyntaxKind.AmpersandToken);
                 const name = parseJSDocEntityName();
                 let expr: Expression = undefined;
 
@@ -6379,7 +6454,7 @@ export namespace LpcParser {
                     parseExpected(SyntaxKind.CloseBracketToken);
                 }
 
-                return { name, isBracketed, expr };
+                return { name, isBracketed, isRef, expr };
             }
 
             function isObjectOrObjectArrayTypeReference(node: TypeNode): boolean {
@@ -6398,7 +6473,7 @@ export namespace LpcParser {
                 let isNameFirst = !typeExpression;
                 skipWhitespaceOrAsterisk();
 
-                const { name, isBracketed, expr } = parseBracketNameInPropertyAndParamTag();
+                const { name, isBracketed, isRef, expr } = parseBracketNameInPropertyAndParamTag();
                 const indentText = skipWhitespaceOrAsterisk();
 
                 if (isNameFirst && !lookAhead(parseJSDocLinkPrefix)) {
@@ -6414,7 +6489,7 @@ export namespace LpcParser {
                 }
                 const result = target === PropertyLikeParse.Property ? factory.createJSDocPropertyTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment) :
                     target === PropertyLikeParse.Variable ? factory.createJSDocVariableTag(tagName, name, isBracketed, typeExpression, isNameFirst, comment) :
-                    factory.createJSDocParameterTag(tagName, name, expr, isBracketed, typeExpression, isNameFirst, comment);
+                    factory.createJSDocParameterTag(tagName, name, expr, isBracketed, typeExpression, isNameFirst, comment, isRef);
                 return addImportCandidate(finishNode(result, start));
             }
 
@@ -7087,6 +7162,14 @@ const forEachChildTable: ForEachChildTable = {
         return visitNode(cbNode, node.left) ||
             visitNode(cbNode, node.operatorToken) ||
             visitNode(cbNode, node.right);
+    },
+    [SyntaxKind.TemplateExpression]: function forEachChildInTemplateExpression<T>(node: TemplateExpression, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.head) ||
+            visitNodes(cbNode, cbNodes, node.templateSpans);
+    },
+    [SyntaxKind.TemplateSpan]: function forEachChildInTemplateSpan<T>(node: TemplateSpan, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.expression) ||
+            visitNode(cbNode, node.literal);
     },
     [SyntaxKind.CatchExpression]: function forEachChildInCatchExpression<T>(node: CatchExpression, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.expression) ||

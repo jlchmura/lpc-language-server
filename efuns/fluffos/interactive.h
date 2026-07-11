@@ -238,7 +238,7 @@ int remove_action( string fun, string cmd );
  * is called from within catch_tell(4) or receive_message(4).
  *
  */
-int receive( string message );
+void receive( string | buffer message );
 
 /**
  * query_snooping() - return the object than an object is snooping
@@ -509,7 +509,7 @@ tion
  * be passed on to 'fun' as arguments following the user input.
  *
  */
-varargs void input_to(string | function fun, mixed flag, mixed args... );
+varargs int input_to( string | function fun, int flag, mixed args... );
 
 /**
  * in_input() - determines if a player is inputting to an input_to
@@ -588,7 +588,7 @@ function
  * be passed on to 'fun' as arguments following the user input.
  *
  */
-varargs void get_char( string | function fun, int flag, mixed args... );
+varargs int get_char( string | function fun, int flag, mixed args... );
 
 /**
  * find_player() - find a player by name
@@ -694,7 +694,7 @@ void disable_wizard( void );
  * defined by this object.
  *
  */
-int disable_commands( void );
+void disable_commands( void );
 
 /**
  * commands() - returns some information about actions the user can take
@@ -753,4 +753,17 @@ varargs int command( string str, object ob );
  */
 void add_action( string | function fun, string | string * cmd);
 void add_action( string | function fun, string | string * cmd, int flag);
+
+/**
+ * send_msdp_variable() - send a MSDP variable
+ *
+ * Sends a MSDP variable 'name' with 'value' for this_object() to the user's client.
+ *
+ * Note: send_msdp_variable() should only be called from within a user object.
+ *
+ */
+void send_msdp_variable( string name, string value );
+void send_msdp_variable( string name, int value );
+void send_msdp_variable( string name, float value );
+void send_msdp_variable( string name, buffer value );
 

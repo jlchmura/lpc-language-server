@@ -55,7 +55,7 @@ void set_hide( int flag );
  * 1 as 1.
  *
  */
-int set_heart_beat( int flag );
+void set_heart_beat( int flag );
 
 /**
  * save_object() - save the values of variables in an object into a file
@@ -68,6 +68,7 @@ int set_heart_beat( int flag );
  * save file will be compressed.
  *
  */
+varargs string save_object( int flag );
 varargs int save_object( string name, int flag );
 
 /**
@@ -362,4 +363,22 @@ object *children( string name );
  *
  */
 varargs object *all_inventory( object ob );
+
+/**
+ * query_notify_destruct() - determine if an object will be notified when it is destructed
+ *
+ * The query_notify_destruct() efun is used to determine if an object will be
+ * notified when it is destructed. If the object is set to be notified, the
+ * function will return 1. If the object is not set to be notified, the
+ * function will return 0.
+ *
+ * If no argument is provided, the efun will query the current object. If an
+ * object is provided as an argument, the efun will query that object.
+ *
+ * Objects do not receive this notification by default. To receive the call to
+ * on_destruct(), the object must call set_notify_destruct(1) at some point
+ * during its lifetime.
+ *
+ */
+varargs int query_notify_destruct( object ob );
 
