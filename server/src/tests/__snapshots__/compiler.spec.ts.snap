@@ -428,6 +428,10 @@ exports[`Compiler compiler/inherit1.base2.c Reports correct errors for compiler/
 
 exports[`Compiler compiler/inherit1.c Reports correct errors for compiler/inherit1.c: diags-compiler/inherit1.c 1`] = `""`;
 
+exports[`Compiler compiler/inheritExplicitLpc.c Reports correct errors for compiler/inheritExplicitLpc.c: diags-compiler/inheritExplicitLpc.c 1`] = `""`;
+
+exports[`Compiler compiler/inheritExplicitLpcBase.c Reports correct errors for compiler/inheritExplicitLpcBase.c: diags-compiler/inheritExplicitLpcBase.c 1`] = `""`;
+
 exports[`Compiler compiler/inheritLpcExtensionless.c Reports correct errors for compiler/inheritLpcExtensionless.c: diags-compiler/inheritLpcExtensionless.c 1`] = `""`;
 
 exports[`Compiler compiler/intLiteral1.c Reports correct errors for compiler/intLiteral1.c: diags-compiler/intLiteral1.c 1`] = `""`;

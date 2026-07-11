@@ -1206,7 +1206,11 @@ function tryAddingExtensions(candidate: string, extensions: Extensions, original
         case Extension.H:
         case Extension.Lpc:
         case "":
-            return extensions & Extensions.LPC && (tryExtension(Extension.C, originalExtension === Extension.C || originalExtension === Extension.H))
+            // If the specifier explicitly names a .lpc file, prefer it before
+            // falling back to a sibling .c/.h so an explicit `inherit "foo.lpc"`
+            // never binds to a co-located foo.c.
+            return extensions & Extensions.LPC && originalExtension === Extension.Lpc && tryExtension(Extension.Lpc, /*resolvedUsingTsExtension*/ true)
+                || extensions & Extensions.LPC && (tryExtension(Extension.C, originalExtension === Extension.C || originalExtension === Extension.H))
                 || extensions & Extensions.LPC && (tryExtension(Extension.H, originalExtension === Extension.C || originalExtension === Extension.H))
                 || extensions & Extensions.LPC && (tryExtension(Extension.Lpc, originalExtension === Extension.Lpc))
                 // || extensions & Extensions.JavaScript && (tryExtension(Extension.Js) || tryExtension(Extension.Jsx))
