@@ -4465,7 +4465,7 @@ export function createDiagnosticForNodeArray(sourceFile: SourceFileBase, nodes: 
 /**
  *  Groups of supported extensions in order of file resolution precedence. (eg, TS > TSX > DTS and seperately, CTS > DCTS)
  */
-const supportedLPCExtensions: readonly Extension[][] = [[Extension.Lpc, Extension.H, Extension.Lpc]];
+const supportedLPCExtensions: readonly Extension[][] = [[Extension.C, Extension.H, Extension.Lpc]];
 /** @internal */
 export const supportedTSExtensionsFlat: readonly Extension[] = flatten(supportedLPCExtensions);
 

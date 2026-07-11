@@ -3,6 +3,7 @@
 ## 1.1.46
 
 - Enhancement: Add FluffOS mapping dot-access and optional chaining
+- Fix: Resolve inherit/object paths to .lpc files
 
 ## 1.1.45
 
