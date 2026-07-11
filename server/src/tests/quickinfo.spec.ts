@@ -128,4 +128,27 @@ void test() {
         expect(declDisplay).toContain("int");
         expect(callDisplay).toContain("int");
     });
+
+    it("infers nested-mapping value type in foreach, not mixed*", () => {
+        // https://github.com/jlchmura/lpc-language-server/issues/319
+        const source = `mapping DIRECTIONS = ([
+  "north" : (["dz": 0, "dy": -1, "dx": 0]),
+]);
+
+void f() {
+  foreach(string k, mapping info in DIRECTIONS) {
+    info;
+  }
+}
+`;
+        const { ls, fileName } = createLanguageService(source);
+        const pos = source.indexOf("info;");
+        const display = getDisplayString(ls.getQuickInfoAtPosition(fileName, pos)!);
+        expect(display).toContain("mapping");
+        expect(display).not.toContain("mixed*");
+
+        // key variable should still infer as string
+        const kDisplay = getDisplayString(ls.getQuickInfoAtPosition(fileName, source.indexOf("k,"))!);
+        expect(kDisplay).toContain("string");
+    });
 });
