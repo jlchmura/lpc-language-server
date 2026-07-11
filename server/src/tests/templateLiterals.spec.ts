@@ -85,6 +85,15 @@ describe("Template literals", () => {
             expect(t.templateSpans[0].literal.text).toBe("*");
         });
 
+        it("reports invalid escapes in template head/middle/tail, consistent with strings", () => {
+            // \8 is an invalid escape; it should be flagged wherever it appears in a template.
+            expect(parse("string x = `bad \\8`;").parseDiagnostics.length).toBeGreaterThan(0); // no-substitution head
+            expect(parse("string x = `bad \\8 ${y}`;").parseDiagnostics.length).toBeGreaterThan(0); // head before interp
+            expect(parse("string x = `${y} bad \\8`;").parseDiagnostics.length).toBeGreaterThan(0); // tail
+            // ...but valid template escapes remain clean.
+            expect(parse("string x = `ok \\` \\$ ${y}`;").parseDiagnostics.length).toBe(0);
+        });
+
         it("treats a backtick as an invalid character for non-FluffOS drivers", () => {
             // Template literals are FluffOS-only; LDMud should flag the backtick.
             const sf = lpc.createSourceFile(

@@ -2158,7 +2158,9 @@ export function createScanner(
                     // Template literals (`...${expr}...`) are a FluffOS-only feature.
                     // For other drivers (LDMud/Standard) a backtick is an invalid character.
                     if (languageVariant === LanguageVariant.FluffOS) {
-                        return token = scanTemplateAndSetTokenValue(/*shouldEmitInvalidEscapeError*/ false);
+                        // Report invalid escapes (\8, \xZ, ...) in the head / no-substitution
+                        // segment, consistent with regular strings and template middle/tail.
+                        return token = scanTemplateAndSetTokenValue(/*shouldEmitInvalidEscapeError*/ true);
                     }
                     error(Diagnostics.Invalid_character, pos, charSize(ch));
                     pos += charSize(ch);
