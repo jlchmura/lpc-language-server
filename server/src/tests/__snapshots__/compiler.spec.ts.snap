@@ -371,6 +371,8 @@ exports[`Compiler compiler/forEach10.c Reports correct errors for compiler/forEa
 
 exports[`Compiler compiler/forEach11.c Reports correct errors for compiler/forEach11.c: diags-compiler/forEach11.c 1`] = `""`;
 
+exports[`Compiler compiler/forEach12.c Reports correct errors for compiler/forEach12.c: diags-compiler/forEach12.c 1`] = `""`;
+
 exports[`Compiler compiler/forEachRef.c Reports correct errors for compiler/forEachRef.c: diags-compiler/forEachRef.c 1`] = `""`;
 
 exports[`Compiler compiler/forEachRef2.c Reports correct errors for compiler/forEachRef2.c: diags-compiler/forEachRef2.c 1`] = `""`;
@@ -455,6 +457,7 @@ Found 1 error in server/src/tests/cases/compiler/jsDocParam.c[90m:4[0m
 `;
 
 exports[`Compiler compiler/jsDocParamRef.c Reports correct errors for compiler/jsDocParamRef.c: diags-compiler/jsDocParamRef.c 1`] = `""`;
+
 exports[`Compiler compiler/jsDocParamRefMismatch.c Reports correct errors for compiler/jsDocParamRefMismatch.c: diags-compiler/jsDocParamRefMismatch.c 1`] = `
 "
 Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/jsDocParamRefMismatch.c[90m:3[0m

@@ -151,4 +151,24 @@ void f() {
         const kDisplay = getDisplayString(ls.getQuickInfoAtPosition(fileName, source.indexOf("k,"))!);
         expect(kDisplay).toContain("string");
     });
+
+    it("respects an explicit value-variable annotation in a mapping foreach", () => {
+        // https://github.com/jlchmura/lpc-language-server/issues/318
+        // The mapping's inferred value type is a mapping, but the user explicitly
+        // annotates the destructured value as `mixed`. That annotation must win.
+        const source = `mapping DIRECTIONS = ([
+  "north" : (["dz": 0, "dy": -1, "dx": 0]),
+]);
+
+void f() {
+  foreach(string k, mixed info in DIRECTIONS) {
+  }
+}
+`;
+        const { ls, fileName } = createLanguageService(source);
+        const declPos = source.indexOf("info in");
+        const display = getDisplayString(ls.getQuickInfoAtPosition(fileName, declPos)!);
+        expect(display).toContain("mixed");
+        expect(display).not.toContain("mapping");
+    });
 });

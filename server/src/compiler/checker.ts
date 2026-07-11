@@ -9436,6 +9436,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                         if (!checkTypeAssignableToAndOptionallyElaborate(declType, declaredType, declaration, forEach.expression)) {
                             return errorType;
                         }
+                        // Respect the user's explicit annotation rather than discarding it in favor
+                        // of the inferred union element type (see #318).
+                        return declaredType;
                     }
 
                     return declType;
