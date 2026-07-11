@@ -2,6 +2,7 @@
 
 ## 1.1.46
 
+- Update FluffOS efun signatures; add new efuns and variants
 - Enhancement: Add FluffOS mapping dot-access and optional chaining
 - Enhancement: Add FluffOS template literal support
 - Fix: Resolve inherit/object paths to .lpc files
