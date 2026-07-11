@@ -2543,8 +2543,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 });
             }
         }
-        popContextualType();     
-        
+        popContextualType();
         const finalKeyType = getReducedType(getUnionType(keyTypes, UnionReduction.Subtype));
         const finalElementTypes: Type = elementTypes.length > 1 ? createArrayType(getUnionType(elementTypes.map(types => getReducedType(getUnionType(types, UnionReduction.Subtype))))) :
             elementTypes.length === 1 ? getReducedType(getUnionType(elementTypes[0], UnionReduction.Subtype)) :
@@ -29714,8 +29713,18 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (node.initializer) {
             return getTypeOfInitializer(node.initializer);
         }        
-        if (node.parent.parent.kind === SyntaxKind.ForEachStatement) {            
-            return checkRightHandSideOfForEach(node.parent.parent) || errorType;
+        if (node.parent.parent.kind === SyntaxKind.ForEachStatement) {
+            const iteratedType = checkRightHandSideOfForEach(node.parent.parent) || errorType;
+            // For a foreach over a mapping, checkRightHandSideOfForEach returns a union of
+            // [keyType, valueType] so that the destructured key/value variables can be picked
+            // by their position in the declaration list. Extract this declaration's type instead
+            // of returning the whole union (which would otherwise flow into control-flow analysis
+            // and get widened to `mixed*`).
+            if (iteratedType.flags & TypeFlags.Union && node.parent.declarations.length > 1) {
+                const declIndex = node.parent.declarations.indexOf(node);
+                return (iteratedType as UnionType).types.at(declIndex) || iteratedType;
+            }
+            return iteratedType;
         }
         return errorType;
     }
