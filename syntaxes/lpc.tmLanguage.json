@@ -647,6 +647,11 @@
         "operators": {
             "patterns": [
                 {
+                    "comment": "FluffOS optional chaining operator (m?.key, m?.[idx]). Negative lookahead keeps a ternary's float branch ('cond ? .5 : x') scoping as '?' then a numeric literal, matching the scanner.",
+                    "match": "\\?\\.(?![0-9])",
+                    "name": "keyword.operator.access.optional.lpc"
+                },
+                {
                     "match": "\\-\\-",
                     "name": "keyword.operator.decrement.lpc"
                 },
