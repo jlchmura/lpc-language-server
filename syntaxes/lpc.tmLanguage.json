@@ -96,6 +96,30 @@
             ]
         },
         {
+            "comment": "Template literals: `...` with ${expr} interpolation (FluffOS).",
+            "begin": "`",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.definition.string.template.begin.lpc"
+                }
+            },
+            "end": "`",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.definition.string.template.end.lpc"
+                }
+            },
+            "name": "string.template.lpc",
+            "patterns": [
+                {
+                    "include": "#template_escaped_char"
+                },
+                {
+                    "include": "#template_interpolation"
+                }
+            ]
+        },
+        {
             "match": "'[^']{1}'",
             "name": "string.quoted.single.lpc",
             "patterns": [
@@ -621,6 +645,43 @@
                 {
                     "match": "\\\\.",
                     "name": "invalid.illegal.unknown-escape.lpc"
+                }
+            ]
+        },
+        "template_escaped_char": {
+            "comment": "Same as string_escaped_char, but also allows \\` and \\$ which are valid only inside template literals.",
+            "patterns": [
+                {
+                    "match": "\\\\(\\\\|`|\\$|[0-3]\\d{,2}|[4-7]\\d?|x[a-fA-F0-9]{,2}|u[a-fA-F0-9]{,4}|U[a-fA-F0-9]{,8}|d[0-9]+|[[:alnum:]'\"?])",
+                    "name": "constant.character.escape.lpc"
+                },
+                {
+                    "match": "\\\\.",
+                    "name": "invalid.illegal.unknown-escape.lpc"
+                }
+            ]
+        },
+        "template_interpolation": {
+            "patterns": [
+                {
+                    "begin": "\\$\\{",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.template-expression.begin.lpc"
+                        }
+                    },
+                    "end": "\\}",
+                    "endCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.template-expression.end.lpc"
+                        }
+                    },
+                    "name": "meta.template.expression.lpc",
+                    "patterns": [
+                        {
+                            "include": "$self"
+                        }
+                    ]
                 }
             ]
         },

@@ -82,7 +82,8 @@ export interface Scanner {
     reScanHashToken(): SyntaxKind;
     reScanLessThanTokenAsStringLiteral(): SyntaxKind;
     reScanQuestionToken(): SyntaxKind;
-    reScanInvalidIdentifier(): SyntaxKind;    
+    reScanTemplateToken(isTaggedTemplate: boolean): SyntaxKind;
+    reScanInvalidIdentifier(): SyntaxKind;
     reScanInclude(pos: number): SyntaxKind;
     scanJsDocToken(): JSDocSyntaxKind;
     /** @internal */
@@ -1076,6 +1077,7 @@ export function createScanner(
         reScanLessThanTokenAsStringLiteral,
         reScanHashToken,
         reScanQuestionToken,
+        reScanTemplateToken,
         reScanInvalidIdentifier,
         reScanInclude,
         scanJsDocToken,
@@ -1565,76 +1567,85 @@ export function createScanner(
         return result;
     }
 
-    // /**
-    //  * Sets the current 'tokenValue' and returns a NoSubstitutionTemplateLiteral or
-    //  * a literal component of a TemplateExpression.
-    //  */
-    // function scanTemplateAndSetTokenValue(shouldEmitInvalidEscapeError: boolean): SyntaxKind {
-    //     const startedWithBacktick = charCodeUnchecked(pos) === CharacterCodes.backtick;
+    /**
+     * Sets the current 'tokenValue' and returns a NoSubstitutionTemplateLiteral or
+     * a literal component of a TemplateExpression.
+     *
+     * FluffOS template literals use backtick syntax with `${expr}` interpolation.
+     * In addition to the regular string escapes, they allow `\`` (literal backtick)
+     * and `\$` (literal dollar, which prevents interpolation).
+     */
+    function scanTemplateAndSetTokenValue(shouldEmitInvalidEscapeError: boolean): SyntaxKind {
+        const startedWithBacktick = charCodeUnchecked(pos) === CharacterCodes.backtick;
 
-    //     pos++;
-    //     let start = pos;
-    //     let contents = "";
-    //     let resultingToken: SyntaxKind;
+        pos++;
+        let start = pos;
+        let contents = "";
+        let resultingToken: SyntaxKind;
 
-    //     while (true) {
-    //         if (pos >= end) {
-    //             contents += text.substring(start, pos);
-    //             tokenFlags |= TokenFlags.Unterminated;
-    //             error(Diagnostics.Unterminated_template_literal);
-    //             resultingToken = startedWithBacktick ? SyntaxKind.NoSubstitutionTemplateLiteral : SyntaxKind.TemplateTail;
-    //             break;
-    //         }
+        while (true) {
+            if (pos >= end) {
+                contents += text.substring(start, pos);
+                tokenFlags |= TokenFlags.Unterminated;
+                error(Diagnostics.Unterminated_string_literal);
+                resultingToken = startedWithBacktick ? SyntaxKind.NoSubstitutionTemplateLiteral : SyntaxKind.TemplateTail;
+                break;
+            }
 
-    //         const currChar = charCodeUnchecked(pos);
+            const currChar = charCodeUnchecked(pos);
 
-    //         // '`'
-    //         if (currChar === CharacterCodes.backtick) {
-    //             contents += text.substring(start, pos);
-    //             pos++;
-    //             resultingToken = startedWithBacktick ? SyntaxKind.NoSubstitutionTemplateLiteral : SyntaxKind.TemplateTail;
-    //             break;
-    //         }
+            // '`'
+            if (currChar === CharacterCodes.backtick) {
+                contents += text.substring(start, pos);
+                pos++;
+                resultingToken = startedWithBacktick ? SyntaxKind.NoSubstitutionTemplateLiteral : SyntaxKind.TemplateTail;
+                break;
+            }
 
-    //         // '${'
-    //         if (currChar === CharacterCodes.$ && pos + 1 < end && charCodeUnchecked(pos + 1) === CharacterCodes.openBrace) {
-    //             contents += text.substring(start, pos);
-    //             pos += 2;
-    //             resultingToken = startedWithBacktick ? SyntaxKind.TemplateHead : SyntaxKind.TemplateMiddle;
-    //             break;
-    //         }
+            // '${'
+            if (currChar === CharacterCodes.$ && pos + 1 < end && charCodeUnchecked(pos + 1) === CharacterCodes.openBrace) {
+                contents += text.substring(start, pos);
+                pos += 2;
+                resultingToken = startedWithBacktick ? SyntaxKind.TemplateHead : SyntaxKind.TemplateMiddle;
+                break;
+            }
 
-    //         // Escape character
-    //         if (currChar === CharacterCodes.backslash) {
-    //             contents += text.substring(start, pos);
-    //             contents += scanEscapeSequence(EscapeSequenceScanningFlags.String | (shouldEmitInvalidEscapeError ? EscapeSequenceScanningFlags.ReportErrors : 0));
-    //             start = pos;
-    //             continue;
-    //         }
+            // Escape character
+            if (currChar === CharacterCodes.backslash) {
+                contents += text.substring(start, pos);
+                contents += scanEscapeSequence(EscapeSequenceScanningFlags.String | (shouldEmitInvalidEscapeError ? EscapeSequenceScanningFlags.ReportErrors : 0));
+                start = pos;
+                continue;
+            }
 
-    //         // Speculated ECMAScript 6 Spec 11.8.6.1:
-    //         // <CR><LF> and <CR> LineTerminatorSequences are normalized to <LF> for Template Values
-    //         if (currChar === CharacterCodes.carriageReturn) {
-    //             contents += text.substring(start, pos);
-    //             pos++;
+            // <CR><LF> and <CR> LineTerminatorSequences are normalized to <LF> for Template Values
+            if (currChar === CharacterCodes.carriageReturn) {
+                contents += text.substring(start, pos);
+                pos++;
 
-    //             if (pos < end && charCodeUnchecked(pos) === CharacterCodes.lineFeed) {
-    //                 pos++;
-    //             }
+                if (pos < end && charCodeUnchecked(pos) === CharacterCodes.lineFeed) {
+                    pos++;
+                }
 
-    //             contents += "\n";
-    //             start = pos;
-    //             continue;
-    //         }
+                contents += "\n";
+                start = pos;
+                continue;
+            }
 
-    //         pos++;
-    //     }
+            pos++;
+        }
 
-    //     Debug.assert(resultingToken !== undefined);
+        Debug.assert(resultingToken !== undefined);
 
-    //     tokenValue = contents;
-    //     return resultingToken;
-    // }
+        tokenValue = contents;
+        return resultingToken;
+    }
+
+    function reScanTemplateToken(isTaggedTemplate: boolean): SyntaxKind {
+        Debug.assert(token === SyntaxKind.CloseBraceToken, "'reScanTemplateToken' should only be called on a '}'");
+        pos = tokenStart;
+        return token = scanTemplateAndSetTokenValue(/*shouldEmitInvalidEscapeError*/ !isTaggedTemplate);
+    }
 
     // Extract from Section A.1
     // EscapeSequence ::=
@@ -2143,8 +2154,8 @@ export function createScanner(
                 case CharacterCodes.doubleQuote:                
                     tokenValue = scanString();
                     return token = SyntaxKind.StringLiteral;
-                // case CharacterCodes.backtick:
-                //     return token = scanTemplateAndSetTokenValue(/*shouldEmitInvalidEscapeError*/ false);
+                case CharacterCodes.backtick:
+                    return token = scanTemplateAndSetTokenValue(/*shouldEmitInvalidEscapeError*/ false);
                 case CharacterCodes.percent:
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.equals) {
                         return pos += 2, token = SyntaxKind.PercentEqualsToken;
