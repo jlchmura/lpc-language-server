@@ -28,6 +28,8 @@ Found 1 error in server/src/tests/cases/compiler/array7.c[90m:9[0m
 "
 `;
 
+exports[`Compiler compiler/arrayElementJSDocType.c Reports correct errors for compiler/arrayElementJSDocType.c: diags-compiler/arrayElementJSDocType.c 1`] = `""`;
+
 exports[`Compiler compiler/assignment1.c Reports correct errors for compiler/assignment1.c: diags-compiler/assignment1.c 1`] = `""`;
 
 exports[`Compiler compiler/assignment2.c Reports correct errors for compiler/assignment2.c: diags-compiler/assignment2.c 1`] = `
