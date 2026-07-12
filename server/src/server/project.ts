@@ -51,7 +51,11 @@ export abstract class Project implements LanguageServiceHost, ModuleResolutionHo
     // wrapper over the real language service that will suppress all semantic operations
     protected languageService: LanguageService;
 
-    public languageServiceEnabled: boolean;
+    // Enabled by default (matching tsserver). Inferred projects never call
+    // enableLanguageService(), so leaving this uninitialized left it `undefined`,
+    // which made session.getProjects() filter the project out and report
+    // "no project" for excluded / config-less open files (see #200).
+    public languageServiceEnabled = true;
 
     readonly trace?: (s: string) => void;
     readonly realpath?: (path: string) => string;
