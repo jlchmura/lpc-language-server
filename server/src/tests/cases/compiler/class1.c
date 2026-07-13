@@ -5,5 +5,5 @@ class Test {
 }
 
 test() {
-    foo = new(class Test);
+    mixed foo = new(class Test);
 }

@@ -18,6 +18,9 @@
             "$ref": "#/definitions/driverDefinition"
         },
         {
+            "$ref": "#/definitions/allowUndeclaredAssignmentsInLdDefinition"
+        },
+        {
             "$ref": "#/definitions/diagnosticsDefinition"
         },
         {
@@ -72,6 +75,15 @@
                             "default": false
                         }
                     }
+                }
+            }
+        },
+        "allowUndeclaredAssignmentsInLdDefinition": {
+            "properties": {
+                "allowUndeclaredAssignmentsInLd": {
+                    "description": "LDMud only. When true (the default), assigning to an undeclared variable implicitly declares it, since LDMud makes types optional. Set to false to report the assignment target as an unresolved name instead, matching FluffOS, where assigning to an undeclared variable is illegal. Has no effect under FluffOS.",
+                    "type": "boolean",
+                    "default": true
                 }
             }
         },

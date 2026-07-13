@@ -1,5 +1,6 @@
 // @driver: fluffos
 test2() {
+    mixed x;
     x = 1234567890123456;
     x =0x462d53c8abac0;
     x = 0xCAFEBABE;
