@@ -168,6 +168,8 @@ import {
     firstDefined,
     CompletionInfo,
     InterfaceType,
+    NavigateTo,
+    NavigateToItem,
     NavigationBar,
     FindAllReferences,
     isInComment,
@@ -1421,6 +1423,7 @@ export function createLanguageService(
         getSourceMapper: () => sourceMapper,
         toLineColumnOffset,
         getNavigationTree,
+        getNavigateToItems,
         findReferences,
         updateIsDefinitionOfReferencedSymbols,
         findRenameLocations,
@@ -1450,8 +1453,14 @@ export function createLanguageService(
         return program;
     }
 
-    function getNavigationTree(fileName: string): NavigationTree {        
+    function getNavigationTree(fileName: string): NavigationTree {
         return NavigationBar.getNavigationTree(syntaxTreeCache.getCurrentSourceFile(fileName), cancellationToken);
+    }
+
+    function getNavigateToItems(searchValue: string, maxResultCount?: number, fileName?: string, excludeDtsFiles = false): NavigateToItem[] {
+        synchronizeHostData();
+        const sourceFiles = fileName ? [getValidSourceFile(fileName)] : program.getSourceFiles();
+        return NavigateTo.getNavigateToItems(sourceFiles, program.getTypeChecker(), cancellationToken, searchValue, maxResultCount, excludeDtsFiles);
     }
     
     function updateIsDefinitionOfReferencedSymbols(referencedSymbols: readonly ReferencedSymbol[], knownSymbolSpans: Set<DocumentSpan>): boolean {

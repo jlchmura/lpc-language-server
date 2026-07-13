@@ -18,6 +18,7 @@ const getSymbolKind = (kind: string): ls.SymbolKind => {
 		case PConst.Kind.memberGetAccessor: return ls.SymbolKind.Property;
 		case PConst.Kind.memberSetAccessor: return ls.SymbolKind.Property;
 		case PConst.Kind.variable: return ls.SymbolKind.Variable;
+		case PConst.Kind.let: return ls.SymbolKind.Variable;
 		case PConst.Kind.const: return ls.SymbolKind.Variable;
 		case PConst.Kind.localVariable: return ls.SymbolKind.Variable;
 		case PConst.Kind.function: return ls.SymbolKind.Function;
@@ -152,7 +153,30 @@ export function convertNavTree(
     return shouldInclude;
 }
 
-export function getFileResourceConverter(): IFilePathToResourceConverter {    
+/** Converts "navto" (workspace-symbol) results from the session into LSP SymbolInformation. */
+export function convertNavtoItems(items: readonly protocol.NavtoItem[]): ls.SymbolInformation[] {
+    const result: ls.SymbolInformation[] = [];
+    for (const item of items) {
+        if (!item.name) {
+            continue;
+        }
+        const location = typeConverters.Location.fromFileSpan(item);
+        const symbolInfo = ls.SymbolInformation.create(
+            item.name,
+            getSymbolKind(item.kind),
+            location.range,
+            location.uri,
+            item.containerName || undefined,
+        );
+        if (item.kindModifiers && parseKindModifier(item.kindModifiers).has(PConst.KindModifiers.deprecated)) {
+            symbolInfo.tags = [ls.SymbolTag.Deprecated];
+        }
+        result.push(symbolInfo);
+    }
+    return result;
+}
+
+export function getFileResourceConverter(): IFilePathToResourceConverter {
     const converter: IFilePathToResourceConverter = { toResource: (file: string) => file && URI.file(file) };
     return converter;
 }

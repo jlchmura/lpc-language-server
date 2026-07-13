@@ -2,6 +2,7 @@
 
 ## 1.1.47
 
+- Feature: Add Workspace Symbols (Cmd+T / workspace/symbol) with fuzzy matching
 - Fix: [Rename (f2) reports "no project" error when file is excluded
   #200](https://github.com/jlchmura/lpc-language-server/issues/200)
 - Fix: Parse FluffOS anonymous function expressions `(function(params){...})`

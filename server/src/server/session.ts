@@ -1,4 +1,4 @@
-import { arrayFrom, arrayReverseIterator, cast, CodeAction, CompletionEntry, CompletionEntryData, CompletionEntryDetails, CompletionInfo, concatenate, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, FileTextChanges, filter, find, first, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, forEach, FormatCodeSettings, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, getSnapshotText, getTouchingPropertyName, identity, isArray, isDeclarationFileName, isSourceFile, isString, JSDocLinkDisplayPart, JSDocTagInfo, LanguageServiceMode, LanguageVariant, LineAndCharacter, LpcConfigSourceFile, map, mapDefined, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigationTree, normalizePath, OperationCanceledException, Path, perfLogger, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, SignatureHelpItem, SignatureHelpItems, singleIterator, startsWith, SymbolDisplayPart, TextChange, TextSpan, textSpanEnd, toFileNameLowerCase, toPath, tracing, UserPreferences, WithMetadata } from "./_namespaces/lpc";
+import { arrayFrom, arrayReverseIterator, cast, CodeAction, CompletionEntry, CompletionEntryData, CompletionEntryDetails, CompletionInfo, concatenate, createPatternMatcher, createQueue, createSet, createTextSpan, Debug, DefinitionInfo, Diagnostic, diagnosticCategoryName, DiagnosticRelatedInformation, displayPartsToString, DocumentPosition, DocumentSpan, documentSpansEqual, emptyArray, FileTextChanges, filter, find, first, firstIterator, firstOrUndefined, flatMap, flattenDiagnosticMessageText, forEach, FormatCodeSettings, getDocumentSpansEqualityComparer, getLineAndCharacterOfPosition, getMappedContextSpan, getMappedDocumentSpan, getMappedLocation, getSnapshotText, getTouchingPropertyName, identity, isArray, isDeclarationFileName, isSourceFile, isString, JSDocLinkDisplayPart, JSDocTagInfo, LanguageServiceMode, LanguageVariant, LineAndCharacter, LpcConfigSourceFile, map, mapDefined, mapDefinedIterator, mapIterator, memoize, MultiMap, NavigateToItem, NavigationTree, normalizePath, OperationCanceledException, Path, perfLogger, PossibleProgramFileInfo, QuickInfo, ReferencedSymbol, ReferencedSymbolDefinitionInfo, ReferencedSymbolEntry, RenameInfo, RenameInfoFailure, RenameLocation, ScriptKind, SignatureHelpItem, SignatureHelpItems, singleIterator, startsWith, SymbolDisplayPart, TextChange, TextSpan, textSpanEnd, toFileNameLowerCase, toPath, tracing, UserPreferences, WithMetadata } from "./_namespaces/lpc";
 import { ChangeFileArguments, ConfiguredProject, convertScriptKindName, convertUserPreferences, Errors, GcTimer, indent, isConfiguredProject, Logger, LogLevel, Msg, NormalizedPath, normalizedPathToPath, OpenFileArguments, Project, ProjectKind, ProjectService, ProjectServiceEventHandler, ProjectServiceOptions, ScriptInfo, ServerHost, stringifyIndented, toNormalizedPath, updateProjectIfDirty } from "./_namespaces/lpc.server";
 import * as protocol from "./protocol.js";
 
@@ -56,6 +56,11 @@ export type Event = <T extends object>(body: T, eventName: string) => void;
 export interface EventSender {
     event: Event;
 }
+
+/** Default cap on the number of workspace-symbol results returned when the client omits one. */
+const navtoDefaultMaxResultCount = 256;
+/** Minimum query-segment length before the navto prescan reads unparsed files from disk. */
+const navtoMinPrescanLength = 2;
 
 type Projects = readonly Project[] | {
     readonly projects: readonly Project[];
@@ -870,6 +875,105 @@ export class Session<TMessage = string> implements EventSender {
             : tree;
     }
 
+    /**
+     * Workspace-symbol / "navigate to" search.
+     *
+     * Because programs are lazily loaded, most files are never parsed. Before searching a
+     * project we prescan its unparsed root files' raw text for the query and mark the hits
+     * for parsing (the same trick used by global find-references). Only those files are then
+     * pulled into the program and searched, so a 40k-file lib doesn't have to be parsed to
+     * answer a symbol query.
+     */
+    private getNavigateToItems(args: protocol.NavtoRequestArgs, simplifiedResult: boolean): readonly protocol.NavtoItem[] | readonly NavigateToItem[] {
+        const { searchValue, currentFileOnly } = args;
+        const maxResultCount = args.maxResultCount ?? navtoDefaultMaxResultCount;
+        const matcher = createPatternMatcher(searchValue);
+
+        const projectsToSearch: Project[] = [];
+        if (args.projectFileName) {
+            const project = this.getProject(args.projectFileName);
+            if (project && project.languageServiceEnabled && !project.isOrphan()) projectsToSearch.push(project);
+        }
+        else if (args.file) {
+            const scriptInfo = this.projectService.getScriptInfo(args.file);
+            if (scriptInfo) {
+                this.projectService.ensureDefaultProjectForFile(scriptInfo);
+                for (const project of scriptInfo.containingProjects) {
+                    if (project.languageServiceEnabled && !project.isOrphan()) projectsToSearch.push(project);
+                }
+            }
+        }
+        else {
+            // Workspace-wide (VS Code sends no anchor file): search every enabled project.
+            this.projectService.forEachEnabledProject(project => {
+                if (!project.isOrphan()) projectsToSearch.push(project);
+            });
+        }
+
+        const outputs: NavigateToItem[] = [];
+        const seen = new Set<string>();
+        for (const project of projectsToSearch) {
+            if (outputs.length >= maxResultCount) break;
+
+            // Lazy prescan (skipped for a current-file search — that file is already loaded).
+            if (matcher && !currentFileOnly) {
+                this.markNavtoCandidatesForParsing(project, matcher.firstSegment);
+            }
+
+            const fileArg = currentFileOnly && args.file ? toNormalizedPath(args.file) : undefined;
+            const items = project.getLanguageService().getNavigateToItems(searchValue, maxResultCount, fileArg, /*excludeDtsFiles*/ false);
+            for (const item of items) {
+                const key = `${item.fileName}|${item.textSpan.start}|${item.name}`;
+                if (seen.has(key)) continue;
+                seen.add(key);
+                outputs.push(item);
+                if (outputs.length >= maxResultCount) break;
+            }
+        }
+
+        if (!simplifiedResult) return outputs;
+
+        return mapDefined(outputs, item => {
+            const scriptInfo = this.projectService.getScriptInfo(item.fileName);
+            if (!scriptInfo) return undefined;
+            const span = toProtocolTextSpan(item.textSpan, scriptInfo);
+            const navtoItem: protocol.NavtoItem = {
+                file: item.fileName,
+                start: span.start,
+                end: span.end,
+                name: item.name,
+                kind: item.kind,
+                matchKind: item.matchKind,
+                isCaseSensitive: item.isCaseSensitive,
+            };
+            if (item.kindModifiers) navtoItem.kindModifiers = item.kindModifiers;
+            if (item.containerName) navtoItem.containerName = item.containerName;
+            if (item.containerKind) navtoItem.containerKind = item.containerKind;
+            return navtoItem;
+        });
+    }
+
+    /**
+     * Scans a project's not-yet-parsed root files for `firstSegment` (a cheap, lowercase
+     * substring derived from the query's first word) and marks any hits for parsing. Short
+     * segments are skipped so a one- or two-keystroke query doesn't trigger a full disk scan;
+     * already-open files are still searched in that case.
+     */
+    private markNavtoCandidatesForParsing(project: Project, firstSegment: string): void {
+        if (firstSegment.length < navtoMinPrescanLength) return;
+        const parseable = project.getParseableFiles();
+        let marked = false;
+        forEach(project.getRootFiles(), rootFile => {
+            const path = project.toPath(rootFile);
+            if (parseable.has(path)) return;
+            const text = project.readFile(rootFile);
+            if (text && text.toLowerCase().indexOf(firstSegment) !== -1) {
+                if (this.projectService.markFileForParsing(rootFile)) marked = true;
+            }
+        });
+        if (marked) project.markAsDirty();
+    }
+
     /*
      * When we map a .d.ts location to .ts, Visual Studio gets confused because there's no associated Roslyn Document in
      * the same project which corresponds to the file. VS Code has no problem with this, and luckily we have two protocols.
@@ -1214,6 +1318,12 @@ export class Session<TMessage = string> implements EventSender {
         },
         [protocol.CommandTypes.NavTree]: (request: protocol.FileRequest) => {
             return this.requiredResponse(this.getNavigationTree(request.arguments, /*simplifiedResult*/ true));
+        },
+        [protocol.CommandTypes.Navto]: (request: protocol.NavtoRequest) => {
+            return this.requiredResponse(this.getNavigateToItems(request.arguments, /*simplifiedResult*/ true));
+        },
+        [protocol.CommandTypes.NavtoFull]: (request: protocol.NavtoRequest) => {
+            return this.requiredResponse(this.getNavigateToItems(request.arguments, /*simplifiedResult*/ false));
         },
     }));
 

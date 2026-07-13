@@ -415,6 +415,12 @@ export interface LanguageService {
     getNavigationTree(fileName: string): NavigationTree;
 
     /**
+     * Fuzzy "navigate to" / workspace-symbol search over the declarations currently in the
+     * program. Pass `fileName` to restrict the search to a single file.
+     */
+    getNavigateToItems(searchValue: string, maxResultCount?: number, fileName?: string, excludeDtsFiles?: boolean): NavigateToItem[];
+
+    /**
      * Gets errors indicating invalid syntax in a file.
      *
      * In English, "this cdeo have, erorrs" is syntactically invalid because it has typos,
@@ -849,6 +855,19 @@ export interface NavigationBarItem {
     indent: number;
     bolded: boolean;
     grayed: boolean;
+}
+
+/** A single result of a fuzzy "navigate to" / workspace-symbol search. */
+export interface NavigateToItem {
+    name: string;
+    kind: ScriptElementKind;
+    kindModifiers: string;
+    matchKind: "exact" | "prefix" | "substring" | "camelCase";
+    isCaseSensitive: boolean;
+    fileName: string;
+    textSpan: TextSpan;
+    containerName: string;
+    containerKind: ScriptElementKind;
 }
 
 
