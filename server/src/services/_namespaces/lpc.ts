@@ -4,6 +4,7 @@ export * from "../utilities.js";
 export * from "../exportInfoMap.js";
 export * from "../documentRegistry.js";
 export * from "../sourcemaps.js";
+export * from "../patternMatcher.js";
 export * from "../services.js";
 
 import * as Completions from "./lpc.Completions.js";
@@ -28,3 +29,5 @@ import * as SignatureHelp from "./lpc.SignatureHelp.js";
 export { SignatureHelp };
 import * as NavigationBar from "./lpc.NavigationBar.js";
 export { NavigationBar };
+import * as NavigateTo from "./lpc.NavigateTo.js";
+export { NavigateTo };

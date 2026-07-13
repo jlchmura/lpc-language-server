@@ -687,6 +687,51 @@ export interface DefinitionInfo extends FileSpanWithContext {
     unverified?: boolean;
 }
 
+/**
+ * Arguments for a "navto" (workspace-symbol / navigate-to) request.
+ * `file`, when present, anchors the search to that file's project; otherwise all projects
+ * are searched.
+ */
+export interface NavtoRequestArgs {
+    /** Search term to navigate to from the current location; term can be '.*' or an identifier prefix. */
+    searchValue: string;
+    /** Optional anchor file whose project should be searched. */
+    file?: string;
+    /** Optional limit on the number of items returned. */
+    maxResultCount?: number;
+    /** Optional name of the project that contains `file`. */
+    projectFileName?: string;
+    /** Restrict the search to `file` only. */
+    currentFileOnly?: boolean;
+}
+
+export interface NavtoRequest extends Request {
+    command: CommandTypes.Navto;
+    arguments: NavtoRequestArgs;
+}
+
+/** An item returned by a "navto" request. */
+export interface NavtoItem extends FileSpan {
+    /** The symbol's name. */
+    name: string;
+    /** The symbol's kind (such as 'function' or 'var'). */
+    kind: ScriptElementKind;
+    /** Exact, substring, or prefix. */
+    matchKind: string;
+    /** If this was a case sensitive or insensitive match. */
+    isCaseSensitive: boolean;
+    /** Optional modifiers for the kind (such as 'public'). */
+    kindModifiers?: string;
+    /** Name of the symbol's container symbol (if any); for example the class name if symbol is a method. */
+    containerName?: string;
+    /** Kind of symbol's container symbol (if any). */
+    containerKind?: ScriptElementKind;
+}
+
+export interface NavtoResponse extends Response {
+    body?: NavtoItem[];
+}
+
 /** protocol.NavigationTree is identical to ts.NavigationTree, except using protocol.TextSpan instead of ts.TextSpan */
 export interface NavigationTree {
     text: string;

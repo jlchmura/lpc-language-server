@@ -6,7 +6,7 @@ import { Logger } from "./nodeServer";
 import { Position, TextDocument } from "vscode-languageserver-textdocument";
 import { URI } from "vscode-uri";
 import EventEmitter from "events";
-import { convertNavTree, getFileResourceConverter } from "./utils.js";
+import { convertNavtoItems, convertNavTree, getFileResourceConverter } from "./utils.js";
 import * as typeConverters from './typeConverters';
 import { KindModifiers } from "./protocol.const.js";
 import { CompletionEntryDetails, Range, SignatureHelp } from "./typeConverters";
@@ -51,6 +51,7 @@ const serverCapabilities: vscode.ServerCapabilities = {
         triggerCharacters: ["(", ","],
     },
     referencesProvider: true,
+    workspaceSymbolProvider: true,
     //documentHighlightProvider: true,
 };
 
@@ -445,6 +446,21 @@ export function start(connection: Connection, platform: string, args: string[]) 
             }
 
             return navResults;
+        });
+
+        connection.onWorkspaceSymbol(requestParams => {
+            const args: lpc.server.protocol.NavtoRequestArgs = {
+                searchValue: requestParams.query,
+                maxResultCount: 256,
+            };
+
+            try {
+                const items = executeRequest<protocol.NavtoRequest, protocol.NavtoItem[]>(protocol.CommandTypes.Navto, args);
+                return convertNavtoItems(items ?? lpc.emptyArray);
+            } catch (e) {
+                console.error("Operation error:", e);
+                return [];
+            }
         });
 
         connection.onReferences(requestParams => {
