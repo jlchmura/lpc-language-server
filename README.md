@@ -6,9 +6,6 @@ This extension supports the LPC syntax used by both the [LDMud](https://www.ldmu
 
 Install from the VS Code Marketplace: https://marketplace.visualstudio.com/items?itemName=jlchmura.lpc
 
-**Attention v1.0 Users**
-If you are updating from the 1.0.x version, please see [config-changes.md](config-changes.md) for required changes to your `lpc-config.json` file.
-
 ## Features
 
 -   Code Completion / IntelliSense - Results appear for symbols as you type, including lfuns.
@@ -19,6 +16,7 @@ If you are updating from the 1.0.x version, please see [config-changes.md](confi
     -   Go to definitions (f12)
     -   Go to implementations (ctrl/cmd+f12)
     -   Go to symbol (cltr/cmd+o)
+-   Workspace Symbols (ctrl/cmd+T)
 -   Symbol rename (f2)
 -   Code outline
 -   Code navigation
@@ -28,6 +26,9 @@ If you are updating from the 1.0.x version, please see [config-changes.md](confi
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md).
+
+**Attention v1.0 Users**
+If you are updating from the 1.0.x version, please see [config-changes.md](config-changes.md) for required changes to your `lpc-config.json` file.
 
 ## Example
 
