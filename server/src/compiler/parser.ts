@@ -1494,14 +1494,13 @@ export namespace LpcParser {
                     // // }
                     // continue;                        
                 case SyntaxKind.ObjectKeyword:
-                    return lookAhead(()=>nextToken() !== SyntaxKind.ColonColonToken);        
+                    return lookAhead(()=>nextToken() !== SyntaxKind.ColonColonToken);
                 case SyntaxKind.StatusKeyword:
                 case SyntaxKind.SymbolKeyword:
-                    // LD only
-                    return languageVariant === LanguageVariant.LDMud;
                 case SyntaxKind.BufferKeyword:
-                    // Fluff only
-                    return languageVariant === LanguageVariant.FluffOS;
+                    // The scanner only yields these tokens in the driver where they are
+                    // types, so reaching here means we're in that driver.
+                    return true;
                 case SyntaxKind.Identifier:
                     // probably a function without modifier or type
                     // but that can only happen if we're parsing in the source context
@@ -3240,24 +3239,23 @@ export namespace LpcParser {
             case SyntaxKind.AnyKeyword:
             case SyntaxKind.UnknownKeyword:
             case SyntaxKind.StringKeyword:
-            case SyntaxKind.BytesKeyword:            
+            case SyntaxKind.BytesKeyword:
             case SyntaxKind.LwObjectKeyword:
-            case SyntaxKind.ClosureKeyword:                        
+            case SyntaxKind.ClosureKeyword:
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
             case SyntaxKind.FunctionKeyword:
             case SyntaxKind.MixedKeyword:
-            case SyntaxKind.MappingKeyword:            
-            case SyntaxKind.UndefinedKeyword:                                 
+            case SyntaxKind.MappingKeyword:
+            case SyntaxKind.UndefinedKeyword:
+            // The scanner only produces these tokens in the driver where they are types
+            // (`status`/`symbol` in LDMud, `buffer` in FluffOS); elsewhere they scan as
+            // identifiers, so no per-variant gate is needed here.
+            case SyntaxKind.StatusKeyword:
+            case SyntaxKind.SymbolKeyword:
+            case SyntaxKind.BufferKeyword:
                 // If these are followed by a dot, then parse these out as a dotted type reference instead.
                 return parseKeywordAndNoDot();
-            case SyntaxKind.StatusKeyword:     
-            case SyntaxKind.SymbolKeyword:  
-                // status is only available in LD           
-                return languageVariant === LanguageVariant.LDMud ? parseKeywordAndNoDot() : undefined;
-            case SyntaxKind.BufferKeyword:            
-                // buffer is only available in FluffOS
-                return languageVariant === LanguageVariant.FluffOS ? parseKeywordAndNoDot() : undefined;
             case SyntaxKind.ObjectKeyword:
                 // LD has "named" objects.  
                 const pos = getPositionState();              
@@ -3619,9 +3617,14 @@ export namespace LpcParser {
             case SyntaxKind.MixedKeyword:
             case SyntaxKind.MappingKeyword:
             case SyntaxKind.ObjectKeyword:
-            case SyntaxKind.StructKeyword:            
+            case SyntaxKind.StructKeyword:
             case SyntaxKind.FunctionKeyword:
             case SyntaxKind.VoidKeyword:
+            // The scanner only yields these tokens in the driver where they are types
+            // (`status`/`symbol` in LDMud, `buffer` in FluffOS), so no gate is needed.
+            case SyntaxKind.StatusKeyword:
+            case SyntaxKind.SymbolKeyword:
+            case SyntaxKind.BufferKeyword:
                 return true;
             // handle unionable types
             // case SyntaxKind.LessThanToken:
@@ -3629,11 +3632,9 @@ export namespace LpcParser {
             //         while(nextToken()==SyntaxKind.LessThanToken) {}
             //         return isTypeName();
             //     });
-            case SyntaxKind.StatusKeyword:
-            case SyntaxKind.SymbolKeyword:
-                return languageVariant === LanguageVariant.LDMud;
-            case SyntaxKind.ClassKeyword:            
-            case SyntaxKind.BufferKeyword:
+            case SyntaxKind.ClassKeyword:
+                // `class` is a struct type only in FluffOS; it is left as a keyword in
+                // both drivers (unlike buffer/status/symbol), so it still gates here.
                 return languageVariant === LanguageVariant.FluffOS;
             case SyntaxKind.NullKeyword:
                 return languageVersion === ScriptTarget.JSON;

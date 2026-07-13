@@ -791,4 +791,22 @@ exports[`Compiler compiler/variadic1.c Reports correct errors for compiler/varia
 
 exports[`Compiler compiler/variadic2.c Reports correct errors for compiler/variadic2.c: diags-compiler/variadic2.c 1`] = `""`;
 
+exports[`Compiler compiler/variantKeywordBufferLdmudMisuse.c Reports correct errors for compiler/variantKeywordBufferLdmudMisuse.c: diags-compiler/variantKeywordBufferLdmudMisuse.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/variantKeywordBufferLdmudMisuse.c[90m:5[0m
+
+"
+`;
+
+exports[`Compiler compiler/variantKeywordStatusFluffosMisuse.c Reports correct errors for compiler/variantKeywordStatusFluffosMisuse.c: diags-compiler/variantKeywordStatusFluffosMisuse.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/variantKeywordStatusFluffosMisuse.c[90m:5[0m
+
+"
+`;
+
+exports[`Compiler compiler/variantKeywordsFluffos.c Reports correct errors for compiler/variantKeywordsFluffos.c: diags-compiler/variantKeywordsFluffos.c 1`] = `""`;
+
+exports[`Compiler compiler/variantKeywordsLdmud.c Reports correct errors for compiler/variantKeywordsLdmud.c: diags-compiler/variantKeywordsLdmud.c 1`] = `""`;
+
 exports[`Compiler compiler/while1.c Reports correct errors for compiler/while1.c: diags-compiler/while1.c 1`] = `""`;
