@@ -152,6 +152,42 @@ void f() {
         expect(kDisplay).toContain("string");
     });
 
+    it("resolves a bare variable interpolated in a template literal", () => {
+        // A `${expr}` interpolation's expression is a real expression: hover must resolve
+        // its symbol/type instead of falling back to `mixed`. Two distinct failure modes:
+        //  - hovering the FIRST char of the identifier collided with the template head's end
+        //    (head is a StringLiteral whose end abuts the interpolation start);
+        //  - the interpolated identifier was not recognized as being in expression context.
+        const source = `void f() {
+    int count = 5;
+    string a = \`x\${count}y\`;
+}
+`;
+        const { ls, fileName } = createLanguageService(source);
+        const startOfIdent = source.indexOf("${count}") + 2; // first char of `count`
+        const midIdent = startOfIdent + 2;                   // inside `count`
+
+        for (const pos of [startOfIdent, midIdent]) {
+            const display = getDisplayString(ls.getQuickInfoAtPosition(fileName, pos)!);
+            expect(display).toContain("int");
+            expect(display).toContain("count");
+            expect(display).not.toContain("mixed");
+        }
+    });
+
+    it("resolves a parenthesized interpolated variable too (regression guard)", () => {
+        const source = `void f() {
+    int count = 5;
+    string a = \`x\${(count)}y\`;
+}
+`;
+        const { ls, fileName } = createLanguageService(source);
+        const pos = source.indexOf("(count)") + 1;
+        const display = getDisplayString(ls.getQuickInfoAtPosition(fileName, pos)!);
+        expect(display).toContain("int");
+        expect(display).toContain("count");
+    });
+
     it("respects an explicit value-variable annotation in a mapping foreach", () => {
         // https://github.com/jlchmura/lpc-language-server/issues/318
         // The mapping's inferred value type is a mapping, but the user explicitly

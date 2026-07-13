@@ -112,6 +112,8 @@ import {
     StringLiteral,
     isFullSourceFile,
     isStringLiteral,
+    isTemplateExpression,
+    isTemplateSpan,
     nodeIsSynthesized,
     find,
     isStringDoubleQuoted,
@@ -1530,7 +1532,23 @@ export function getAdjustedRenameLocation(node: Node): Node {
  * @internal
  */
 export function getTouchingPropertyName(sourceFile: SourceFile, position: number): Node {
-    return getTouchingToken(sourceFile, position, n => isPropertyNameLiteral(n) || isKeyword(n.kind));// || isPrivateIdentifier(n));
+    return getTouchingToken(sourceFile, position, n => (isPropertyNameLiteral(n) || isKeyword(n.kind)) && !isTemplateLiteralChunk(n));// || isPrivateIdentifier(n));
+}
+
+/**
+ * A template literal's head/middle/tail chunks are represented as StringLiteral nodes (rather
+ * than dedicated TemplateHead/Middle/Tail tokens), and a head/middle chunk's end abuts the start
+ * of the following `${...}` interpolation. When a position lands on that boundary -- e.g. hovering
+ * the first character of the interpolated expression -- treating the chunk as a "preceding token
+ * at end position" would resolve to the chunk instead of descending into the expression. Excluding
+ * template chunks from that tie-break lets quick-info/rename/references target the expression.
+ */
+function isTemplateLiteralChunk(node: Node): boolean {
+    if (!isStringLiteral(node) || !node.parent) {
+        return false;
+    }
+    return (isTemplateExpression(node.parent) && node.parent.head === node) ||
+        (isTemplateSpan(node.parent) && node.parent.literal === node);
 }
 
 /**
