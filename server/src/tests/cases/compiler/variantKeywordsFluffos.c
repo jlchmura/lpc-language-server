@@ -1,5 +1,5 @@
 // Driver-specific type keywords, FluffOS side (see PR #331 discussion):
-//   - `buffer` is a real type
+//   - `buffer` and `class` are real types (LDMud uses `struct` for structures)
 //   - `status` / `symbol` are NOT keywords here, so they are ordinary identifiers
 // The scanner decides this per driver, so the AST is uniform and no parser gate
 // is needed.
@@ -10,6 +10,12 @@ buffer make_buffer() {
 }
 
 void takes_buffer(buffer b) {
+}
+
+class coord { int x; int y; }
+
+void takes_class(class coord c) {
+    c.x = 1;
 }
 
 void f() {

@@ -14,13 +14,16 @@ symbol make_symbol() {
     return y;
 }
 
-// `buffer` is just an identifier under LDMud -- usable as a function name...
+// `buffer` and `class` are just identifiers under LDMud -- usable as function names...
 int buffer() { return 1; }
+int class() { return 2; }
 
 void f() {
-    // ...and as a variable name
+    // ...and as variable names
     int b;
+    int class;
     b = buffer();
+    class = 3;
 }
 
 // @driver: ldmud

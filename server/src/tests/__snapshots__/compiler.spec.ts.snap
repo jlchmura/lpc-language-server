@@ -798,6 +798,13 @@ Found 1 error in server/src/tests/cases/compiler/variantKeywordBufferLdmudMisuse
 "
 `;
 
+exports[`Compiler compiler/variantKeywordClassLdmudMisuse.c Reports correct errors for compiler/variantKeywordClassLdmudMisuse.c: diags-compiler/variantKeywordClassLdmudMisuse.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/variantKeywordClassLdmudMisuse.c[90m:5[0m
+
+"
+`;
+
 exports[`Compiler compiler/variantKeywordStatusFluffosMisuse.c Reports correct errors for compiler/variantKeywordStatusFluffosMisuse.c: diags-compiler/variantKeywordStatusFluffosMisuse.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/variantKeywordStatusFluffosMisuse.c[90m:5[0m

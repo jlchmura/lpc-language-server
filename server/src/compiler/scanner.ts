@@ -1944,13 +1944,15 @@ export function createScanner(
         return token = SyntaxKind.Identifier;
     }
 
-    // Some reserved words are driver-specific: `buffer` is a type only in FluffOS,
-    // while `status` and `symbol` are types only in LDMud. In the other driver each
-    // is an ordinary identifier (e.g. a variable or function name), so demote it to
-    // an Identifier token here rather than gating it per grammar position downstream.
+    // Some reserved words are driver-specific: `buffer` and `class` are types only in
+    // FluffOS (LDMud uses `struct` for structures), while `status` and `symbol` are
+    // types only in LDMud. In the other driver each is an ordinary identifier (e.g. a
+    // variable or function name), so demote it to an Identifier token here rather than
+    // gating it per grammar position downstream.
     function isKeywordInVariant(keyword: SyntaxKind, variant: LanguageVariant): boolean {
         switch (keyword) {
             case SyntaxKind.BufferKeyword:
+            case SyntaxKind.ClassKeyword:
                 return variant === LanguageVariant.FluffOS;
             case SyntaxKind.StatusKeyword:
             case SyntaxKind.SymbolKeyword:

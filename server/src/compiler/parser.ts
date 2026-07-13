@@ -3023,8 +3023,8 @@ export namespace LpcParser {
             // case SyntaxKind.ImportKeyword:
             //     return lookAhead(nextTokenIsOpenParenOrLessThanOrDot);
             case SyntaxKind.ClassKeyword:
-                // Fluff only
-                return languageVariant === LanguageVariant.FluffOS;
+                // The scanner only yields ClassKeyword in FluffOS (LDMud uses `struct`).
+                return true;
             case SyntaxKind.NullKeyword:
                 if (scriptKind === ScriptKind.JSON) {
                     return true;
@@ -3308,8 +3308,8 @@ export namespace LpcParser {
             case SyntaxKind.StructKeyword:
                 return parseStructTypeNode(token() as KeywordSyntaxKind);
             case SyntaxKind.ClassKeyword:
-                // fluff-only
-                return languageVariant === LanguageVariant.FluffOS && parseStructTypeNode(token() as KeywordSyntaxKind);            
+                // The scanner only yields ClassKeyword in FluffOS (LDMud uses `struct`).
+                return parseStructTypeNode(token() as KeywordSyntaxKind);
             case SyntaxKind.TrueKeyword:
             case SyntaxKind.FalseKeyword:
             case SyntaxKind.NullKeyword:
@@ -3621,10 +3621,12 @@ export namespace LpcParser {
             case SyntaxKind.FunctionKeyword:
             case SyntaxKind.VoidKeyword:
             // The scanner only yields these tokens in the driver where they are types
-            // (`status`/`symbol` in LDMud, `buffer` in FluffOS), so no gate is needed.
+            // (`status`/`symbol` in LDMud, `buffer`/`class` in FluffOS), so no gate is
+            // needed here.
             case SyntaxKind.StatusKeyword:
             case SyntaxKind.SymbolKeyword:
             case SyntaxKind.BufferKeyword:
+            case SyntaxKind.ClassKeyword:
                 return true;
             // handle unionable types
             // case SyntaxKind.LessThanToken:
@@ -3632,10 +3634,6 @@ export namespace LpcParser {
             //         while(nextToken()==SyntaxKind.LessThanToken) {}
             //         return isTypeName();
             //     });
-            case SyntaxKind.ClassKeyword:
-                // `class` is a struct type only in FluffOS; it is left as a keyword in
-                // both drivers (unlike buffer/status/symbol), so it still gates here.
-                return languageVariant === LanguageVariant.FluffOS;
             case SyntaxKind.NullKeyword:
                 return languageVersion === ScriptTarget.JSON;
         }        
@@ -3650,8 +3648,9 @@ export namespace LpcParser {
     }
 
     function isStructOrClassKeyword(): boolean {
-        return token() === SyntaxKind.StructKeyword || 
-            (token() === SyntaxKind.ClassKeyword && languageVariant === LanguageVariant.FluffOS);
+        // The scanner only yields ClassKeyword in FluffOS (LDMud uses `struct`).
+        return token() === SyntaxKind.StructKeyword ||
+            token() === SyntaxKind.ClassKeyword;
     }
 
     function isStartOfStructDeclaration() {
