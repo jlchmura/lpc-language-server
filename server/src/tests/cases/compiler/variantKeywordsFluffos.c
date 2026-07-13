@@ -23,6 +23,18 @@ class coord make_coord() {
     return new(class coord);
 }
 
+// `ref` marks a by-reference parameter in FluffOS (LDMud uses `&`)
+void modifies(int ref n) {
+    n = 42;
+}
+
+// by-reference arguments at a call site accept both `ref` and `&` in FluffOS
+void call_it() {
+    int a;
+    modifies(ref a);
+    modifies(&a);
+}
+
 void f() {
     // status / symbol are just identifiers under FluffOS
     int status;

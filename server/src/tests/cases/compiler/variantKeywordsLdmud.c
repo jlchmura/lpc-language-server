@@ -14,20 +14,34 @@ symbol make_symbol() {
     return y;
 }
 
-// `buffer`, `class` and `new` are just identifiers under LDMud -- usable as function
-// names (LDMud constructs objects with clone_object(), not a `new` operator)...
+// `buffer`, `class`, `new` and `ref` are just identifiers under LDMud -- usable as
+// function names (LDMud constructs objects with clone_object() and marks by-reference
+// parameters with `&`, not a `ref` keyword)...
 int buffer() { return 1; }
 int class() { return 2; }
 int new() { return 3; }
+int ref() { return 5; }
 
 void f() {
     // ...and as variable names
     int b;
     int class;
     int new;
+    int ref;
     b = buffer();
     class = new();
     new = 4;
+    ref = 6;
+}
+
+// LDMud passes by reference with `&`, both at the parameter and the call site
+void modifies(int &n) {
+    n = 42;
+}
+
+void call_it() {
+    int a;
+    modifies(&a);
 }
 
 // @driver: ldmud

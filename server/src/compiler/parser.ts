@@ -3221,7 +3221,13 @@ export namespace LpcParser {
                 // so no per-variant gate is needed here.
                 return true;
             case SyntaxKind.NullKeyword:
-                return scriptKind === ScriptKind.JSON || languageVariant === LanguageVariant.FluffOS;
+                // `null` is a type only as a JSON literal type. It is a reserved value
+                // literal in both LPC drivers (never an identifier), so unlike
+                // buffer/class/new it is not demoted in the scanner. The former
+                // `|| languageVariant === FluffOS` here was vestigial: nothing parses a
+                // bare `null` type in FluffOS, and the sibling checks (isTypeName /
+                // parseNonArrayType) already gate `null`-as-type on JSON alone.
+                return scriptKind === ScriptKind.JSON;
             default:
                 return isIdentifier();
         }
@@ -3968,7 +3974,9 @@ export namespace LpcParser {
         }
 
         let paramType = inContext(NodeFlags.DisallowTypes) ? undefined : parseType();
-        const ampToken: AmpersandToken | RefToken = parseOptionalToken(SyntaxKind.AmpersandToken) || (languageVariant === LanguageVariant.FluffOS && parseOptionalToken(SyntaxKind.RefKeyword));
+        // `&` marks a by-reference parameter in both drivers; the `ref` keyword only exists
+        // in FluffOS (the scanner yields RefKeyword only there), so no variant gate needed.
+        const ampToken: AmpersandToken | RefToken | undefined = parseOptionalToken(SyntaxKind.AmpersandToken) || parseOptionalToken(SyntaxKind.RefKeyword);
         const arrayType = parseOptionalToken(SyntaxKind.AsteriskToken);
         if (arrayType) {
             // we'll use the array type as the type of the parameter
@@ -5433,7 +5441,10 @@ export namespace LpcParser {
 
     function parseByRefElement(): Expression {
         const pos = getPositionState();
-        const ampToken = (languageVariant === LanguageVariant.LDMud) ? parseExpectedToken(SyntaxKind.AmpersandToken) : parseExpectedToken(SyntaxKind.RefKeyword);
+        // Reached only when the current token is `&` or `ref` (see the caller). `&` works in
+        // both drivers; the `ref` keyword only exists in FluffOS, so consume whichever is
+        // present rather than dispatching on the driver.
+        const ampToken = parseOptionalToken(SyntaxKind.AmpersandToken) || parseExpectedToken(SyntaxKind.RefKeyword);
         const expression = parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true);
 
         return finishNode(factory.createByRefElement(ampToken, expression), pos);
