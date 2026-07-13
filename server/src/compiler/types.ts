@@ -1752,6 +1752,14 @@ export interface CompilerOptions {
     getCompilationSettings?: any;
     configFilePath?: string;
     driverType?: LanguageVariant;
+    /**
+     * LDMud only. When true (the default), assigning to an undeclared variable
+     * implicitly declares it (LDMud allows this because types are optional). Set
+     * to false to instead report the assignment target as an unresolved name,
+     * matching FluffOS, where assigning to an undeclared variable is illegal.
+     * Has no effect under FluffOS, which always reports the error.
+     */
+    allowUndeclaredAssignmentsInLd?: boolean;
     rootDir?: string;
     rootDirs?: string[];
     outDir?: string;

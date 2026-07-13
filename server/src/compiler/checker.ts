@@ -22274,19 +22274,24 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const name = isString(nameArg) ? nameArg : (nameArg as Identifier).text;
 
         if (errorLocation?.parent && isAssignmentExpression(errorLocation.parent) && errorLocation.parent.left === nameArg) {
-            const nodeToBind = errorLocation.parent;
-            // if we didn't find a symbol and original location was an assignment expression, and pragma strict types is not on
-            // then we treat the first instance as a variable declaration and create a symbol for it
-            
-            // if (!isStrictCompilerOptionEnabled(compilerOptions, "strictTypes")) {
-            const container = getEnclosingLocalsContainer(errorLocation.parent);
-            if (!container.locals) container.locals = createSymbolTable();
+            // Assigning to an undeclared variable: LDMud treats the first assignment as an
+            // implicit declaration (types are optional there), so we synthesize a symbol for it.
+            // FluffOS forbids this, and LDMud projects can opt into the same strictness by
+            // setting `allowUndeclaredAssignmentsInLd: false`. In those cases we fall through to
+            // report the name as unresolved.
+            const allowImplicitDeclaration = languageVariant === LanguageVariant.LDMud &&
+                compilerOptions.allowUndeclaredAssignmentsInLd !== false;
+            if (allowImplicitDeclaration) {
+                const nodeToBind = errorLocation.parent;
+                const container = getEnclosingLocalsContainer(errorLocation.parent);
+                if (!container.locals) container.locals = createSymbolTable();
 
-            const containerSymbol = getSymbolOfNode(container);
-            const symbol = lateBindBinaryExpressionDeclaration(container.locals, containerSymbol, nodeToBind, SymbolFlags.Variable, SymbolFlags.None);
-            
-            return symbol;
-        } 
+                const containerSymbol = getSymbolOfNode(container);
+                const symbol = lateBindBinaryExpressionDeclaration(container.locals, containerSymbol, nodeToBind, SymbolFlags.Variable, SymbolFlags.None);
+
+                return symbol;
+            }
+        }
 
         addLazyDiagnostic(() => {
             if (
