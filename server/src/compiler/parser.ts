@@ -65,8 +65,7 @@ export namespace LpcParser {
 
     var languageVersion: ScriptTarget;
     var scriptKind: ScriptKind;
-    var languageVariant: LanguageVariant;
-    
+
     var includeFileStack: IncludeDirective[] = [];
     var macroTable: Map<string, Macro> | undefined;        
     var currentMacro: Macro;
@@ -168,8 +167,7 @@ export namespace LpcParser {
         languageVersion = _languageVersion;
         syntaxCursor = _syntaxCursor;
         scriptKind = _scriptKind;
-        languageVariant = _languageVariant;        
-        
+
         let fileDir = getDirectoryPath(fileName);
         if (!fileDir.endsWith("/")) fileDir = fileDir + "/";
         
@@ -218,7 +216,7 @@ export namespace LpcParser {
         scanner.setFileName(fileName);
         scanner.setOnError(scanError);
         scanner.setScriptTarget(languageVersion);
-        scanner.setLanguageVariant(languageVariant);
+        scanner.setLanguageVariant(_languageVariant);
         scanner.setScriptKind(scriptKind);
         scanner.setJSDocParsingMode(_jsDocParsingMode);        
     }
@@ -238,7 +236,6 @@ export namespace LpcParser {
         languageVersion = undefined!;
         syntaxCursor = undefined;
         scriptKind = undefined!;
-        languageVariant = undefined!;
         sourceFlags = 0;
         parseDiagnostics = undefined!;
         jsDocDiagnostics = undefined!;
@@ -349,7 +346,7 @@ export namespace LpcParser {
         }
 
         // Set source file so that errors will be reported with this file name
-        const sourceFile = createSourceFile(fileName, statements, endOfFileToken);
+        const sourceFile = createSourceFile(fileName, statements, endOfFileToken, LanguageVariant.Standard);
 
         if (setParentNodes) {
             fixupParentReferences(sourceFile);
@@ -883,7 +880,7 @@ export namespace LpcParser {
         initState(fileName, sourceText, globalIncludes, configDefines, languageVersion, syntaxCursor, scriptKind, fileHandler, jsDocParsingMode, languageVariant);
         // console.debug("Parsing source file: " + fileName);        
         try {
-            const result = parseSourceFileWorker(languageVersion, setParentNodes, scriptKind || ScriptKind.LPC, jsDocParsingMode, reportParsedDefines);
+            const result = parseSourceFileWorker(languageVersion, languageVariant, setParentNodes, scriptKind || ScriptKind.LPC, jsDocParsingMode, reportParsedDefines);
             clearState();            
 
             // console.debug("DONE parsing source file: " + fileName);
@@ -895,7 +892,7 @@ export namespace LpcParser {
         } 
     }
 
-    function parseSourceFileWorker(languageVersion: ScriptTarget, setParentNodes: boolean, scriptKind: ScriptKind, jsDocParsingMode: JSDocParsingMode, reportParsedDefines: boolean): SourceFile {
+    function parseSourceFileWorker(languageVersion: ScriptTarget, languageVariant: LanguageVariant, setParentNodes: boolean, scriptKind: ScriptKind, jsDocParsingMode: JSDocParsingMode, reportParsedDefines: boolean): SourceFile {
               
         // if there is a global include, we want to grab the position state before that happens so that the statement list 
         // is tied to the original file
@@ -925,7 +922,7 @@ export namespace LpcParser {
         const endHasJSDoc = hasPrecedingJSDocComment();
         const endOfFileToken = withJSDoc(parseTokenNode<EndOfFileToken>(), endHasJSDoc);
         
-        const sourceFile = createSourceFile(fileName, statements, endOfFileToken);//, sourceFlags);
+        const sourceFile = createSourceFile(fileName, statements, endOfFileToken, languageVariant);//, sourceFlags);
 
         // A member of ReadonlyArray<T> isn't assignable to a member of T[] (and prevents a direct cast) - but this is where we set up those members so they can be readonly in the future
         processCommentPragmas(sourceFile as {} as PragmaContext, sourceText);
@@ -983,7 +980,8 @@ export namespace LpcParser {
     function createSourceFile(
         fileName: string,
         statements: readonly Statement[],
-        endOfFileToken: EndOfFileToken
+        endOfFileToken: EndOfFileToken,
+        languageVariant: LanguageVariant
     ): SourceFile {
         let sourceFile = factory.createSourceFile(
             statements,
@@ -998,7 +996,7 @@ export namespace LpcParser {
         sourceFile.bindSuggestionDiagnostics = undefined;
         sourceFile.languageVersion = languageVersion || ScriptTarget.LPC;
         sourceFile.fileName = fileName;
-        sourceFile.languageVariant = languageVariant ;
+        sourceFile.languageVariant = languageVariant;
         sourceFile.isDeclarationFile = false;
         sourceFile.scriptKind = scriptKind || ScriptKind.LPC;
         
