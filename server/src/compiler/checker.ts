@@ -5845,9 +5845,21 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // Prevent cascading error by short-circuit
         const file = getSourceFileOfNode(node);
         return checkGrammarModifiers(node) ||
+            checkGrammarAnonymousFunctionExpression(node) ||
             checkGrammarTypeParameterList(node.typeParameters, file) ||
             checkGrammarParameterList(node.parameters);
-            // checkGrammarArrowFunction(node, file) ||            
+            // checkGrammarArrowFunction(node, file) ||
+    }
+
+    function checkGrammarAnonymousFunctionExpression(node: FunctionLikeDeclaration | MethodSignature): boolean {
+        // Inline `function(...) { ... }` expressions are a FluffOS construct; LDMud uses
+        // lambdas / `(: :)` closures (parsed as InlineClosureExpression). The parser accepts
+        // the syntax for every driver so the AST stays well-formed, so report the restriction
+        // here rather than derailing the parse (see #331).
+        if (isFunctionExpression(node) && languageVariant !== LanguageVariant.FluffOS) {
+            return grammarErrorOnNode(node, Diagnostics.Anonymous_function_expressions_are_only_supported_in_FluffOS);
+        }
+        return false;
     }
     
     function checkGrammarTypeParameterList(typeParameters: NodeArray<TypeParameterDeclaration> | undefined, file: SourceFile): boolean {

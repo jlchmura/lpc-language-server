@@ -1,5 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Compiler compiler/anonymousFunctionFluffos.c Reports correct errors for compiler/anonymousFunctionFluffos.c: diags-compiler/anonymousFunctionFluffos.c 1`] = `""`;
+
+exports[`Compiler compiler/anonymousFunctionLdmud.c Reports correct errors for compiler/anonymousFunctionLdmud.c: diags-compiler/anonymousFunctionLdmud.c 1`] = `""`;
+
 exports[`Compiler compiler/arity1.c Reports correct errors for compiler/arity1.c: diags-compiler/arity1.c 1`] = `""`;
 
 exports[`Compiler compiler/arity2.c Reports correct errors for compiler/arity2.c: diags-compiler/arity2.c 1`] = `

@@ -5642,8 +5642,14 @@ export namespace LpcParser {
         const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
         const modifiers = parseModifiers(/*allowDecorators*/ false);
-        parseExpected(SyntaxKind.FunctionKeyword);        
-        const type = parseType();
+        parseExpected(SyntaxKind.FunctionKeyword);
+        // An anonymous function expression puts its parameter list directly
+        // after the `function` keyword (e.g. `function(string s) { ... }`), with
+        // no return type. Only parse a return type when one is actually present,
+        // otherwise `parseType()` would try to read the `(` param list as a type.
+        // Parse this permissively for every driver so the AST stays well-formed;
+        // the checker reports the FluffOS-only grammar restriction (see below).
+        const type = token() === SyntaxKind.OpenParenToken ? undefined : parseType();
         const name = isIdentifier() ? parseIdentifier() : undefined;
 
         // const typeParameters = parseTypeParameters();

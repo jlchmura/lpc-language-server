@@ -4,6 +4,7 @@
 
 - Fix: [Rename (f2) reports "no project" error when file is excluded
   #200](https://github.com/jlchmura/lpc-language-server/issues/200)
+- Fix: Parse FluffOS anonymous function expressions `(function(params){...})`
 
 ## 1.1.46
 
