@@ -502,14 +502,16 @@ tion
  * 
  * If optional argument 'flag' is non-zero, the line given by  the  player
  * will not be echoed, and is not seen if snooped (this is useful for col‐
- * lecting passwords).
- * 
+ * lecting passwords).  The 'flag' is only interpreted as such when it is an
+ * int; a non-int second argument is instead treated as the first carry-over
+ * argument (see below).
+ *
  * The function 'fun' will be called with the  user  input  as  its  first
  * argument (a string). Any additional arguments supplied to input_to will
  * be passed on to 'fun' as arguments following the user input.
  *
  */
-varargs int input_to( string | function fun, int flag, mixed args... );
+varargs int input_to( string | function fun, mixed flag, mixed args... );
 
 /**
  * in_input() - determines if a player is inputting to an input_to
