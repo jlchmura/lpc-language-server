@@ -20593,42 +20593,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     return arrayType;
                 }
                 else if (type.target.objectFlags & ObjectFlags.Tuple) {
+                    // LPC has no tuple type syntax; tuples arise only internally (e.g. when
+                    // modeling spread/rest call arguments for a `varargs` function). Render
+                    // them as an array of the union of their element types so error messages
+                    // and hovers produce an LPC-valid type instead of failing to build a node.
                     typeArguments = sameMap(typeArguments, (t, i) => removeMissingType(t, !!((type.target as TupleType).elementFlags[i] & ElementFlags.Optional)));
-                    console.debug("todo - tuple type");
-                    // if (typeArguments.length > 0) {
-                    //     const arity = getTypeReferenceArity(type);
-                    //     const tupleConstituentNodes = mapToTypeNodes(typeArguments.slice(0, arity), context);
-                    //     if (tupleConstituentNodes) {
-                    //         const { labeledElementDeclarations } = type.target as TupleType;
-                    //         for (let i = 0; i < tupleConstituentNodes.length; i++) {
-                    //             const flags = (type.target as TupleType).elementFlags[i];
-                    //             const labeledElementDeclaration = labeledElementDeclarations?.[i];
-
-                    //             if (labeledElementDeclaration) {
-                    //                 tupleConstituentNodes[i] = factory.createNamedTupleMember(
-                    //                     flags & ElementFlags.Variable ? factory.createToken(SyntaxKind.DotDotDotToken) : undefined,
-                    //                     factory.createIdentifier(unescapeLeadingUnderscores(getTupleElementLabel(labeledElementDeclaration))),
-                    //                     flags & ElementFlags.Optional ? factory.createToken(SyntaxKind.QuestionToken) : undefined,
-                    //                     flags & ElementFlags.Rest ? factory.createArrayTypeNode(tupleConstituentNodes[i]) :
-                    //                         tupleConstituentNodes[i],
-                    //                 );
-                    //             }
-                    //             else {
-                    //                 tupleConstituentNodes[i] = flags & ElementFlags.Variable ? factory.createRestTypeNode(flags & ElementFlags.Rest ? factory.createArrayTypeNode(tupleConstituentNodes[i]) : tupleConstituentNodes[i]) :
-                    //                     flags & ElementFlags.Optional ? factory.createOptionalTypeNode(tupleConstituentNodes[i]) :
-                    //                     tupleConstituentNodes[i];
-                    //             }
-                    //         }
-                    //         const tupleTypeNode = setEmitFlags(factory.createTupleTypeNode(tupleConstituentNodes), EmitFlags.SingleLine);
-                    //         return (type.target as TupleType).readonly ? factory.createTypeOperatorNode(SyntaxKind.ReadonlyKeyword, tupleTypeNode) : tupleTypeNode;
-                    //     }
-                    // }
-                    // if (context.encounteredError || (context.flags & NodeBuilderFlags.AllowEmptyTuple)) {
-                    //     const tupleTypeNode = setEmitFlags(factory.createTupleTypeNode([]), EmitFlags.SingleLine);
-                    //     return (type.target as TupleType).readonly ? factory.createTypeOperatorNode(SyntaxKind.ReadonlyKeyword, tupleTypeNode) : tupleTypeNode;
-                    // }
-                    context.encounteredError = true;
-                    return undefined!; // TODO: GH#18217
+                    const elementUnion = typeArguments.length ? getUnionType(typeArguments as Type[]) : anyType;
+                    let elementTypeNode = typeToTypeNodeHelper(elementUnion, context);
+                    if (elementTypeNode.kind === SyntaxKind.UnionType || elementTypeNode.kind === SyntaxKind.IntersectionType) {
+                        elementTypeNode = factory.createParenthesizedType(elementTypeNode);
+                    }
+                    return factory.createArrayTypeNode(elementTypeNode);
                 }
                 else if (
                     context.flags & NodeBuilderFlags.WriteClassExpressionAsTypeLiteral &&
@@ -32577,7 +32552,6 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const typeNode = nodeBuilder.typeToTypeNode(type, enclosingDeclaration, toNodeBuilderFlags(flags) | NodeBuilderFlags.IgnoreErrors | (noTruncation ? NodeBuilderFlags.NoTruncation : 0));
         if (typeNode === undefined) {
             console.warn("expected a type node but didn't get one");
-            const typeNode2 = nodeBuilder.typeToTypeNode(type, enclosingDeclaration, toNodeBuilderFlags(flags) | NodeBuilderFlags.IgnoreErrors | (noTruncation ? NodeBuilderFlags.NoTruncation : 0));
             return "<never>";
         }
         // The unresolved type gets a synthesized comment on `any` to hint to users that it's not a plain `any`.
