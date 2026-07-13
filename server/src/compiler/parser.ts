@@ -2254,7 +2254,9 @@ export namespace LpcParser {
             parseExpected(SyntaxKind.ColonToken);
         }
         
-        const expression = isLDMud && isRefElement() ? parseByRefElement() : parseMaybeRangeExpression(SyntaxKind.CloseParenToken);
+        // A by-reference iterated expression uses `&` (both drivers) or the `ref` keyword
+        // (FluffOS only, per the scanner); isRefElement() already covers both.
+        const expression = isRefElement() ? parseByRefElement() : parseMaybeRangeExpression(SyntaxKind.CloseParenToken);
         parseExpected(SyntaxKind.CloseParenToken);
         const body = parseStatement();
 
@@ -3592,10 +3594,6 @@ export namespace LpcParser {
             || token() === SyntaxKind.LessThanToken // union type
             || isTypeName()
             || isLiteralPropertyName();
-    }
-
-    function isLDMud(): boolean {
-        return languageVariant === LanguageVariant.LDMud;
     }
 
     function isRefElement(): boolean {
