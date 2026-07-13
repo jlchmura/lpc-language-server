@@ -8,6 +8,7 @@
 - Fix: report assignment to an undeclared variable under FluffOS
 - Fix: quick-info/hover for variables interpolated in template literals
 - Fix: render internal tuple types instead of failing (`<never>` / "expected a type node" warning)
+- Fix: rename/find-references scopes file-global variables to their file (and inheritors)
 - Consolidate driver-specific keyword handling into the scanner
 
 ## 1.1.46
