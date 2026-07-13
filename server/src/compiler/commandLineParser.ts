@@ -261,7 +261,12 @@ function parseLpcConfigFileContentWorker(
     }
 
     options.diagnostics = raw?.diagnostics === "on" || raw?.diagnostics === true;
-    
+
+    // LDMud allows assigning to an undeclared variable (types are optional). Default to
+    // preserving that behavior; a project can set this false to opt into FluffOS-style
+    // "cannot find name" errors for undeclared assignment targets.
+    options.allowUndeclaredAssignmentsInLd = raw?.allowUndeclaredAssignmentsInLd !== false;
+
     const sefunFilePath = trimStart(options.sefunFile ?? raw?.libFiles?.simul_efun ?? "/obj/sefun.c", "/");
     options.sefunFile = normalizePath(combinePaths(libRootPath, sefunFilePath));
 
