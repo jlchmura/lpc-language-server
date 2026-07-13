@@ -1490,10 +1490,16 @@ export namespace Core {
         if (!relatedSymbol) {
             if (getReferenceForShorthandProperty(referenceSymbol, search, state)) {
                 return;
-            } else {
-                // I had to add this in to get object-level variables to show up 
-                // as references
+            } else if (sharesDeclarationWithSearch(referenceSymbol, search)) {
+                // The checker can mint distinct Symbol objects that nonetheless
+                // share the same declaration node (this happens for object-level
+                // / file-global variables). Identity comparison in `search.includes`
+                // misses these, so fall back to matching on a shared declaration.
+                // This keeps same-file (and inherited) references showing up while
+                // excluding same-named globals declared in unrelated files.
                 relatedSymbol = { symbol: referenceSymbol, kind: EntryKind.Node };
+            } else {
+                return;
             }
         }
 
@@ -2248,6 +2254,23 @@ export namespace Core {
         if (!symbol.valueDeclaration) return false;
         const modifierFlags = getEffectiveModifierFlags(symbol.valueDeclaration);
         return !!(modifierFlags & ModifierFlags.Static);
+    }
+
+    /**
+     * True when `referenceSymbol` shares at least one declaration node with a
+     * symbol in the search set. LPC's checker can produce several distinct
+     * `Symbol` objects for the same file-global (object-level) variable, so
+     * identity comparison (`search.includes`) is not enough to recognize a
+     * legitimate reference. Matching on a shared declaration recognizes those
+     * references (and inherited ones, which resolve to the inherited
+     * declaration) while rejecting same-named globals from unrelated files,
+     * which have their own declarations.
+     */
+    function sharesDeclarationWithSearch(referenceSymbol: Symbol, search: Search): boolean {
+        const refDeclarations = referenceSymbol.declarations;
+        if (!refDeclarations || refDeclarations.length === 0) return false;
+        return search.allSearchSymbols.some(searchSymbol =>
+            searchSymbol.declarations?.some(decl => contains(refDeclarations, decl)));
     }
 
     function getRelatedSymbol(search: Search, referenceSymbol: Symbol, referenceLocation: Node, state: State): RelatedSymbol | undefined {
