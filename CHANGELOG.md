@@ -7,7 +7,7 @@
 - Fix: Parse FluffOS anonymous function expressions `(function(params){...})`
 - Fix: report assignment to an undeclared variable under FluffOS
 - Fix: quick-info/hover for variables interpolated in template literals
-- Fix: render LPC spread-argument tuples as an array of element unions
+- Fix: render internal tuple types instead of failing (`<never>` / "expected a type node" warning)
 - Consolidate driver-specific keyword handling into the scanner
 
 ## 1.1.46
