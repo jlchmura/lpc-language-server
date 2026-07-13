@@ -613,7 +613,7 @@ Found 1 error in server/src/tests/cases/compiler/namedObject2.c[90m:3[0m
 
 exports[`Compiler compiler/namedObject3.c Reports correct errors for compiler/namedObject3.c: diags-compiler/namedObject3.c 1`] = `
 "
-Found 3 errors in the same file, starting at: server/src/tests/cases/compiler/namedObject3.c[90m:3[0m
+Found 1 error in server/src/tests/cases/compiler/namedObject3.c[90m:3[0m
 
 "
 `;

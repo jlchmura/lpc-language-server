@@ -3263,10 +3263,12 @@ export namespace LpcParser {
                 // If these are followed by a dot, then parse these out as a dotted type reference instead.
                 return parseKeywordAndNoDot();
             case SyntaxKind.ObjectKeyword:
-                // LD has "named" objects.  
-                const pos = getPositionState();              
-                const objectType = parseKeywordAndNoDot();                                
-                if (token() === SyntaxKind.StringLiteral && (languageVariant === LanguageVariant.LDMud || inContext(NodeFlags.JSDoc))) {                                                            
+                // A "named object" type is `object "path"`. Parse it dialect-agnostically in
+                // every driver/context; the checker reports when it is used outside LDMud
+                // source or a JSDoc annotation (see checkGrammarNamedObjectType).
+                const pos = getPositionState();
+                const objectType = parseKeywordAndNoDot();
+                if (token() === SyntaxKind.StringLiteral) {
                     let objectName = disallowPipe(parseExpression);
                     Debug.assert(isStringLiteral(objectName) || isParenthesizedExpression(objectName) || isBinaryExpression(objectName));
                     return addImportCandidate(finishNode(factory.createNamedObjectTypeNode(objectName, objectType), pos));
