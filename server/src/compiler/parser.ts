@@ -7572,7 +7572,7 @@ export function getDeclarationFileExtension(fileName: string): string | undefine
 // becoming detached from any SourceFile).  It is recommended that this SourceFile not
 // be used once 'update' is called on it.
 export function updateSourceFile(sourceFile: SourceFile, newText: string, globalIncludes: string[], configDefines: ReadonlyMap<string,string>, fileHandler: LpcFileHandler, textChangeRange: TextChangeRange, aggressiveChecks = false, languageVariant: LanguageVariant): SourceFile {    
-    console.warn("implement me- updateSourceFile");
+    // console.warn("implement me- updateSourceFile");
     return LpcParser.parseSourceFile(sourceFile.fileName, newText, globalIncludes, configDefines, fileHandler, ScriptTarget.LPC, undefined, true, undefined, undefined, undefined, languageVariant);
     // const newSourceFile = IncrementalParser.updateSourceFile(sourceFile, newText, textChangeRange, aggressiveChecks);
     // // Because new source file node is created, it may not have the flag PossiblyContainDynamicImport. This is the case if there is no new edit to add dynamic import.
