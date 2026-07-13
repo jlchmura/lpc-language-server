@@ -39,6 +39,7 @@ export const Diagnostics = {
     No_errors: diag(9031, DiagnosticCategory.Message, "No_errors_9031", "No errors - That is some happy LPC."),
     Catch_expression_cannot_also_have_a_block: diag(9032, DiagnosticCategory.Error, "Catch_expression_cannot_also_have_a_block_9032", "Catch expression cannot also have a block."),
     Operator_0_is_not_supported_in_LDMud: diag(9033, DiagnosticCategory.Error, "Operator_0_is_not_supported_in_LDMud_9033", "Operator '{0}' is not supported in LDMud."),
+    Anonymous_function_expressions_are_only_supported_in_FluffOS: diag(9034, DiagnosticCategory.Error, "Anonymous_function_expressions_are_only_supported_in_FluffOS_9034", "Anonymous function expressions are only supported in FluffOS."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    

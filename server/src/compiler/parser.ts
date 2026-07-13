@@ -5647,6 +5647,8 @@ export namespace LpcParser {
         // after the `function` keyword (e.g. `function(string s) { ... }`), with
         // no return type. Only parse a return type when one is actually present,
         // otherwise `parseType()` would try to read the `(` param list as a type.
+        // Parse this permissively for every driver so the AST stays well-formed;
+        // the checker reports the FluffOS-only grammar restriction (see below).
         const type = token() === SyntaxKind.OpenParenToken ? undefined : parseType();
         const name = isIdentifier() ? parseIdentifier() : undefined;
 
