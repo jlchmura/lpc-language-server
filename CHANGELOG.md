@@ -5,6 +5,9 @@
 - Fix: [Rename (f2) reports "no project" error when file is excluded
   #200](https://github.com/jlchmura/lpc-language-server/issues/200)
 - Fix: Parse FluffOS anonymous function expressions `(function(params){...})`
+- Fix: report assignment to an undeclared variable under FluffOS
+- Fix: quick-info/hover for variables interpolated in template literals
+- Consolidate driver-specific keyword handling into the scanner
 
 ## 1.1.46
 

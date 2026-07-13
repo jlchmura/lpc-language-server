@@ -65,8 +65,7 @@ export namespace LpcParser {
 
     var languageVersion: ScriptTarget;
     var scriptKind: ScriptKind;
-    var languageVariant: LanguageVariant;
-    
+
     var includeFileStack: IncludeDirective[] = [];
     var macroTable: Map<string, Macro> | undefined;        
     var currentMacro: Macro;
@@ -168,8 +167,7 @@ export namespace LpcParser {
         languageVersion = _languageVersion;
         syntaxCursor = _syntaxCursor;
         scriptKind = _scriptKind;
-        languageVariant = _languageVariant;        
-        
+
         let fileDir = getDirectoryPath(fileName);
         if (!fileDir.endsWith("/")) fileDir = fileDir + "/";
         
@@ -218,7 +216,7 @@ export namespace LpcParser {
         scanner.setFileName(fileName);
         scanner.setOnError(scanError);
         scanner.setScriptTarget(languageVersion);
-        scanner.setLanguageVariant(languageVariant);
+        scanner.setLanguageVariant(_languageVariant);
         scanner.setScriptKind(scriptKind);
         scanner.setJSDocParsingMode(_jsDocParsingMode);        
     }
@@ -238,7 +236,6 @@ export namespace LpcParser {
         languageVersion = undefined!;
         syntaxCursor = undefined;
         scriptKind = undefined!;
-        languageVariant = undefined!;
         sourceFlags = 0;
         parseDiagnostics = undefined!;
         jsDocDiagnostics = undefined!;
@@ -349,7 +346,7 @@ export namespace LpcParser {
         }
 
         // Set source file so that errors will be reported with this file name
-        const sourceFile = createSourceFile(fileName, statements, endOfFileToken);
+        const sourceFile = createSourceFile(fileName, statements, endOfFileToken, LanguageVariant.Standard);
 
         if (setParentNodes) {
             fixupParentReferences(sourceFile);
@@ -883,7 +880,7 @@ export namespace LpcParser {
         initState(fileName, sourceText, globalIncludes, configDefines, languageVersion, syntaxCursor, scriptKind, fileHandler, jsDocParsingMode, languageVariant);
         // console.debug("Parsing source file: " + fileName);        
         try {
-            const result = parseSourceFileWorker(languageVersion, setParentNodes, scriptKind || ScriptKind.LPC, jsDocParsingMode, reportParsedDefines);
+            const result = parseSourceFileWorker(languageVersion, languageVariant, setParentNodes, scriptKind || ScriptKind.LPC, jsDocParsingMode, reportParsedDefines);
             clearState();            
 
             // console.debug("DONE parsing source file: " + fileName);
@@ -895,7 +892,7 @@ export namespace LpcParser {
         } 
     }
 
-    function parseSourceFileWorker(languageVersion: ScriptTarget, setParentNodes: boolean, scriptKind: ScriptKind, jsDocParsingMode: JSDocParsingMode, reportParsedDefines: boolean): SourceFile {
+    function parseSourceFileWorker(languageVersion: ScriptTarget, languageVariant: LanguageVariant, setParentNodes: boolean, scriptKind: ScriptKind, jsDocParsingMode: JSDocParsingMode, reportParsedDefines: boolean): SourceFile {
               
         // if there is a global include, we want to grab the position state before that happens so that the statement list 
         // is tied to the original file
@@ -925,7 +922,7 @@ export namespace LpcParser {
         const endHasJSDoc = hasPrecedingJSDocComment();
         const endOfFileToken = withJSDoc(parseTokenNode<EndOfFileToken>(), endHasJSDoc);
         
-        const sourceFile = createSourceFile(fileName, statements, endOfFileToken);//, sourceFlags);
+        const sourceFile = createSourceFile(fileName, statements, endOfFileToken, languageVariant);//, sourceFlags);
 
         // A member of ReadonlyArray<T> isn't assignable to a member of T[] (and prevents a direct cast) - but this is where we set up those members so they can be readonly in the future
         processCommentPragmas(sourceFile as {} as PragmaContext, sourceText);
@@ -983,7 +980,8 @@ export namespace LpcParser {
     function createSourceFile(
         fileName: string,
         statements: readonly Statement[],
-        endOfFileToken: EndOfFileToken
+        endOfFileToken: EndOfFileToken,
+        languageVariant: LanguageVariant
     ): SourceFile {
         let sourceFile = factory.createSourceFile(
             statements,
@@ -998,7 +996,7 @@ export namespace LpcParser {
         sourceFile.bindSuggestionDiagnostics = undefined;
         sourceFile.languageVersion = languageVersion || ScriptTarget.LPC;
         sourceFile.fileName = fileName;
-        sourceFile.languageVariant = languageVariant ;
+        sourceFile.languageVariant = languageVariant;
         sourceFile.isDeclarationFile = false;
         sourceFile.scriptKind = scriptKind || ScriptKind.LPC;
         
@@ -1494,14 +1492,13 @@ export namespace LpcParser {
                     // // }
                     // continue;                        
                 case SyntaxKind.ObjectKeyword:
-                    return lookAhead(()=>nextToken() !== SyntaxKind.ColonColonToken);        
+                    return lookAhead(()=>nextToken() !== SyntaxKind.ColonColonToken);
                 case SyntaxKind.StatusKeyword:
                 case SyntaxKind.SymbolKeyword:
-                    // LD only
-                    return languageVariant === LanguageVariant.LDMud;
                 case SyntaxKind.BufferKeyword:
-                    // Fluff only
-                    return languageVariant === LanguageVariant.FluffOS;
+                    // The scanner only yields these tokens in the driver where they are
+                    // types, so reaching here means we're in that driver.
+                    return true;
                 case SyntaxKind.Identifier:
                     // probably a function without modifier or type
                     // but that can only happen if we're parsing in the source context
@@ -2255,7 +2252,9 @@ export namespace LpcParser {
             parseExpected(SyntaxKind.ColonToken);
         }
         
-        const expression = isLDMud && isRefElement() ? parseByRefElement() : parseMaybeRangeExpression(SyntaxKind.CloseParenToken);
+        // A by-reference iterated expression uses `&` (both drivers) or the `ref` keyword
+        // (FluffOS only, per the scanner); isRefElement() already covers both.
+        const expression = isRefElement() ? parseByRefElement() : parseMaybeRangeExpression(SyntaxKind.CloseParenToken);
         parseExpected(SyntaxKind.CloseParenToken);
         const body = parseStatement();
 
@@ -3024,8 +3023,8 @@ export namespace LpcParser {
             // case SyntaxKind.ImportKeyword:
             //     return lookAhead(nextTokenIsOpenParenOrLessThanOrDot);
             case SyntaxKind.ClassKeyword:
-                // Fluff only
-                return languageVariant === LanguageVariant.FluffOS;
+                // The scanner only yields ClassKeyword in FluffOS (LDMud uses `struct`).
+                return true;
             case SyntaxKind.NullKeyword:
                 if (scriptKind === ScriptKind.JSON) {
                     return true;
@@ -3217,14 +3216,18 @@ export namespace LpcParser {
             //     // Only consider '(' the start of a type if followed by ')', '...', an identifier, a modifier,
             //     // or something that starts a type. We don't want to consider things like '(1)' a type.
             //     return !inStartOfParameter && lookAhead(isStartOfParenthesizedOrFunctionType);            
-            case SyntaxKind.NullKeyword:            
-                if (scriptKind === ScriptKind.JSON) {
-                    return true;
-                }
-                // fall through
             case SyntaxKind.BufferKeyword:
-                // fluff-only keywords                
-                return languageVariant === LanguageVariant.FluffOS;
+                // The scanner only yields BufferKeyword in FluffOS (LDMud uses `bytes`),
+                // so no per-variant gate is needed here.
+                return true;
+            case SyntaxKind.NullKeyword:
+                // `null` is a type only as a JSON literal type. It is a reserved value
+                // literal in both LPC drivers (never an identifier), so unlike
+                // buffer/class/new it is not demoted in the scanner. The former
+                // `|| languageVariant === FluffOS` here was vestigial: nothing parses a
+                // bare `null` type in FluffOS, and the sibling checks (isTypeName /
+                // parseNonArrayType) already gate `null`-as-type on JSON alone.
+                return scriptKind === ScriptKind.JSON;
             default:
                 return isIdentifier();
         }
@@ -3240,29 +3243,30 @@ export namespace LpcParser {
             case SyntaxKind.AnyKeyword:
             case SyntaxKind.UnknownKeyword:
             case SyntaxKind.StringKeyword:
-            case SyntaxKind.BytesKeyword:            
+            case SyntaxKind.BytesKeyword:
             case SyntaxKind.LwObjectKeyword:
-            case SyntaxKind.ClosureKeyword:                        
+            case SyntaxKind.ClosureKeyword:
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
             case SyntaxKind.FunctionKeyword:
             case SyntaxKind.MixedKeyword:
-            case SyntaxKind.MappingKeyword:            
-            case SyntaxKind.UndefinedKeyword:                                 
+            case SyntaxKind.MappingKeyword:
+            case SyntaxKind.UndefinedKeyword:
+            // The scanner only produces these tokens in the driver where they are types
+            // (`status`/`symbol` in LDMud, `buffer` in FluffOS); elsewhere they scan as
+            // identifiers, so no per-variant gate is needed here.
+            case SyntaxKind.StatusKeyword:
+            case SyntaxKind.SymbolKeyword:
+            case SyntaxKind.BufferKeyword:
                 // If these are followed by a dot, then parse these out as a dotted type reference instead.
                 return parseKeywordAndNoDot();
-            case SyntaxKind.StatusKeyword:     
-            case SyntaxKind.SymbolKeyword:  
-                // status is only available in LD           
-                return languageVariant === LanguageVariant.LDMud ? parseKeywordAndNoDot() : undefined;
-            case SyntaxKind.BufferKeyword:            
-                // buffer is only available in FluffOS
-                return languageVariant === LanguageVariant.FluffOS ? parseKeywordAndNoDot() : undefined;
             case SyntaxKind.ObjectKeyword:
-                // LD has "named" objects.  
-                const pos = getPositionState();              
-                const objectType = parseKeywordAndNoDot();                                
-                if (token() === SyntaxKind.StringLiteral && (languageVariant === LanguageVariant.LDMud || inContext(NodeFlags.JSDoc))) {                                                            
+                // A "named object" type is `object "path"`. Parse it dialect-agnostically in
+                // every driver/context; the checker reports when it is used outside LDMud
+                // source or a JSDoc annotation (see checkGrammarNamedObjectType).
+                const pos = getPositionState();
+                const objectType = parseKeywordAndNoDot();
+                if (token() === SyntaxKind.StringLiteral) {
                     let objectName = disallowPipe(parseExpression);
                     Debug.assert(isStringLiteral(objectName) || isParenthesizedExpression(objectName) || isBinaryExpression(objectName));
                     return addImportCandidate(finishNode(factory.createNamedObjectTypeNode(objectName, objectType), pos));
@@ -3310,8 +3314,8 @@ export namespace LpcParser {
             case SyntaxKind.StructKeyword:
                 return parseStructTypeNode(token() as KeywordSyntaxKind);
             case SyntaxKind.ClassKeyword:
-                // fluff-only
-                return languageVariant === LanguageVariant.FluffOS && parseStructTypeNode(token() as KeywordSyntaxKind);            
+                // The scanner only yields ClassKeyword in FluffOS (LDMud uses `struct`).
+                return parseStructTypeNode(token() as KeywordSyntaxKind);
             case SyntaxKind.TrueKeyword:
             case SyntaxKind.FalseKeyword:
             case SyntaxKind.NullKeyword:
@@ -3592,10 +3596,6 @@ export namespace LpcParser {
             || isLiteralPropertyName();
     }
 
-    function isLDMud(): boolean {
-        return languageVariant === LanguageVariant.LDMud;
-    }
-
     function isRefElement(): boolean {
         switch (token()) {
             case SyntaxKind.AmpersandToken:
@@ -3619,9 +3619,16 @@ export namespace LpcParser {
             case SyntaxKind.MixedKeyword:
             case SyntaxKind.MappingKeyword:
             case SyntaxKind.ObjectKeyword:
-            case SyntaxKind.StructKeyword:            
+            case SyntaxKind.StructKeyword:
             case SyntaxKind.FunctionKeyword:
             case SyntaxKind.VoidKeyword:
+            // The scanner only yields these tokens in the driver where they are types
+            // (`status`/`symbol` in LDMud, `buffer`/`class` in FluffOS), so no gate is
+            // needed here.
+            case SyntaxKind.StatusKeyword:
+            case SyntaxKind.SymbolKeyword:
+            case SyntaxKind.BufferKeyword:
+            case SyntaxKind.ClassKeyword:
                 return true;
             // handle unionable types
             // case SyntaxKind.LessThanToken:
@@ -3629,12 +3636,6 @@ export namespace LpcParser {
             //         while(nextToken()==SyntaxKind.LessThanToken) {}
             //         return isTypeName();
             //     });
-            case SyntaxKind.StatusKeyword:
-            case SyntaxKind.SymbolKeyword:
-                return languageVariant === LanguageVariant.LDMud;
-            case SyntaxKind.ClassKeyword:            
-            case SyntaxKind.BufferKeyword:
-                return languageVariant === LanguageVariant.FluffOS;
             case SyntaxKind.NullKeyword:
                 return languageVersion === ScriptTarget.JSON;
         }        
@@ -3649,8 +3650,9 @@ export namespace LpcParser {
     }
 
     function isStructOrClassKeyword(): boolean {
-        return token() === SyntaxKind.StructKeyword || 
-            (token() === SyntaxKind.ClassKeyword && languageVariant === LanguageVariant.FluffOS);
+        // The scanner only yields ClassKeyword in FluffOS (LDMud uses `struct`).
+        return token() === SyntaxKind.StructKeyword ||
+            token() === SyntaxKind.ClassKeyword;
     }
 
     function isStartOfStructDeclaration() {
@@ -3970,7 +3972,9 @@ export namespace LpcParser {
         }
 
         let paramType = inContext(NodeFlags.DisallowTypes) ? undefined : parseType();
-        const ampToken: AmpersandToken | RefToken = parseOptionalToken(SyntaxKind.AmpersandToken) || (languageVariant === LanguageVariant.FluffOS && parseOptionalToken(SyntaxKind.RefKeyword));
+        // `&` marks a by-reference parameter in both drivers; the `ref` keyword only exists
+        // in FluffOS (the scanner yields RefKeyword only there), so no variant gate needed.
+        const ampToken: AmpersandToken | RefToken | undefined = parseOptionalToken(SyntaxKind.AmpersandToken) || parseOptionalToken(SyntaxKind.RefKeyword);
         const arrayType = parseOptionalToken(SyntaxKind.AsteriskToken);
         if (arrayType) {
             // we'll use the array type as the type of the parameter
@@ -5435,7 +5439,10 @@ export namespace LpcParser {
 
     function parseByRefElement(): Expression {
         const pos = getPositionState();
-        const ampToken = (languageVariant === LanguageVariant.LDMud) ? parseExpectedToken(SyntaxKind.AmpersandToken) : parseExpectedToken(SyntaxKind.RefKeyword);
+        // Reached only when the current token is `&` or `ref` (see the caller). `&` works in
+        // both drivers; the `ref` keyword only exists in FluffOS, so consume whichever is
+        // present rather than dispatching on the driver.
+        const ampToken = parseOptionalToken(SyntaxKind.AmpersandToken) || parseExpectedToken(SyntaxKind.RefKeyword);
         const expression = parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true);
 
         return finishNode(factory.createByRefElement(ampToken, expression), pos);
@@ -5577,7 +5584,8 @@ export namespace LpcParser {
             return parseTokenNode<PrimaryExpression>();
         }
 
-        if (token() === SyntaxKind.NewKeyword && languageVariant === LanguageVariant.FluffOS) {            
+        if (token() === SyntaxKind.NewKeyword) {
+            // The scanner only yields NewKeyword in FluffOS (LDMud uses `clone_object()`).
             return parseNewExpression();
         }
 

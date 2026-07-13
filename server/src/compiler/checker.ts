@@ -4835,7 +4835,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      */
     function getTypeFromNamedObjectTypeNode(node: NamedObjectTypeNode): Type {
         const links = getNodeLinks(node);
-        if (!links.resolvedType) {            
+        if (!links.resolvedType) {
+            if (checkGrammarNamedObjectType(node)) {
+                // Not a valid named object type in this dialect: report the one grammar
+                // error and treat it as a plain object type rather than also trying (and
+                // failing) to resolve the path as a file.
+                return links.resolvedType = objectType;
+            }
             const specifier = node.name;
             const moduleSymbol = resolveExternalModuleName(node, specifier, undefined);
             const objectSymbol = resolveExternalObjectSymbol(moduleSymbol, specifier, /*dontResolveAlias*/ true);
@@ -5849,6 +5855,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             checkGrammarTypeParameterList(node.typeParameters, file) ||
             checkGrammarParameterList(node.parameters);
             // checkGrammarArrowFunction(node, file) ||
+    }
+
+    function checkGrammarNamedObjectType(node: NamedObjectTypeNode): boolean {
+        // Named object types (`object "path"`) are an LDMud source construct. FluffOS only
+        // permits them inside JSDoc type annotations. The parser builds the node for every
+        // driver/context so the AST stays uniform; the dialect restriction is reported here.
+        if (languageVariant !== LanguageVariant.LDMud && !isInJSDoc(node)) {
+            return grammarErrorOnNode(node, Diagnostics.Named_object_types_are_only_supported_in_LDMud_or_in_JSDoc_type_annotations);
+        }
+        return false;
     }
 
     function checkGrammarAnonymousFunctionExpression(node: FunctionLikeDeclaration | MethodSignature): boolean {
