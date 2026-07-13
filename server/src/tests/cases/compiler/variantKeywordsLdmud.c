@@ -14,16 +14,20 @@ symbol make_symbol() {
     return y;
 }
 
-// `buffer` and `class` are just identifiers under LDMud -- usable as function names...
+// `buffer`, `class` and `new` are just identifiers under LDMud -- usable as function
+// names (LDMud constructs objects with clone_object(), not a `new` operator)...
 int buffer() { return 1; }
 int class() { return 2; }
+int new() { return 3; }
 
 void f() {
     // ...and as variable names
     int b;
     int class;
+    int new;
     b = buffer();
-    class = 3;
+    class = new();
+    new = 4;
 }
 
 // @driver: ldmud

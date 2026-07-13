@@ -3216,14 +3216,12 @@ export namespace LpcParser {
             //     // Only consider '(' the start of a type if followed by ')', '...', an identifier, a modifier,
             //     // or something that starts a type. We don't want to consider things like '(1)' a type.
             //     return !inStartOfParameter && lookAhead(isStartOfParenthesizedOrFunctionType);            
-            case SyntaxKind.NullKeyword:            
-                if (scriptKind === ScriptKind.JSON) {
-                    return true;
-                }
-                // fall through
             case SyntaxKind.BufferKeyword:
-                // fluff-only keywords                
-                return languageVariant === LanguageVariant.FluffOS;
+                // The scanner only yields BufferKeyword in FluffOS (LDMud uses `bytes`),
+                // so no per-variant gate is needed here.
+                return true;
+            case SyntaxKind.NullKeyword:
+                return scriptKind === ScriptKind.JSON || languageVariant === LanguageVariant.FluffOS;
             default:
                 return isIdentifier();
         }
@@ -5577,7 +5575,8 @@ export namespace LpcParser {
             return parseTokenNode<PrimaryExpression>();
         }
 
-        if (token() === SyntaxKind.NewKeyword && languageVariant === LanguageVariant.FluffOS) {            
+        if (token() === SyntaxKind.NewKeyword) {
+            // The scanner only yields NewKeyword in FluffOS (LDMud uses `clone_object()`).
             return parseNewExpression();
         }
 

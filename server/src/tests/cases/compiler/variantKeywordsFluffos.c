@@ -18,6 +18,11 @@ void takes_class(class coord c) {
     c.x = 1;
 }
 
+// `new` is the FluffOS object/struct construction operator
+class coord make_coord() {
+    return new(class coord);
+}
+
 void f() {
     // status / symbol are just identifiers under FluffOS
     int status;
