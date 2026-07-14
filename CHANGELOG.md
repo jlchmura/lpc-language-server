@@ -11,6 +11,7 @@
 - Fix: render internal tuple types instead of failing (`<never>` / "expected a type node" warning)
 - Fix: rename/find-references scopes file-global variables to their file (and inheritors)
 - Consolidate driver-specific keyword handling into the scanner
+- Update FluffOS efun signatures
 
 ## 1.1.46
 
