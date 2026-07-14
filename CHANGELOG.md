@@ -3,6 +3,7 @@
 ## 1.1.48
 
 - Memory-bounded full check for large mudlibs — forEachProgramBatch ([#282](https://github.com/jlchmura/lpc-language-server/issues/282))
+- Fix: LPCDoc `@param` accepts whitespace between the `&` ref modifier and the parameter name (`{int} & value`), matching the FluffOS `int & value` signature spelling
 
 ## 1.1.47
 

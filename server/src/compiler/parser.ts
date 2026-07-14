@@ -6456,6 +6456,10 @@ export namespace LpcParser {
                 const isBackquoted = parseOptionalJsdoc(SyntaxKind.BacktickToken);
                 // allow &name for pass-by-reference params (LPC ref keyword)
                 const isRef = !!parseOptionalJsdoc(SyntaxKind.AmpersandToken);
+                if (isRef) {
+                    // permit whitespace between '&' and the name, mirroring FluffOS `int & value`
+                    skipWhitespace();
+                }
                 const name = parseJSDocEntityName();
                 let expr: Expression = undefined;
 
