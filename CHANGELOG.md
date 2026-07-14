@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.48
+
+- Memory-bounded full check for large mudlibs — forEachProgramBatch ([#282](https://github.com/jlchmura/lpc-language-server/issues/282))
+
 ## 1.1.47
 
 - Feature: Add Workspace Symbols (Cmd+T / workspace/symbol) with fuzzy matching

@@ -34,6 +34,7 @@ export * from "../watch.js";
 export * from "../watchUtilities.js";
 export * from "../sys.js";
 export * from "../program.js";
+export * from "../programBatch.js";
 export * from "../transformers.js";
 export * from "../transformers/declarations.js";
 export * from "../emitter.js";
