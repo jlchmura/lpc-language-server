@@ -4,6 +4,8 @@ Language server and VSCode extension that provides rich language support for LPC
 
 This extension supports the LPC syntax used by both the [LDMud](https://www.ldmud.eu/) and [FluffOS](https://www.fluffos.info/) branch of [LPmud drivers](https://en.wikipedia.org/wiki/LPMud).
 
+For in-depth LPCDoc conventions supported by the Language server, please see the [LPCDoc spec](https://spec.gesslar.dev/lpcdoc/).
+
 Install from the VS Code Marketplace: https://marketplace.visualstudio.com/items?itemName=jlchmura.lpc
 
 ## Features
@@ -32,7 +34,7 @@ If you are updating from the 1.0.x version, please see [config-changes.md](confi
 
 ## Example
 
-For an example mudlib, pre-configured to work with LPC Language Services, see the [Nightmare Residuum mudlib](https://github.com/michaelprograms/nightmare-residuum). 
+For an example mudlib, pre-configured to work with LPC Language Services, see the [Nightmare Residuum mudlib](https://github.com/michaelprograms/nightmare-residuum).
 This mudlib has been fully annotated with [LPCDoc](#lpcdoc-comments) and can been successfully validated by the LPC Language Service and build task without errors.
 
 ## If you love this extension, you could
@@ -41,7 +43,7 @@ This mudlib has been fully annotated with [LPCDoc](#lpcdoc-comments) and can bee
 
 ## Semantic Analysis
 
-Semantic analysis (sometimes refered to as the _type checker_) will perform many useful checks on your code, but you must opt-in to this feature. 
+Semantic analysis (sometimes refered to as the _type checker_) will perform many useful checks on your code, but you must opt-in to this feature.
 To enable semantic code analysis, set the [diagnostics](#diagnostics---diagnostics) options to `"on"`.
 
 ## LPCDoc Comments
@@ -132,15 +134,15 @@ object getPlayer() {
   return lookupPlayer();
 }
 
-void testWeapon() {  
+void testWeapon() {
   object player = getPlayer();
   /** @type {"/std/weapon.c"} */
   object weapon;
-  
+
   if (player) {
     weapon = player->getWeapon();
-    weapon->runTest();    
-  }  
+    weapon->runTest();
+  }
 }
 ```
 
@@ -240,7 +242,7 @@ Defaults to `false` unless `strict` is on.
 When enabled, strick object checking will report an error when an untyped object is being assigned to a typed object.
 For example:
 ```c
-/** 
+/**
  * @param {"std/player.c"} p
  */
 void foo(object p) {
