@@ -985,10 +985,18 @@
 							"name": "punctuation.definition.block.tag.jsdoc"
 						}
 					},
-					"end": "(?=\\s|\\*/|[^{}\\[\\]A-Za-z_$])",
+					"end": "(?=\\s|\\*/|[^{}\\[\\]A-Za-z_$&])",
 					"patterns": [
 						{
 							"include": "#jsdoctype"
+						},
+						{
+							"match": "(&)\\s*",
+							"captures": {
+								"1": {
+									"name": "storage.modifier.reference.jsdoc"
+								}
+							}
 						},
 						{
 							"name": "variable.other.jsdoc",
