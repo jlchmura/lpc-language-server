@@ -1,4 +1,4 @@
-import { BuildOptions, BuilderProgram, CompilerOptions, CreateProgramOptions, Debug, Diagnostic, DiagnosticReporter, DiagnosticWithLocation, Diagnostics, DriverTypeMap, ExitStatus, Extension, ForegroundColorEscapeSequences, ParsedCommandLine, Program, SourceFile, System, WatchOptions, combinePaths, createCompilerHost, createDiagnosticReporter, createGetCanonicalFileName, createProgram, fileExtensionIs, fileExtensionIsOneOf, findArgument, findConfigFile, forEach, formatColorAndReset, getBaseFileName, getDefaultLibFileName, getDefaultLibFolder, getDiagnosticText, getDirectoryPath, getErrorSummaryText, getFilesInErrorForSummary, getLineStarts, isDiskPathRoot, noop, normalizePath, parseJsonText, parseLpcSourceFileConfigFileContent, performance, reduceLeftIterator, sortAndDeduplicateDiagnostics, startsWith, supportedTSExtensionsFlat, sys, version } from "./_namespaces/lpc";
+import { BuildOptions, BuilderProgram, CompilerHost, CompilerOptions, CreateProgramOptions, Debug, Diagnostic, DiagnosticReporter, DiagnosticWithLocation, Diagnostics, DriverTypeMap, ExitStatus, Extension, ForegroundColorEscapeSequences, ParsedCommandLine, Program, SourceFile, System, WatchOptions, combinePaths, createCompilerHost, createDiagnosticReporter, createGetCanonicalFileName, createProgram, fileExtensionIs, fileExtensionIsOneOf, findArgument, findConfigFile, forEach, forEachProgramBatch, formatColorAndReset, getBaseFileName, getDefaultLibFileName, getDefaultLibFolder, getDiagnosticText, getDirectoryPath, getErrorSummaryText, getFilesInErrorForSummary, getLineStarts, isDiskPathRoot, noop, normalizePath, parseJsonText, parseLpcSourceFileConfigFileContent, performance, reduceLeftIterator, sortAndDeduplicateDiagnostics, startsWith, supportedTSExtensionsFlat, sys, version } from "./_namespaces/lpc";
 
 
 export enum ExecuteCommandMsgType {
@@ -57,12 +57,16 @@ export function executeCommandLine(
     system.write(`Found ${parsedConfig.fileNames.length} files.\n`);
     system.write(`Efun Definitions: ${normalizePath(compilerHost.getDefaultLibFileName(compilerOptions))}\n`);
 
-    const createProgramOptions: CreateProgramOptions = {
-        host: compilerHost,
-        rootNames: parsedConfig.fileNames,
-        options: compilerOptions,                
-        oldProgram: undefined,                
+    // Each batch builds its own program from a fresh host so the host's file cache is released
+    // with the batch; mirror the default-lib override applied to `compilerHost` above.
+    const makeBatchHost = (o: CompilerOptions): CompilerHost => {
+        const h = createCompilerHost(o);
+        h.getDefaultLibFileName = () => combinePaths(execPath, "../", getDefaultLibFolder(o), getDefaultLibFileName(o));
+        return h;
     };
+
+    const batchSizeArg = findArgument("--batchSize", commandLineArgs);
+    const batchSize = batchSizeArg && /^\d+$/.test(batchSizeArg) ? parseInt(batchSizeArg, 10) : undefined;
 
     function defaultIsPretty(sys: System) {
         return !!sys.writeOutputIsTTY && sys.writeOutputIsTTY() && !sys.getEnvironmentVariable("NO_COLOR");
@@ -91,38 +95,53 @@ export function executeCommandLine(
         compilerOptions
     );
 
-    // create program and get file we are trying to compile
-    const program = createProgram(createProgramOptions);
+    // Check the project in memory-bounded batches: each batch gets its own program (a chunk of
+    // roots + their dependency closure) which is released before the next, so peak memory stays
+    // ~one batch instead of holding every file's AST + checker state at once (issue #282).
+    const rootFiles = parsedConfig.fileNames;
 
-    const diags: DiagnosticWithLocation[] = [];
-    const rootFiles = program.getRootFileNames();
+    // Reported per batch, so we never retain Diagnostic objects (whose `.file` pins a whole
+    // SourceFile) across batches. Only the lightweight per-file error summary and running
+    // count survive between batches.
+    const filesInErrorSummary: ReturnType<typeof getFilesInErrorForSummary> = [];
+    let reportedDiagnosticCount = 0;
+    let lastProgram: Program | undefined;
 
-    rootFiles.forEach(f => {
-        try {
-            const sourceFile = program.getSourceFile(f);    
-            const parseDiags = program.getSyntacticDiagnostics(sourceFile);
-            diags.push(...parseDiags);
-            
-            if (compilerOptions.diagnostics) {
-                const semanticDiags = program.getSemanticDiagnostics(sourceFile);
-                diags.push(...semanticDiags);
-            }        
-        } catch (e) {
-            system.write(`Error processing file: ${f}\n`);            
-            throw e;        
-        }
-    });
+    forEachProgramBatch(
+        { rootNames: rootFiles, options: compilerOptions, batchSize, createHost: makeBatchHost },
+        (program, batchRootNames) => {
+            const diags: DiagnosticWithLocation[] = [];
+            batchRootNames.forEach(f => {
+                try {
+                    const sourceFile = program.getSourceFile(f);
+                    diags.push(...program.getSyntacticDiagnostics(sourceFile));
+                    if (compilerOptions.diagnostics) {
+                        diags.push(...program.getSemanticDiagnostics(sourceFile));
+                    }
+                } catch (e) {
+                    system.write(`Error processing file: ${f}\n`);
+                    throw e;
+                }
+            });
 
-    sortAndDeduplicateDiagnostics(diags).forEach(d => {
-        reportDiagnostic(d);
-    });
+            if (diags.length) {
+                const sorted = sortAndDeduplicateDiagnostics(diags);
+                sorted.forEach(reportDiagnostic);
+                reportedDiagnosticCount += sorted.length;
+                filesInErrorSummary.push(...getFilesInErrorForSummary(sorted));
+            }
 
-    if (diags.length) {
+            // Only retained under --perf, where end-of-run statistics need a program to inspect.
+            if (performanceEnabled) lastProgram = program;
+        },
+    );
+
+    if (reportedDiagnosticCount) {
         system.write("\n");
-        if (msgCallback) {            
-            const diagTxt = getErrorSummaryText(diags.length, getFilesInErrorForSummary(diags), "\n", compilerHost);
+        if (msgCallback) {
+            const diagTxt = getErrorSummaryText(reportedDiagnosticCount, filesInErrorSummary, "\n", compilerHost);
             msgCallback(diagTxt, ExecuteCommandMsgType.Failure);
-        }        
+        }
     } else if (rootFiles.length) {
         const messages = [
             "Your code is so fresh and so clean, clean.",
@@ -141,8 +160,10 @@ export function executeCommandLine(
         }        
     }    
     
-    if (performanceEnabled) {
-        reportStatistics(sys, program, solutionPerformance);        
+    if (performanceEnabled && lastProgram) {
+        // In batched mode this reflects the final batch only (the whole project no longer lives
+        // in a single program); for a project small enough to fit in one batch it is exact.
+        reportStatistics(sys, lastProgram, solutionPerformance);
         reportSolutionBuilderTimes(solutionPerformance);
     }
 }
