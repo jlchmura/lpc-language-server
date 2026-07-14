@@ -473,6 +473,8 @@ Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/js
 "
 `;
 
+exports[`Compiler compiler/jsDocParamRefWhitespace.c Reports correct errors for compiler/jsDocParamRefWhitespace.c: diags-compiler/jsDocParamRefWhitespace.c 1`] = `""`;
+
 exports[`Compiler compiler/jsDocParamTypeMismatch.c Reports correct errors for compiler/jsDocParamTypeMismatch.c: diags-compiler/jsDocParamTypeMismatch.c 1`] = `
 "
 Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/jsDocParamTypeMismatch.c[90m:3[0m
