@@ -4,8 +4,6 @@ Language server and VSCode extension that provides rich language support for LPC
 
 This extension supports the LPC syntax used by both the [LDMud](https://www.ldmud.eu/) and [FluffOS](https://www.fluffos.info/) branch of [LPmud drivers](https://en.wikipedia.org/wiki/LPMud).
 
-For in-depth LPCDoc conventions supported by the Language server, please see the [LPCDoc spec](https://spec.gesslar.dev/lpcdoc/).
-
 Install from the VS Code Marketplace: https://marketplace.visualstudio.com/items?itemName=jlchmura.lpc
 
 ## Features
@@ -49,6 +47,8 @@ To enable semantic code analysis, set the [diagnostics](#diagnostics---diagnosti
 ## LPCDoc Comments
 
 LPC Language Services uses [JSDoc-style](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html) comments to provide additional context during hover and signature help.
+
+For in-depth LPCDoc conventions supported by the language server, please see the [LPCDoc spec](https://spec.gesslar.dev/lpcdoc/).
 
 Example:
 
