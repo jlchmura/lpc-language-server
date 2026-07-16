@@ -203,8 +203,9 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     string: SyntaxKind.StringKeyword,
     status: SyntaxKind.StatusKeyword,    
     struct: SyntaxKind.StructKeyword,
-    switch: SyntaxKind.SwitchKeyword,    
+    switch: SyntaxKind.SwitchKeyword,
     symbol: SyntaxKind.SymbolKeyword,
+    time_expression: SyntaxKind.TimeExpressionKeyword,
     true: SyntaxKind.TrueKeyword,
     undefined: SyntaxKind.UndefinedKeyword,
     unknown: SyntaxKind.UnknownKeyword,
@@ -1930,9 +1931,11 @@ export function createScanner(
     }
 
     function getIdentifierToken(): SyntaxKind.Identifier | KeywordSyntaxKind {
-        // Reserved words are between 2 and 12 characters long and start with a lowercase letter
+        // Reserved words are between 2 and 15 characters long and start with a lowercase
+        // letter. The upper bound is set by `time_expression` (15); every other keyword is
+        // 10 or fewer, so widening this only costs a map lookup for long identifiers.
         const len = tokenValue.length;
-        if (len >= 2 && len <= 12) {
+        if (len >= 2 && len <= 15) {
             const ch = tokenValue.charCodeAt(0);
             if (ch >= CharacterCodes.a && ch <= CharacterCodes.z) {
                 const keyword = textToKeyword.get(tokenValue);
@@ -1947,15 +1950,17 @@ export function createScanner(
     // Some reserved words are driver-specific: `buffer` and `class` are types, `new` is
     // the object-construction operator, and `ref` marks a by-reference parameter, only in
     // FluffOS (LDMud uses `struct` for structures, `clone_object()` to construct, and `&`
-    // for by-reference); `status` and `symbol` are types only in LDMud. In the other
-    // driver each is an ordinary identifier (e.g. a variable or function name), so demote
-    // it to an Identifier token here rather than gating it per grammar position downstream.
+    // for by-reference); `status` and `symbol` are types only in LDMud; `time_expression`
+    // is a reserved word only in FluffOS. In the other driver each is an ordinary
+    // identifier (e.g. a variable or function name), so demote it to an Identifier token
+    // here rather than gating it per grammar position downstream.
     function isKeywordInVariant(keyword: SyntaxKind, variant: LanguageVariant): boolean {
         switch (keyword) {
             case SyntaxKind.BufferKeyword:
             case SyntaxKind.ClassKeyword:
             case SyntaxKind.NewKeyword:
             case SyntaxKind.RefKeyword:
+            case SyntaxKind.TimeExpressionKeyword:
                 return variant === LanguageVariant.FluffOS;
             case SyntaxKind.StatusKeyword:
             case SyntaxKind.SymbolKeyword:

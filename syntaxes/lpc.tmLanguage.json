@@ -46,7 +46,7 @@
         },
         {
             "comment": "Control flow keywords",
-            "match": "\\b(if|else|while|for|foreach|do|return|continue|break|switch|case|default|catch|inherit)\\b",
+            "match": "\\b(if|else|while|for|foreach|do|return|continue|break|switch|case|default|catch|time_expression|inherit)\\b",
             "name": "keyword.control.lpc"
         },
         {
@@ -241,7 +241,7 @@
             ]
         },
         {
-            "begin": "(?x)(?:^|(?:(?=\\s)(?<!else|return)(?<=\\w)|(?=\\s*[[:alnum:]_.|\\(\\)])))(\\s*)(?!\\b(while|for|do|if|else|switch|catch|return|foreach|object|int|float|function|mapping|string|mixed|class)\\b\\s*)((?:`\\(\\)|`[-<.>^|&*~/+%=!\\[\\]]+|`[[:alpha:]_][[:alnum:]_]*+|[[:alpha:]_][[:alnum:]_]*+)++)\\s*(?=\\()",
+            "begin": "(?x)(?:^|(?:(?=\\s)(?<!else|return)(?<=\\w)|(?=\\s*[[:alnum:]_.|\\(\\)])))(\\s*)(?!\\b(while|for|do|if|else|switch|catch|time_expression|return|foreach|object|int|float|function|mapping|string|mixed|class)\\b\\s*)((?:`\\(\\)|`[-<.>^|&*~/+%=!\\[\\]]+|`[[:alpha:]_][[:alnum:]_]*+|[[:alpha:]_][[:alnum:]_]*+)++)\\s*(?=\\()",
             "beginCaptures": {
                 "1": {
                     "name": "punctuation.whitespace.function.leading.lpc"
@@ -378,7 +378,7 @@
                             "name": "punctuation.definition.parameters.lpc"
                         }
                     },
-                    "match": "(?x)\n\t\t\t\t\t\t\t(?: (?= \\s )  (?:(?<=else|new|return) | (?<!\\w)) (\\s+))?\n\t\t\t\t\t\t\t(\\b\n\t\t\t\t\t\t\t(?!(while|for|do|if|else|foreach|switch|\n\t\t\t\t\t\t\t\tcatch|return|\n\t\t\t\t\t\t\t\tmapping|mixed|int|float|class|function|\n\t\t\t\t\t\t\t\tstring|object)\\s*\\()\n\t\t\t\t\t\t\t(?: `\\(\\)                  |\n\t\t\t\t\t\t\t\t`[-<.>^|&*~/+%=!\\[\\]]+ |\n\t\t\t\t\t\t\t\t`[[:alnum:]_]            |\n\t\t\t\t\t\t\t\t[[:alpha:]_][[:alnum:]_]*+\\b\n\t\t\t\t\t\t\t)++    # actual name\n\t\t\t\t\t\t\t)\n\t\t\t\t\t\t\t\\s*(\\()",
+                    "match": "(?x)\n\t\t\t\t\t\t\t(?: (?= \\s )  (?:(?<=else|new|return) | (?<!\\w)) (\\s+))?\n\t\t\t\t\t\t\t(\\b\n\t\t\t\t\t\t\t(?!(while|for|do|if|else|foreach|switch|\n\t\t\t\t\t\t\t\tcatch|time_expression|return|\n\t\t\t\t\t\t\t\tmapping|mixed|int|float|class|function|\n\t\t\t\t\t\t\t\tstring|object)\\s*\\()\n\t\t\t\t\t\t\t(?: `\\(\\)                  |\n\t\t\t\t\t\t\t\t`[-<.>^|&*~/+%=!\\[\\]]+ |\n\t\t\t\t\t\t\t\t`[[:alnum:]_]            |\n\t\t\t\t\t\t\t\t[[:alpha:]_][[:alnum:]_]*+\\b\n\t\t\t\t\t\t\t)++    # actual name\n\t\t\t\t\t\t\t)\n\t\t\t\t\t\t\t\\s*(\\()",
                     "name": "meta.function-call.lpc",
                     "patterns": [
                         { "include": "#property_access" }

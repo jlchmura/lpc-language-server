@@ -5,6 +5,7 @@
 - Memory-bounded full check for large mudlibs — forEachProgramBatch ([#282](https://github.com/jlchmura/lpc-language-server/issues/282))
 - Fix: LPCDoc `@param` accepts whitespace between the `&` ref modifier and the parameter name (`{int} & value`), matching the FluffOS `int & value` signature spelling
 - Fix: syntax highlighting for LPCDoc `@param {type} &name` — the `&` ref modifier and the parameter name were rendered as plain comment text; the `&` now highlights as a modifier and the name as a variable (both the `&name` and `& name` spellings)
+- Add support for FluffOS `time_expression` block and expression syntax.
 
 ## 1.1.47
 

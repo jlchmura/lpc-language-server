@@ -770,7 +770,8 @@ export const enum SyntaxKind {
     AnyKeyword,    
     ClosureKeyword,
     StructKeyword,
-    CatchKeyword,    
+    CatchKeyword,
+    TimeExpressionKeyword,
     MixedKeyword,
     UnknownKeyword,        
     MappingKeyword,
@@ -986,6 +987,7 @@ export const enum SyntaxKind {
     // Expressions
     ConditionalExpression,
     CatchExpression,
+    TimeExpression,
     BinaryExpression,
     FunctionExpression,
     ArrowFunction,
@@ -1628,6 +1630,7 @@ export interface NodeFactory {
     // Expressions
     createExpressionWithTypeArguments(expression: Expression, typeArguments: readonly TypeNode[] | undefined): ExpressionWithTypeArguments;
     createCatchExpression(expression: Expression, modifier?: Identifier, modifierExpression?: Expression, block?: Block): CatchExpression;
+    createTimeExpression(expression: Expression | undefined, block?: Block): TimeExpression;
     createEvaluateExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): EvaluateExpression;
     createNewExpression(expression: Expression|TypeNode|undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly NewExpressionArgument[] | undefined): NewExpression;
     createSpreadElement(expression: Expression): SpreadElement;
@@ -2239,6 +2242,7 @@ export type HasChildren =
     | ByRefElement
     | EvaluateExpression
     | CatchExpression
+    | TimeExpression
     | SpreadElement
     | DefineDirective
     | SuperAccessExpression
@@ -2397,6 +2401,7 @@ export type KeywordSyntaxKind =
     | SyntaxKind.BytesKeyword
     | SyntaxKind.LwObjectKeyword
     | SyntaxKind.CatchKeyword
+    | SyntaxKind.TimeExpressionKeyword
     | SyntaxKind.ClosureKeyword
     | SyntaxKind.SymbolKeyword
     | SyntaxKind.BufferKeyword
@@ -3687,7 +3692,21 @@ export interface CatchExpression extends PrimaryExpression {
     readonly expression?: Expression;
     readonly modifier?: Identifier;
     readonly modifierExpression?: Expression;
-    readonly block?: Block;    
+    readonly block?: Block;
+}
+
+/**
+ * `time_expression(expr)` or `time_expression { stmts }` -- a FluffOS-only construct that
+ * evaluates its body and returns the elapsed real time in microseconds.
+ *
+ * It shares the body grammar of `catch` (exactly one of `expression`/`block`), but unlike
+ * `catch` it is a UnaryExpression rather than a PrimaryExpression: FluffOS lists it under
+ * `expr`, not `primary_expr`, so it takes no postfix (`time_expression(x)[0]` is invalid).
+ */
+export interface TimeExpression extends UnaryExpression {
+    readonly kind: SyntaxKind.TimeExpression;
+    readonly expression?: Expression;
+    readonly block?: Block;
 }
 
 export interface NamedDeclaration extends Declaration {
