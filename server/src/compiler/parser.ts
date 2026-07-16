@@ -75,6 +75,15 @@ export namespace LpcParser {
     var isCodeExecutable: Ternary = Ternary.Unknown;
 
     var topLevel: boolean = true;
+    /**
+     * When true, a statement must be terminated by a real `;` -- automatic semicolon
+     * insertion is suppressed. Only set while parsing the body of a `time_expression`
+     * block, where FluffOS rejects `time_expression { foo() }` outright.
+     *
+     * LPC as a whole is not ASI-free in this parser (several constructs currently rely on
+     * insertion), so this is deliberately scoped rather than applied globally.
+     */
+    var suppressSemicolonInsertion: boolean = false;
     var contextFlags: NodeFlags;
     var parseErrorBeforeNextFinishedNode = false;
     var parseDiagnostics: DiagnosticWithDetachedLocation[];
@@ -203,6 +212,7 @@ export namespace LpcParser {
         parseDiagnostics = [];
         nodeCount = 0;
         topLevel = true;
+        suppressSemicolonInsertion = false;
         identifiers = new Map<string, string>();        
         identifierCount = 0;                
         inherits = [];
@@ -243,6 +253,7 @@ export namespace LpcParser {
         identifiers = undefined!;        
         inherits = undefined!;
         topLevel = true;   
+        suppressSemicolonInsertion = false;
         includeFileCache = undefined!;                
         includeGraph.clear();
         includeGraph = undefined!;
@@ -2361,7 +2372,12 @@ export namespace LpcParser {
             expression = parseExpression();
             parseExpected(SyntaxKind.CloseParenToken);
         } else {
+            // FluffOS rejects `time_expression { foo() }`: statements in the block need a
+            // real terminating semicolon, so turn off insertion for the body.
+            const saveSuppressSemicolonInsertion = suppressSemicolonInsertion;
+            suppressSemicolonInsertion = true;
             block = parseFunctionBlockOrSemicolon(SignatureFlags.None);
+            suppressSemicolonInsertion = saveSuppressSemicolonInsertion;
         }
 
         return finishNode(factory.createTimeExpression(expression, block), pos);
@@ -2791,6 +2807,12 @@ export namespace LpcParser {
         // If there's a real semicolon, then we can always parse it out.
         if (token() === SyntaxKind.SemicolonToken) {
             return true;
+        }
+
+        // Inside a `time_expression` block the driver requires a real semicolon, so don't
+        // let a following `}` / EOF / line break stand in for one.
+        if (suppressSemicolonInsertion) {
+            return false;
         }
 
         // We can parse out an optional semicolon in ASI cases in the following cases.
