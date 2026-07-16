@@ -743,6 +743,17 @@ exports[`Compiler compiler/thisObject1.c Reports correct errors for compiler/thi
 
 exports[`Compiler compiler/thisObject1.file2.c Reports correct errors for compiler/thisObject1.file2.c: diags-compiler/thisObject1.file2.c 1`] = `""`;
 
+exports[`Compiler compiler/timeExpression1.c Reports correct errors for compiler/timeExpression1.c: diags-compiler/timeExpression1.c 1`] = `""`;
+
+exports[`Compiler compiler/timeExpression2.c Reports correct errors for compiler/timeExpression2.c: diags-compiler/timeExpression2.c 1`] = `""`;
+
+exports[`Compiler compiler/timeExpression3.c Reports correct errors for compiler/timeExpression3.c: diags-compiler/timeExpression3.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/timeExpression3.c[90m:9[0m
+
+"
+`;
+
 exports[`Compiler compiler/typeAssertion1.c Reports correct errors for compiler/typeAssertion1.c: diags-compiler/typeAssertion1.c 1`] = `""`;
 
 exports[`Compiler compiler/typeAssertion2.c Reports correct errors for compiler/typeAssertion2.c: diags-compiler/typeAssertion2.c 1`] = `""`;

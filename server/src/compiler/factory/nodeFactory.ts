@@ -21,6 +21,7 @@ import {
     cast,
     CastExpression,
     CatchExpression,
+    TimeExpression,
     CatchStatement,
     CloneObjectExpression,
     ColonToken,
@@ -378,6 +379,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
 
         // Expressions
         createCatchExpression,
+        createTimeExpression,
         createEvaluateExpression,
         createNewExpression,
         createSpreadElement,
@@ -877,6 +879,18 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.modifier = modifier;
         node.modifierExpression = modifierExpression;
         node.block = block;
+        return node;
+    }
+
+    // @api
+    function createTimeExpression(expression: Expression | undefined, block?: Block): TimeExpression {
+        const node = createBaseNode<TimeExpression>(SyntaxKind.TimeExpression);
+        node.expression = expression;
+        node.block = block;
+
+        node.transformFlags |= propagateChildFlags(node.expression) |
+            propagateChildFlags(node.block);
+
         return node;
     }
 
