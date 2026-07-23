@@ -240,9 +240,15 @@ function getDefinitionFromSymbol(typeChecker: TypeChecker, symbol: Symbol, node:
                 : [createDefinitionInfo(last(declarations), typeChecker, symbol, node, /*unverified*/ false, failedAliasResolution)];
         }
 
-        // Implementation(s) first, then the remaining forward declarations, so the editor
-        // navigates to the body from a prototype and to the prototype from the body.
-        const ordered = [...declarationsWithBody, ...declarations.filter(d => !(d as FunctionLikeDeclaration).body)];
+        // On a declaration name, navigate to the OTHER declaration(s) so goto-def toggles
+        // between the header prototype and the implementation body: from the body it jumps
+        // to the prototype, and from the prototype to the body. (Returning the current
+        // declaration would make the editor fall back to a references peek instead.)
+        const current = findAncestor(node, isFunctionLikeDeclaration);
+        const others = declarations.filter(d => d !== current);
+        const chosen = others.length ? others : declarations;
+        // implementation(s) first among whatever we return
+        const ordered = [...chosen.filter(d => !!(d as FunctionLikeDeclaration).body), ...chosen.filter(d => !(d as FunctionLikeDeclaration).body)];
         return ordered.map(x => createDefinitionInfo(x, typeChecker, symbol, node, /*unverified*/ false, failedAliasResolution));
     }
 }

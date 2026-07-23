@@ -56,12 +56,14 @@ describe("goto-definition with a header prototype + implementation", () => {
         expect(defs.some(d => d.fileName.endsWith("fwd_head.h"))).toBe(false);
     });
 
-    it("from the implementation name, offers the header prototype too (implementation first)", () => {
+    it("from the implementation name, navigates to the header prototype (toggle)", () => {
         const { program, sf, text } = build();
         const defs = defsAt(program, sf, text.indexOf("foo_def(int i) {"));
 
-        expect(defs[0].fileName.endsWith("fwd_impl.c")).toBe(true);
-        expect(defs.some(d => d.fileName.endsWith("fwd_head.h"))).toBe(true);
+        // goto-def on the body jumps to the counterpart -- the header prototype -- rather
+        // than returning the current location (which VS Code turns into a references peek).
+        expect(defs.length).toBe(1);
+        expect(defs[0].fileName.endsWith("fwd_head.h")).toBe(true);
     });
 
     it("find-references includes the header prototype (not just the impl + call)", () => {
@@ -84,7 +86,7 @@ describe("goto-definition with a header prototype + implementation", () => {
         const locs = lpc.FindAllReferences.findReferenceOrRenameEntries(
             program, cancel, program.getSourceFiles(), lpc.getTouchingPropertyName(sf, text.indexOf("foo_def(int i) {")),
             text.indexOf("foo_def(int i) {"), { use: lpc.FindAllReferences.FindReferencesUse.Rename },
-            (entry, _originalNode, checker) => lpc.FindAllReferences.toRenameLocation(entry, _originalNode, checker, false),
+            (entry, _originalNode, checker) => lpc.FindAllReferences.toRenameLocation(entry, _originalNode, checker, false, 0 as never),
         );
         expect(locs?.some(l => l.fileName.endsWith("fwd_head.h"))).toBe(true);
     });
