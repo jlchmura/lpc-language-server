@@ -1,5 +1,10 @@
 # LPC Language Services Changelog
 
+## 1.1.49
+
+- Fix: foreach loop variable type checking [#344](https://github.com/jlchmura/lpc-language-server/pull/344)
+- Fix: allow the `time_expression` efun to be declared in efun definition headers so it keeps completion and lpcdoc support
+
 ## 1.1.48
 
 - Memory-bounded full check for large mudlibs — forEachProgramBatch ([#282](https://github.com/jlchmura/lpc-language-server/issues/282))

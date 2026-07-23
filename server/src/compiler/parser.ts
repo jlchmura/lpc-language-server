@@ -2578,7 +2578,20 @@ export namespace LpcParser {
         return token() > SyntaxKind.LastReservedWord;
     }
 
-    
+    /**
+     * A few reserved words double as driver efuns and are declared as ordinary functions in
+     * the efun definition headers (e.g. `int time_expression( mixed expr );` in
+     * efuns/fluffos/internals.h). The scanner tokenizes those as keywords, so the
+     * declaration-name paths allow them here; everywhere else they stay keywords (e.g.
+     * `time_expression { ... }` still parses as a TimeExpression). Only keywords that ALSO
+     * appear as efun declarations belong here -- `catch` is a keyword too but is never
+     * declared as an efun, so it is intentionally excluded.
+     */
+    function isEfunNameKeyword(t: SyntaxKind): boolean {
+        return t === SyntaxKind.TimeExpressionKeyword;
+    }
+
+
     function parseExpected(kind: PunctuationOrKeywordSyntaxKind, diagnosticMessage?: DiagnosticMessage, shouldAdvance = true): boolean {
         if (token() === kind) {
             if (shouldAdvance) {
@@ -3746,7 +3759,7 @@ export namespace LpcParser {
     function parseDeclarationWorker(pos: PositionState, hasJSDoc: boolean, modifiersIn: NodeArray<ModifierLike> | undefined, typeIn: TypeNode | undefined): Statement {
         
         // if there is a comma, equals, or semi after the first token, it must be a variable declaration
-        if (isIdentifier()) {
+        if (isIdentifier() || isEfunNameKeyword(token())) {
             const peekNext = lookAhead(() => nextToken());
             if (peekNext === SyntaxKind.OpenParenToken) {            
                 // function
@@ -4179,7 +4192,7 @@ export namespace LpcParser {
     }
 
     function parseBindingIdentifier() {
-        return createIdentifier(isBindingIdentifier(), /*diagnosticMessage*/ undefined);
+        return createIdentifier(isBindingIdentifier() || isEfunNameKeyword(token()), /*diagnosticMessage*/ undefined);
     }
 
     function isBindingIdentifier(): boolean {
