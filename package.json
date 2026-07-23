@@ -215,6 +215,22 @@
                     "default": 3072,
                     "description": "The maximum amount of memory (in MB) to allocate to the LPC language server process.",
                     "scope": "window"
+                },
+                "LPC.languageServer.logVerbosity": {
+                    "type": "string",
+                    "default": "normal",
+                    "enum": [
+                        "terse",
+                        "normal",
+                        "verbose"
+                    ],
+                    "enumDescriptions": [
+                        "Errors and essential messages only.",
+                        "Standard logging (default).",
+                        "Everything, including per-event file-watcher activity — noisy."
+                    ],
+                    "markdownDescription": "Controls how much the LPC language server writes to its log. `verbose` surfaces file-watcher breadcrumbs (e.g. save files rewritten each heartbeat) that are otherwise suppressed. Changing this requires restarting the language server.",
+                    "scope": "window"
                 }
             }
         }

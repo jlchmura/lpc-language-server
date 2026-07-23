@@ -257,6 +257,18 @@ foo(p); /* p will report an error when strictObjectTypes is true, because it is 
 bar(p); /* this call is ok because both objects are untyped */
 ```
 
+## Extension Settings
+
+The following settings are configured through your editor's settings (e.g. `settings.json`) rather than `lpc-config.json`, as they apply to the language server process rather than an individual mudlib.
+
+| Setting                                  | Default    | Description                                                                                                                                                                          |
+| ---------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LPC.locale`                             | `"auto"`   | The locale used to report LPC errors. Defaults to your editor's display language.                                                                                                   |
+| `LPC.languageServer.maxLpcServerMemory`  | `3072`     | The maximum amount of memory (in MB) to allocate to the language server process.                                                                                                    |
+| `LPC.languageServer.logVerbosity`        | `"normal"` | How much the language server writes to its log: `terse`, `normal`, or `verbose`. Use `verbose` to surface file-watcher activity that is otherwise suppressed when diagnosing watch behavior. |
+
+Changing any of these requires restarting the language server (`LPC: Restart Language Server`) to take effect.
+
 ## Grammar ToDo's
 
 Language services is a work in progress. Some major areas that have yet to be implemented are:
