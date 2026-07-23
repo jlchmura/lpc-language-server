@@ -78,7 +78,7 @@ export function getDefinitionAtPosition(program: Program, sourceFile: SourceFile
 
     if (searchOtherFilesOnly && every(symbol.declarations, d => d.getSourceFile().fileName === sourceFile.fileName)) return undefined;
 
-    const calledDeclaration = tryGetSignatureDeclaration(typeChecker, node);
+    const calledDeclaration = preferImplementationDeclaration(tryGetSignatureDeclaration(typeChecker, node), symbol);
     // Don't go to the component constructor definition for a JSX element, just go to the component definition.
     if (calledDeclaration) {
         const sigInfo = createDefinitionFromSignatureDeclaration(typeChecker, calledDeclaration, failedAliasResolution);
@@ -152,6 +152,21 @@ function tryGetSignatureDeclaration(typeChecker: TypeChecker, node: Node): Signa
     const signature = callLike && typeChecker.getResolvedSignature(callLike);
     // Don't go to a function type, go to the value having that type.
     return tryCast(signature && signature.declaration, (d): d is SignatureDeclaration => isFunctionLike(d));
+}
+
+/**
+ * In LPC a function often has a forward declaration (a prototype in a header, e.g.
+ * `foo(int i);`) plus an implementation with a body. The resolved signature points at the
+ * first candidate -- the prototype -- but goto-definition from a call should land on the
+ * implementation. If the resolved declaration has no body but a sibling declaration does,
+ * redirect to the implementation.
+ */
+function preferImplementationDeclaration(decl: SignatureDeclaration | undefined, symbol: Symbol): SignatureDeclaration | undefined {
+    if (!decl || (decl as FunctionLikeDeclaration).body) {
+        return decl;
+    }
+    const impl = find(symbol.declarations ?? emptyArray, d => isFunctionLike(d) && !!(d as FunctionLikeDeclaration).body);
+    return (impl as SignatureDeclaration | undefined) ?? decl;
 }
 
 /** Returns a CallLikeExpression where `node` is the target being invoked. */
