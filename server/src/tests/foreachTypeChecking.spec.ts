@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
+import { createTestLanguageService } from "./harness.js";
 
 /**
  * Type checking of the `foreach` loop variables.
@@ -16,50 +16,7 @@ import * as path from "path";
  *    array's index type.
  */
 function createLanguageService(options: lpc.CompilerOptions, fileText: Record<string, string>) {
-    const cwd = lpc.normalizePath(process.cwd());
-    const toAbs = (rel: string) => lpc.normalizePath(path.join(cwd, rel));
-
-    const files = new Map<string, string>();
-    for (const rel of Object.keys(fileText)) files.set(toAbs(rel), fileText[rel]);
-
-    const scriptFiles = Array.from(files.keys());
-    const useCaseSensitiveFileNames = lpc.sys.useCaseSensitiveFileNames;
-    const getCanonicalFileName = lpc.createGetCanonicalFileName(useCaseSensitiveFileNames);
-    const norm = (name: string | undefined) => (name ? lpc.normalizePath(name) : name);
-
-    const host: lpc.LanguageServiceHost = {
-        getCompilationSettings: () => options,
-        getCurrentDirectory: () => cwd,
-        getDefaultLibFileName: (opts) =>
-            lpc.combinePaths(cwd, lpc.getDefaultLibFolder(opts), lpc.getDefaultLibFileName(opts)),
-        getIncludeDirs: () => [],
-        getParseableFiles: () => new Set(scriptFiles.map((f) => lpc.toPath(f, cwd, getCanonicalFileName))),
-        getScriptFileNames: () => scriptFiles,
-        getScriptSnapshot: (name) => {
-            const n = norm(name);
-            if (!n) return undefined;
-            const text = files.get(n) ?? lpc.sys.readFile(n);
-            return text === undefined ? undefined : lpc.ScriptSnapshot.fromString(text);
-        },
-        getScriptVersion: () => "1",
-        isKnownTypesPackageName: () => false,
-        useCaseSensitiveFileNames: () => useCaseSensitiveFileNames,
-        fileExists: (name) => { const n = norm(name); return !!n && (files.has(n) || lpc.sys.fileExists(n)); },
-        readFile: (name) => { const n = norm(name); return n ? files.get(n) ?? lpc.sys.readFile(n) : undefined; },
-        onAllFilesNeedReparse: () => undefined,
-        onReleaseOldSourceFile: () => undefined,
-        onReleaseParsedCommandLine: () => undefined,
-    };
-
-    const fileHandler = lpc.createLpcFileHandler({
-        fileExists: (name) => host.fileExists(name),
-        readFile: (name) => host.readFile(name),
-        getIncludeDirs: () => host.getIncludeDirs(),
-        getCompilerOptions: () => host.getCompilationSettings(),
-        getCurrentDirectory: () => host.getCurrentDirectory(),
-    });
-
-    return { ls: lpc.createLanguageService(host, fileHandler), abs: toAbs };
+    return createTestLanguageService(fileText, options);
 }
 
 function messagesFor(source: string): string[] {

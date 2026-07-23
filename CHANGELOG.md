@@ -5,6 +5,7 @@
 - Fix: foreach loop variable type checking [#344](https://github.com/jlchmura/lpc-language-server/pull/344)
 - Fix: allow the `time_expression` efun to be declared in efun definition headers so it keeps completion and lpcdoc support
 - Fix: hovering the `time_expression` keyword now shows the efun signature and lpcdoc
+- Fix: goto-definition and hover on a super accessor (e.g. `::create()`) now resolve to the inherited parent's member instead of the local override
 - Fix: hovering the `new` keyword on the string-path clone form (`new("/path")`) no longer crashes the quick-info request
 
 ## 1.1.48
