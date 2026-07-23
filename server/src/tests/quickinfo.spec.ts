@@ -153,6 +153,18 @@ void test(int i) {
         }
     });
 
+    it("does not throw when hovering `new` on the string-path clone form", () => {
+        // `new("/path")` has no expression (the path is an argument), so getNodeForQuickInfo
+        // must not hand an undefined node down the hover pipeline.
+        const source = `void f() {
+    object coins = new("/std/item/coins.c");
+}
+`;
+        const { ls, fileName } = createLanguageService(source);
+        const pos = source.indexOf("new(") + 1;
+        expect(() => ls.getQuickInfoAtPosition(fileName, pos)).not.toThrow();
+    });
+
     it("respects an explicit value-variable annotation in a mapping foreach", () => {
         // https://github.com/jlchmura/lpc-language-server/issues/318
         // The mapping's inferred value type is a mapping, but the user explicitly
