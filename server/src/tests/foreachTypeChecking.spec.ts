@@ -4,11 +4,16 @@ import * as path from "path";
 /**
  * Type checking of the `foreach` loop variables.
  *
- * `foreach (key, value in map)` — the comma expression assigns to both
- * operands, so each one must be checked against its *declared* type. Reading
- * the narrowed type instead makes a guard that pins the variable to a literal
- * (`if(!nullp(item)) return 0;` narrows `item` to `0`) reject the loop even
- * though foreach is about to overwrite it.
+ * Two things have to hold:
+ *
+ * 1. `foreach (key, value in map)` — the comma expression assigns to both
+ *    operands, so each one must be checked against its *declared* type. Reading
+ *    the narrowed type instead makes a guard that pins the variable to a literal
+ *    (`if(!nullp(item)) return 0;` narrows `item` to `0`) reject the loop even
+ *    though foreach is about to overwrite it.
+ * 2. `foreach (item in arr)` — the loop variable binds an *element* of the
+ *    array, so it must be checked against the array's element type, not the
+ *    array's index type.
  */
 function createLanguageService(options: lpc.CompilerOptions, fileText: Record<string, string>) {
     const cwd = lpc.normalizePath(process.cwd());
@@ -110,7 +115,7 @@ void f() {
 }
 `;
 
-describe("foreach over a mapping uses the declared type of the loop variables", () => {
+describe("foreach checks its loop variables against their declared and element types", () => {
     it("accepts a key narrowed to a literal by a preceding guard", () => {
         expect(messagesFor(NARROWED_KEY)).toEqual([]);
     });
@@ -121,6 +126,48 @@ describe("foreach over a mapping uses the declared type of the loop variables", 
 
     it("accepts a single narrowed loop variable", () => {
         expect(messagesFor(SINGLE_VAR)).toEqual([]);
+    });
+
+    it("accepts a mapping loop variable over a mapping array", () => {
+        expect(messagesFor(`
+void f() {
+  mapping m;
+  mapping *ma = ({ ([]) });
+  foreach(m in ma) { }
+}
+`)).toEqual([]);
+    });
+
+    it("accepts an int loop variable over an int array", () => {
+        expect(messagesFor(`
+void f() {
+  int i;
+  int *ia = ({ 1 });
+  foreach(i in ia) { }
+}
+`)).toEqual([]);
+    });
+
+    it("accepts a mapping loop variable over values() of a mapping", () => {
+        expect(messagesFor(`
+mapping __items = ([]);
+void f() {
+  mapping element;
+  mapping *elements = values(__items);
+  foreach(element in elements) { }
+}
+`)).toEqual([]);
+    });
+
+    it("still rejects a loop variable incompatible with the array element type", () => {
+        const msgs = messagesFor(`
+void f() {
+  int i;
+  mapping *ma = ({ ([]) });
+  foreach(i in ma) { }
+}
+`);
+        expect(msgs.some(m => m.includes("is not compatible with type"))).toBe(true);
     });
 
     it("still rejects a key whose declared type is incompatible", () => {

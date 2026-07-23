@@ -4070,7 +4070,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 }
             } 
             else if (isArrayType(rightType)) {
-                if (!isTypeAssignableTo(getIndexTypeOrString(rightType), leftType)) {
+                // A single-variable foreach over an array binds the element, so compare
+                // against the element type. getIndexTypeOrString() answers with the index
+                // type, which happens to match only when the loop variable is a string.
+                if (!isTypeAssignableTo(getElementTypeOfArrayType(rightType) ?? anyType, leftType)) {
                     error(varExpr, Diagnostics.The_left_hand_side_of_the_foreach_statement_0_is_not_compatible_with_type_1, typeToString(leftType), typeToString(rightType));
                 }
             }
