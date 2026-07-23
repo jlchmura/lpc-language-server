@@ -78,12 +78,16 @@ export async function activate(context: ExtensionContext) {
     };
 
     const serverArgs = [
-        efunDir, 
-        "--driverType", defaultDriverType, 
+        efunDir,
+        "--driverType", defaultDriverType,
         "--serverMode", "semantic",
         "--locale", configuration.locale ?? vscode.env.language,
+        "--logVerbosity", configuration.logVerbosity,
     ];
-    const syntaxServerArgs = [efunDir, "--driverType", defaultDriverType, "--serverMode", "syntactic"];
+    const syntaxServerArgs = [
+        efunDir, "--driverType", defaultDriverType, "--serverMode", "syntactic",
+        "--logVerbosity", configuration.logVerbosity,
+    ];
 
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used

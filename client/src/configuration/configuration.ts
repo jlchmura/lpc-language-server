@@ -6,8 +6,13 @@ export abstract class BaseServiceConfigurationProvider {
         return {
             locale: this.readLocale(configuration),
             maxLpcServerMemory: this.readMaxLpcServerMemory(configuration),
+            logVerbosity: this.readLogVerbosity(configuration),
         }
     }
+
+    protected readLogVerbosity(configuration: vscode.WorkspaceConfiguration): string {
+		return configuration.get<string>('LPC.languageServer.logVerbosity', 'normal');
+	}
 
     protected readLocale(configuration: vscode.WorkspaceConfiguration): string | null {
 		const value = configuration.get<string>('LPC.locale', 'auto');
@@ -28,4 +33,5 @@ export abstract class BaseServiceConfigurationProvider {
 export interface LpcServiceConfiguration {
     readonly locale: string | null;
     readonly maxLpcServerMemory: number;
+    readonly logVerbosity: string;
 }

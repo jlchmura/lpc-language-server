@@ -17,7 +17,16 @@ import { MarkdownString } from "./MarkdownString.js";
 // generate a unique 5 digit it
 // const randomId = Math.floor(Math.random() * 90000) + 10000;
 // const logFilename = `lpc-server-${randomId}.log`;
-const logger = new Logger(undefined, true, lpc.server.LogLevel.normal);
+// Log verbosity is controlled by the client via the --logVerbosity launch arg
+// (see the LPC.languageServer.logVerbosity setting). Defaults to normal. verbose
+// surfaces the file-watcher breadcrumbs that are otherwise suppressed.
+const logVerbosityArg = lpc.findArgument("--logVerbosity", process.argv);
+const logLevel =
+    logVerbosityArg === "terse" ? lpc.server.LogLevel.terse :
+    logVerbosityArg === "requestTime" ? lpc.server.LogLevel.requestTime :
+    logVerbosityArg === "verbose" ? lpc.server.LogLevel.verbose :
+    lpc.server.LogLevel.normal;
+const logger = new Logger(undefined, true, logLevel);
 // const origLog = console.log;
 // console.log = (...args) => { logger.info(args.length === 1 ? args[0] : args.join(", ")); origLog(...args); };
 // const origErr = console.error;

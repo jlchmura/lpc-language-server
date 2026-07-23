@@ -198,8 +198,11 @@ export class ProjectService {
 
         this.documentRegistry = createDocumentRegistryInternal(this.host.useCaseSensitiveFileNames, this.currentDirectory, this.jsDocParsingMode, this);
 
+        // Watcher trigger/breadcrumb logging is chatty (fires on every filesystem
+        // event, e.g. save files rewritten each heartbeat). Keep it out of the normal
+        // tier so real messages stay findable; surface it only at verbose.
         const watchLogLevel = this.logger.hasLevel(LogLevel.verbose) ? WatchLogLevel.Verbose :
-            this.logger.loggingEnabled() ? WatchLogLevel.TriggerOnly : WatchLogLevel.None;
+            WatchLogLevel.None;
             
         this.watchFactory = this.serverMode !== LanguageServiceMode.Semantic ?
             {
@@ -1266,7 +1269,7 @@ export class ProjectService {
                         options: config.parsedCommandLine!.options,
                         program: configuredProjectForConfig?.getCurrentProgram() || config.parsedCommandLine!.fileNames,
                         useCaseSensitiveFileNames: this.host.useCaseSensitiveFileNames,
-                        writeLog: s => this.logger.info(s),
+                        writeLog: s => { if (this.logger.hasLevel(LogLevel.verbose)) this.logger.info(s); },
                         toPath: s => this.toPath(s),
                         getScriptKind: configuredProjectForConfig ? (fileName => configuredProjectForConfig.getScriptKind(fileName)) : undefined,
                     })
