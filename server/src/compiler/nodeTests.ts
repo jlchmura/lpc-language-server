@@ -197,7 +197,7 @@ export function isForStatement(node: Node): node is ForStatement {
 }
 
 export function isSpreadAssignment(node: Node) {//: node is SpreadAssignment {
-    console.debug("todo - isSpreadAssignment");
+    // there is no spread assignment in lpc that I know of, so this will always return false
     return false;//return node.kind === SyntaxKind.SpreadAssignment;
 }
 
