@@ -63,4 +63,29 @@ describe("goto-definition with a header prototype + implementation", () => {
         expect(defs[0].fileName.endsWith("fwd_impl.c")).toBe(true);
         expect(defs.some(d => d.fileName.endsWith("fwd_head.h"))).toBe(true);
     });
+
+    it("find-references includes the header prototype (not just the impl + call)", () => {
+        // The header is parsed twice -- inlined into the impl (merged with the body) and as
+        // its own file. Without origin-identity matching, the standalone header parse has a
+        // different symbol and its prototype reference is dropped.
+        const { program, sf, text } = build();
+        const cancel = { isCancellationRequested: () => false, throwIfCancellationRequested: () => {} } as lpc.CancellationToken;
+        const refs = lpc.FindAllReferences.findReferencedSymbols(program, cancel, program.getSourceFiles(), sf, text.indexOf("foo_def(int i) {"));
+
+        const spans = (refs ?? []).flatMap(r => r.references.map(ref => ref.fileName.split("/").pop()));
+        // impl declaration, the call, and the header prototype
+        expect(spans.filter(f => f === "fwd_impl.c").length).toBe(2);
+        expect(spans).toContain("fwd_head.h");
+    });
+
+    it("rename covers the header prototype", () => {
+        const { program, sf, text } = build();
+        const cancel = { isCancellationRequested: () => false, throwIfCancellationRequested: () => {} } as lpc.CancellationToken;
+        const locs = lpc.FindAllReferences.findReferenceOrRenameEntries(
+            program, cancel, program.getSourceFiles(), lpc.getTouchingPropertyName(sf, text.indexOf("foo_def(int i) {")),
+            text.indexOf("foo_def(int i) {"), { use: lpc.FindAllReferences.FindReferencesUse.Rename },
+            (entry, _originalNode, checker) => lpc.FindAllReferences.toRenameLocation(entry, _originalNode, checker, false),
+        );
+        expect(locs?.some(l => l.fileName.endsWith("fwd_head.h"))).toBe(true);
+    });
 });
