@@ -693,6 +693,18 @@ Found 1 error in server/src/tests/cases/compiler/preproc_conditional_macro.c[90
 "
 `;
 
+exports[`Compiler compiler/preproc_elif_chain.c Reports correct errors for compiler/preproc_elif_chain.c: diags-compiler/preproc_elif_chain.c 1`] = `""`;
+
+exports[`Compiler compiler/preproc_elif_taken.c Reports correct errors for compiler/preproc_elif_taken.c: diags-compiler/preproc_elif_taken.c 1`] = `""`;
+
+exports[`Compiler compiler/preproc_if_defined.c Reports correct errors for compiler/preproc_if_defined.c: diags-compiler/preproc_if_defined.c 1`] = `""`;
+
+exports[`Compiler compiler/preproc_if_expr.c Reports correct errors for compiler/preproc_if_expr.c: diags-compiler/preproc_if_expr.c 1`] = `""`;
+
+exports[`Compiler compiler/preproc_if_macro.c Reports correct errors for compiler/preproc_if_macro.c: diags-compiler/preproc_if_macro.c 1`] = `""`;
+
+exports[`Compiler compiler/preproc_nested.c Reports correct errors for compiler/preproc_nested.c: diags-compiler/preproc_nested.c 1`] = `""`;
+
 exports[`Compiler compiler/readBuffer1.c Reports correct errors for compiler/readBuffer1.c: diags-compiler/readBuffer1.c 1`] = `""`;
 
 exports[`Compiler compiler/return1.c Reports correct errors for compiler/return1.c: diags-compiler/return1.c 1`] = `""`;

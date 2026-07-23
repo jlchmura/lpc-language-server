@@ -1,4 +1,4 @@
-import { AmpersandToken, ArrayLiteralExpression, ArrayTypeNode, BaseNodeFactory, BinaryExpression, BinaryOperatorToken, BindingPattern, Block, BooleanLiteral, BreakOrContinueStatement, BreakStatement, ByRefElement, CallExpression, CaseBlock, CaseClause, CaseOrDefaultClause, CastExpression, CatchExpression, CatchStatement, TimeExpression, CharacterCodes, CloneObjectExpression, CommaListExpression, CommentRange, ConditionalExpression, ContinueStatement, Debug, DefaultClause, DefineDirective, Diagnostic, DiagnosticArguments, DiagnosticMessage, DiagnosticWithDetachedLocation, Diagnostics, DoWhileStatement, ElementAccessExpression, EndOfFileToken, EntityName, EvaluateExpression, Expression, ExpressionStatement, ExpressionWithTypeArguments, Extension, ForEachChildNodes, ForEachStatement, ForStatement, FunctionDeclaration, FunctionExpression, HasJSDoc, Identifier, IfStatement, ImpliedStringConcatExpression, ImportCandidateNode, IncludeDirective, InferTypeNode, InheritClauseNodeType, InheritDeclaration, InlineClosureExpression, IntersectionTypeNode, IterationStatement, JSDoc, JSDocAugmentsTag, JSDocAuthorTag, JSDocCallbackTag, JSDocClassTag, JSDocComment, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocOverrideTag, JSDocParameterTag, JSDocParsingMode, JSDocPrivateTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocProtectedTag, JSDocPublicTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocTypedefTag, JSDocUnknownTag, JSDocVariableTag, JSDocVariadicType, JsonMinusNumericLiteral, JsonObjectExpressionStatement, JsonSourceFile, KeywordSyntaxKind, LabeledStatement, LambdaExpression, LambdaIdentifierExpression, LambdaOperatorExpression, LambdaOperatorToken, LanguageVariant, LeftHandSideExpression, LiteralExpression, LiteralLikeNode, LiteralTypeNode, createMacroEnvironment, MacroEnvironment, LpcFileHandler, LpcLoadImportResult, Macro, MacroParameter, MapLike, MappingEntryExpression, MappingLiteralExpression, MappingTypeNode, MemberExpression, MethodSignature, MissingDeclaration, Modifier, ModifierLike, Mutable, MutableNodeArray, NamedObjectTypeNode, NewExpression, NewExpressionArgument, NewStructExpression, Node, NodeArray, NodeFactory, NodeFactoryFlags, NodeFlags, NullLiteral, NumericLiteral, ObjectLiteralElementLike, ObjectLiteralExpression, OperatorPrecedence, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PositionState, PostfixUnaryExpression, PostfixUnaryOperator, PragmaContext, PragmaDefinition, PragmaDirective, PragmaKindFlags, PragmaMap, PragmaPseudoMap, PragmaPseudoMapEntry, PrefixUnaryExpression, PrefixUnaryOperator, PreprocessorDirective, PrimaryExpression, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAccessToken, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, QualifiedName, QuestionDotToken, RangeExpression, RefToken, ResolutionMode, ReturnStatement, ScriptKind, ScriptTarget, ShorthandPropertyAssignment, SourceFile, SpreadElement, Statement, StringLiteral, StructDeclaration, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, TemplateExpression, TemplateSpan, Ternary, TextChangeRange, TextRange, Token, TupleTypeNode, TypeAssertion, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnaryExpression, UndefDirective, UnionTypeNode, UpdateExpression, VariableDeclaration, VariableDeclarationList, VariableStatement, WhileStatement, addRange, addRelatedInfo, append, attachFileToDiagnostics, canHaveJSDoc, commentPragmas, concatenate, containsParseError, createDetachedDiagnostic, createNodeFactory, createScanner, emptyArray, emptyMap, fileExtensionIs, first, firstOrUndefined, flatten, forEach, forEachEntry, getAnyExtensionFromPath, getBaseFileName, getBinaryOperatorPrecedence, getDirectoryPath, getFullWidth, getJSDocCommentRanges, getLeadingCommentRanges, getSpellingSuggestion, idText, identity, isArray, isArrayTypeNode, isAssignmentOperator, isBinaryExpression, isIdentifier as isIdentifierNode, isIdentifierText, isJSDocReturnTag, isJSDocTypeTag, isKeyword, isKeywordOrPunctuation, isLeftHandSideExpression, isLiteralKind, isModifierKind, isNonReservedKeyword, isParenthesizedExpression, isStringLiteral, isStringOrNumericLiteralLike, isStructTypeNode, isTemplateExpression, isTypeReferenceNode, last, lastOrUndefined, map, mapDefined, nodeIsMissing, nodeIsPresent, objectAllocator, performance, setNodeFlags, setParent, setParentRecursive, setTextRangePos, setTextRangePosEnd, setTextRangePosWidth, skipTrivia, some, startsWith, supportedDeclarationExtensions, textToKeywordObj, toArray, tokenIsIdentifierOrKeyword, tokenToString, tracing } from "./_namespaces/lpc";
+import { AmpersandToken, ArrayLiteralExpression, ArrayTypeNode, BaseNodeFactory, BinaryExpression, BinaryOperatorToken, BindingPattern, Block, BooleanLiteral, BreakOrContinueStatement, BreakStatement, ByRefElement, CallExpression, CaseBlock, CaseClause, CaseOrDefaultClause, CastExpression, CatchExpression, CatchStatement, TimeExpression, CharacterCodes, CloneObjectExpression, CommaListExpression, CommentRange, ConditionalExpression, ContinueStatement, Debug, DefaultClause, DefineDirective, Diagnostic, DiagnosticArguments, DiagnosticMessage, DiagnosticWithDetachedLocation, Diagnostics, DoWhileStatement, ElementAccessExpression, EndOfFileToken, EntityName, EvaluateExpression, Expression, ExpressionStatement, ExpressionWithTypeArguments, Extension, ForEachChildNodes, ForEachStatement, ForStatement, FunctionDeclaration, FunctionExpression, HasJSDoc, Identifier, IfStatement, ImpliedStringConcatExpression, ImportCandidateNode, IncludeDirective, InferTypeNode, InheritClauseNodeType, InheritDeclaration, InlineClosureExpression, IntersectionTypeNode, IterationStatement, JSDoc, JSDocAugmentsTag, JSDocAuthorTag, JSDocCallbackTag, JSDocClassTag, JSDocComment, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocOverrideTag, JSDocParameterTag, JSDocParsingMode, JSDocPrivateTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocProtectedTag, JSDocPublicTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocTypedefTag, JSDocUnknownTag, JSDocVariableTag, JSDocVariadicType, JsonMinusNumericLiteral, JsonObjectExpressionStatement, JsonSourceFile, KeywordSyntaxKind, LabeledStatement, LambdaExpression, LambdaIdentifierExpression, LambdaOperatorExpression, LambdaOperatorToken, LanguageVariant, LeftHandSideExpression, LiteralExpression, LiteralLikeNode, LiteralTypeNode, createMacroEnvironment, MacroEnvironment, evaluatePreprocessorCondition, PreprocessorToken, LpcFileHandler, LpcLoadImportResult, Macro, MacroParameter, MapLike, MappingEntryExpression, MappingLiteralExpression, MappingTypeNode, MemberExpression, MethodSignature, MissingDeclaration, Modifier, ModifierLike, Mutable, MutableNodeArray, NamedObjectTypeNode, NewExpression, NewExpressionArgument, NewStructExpression, Node, NodeArray, NodeFactory, NodeFactoryFlags, NodeFlags, NullLiteral, NumericLiteral, ObjectLiteralElementLike, ObjectLiteralExpression, OperatorPrecedence, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PositionState, PostfixUnaryExpression, PostfixUnaryOperator, PragmaContext, PragmaDefinition, PragmaDirective, PragmaKindFlags, PragmaMap, PragmaPseudoMap, PragmaPseudoMapEntry, PrefixUnaryExpression, PrefixUnaryOperator, PreprocessorDirective, PrimaryExpression, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAccessToken, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, QualifiedName, QuestionDotToken, RangeExpression, RefToken, ResolutionMode, ReturnStatement, ScriptKind, ScriptTarget, ShorthandPropertyAssignment, SourceFile, SpreadElement, Statement, StringLiteral, StructDeclaration, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, TemplateExpression, TemplateSpan, Ternary, TextChangeRange, TextRange, Token, TupleTypeNode, TypeAssertion, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnaryExpression, UndefDirective, UnionTypeNode, UpdateExpression, VariableDeclaration, VariableDeclarationList, VariableStatement, WhileStatement, addRange, addRelatedInfo, append, attachFileToDiagnostics, canHaveJSDoc, commentPragmas, concatenate, containsParseError, createDetachedDiagnostic, createNodeFactory, createScanner, emptyArray, emptyMap, fileExtensionIs, first, firstOrUndefined, flatten, forEach, forEachEntry, getAnyExtensionFromPath, getBaseFileName, getBinaryOperatorPrecedence, getDirectoryPath, getFullWidth, getJSDocCommentRanges, getLeadingCommentRanges, getSpellingSuggestion, idText, identity, isArray, isArrayTypeNode, isAssignmentOperator, isBinaryExpression, isIdentifier as isIdentifierNode, isIdentifierText, isJSDocReturnTag, isJSDocTypeTag, isKeyword, isKeywordOrPunctuation, isLeftHandSideExpression, isLiteralKind, isModifierKind, isNonReservedKeyword, isParenthesizedExpression, isStringLiteral, isStringOrNumericLiteralLike, isStructTypeNode, isTemplateExpression, isTypeReferenceNode, last, lastOrUndefined, map, mapDefined, nodeIsMissing, nodeIsPresent, objectAllocator, performance, setNodeFlags, setParent, setParentRecursive, setTextRangePos, setTextRangePosEnd, setTextRangePosWidth, skipTrivia, some, startsWith, supportedDeclarationExtensions, textToKeywordObj, toArray, tokenIsIdentifierOrKeyword, tokenToString, tracing } from "./_namespaces/lpc";
 
 const enum SpeculationKind {
     TryParse,
@@ -39,6 +39,22 @@ function Macro(this: Macro, name: string, fileName: string, getText: () => strin
 
 type IncludeGraph = Map<string, Set<string>>;
 
+/**
+ * One level of `#if`/`#ifdef`/`#elif`/`#else`/`#endif` nesting.
+ * - `parentActive`: whether the enclosing region emits code (a nested conditional
+ *    inside a disabled block never activates).
+ * - `taken`: whether any arm of this chain has already been active -- once true, no
+ *    later `#elif`/`#else` arm may activate (fixes the sticky-taken-branch bug).
+ * - `active`: whether the current arm is active.
+ * - `seenElse`: guards against arms after `#else`.
+ */
+interface CondFrame {
+    parentActive: boolean;
+    taken: boolean;
+    active: boolean;
+    seenElse: boolean;
+}
+
 export namespace LpcParser {
     // Share a single scanner across all calls to parse a source file.  This helps speed things
     // up by avoiding the cost of creating/compiling scanners over and over again.
@@ -71,7 +87,7 @@ export namespace LpcParser {
     var currentMacro: Macro;
     var allowMacroProcessing: boolean = true;    
 
-    var conditionalStack: Ternary[];
+    var condFrames: CondFrame[];
     var isCodeExecutable: Ternary = Ternary.Unknown;
 
     var topLevel: boolean = true;
@@ -200,7 +216,7 @@ export namespace LpcParser {
             includeFileStack.push(includeDirective);
         });
 
-        conditionalStack = [];
+        condFrames = [];
         currentMacro = undefined!;
                 
         includeFileCache = new Map<string, string>();
@@ -257,7 +273,7 @@ export namespace LpcParser {
         includeFileCache = undefined!;                
         includeGraph.clear();
         includeGraph = undefined!;
-        conditionalStack = undefined!;
+        condFrames = undefined!;
         isCodeExecutable = Ternary.Unknown;
         inactiveRanges = undefined!;
         importCandidates = undefined!;
@@ -428,90 +444,162 @@ export namespace LpcParser {
         return withJSDoc(finishNode(node, pos), hasJSDoc);
     }
 
-    /**
-     * parses a conditional directive and sets the conditional state
-     */
-    function processConditionalDirective(incomingToken: SyntaxKind) {
-        switch (incomingToken) {
-            case SyntaxKind.ElseDirective:
-                // end the previous range, if it was inactive
-                if (isCodeExecutable === Ternary.False) {
-                    endInactiveRange();
-                }
-
-                if (isCodeExecutable === Ternary.Unknown) {
-                    parseErrorAtCurrentToken(Diagnostics.Else_directive_without_if);                    
-                } else {
-                    isCodeExecutable = isCodeExecutable === Ternary.False ? Ternary.True : Ternary.False;
-                }    
-                                
-                // start a new range if we are now inactive
-                if (isCodeExecutable === Ternary.False) {
-                    startInactiveRange();
-                }                
-
-                return scanner.scan();  
-            case SyntaxKind.ElseIfDirective:
+    function isConditionalDirective(kind: SyntaxKind): boolean {
+        switch (kind) {
             case SyntaxKind.IfDirective:
-                const isElseIf = incomingToken === SyntaxKind.ElseIfDirective;
-
-                // end the previous range, if it was inactive
-                if (isCodeExecutable === Ternary.False) {
-                    endInactiveRange();
-                }
-
-                // already in a conditional, so push that one to the stack
-                if (!isElseIf && isCodeExecutable !== Ternary.Unknown) conditionalStack.push(isCodeExecutable);
-                else if (isElseIf && isCodeExecutable === Ternary.Unknown) {
-                    parseErrorAtCurrentToken(Diagnostics.Elseif_directive_without_if);
-                }
-                                        
-                let tokenCount = 0;                
-                incomingToken = scanner.scan();
-                while (incomingToken != SyntaxKind.NewLineTrivia && incomingToken != SyntaxKind.EndOfFileToken) {
-                    tokenCount++;
-
-                    if (incomingToken === SyntaxKind.IntLiteral && scanner.getTokenValue() === "0") {
-                        isCodeExecutable = Ternary.False;
-                    } else {
-                        isCodeExecutable = Ternary.True;
-                    }
-                    
-                    incomingToken = scanner.scan();
-                }            
-
-                if (isCodeExecutable === Ternary.False) {
-                    startInactiveRange();
-                }
-                
-                if (tokenCount == 0) {
-                    parseErrorAt(scanner.getTokenStart(), scanner.getTokenEnd(), scanner.getFileName(), Diagnostics.Expression_expected);
-                }
-
-                return incomingToken;
             case SyntaxKind.IfDefDirective:
             case SyntaxKind.IfNDefDirective:
-                const isIfDef = incomingToken === SyntaxKind.IfDefDirective;
-                
-                // already in a conditional, so push that one to the stack
-                if (isCodeExecutable !== Ternary.Unknown) conditionalStack.push(isCodeExecutable);
-
-                incomingToken = scanner.scan();
-                if (incomingToken === SyntaxKind.Identifier || isKeyword(incomingToken)) {                    
-                    const tokenValue = scanner.getTokenValue();                    
-                    isCodeExecutable = isIfDef ? (macroEnv.isDefined(tokenValue) ? Ternary.True : Ternary.False) : (!macroEnv.isDefined(tokenValue) ? Ternary.True : Ternary.False);
-                    
-                    incomingToken = scanner.scan();
-                } else {
-                    parseErrorAtCurrentToken(Diagnostics.Identifier_expected);
-                }
-
-                if (isCodeExecutable === Ternary.False) {
-                    startInactiveRange();
-                }
-
-                return incomingToken;
+            case SyntaxKind.ElseIfDirective:
+            case SyntaxKind.ElseDirective:
+            case SyntaxKind.EndIfDirective:
+                return true;
         }
+        return false;
+    }
+
+    /** whether the region enclosing the current conditional emits code */
+    function conditionalParentActive(): boolean {
+        return condFrames.length === 0 || condFrames[condFrames.length - 1].active;
+    }
+
+    /** derive the legacy `isCodeExecutable` signal from the conditional frame stack */
+    function syncConditionalState() {
+        isCodeExecutable = condFrames.length === 0
+            ? Ternary.Unknown
+            : (condFrames[condFrames.length - 1].active ? Ternary.True : Ternary.False);
+    }
+
+    /**
+     * Scan the remainder of a directive line into raw tokens (macros are NOT expanded
+     * here -- the `#if` evaluator does its own expansion). Leaves the scanner on the
+     * terminating newline/EOF, which is returned as `terminator`.
+     */
+    function collectConditionTokens(): { tokens: PreprocessorToken[]; terminator: SyntaxKind } {
+        const tokens: PreprocessorToken[] = [];
+        let t = scanner.scan();
+        while (t !== SyntaxKind.NewLineTrivia && t !== SyntaxKind.EndOfFileToken) {
+            // The scanner always emits a bare `>` (to keep nested generics like `>>`
+            // splittable); recombine it into the real operator (`>=`, `>>`, `>>>`, ...)
+            // so `#if` relational/shift expressions evaluate correctly.
+            if (t === SyntaxKind.GreaterThanToken) {
+                t = scanner.reScanGreaterToken();
+            }
+            tokens.push({ kind: t, value: scanner.getTokenValue() });
+            t = scanner.scan();
+        }
+        return { tokens, terminator: t };
+    }
+
+    function firstConditionName(tokens: readonly PreprocessorToken[]): PreprocessorToken | undefined {
+        return firstOrUndefined(tokens.filter(t => t.kind === SyntaxKind.Identifier || isKeyword(t.kind)));
+    }
+
+    /**
+     * Process a preprocessor conditional directive (`#if`/`#ifdef`/`#ifndef`/`#elif`/
+     * `#else`/`#endif`), updating the conditional frame stack and the inactive-range
+     * list. Handles both active and inactive contexts uniformly.
+     */
+    function processConditionalDirective(directive: SyntaxKind): void {
+        const wasInactive = isCodeExecutable === Ternary.False;
+        const directiveStart = scanner.getTokenFullStart();
+        scanner.setReportLineBreak(true);
+
+        let terminator: SyntaxKind;
+
+        switch (directive) {
+            case SyntaxKind.IfDirective:
+            case SyntaxKind.IfDefDirective:
+            case SyntaxKind.IfNDefDirective: {
+                const parentActive = conditionalParentActive();
+                const collected = collectConditionTokens();
+                terminator = collected.terminator;
+
+                let condition = false;
+                // Only evaluate when the enclosing region is live; a conditional inside a
+                // disabled block is tracked for nesting but never activates (and its
+                // macro reads must not be recorded).
+                if (parentActive) {
+                    if (directive === SyntaxKind.IfDirective) {
+                        if (collected.tokens.length === 0) {
+                            parseErrorAt(scanner.getTokenStart(), scanner.getTokenEnd(), scanner.getFileName(), Diagnostics.Expression_expected);
+                        }
+                        condition = evaluatePreprocessorCondition(collected.tokens, macroEnv);
+                    }
+                    else {
+                        const nameTok = firstConditionName(collected.tokens);
+                        if (!nameTok) {
+                            parseErrorAtCurrentToken(Diagnostics.Identifier_expected);
+                        }
+                        const defined = nameTok ? macroEnv.isDefined(nameTok.value) : false;
+                        condition = directive === SyntaxKind.IfDefDirective ? defined : !defined;
+                    }
+                }
+
+                const active = parentActive && condition;
+                condFrames.push({ parentActive, taken: active, active, seenElse: false });
+                break;
+            }
+            case SyntaxKind.ElseIfDirective: {
+                const frame = lastOrUndefined(condFrames);
+                const collected = collectConditionTokens();
+                terminator = collected.terminator;
+
+                if (!frame) {
+                    parseErrorAtCurrentToken(Diagnostics.Elseif_directive_without_if);
+                }
+                else if (frame.parentActive && !frame.taken && !frame.seenElse) {
+                    // this chain has not yet taken a branch -- evaluate this arm
+                    const condition = evaluatePreprocessorCondition(collected.tokens, macroEnv);
+                    frame.active = condition;
+                    if (condition) frame.taken = true;
+                }
+                else {
+                    // parent disabled, an earlier arm was taken, or after #else
+                    frame.active = false;
+                }
+                break;
+            }
+            case SyntaxKind.ElseDirective: {
+                const frame = lastOrUndefined(condFrames);
+                terminator = scanner.scan();
+
+                if (!frame) {
+                    parseErrorAtCurrentToken(Diagnostics.Else_directive_without_if);
+                }
+                else {
+                    frame.active = frame.parentActive && !frame.taken && !frame.seenElse;
+                    frame.seenElse = true;
+                    if (frame.active) frame.taken = true;
+                }
+                break;
+            }
+            case SyntaxKind.EndIfDirective:
+            default: {
+                terminator = scanner.scan();
+                if (condFrames.length > 0) {
+                    condFrames.pop();
+                }
+                break;
+            }
+        }
+
+        syncConditionalState();
+
+        // Maintain the (single, open-at-a-time) inactive range as the active state
+        // transitions across this directive.
+        const nowInactive = isCodeExecutable === Ternary.False;
+        if (wasInactive && !nowInactive) {
+            endInactiveRange(directiveStart);
+        }
+        else if (!wasInactive && nowInactive) {
+            startInactiveRange();
+        }
+
+        if (terminator !== SyntaxKind.NewLineTrivia && terminator !== SyntaxKind.EndOfFileToken) {
+            parseErrorAtPosition(scanner.getTokenStart(), scanner.getTokenEnd() - scanner.getTokenStart(), scanner.getFileName(), Diagnostics.Expected_newline_after_directive);
+        }
+
+        scanner.setReportLineBreak(false);
     }
 
     function nextToken(): SyntaxKind {
@@ -624,98 +712,25 @@ export namespace LpcParser {
     }
     
     function nextTokenWithoutCheck() {
-        let incomingToken = scanner.scan();        
+        let incomingToken = scanner.scan();
 
-        while (isCodeExecutable === Ternary.False && incomingToken !== SyntaxKind.EndOfFileToken) {
-            const tokenStart = scanner.getTokenFullStart();
-            // we are in a disabled code block. there are only a few directives that apply here
-            // check them and skip the rest
-            switch (incomingToken) {
-                case SyntaxKind.EndIfDirective:
-                    scanner.setReportLineBreak(true);
-                    isCodeExecutable = conditionalStack.pop() ?? Ternary.Unknown;                    
-                    
-                    incomingToken = scanner.scan();
-                    if (incomingToken !== SyntaxKind.NewLineTrivia && incomingToken !== SyntaxKind.EndOfFileToken) {
-                        parseErrorAtPosition(scanner.getTokenStart(), scanner.getTokenEnd() - scanner.getTokenStart(), scanner.getFileName(), Diagnostics.Expected_newline_after_directive);
-                    }
-
-                    scanner.setReportLineBreak(false);    
-                    break;   
-                case SyntaxKind.ElseIfDirective:
-                case SyntaxKind.ElseDirective:
-                    scanner.setReportLineBreak(true);
-                                   
-                    // this conditional is only evaluated if there is nothing on the stack
-                    if (conditionalStack.length===0) {
-                        isCodeExecutable = isCodeExecutable === Ternary.False ? Ternary.True : Ternary.False;
-                    }
-
-                    incomingToken = scanner.scan();
-                    if (incomingToken !== SyntaxKind.NewLineTrivia && incomingToken !== SyntaxKind.EndOfFileToken) {
-                        parseErrorAtPosition(scanner.getTokenStart(), scanner.getTokenEnd() - scanner.getTokenStart(), scanner.getFileName(), Diagnostics.Expected_newline_after_directive);
-                    }
-
-                    scanner.setReportLineBreak(false);    
-                    break;                
-                case SyntaxKind.IfDirective:
-                case SyntaxKind.IfDefDirective:
-                case SyntaxKind.IfNDefDirective:
-                    scanner.setReportLineBreak(true);                    
-
-                    while (incomingToken != SyntaxKind.NewLineTrivia && incomingToken != SyntaxKind.EndOfFileToken) {
-                        incomingToken = scanner.scan();
-                    }
-                    
-                    if (incomingToken !== SyntaxKind.NewLineTrivia) {
-                        parseErrorAtPosition(scanner.getTokenStart(), scanner.getTokenEnd() - scanner.getTokenStart(), scanner.getFileName(), Diagnostics.Expected_newline_after_directive);
-                    }
-
-                    scanner.setReportLineBreak(false);                    
-
-                    // these are disabled, so we don't need to change active code state
-                    // just push to stack                    
-                    conditionalStack.push(isCodeExecutable);
-                    break;
-            }            
-
-            // if code is now executable, then end the last inactive range
-            if (isCodeExecutable !== Ternary.False) {
-                endInactiveRange(tokenStart);
+        // Drive preprocessor conditionals and skip over disabled regions. A conditional
+        // directive is always processed (nesting must be tracked even while inactive);
+        // any other token inside a disabled region is discarded.
+        while (incomingToken !== SyntaxKind.EndOfFileToken) {
+            if (isConditionalDirective(incomingToken)) {
+                processConditionalDirective(incomingToken);
+                incomingToken = scanner.scan();
+                continue;
             }
-
-            // start the scan over
-            incomingToken = scanner.scan();            
+            if (isCodeExecutable === Ternary.False) {
+                incomingToken = scanner.scan();
+                continue;
+            }
+            break;
         }
 
         switch (incomingToken) {
-            case SyntaxKind.EndIfDirective:
-                scanner.setReportLineBreak(true);
-                isCodeExecutable = conditionalStack.pop() ?? Ternary.Unknown;                    
-
-                incomingToken = scanner.scan();
-                if (incomingToken !== SyntaxKind.NewLineTrivia && incomingToken !== SyntaxKind.EndOfFileToken) {
-                    parseErrorAtPosition(scanner.getTokenStart(), scanner.getTokenEnd() - scanner.getTokenStart(), scanner.getFileName(), Diagnostics.Expected_newline_after_directive);
-                }
-
-                scanner.setReportLineBreak(false);  
-                return nextTokenWithoutCheck();
-            case SyntaxKind.IfDefDirective:
-            case SyntaxKind.IfNDefDirective:            
-            case SyntaxKind.IfDirective:
-            case SyntaxKind.ElseIfDirective:
-            case SyntaxKind.ElseDirective:
-                scanner.setReportLineBreak(true);
-                incomingToken = processConditionalDirective(incomingToken);
-                
-                if (incomingToken !== SyntaxKind.NewLineTrivia) {
-                    parseErrorAtPosition(scanner.getTokenStart(), scanner.getTokenEnd() - scanner.getTokenStart(), scanner.getFileName(), Diagnostics.Expected_newline_after_directive);
-                }
-
-                scanner.setReportLineBreak(false);
-                
-                // start the scan over            
-                return nextTokenWithoutCheck();                
             default:
                 if (allowMacroProcessing && (incomingToken == SyntaxKind.Identifier || isNonReservedKeyword(incomingToken))) {
                     const tokenValue = scanner.getTokenValue();
