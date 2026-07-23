@@ -547,7 +547,12 @@ function createChildren(
         return children;
     }
 
-    scanner.setText((sourceFile || node.getSourceFile()).text);
+    const scanSourceFile = sourceFile || node.getSourceFile();
+    scanner.setText(scanSourceFile.text);
+    // Re-scanning the gaps between AST children must use the file's driver variant, or a
+    // FluffOS-only keyword (e.g. `time_expression`) is demoted to an Identifier and trips
+    // the guard in addSyntheticNodes, aborting token enumeration for the node.
+    scanner.setLanguageVariant((scanSourceFile as SourceFile).languageVariant ?? LanguageVariant.LDMud);
     let pos = node.pos;
     Debug.assertIsDefined(pos);
     const processNode = (child: Node) => {
