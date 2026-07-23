@@ -1989,7 +1989,10 @@ export function createLanguageService(
     }
 
     function getNodeForQuickInfo(node: Node): Node {
-        if (node.parent && isNewExpression(node.parent) && node.pos === node.parent.pos) {
+        // For `new Foo()` hovering `new` shows info about `Foo`. But the FluffOS string-path
+        // clone form `new("/path")` has no expression (the path is an argument), so guard
+        // against returning undefined -- fall through to the `new` keyword token instead.
+        if (node.parent && isNewExpression(node.parent) && node.parent.expression && node.pos === node.parent.pos) {
             return node.parent.expression;
         }
         // if (isNamedTupleMember(node.parent) && node.pos === node.parent.pos) {
