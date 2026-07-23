@@ -211,24 +211,39 @@ function getDefinitionFromSymbol(typeChecker: TypeChecker, symbol: Symbol, node:
     }
 
     function getCallSignatureDefinition(): DefinitionInfo[] | undefined {
-        return isCallOrNewExpressionTarget(node) || isNameOfFunctionDeclaration(node)
-            ? getSignatureDefinition(filteredDeclarations, /*selectConstructors*/ false)
-            : undefined;
+        if (isCallOrNewExpressionTarget(node)) {
+            return getSignatureDefinition(filteredDeclarations, /*bodyOnly*/ true);
+        }
+        if (isNameOfFunctionDeclaration(node)) {
+            // On a declaration name, offer every declaration -- the forward declaration(s)
+            // (prototypes in headers) and the implementation -- with the implementation
+            // first, so goto-def can jump between the header prototype and the body.
+            return getSignatureDefinition(filteredDeclarations, /*bodyOnly*/ false);
+        }
+        return undefined;
     }
 
-    function getSignatureDefinition(signatureDeclarations: readonly Declaration[] | undefined, selectConstructors: boolean): DefinitionInfo[] | undefined {
+    function getSignatureDefinition(signatureDeclarations: readonly Declaration[] | undefined, bodyOnly: boolean): DefinitionInfo[] | undefined {
         if (!signatureDeclarations) {
             return undefined;
         }
-        const declarations = signatureDeclarations.filter(/*selectConstructors ? isConstructorDeclaration :*/ isFunctionLike);
+        const declarations = signatureDeclarations.filter(isFunctionLike);
+        if (!declarations.length) {
+            return undefined;
+        }
         const declarationsWithBody = declarations.filter(d => !!(d as FunctionLikeDeclaration).body);
 
-        // declarations defined on the global scope can be defined on multiple files. Get all of them.
-        return declarations.length
-            ? declarationsWithBody.length !== 0
+        if (bodyOnly) {
+            // declarations defined on the global scope can be defined on multiple files. Get all of them.
+            return declarationsWithBody.length !== 0
                 ? declarationsWithBody.map(x => createDefinitionInfo(x, typeChecker, symbol, node))
-                : [createDefinitionInfo(last(declarations), typeChecker, symbol, node, /*unverified*/ false, failedAliasResolution)]
-            : undefined;
+                : [createDefinitionInfo(last(declarations), typeChecker, symbol, node, /*unverified*/ false, failedAliasResolution)];
+        }
+
+        // Implementation(s) first, then the remaining forward declarations, so the editor
+        // navigates to the body from a prototype and to the prototype from the body.
+        const ordered = [...declarationsWithBody, ...declarations.filter(d => !(d as FunctionLikeDeclaration).body)];
+        return ordered.map(x => createDefinitionInfo(x, typeChecker, symbol, node, /*unverified*/ false, failedAliasResolution));
     }
 }
 
