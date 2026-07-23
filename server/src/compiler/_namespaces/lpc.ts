@@ -19,6 +19,7 @@ export * from "../factory/emitNode.js";
 export * from "../factory/utilitiesPublic.js";
 export * from "../factory/utilities.js";
 export * from "../lpcFileHandler.js";
+export * from "../preprocessor.js";
 export * from "../parser.js";
 export * from "../commandLineParser.js";
 export * from "../moduleNameResolver.js";
