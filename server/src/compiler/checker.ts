@@ -14801,8 +14801,64 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return errorType;
         }
 
-        // resolve the name
+        // resolve the name against the inherited parent(s) rather than the local scope, so
+        // `::create()` refers to the parent's create and not this file's override.
+        const superMember = getSuperAccessMemberSymbol(node);
+        if (superMember) {
+            getNodeLinks(node.name).resolvedSymbol = superMember;
+            return getTypeOfSymbol(superMember);
+        }
+
+        // fall back to ordinary resolution (e.g. `efun::foo()`, or the member isn't found
+        // on any parent)
         return checkIdentifier(node.name, checkMode);
+    }
+
+    /**
+     * Resolve the member named by a super access (`::name` / `Parent::name`) against the
+     * inherited parent object(s), skipping this file's own members. Returns the inherited
+     * member symbol, or undefined for the efun-prefix form / when no parent declares it.
+     */
+    function getSuperAccessMemberSymbol(node: SuperAccessExpression): Symbol | undefined {
+        const name = node.name;
+        if (nodeIsMissing(name) || !isIdentifier(name)) {
+            return undefined;
+        }
+        // `efun::foo()` targets the efun, not an inherited object -- leave it to normal resolution.
+        if (node.namespace && getTextOfNode(node.namespace) === InternalSymbolName.EfunSuperPrefix) {
+            return undefined;
+        }
+
+        const sourceSymbol = getSymbolOfNode(getSourceFileOfNode(node));
+        const sourceType = getDeclaredTypeOfSymbol(sourceSymbol) as InterfaceType;
+        if (!sourceType) {
+            return undefined;
+        }
+
+        // getBaseTypes of a source-file type includes the file's own type as the first entry;
+        // super access must skip the current file's members, so exclude it.
+        const mergedSourceSymbol = getMergedSymbol(sourceSymbol);
+        const baseTypes = getBaseTypes(sourceType).filter(base => getMergedSymbol(base.symbol) !== mergedSourceSymbol);
+        // `Parent::name` names a specific inherited object -- prefer the matching base.
+        const qualifier = node.namespace && getTextOfNode(node.namespace);
+        if (qualifier) {
+            for (const base of baseTypes) {
+                if (base.symbol && symbolName(base.symbol) === qualifier) {
+                    const prop = getPropertyOfType(base, name.text);
+                    if (prop) {
+                        return prop;
+                    }
+                }
+            }
+        }
+        // Bare `::name` (or an unmatched qualifier): search all direct parents, first match wins.
+        for (const base of baseTypes) {
+            const prop = getPropertyOfType(base, name.text);
+            if (prop) {
+                return prop;
+            }
+        }
+        return undefined;
     }
 
     function hasTypeParameterByName(typeParameters: readonly TypeParameter[] | undefined, name: string) {
@@ -31622,6 +31678,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                             SymbolFlags.Value;
             
             if (name.kind === SyntaxKind.Identifier) {
+                // `::name` / `Parent::name` resolves to the inherited parent's member, not
+                // this file's own -- so goto-definition and hover point at the parent.
+                if (isSuperAccessExpression(name.parent) && name.parent.name === name) {
+                    const superMember = getSuperAccessMemberSymbol(name.parent);
+                    if (superMember) {
+                        return superMember;
+                    }
+                }
                 const result = resolveEntityName(name, meaning, /*ignoreErrors*/ true, /*dontResolveAlias*/ true, getHostSignatureFromJSDoc(name));
                 if (!result && isJSDoc) {                    
                     const container = findAncestor(name, or(isClassLike, isInterfaceDeclaration));
