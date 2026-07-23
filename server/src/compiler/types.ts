@@ -1763,6 +1763,7 @@ export interface CompilerOptions {
      * Has no effect under FluffOS, which always reports the error.
      */
     allowUndeclaredAssignmentsInLd?: boolean;
+    noImplicitAny?: boolean;
     rootDir?: string;
     rootDirs?: string[];
     outDir?: string;

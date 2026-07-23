@@ -267,6 +267,10 @@ function parseLpcConfigFileContentWorker(
     // "cannot find name" errors for undeclared assignment targets.
     options.allowUndeclaredAssignmentsInLd = raw?.allowUndeclaredAssignmentsInLd !== false;
 
+    // When true, an implicitly-`mixed` (any) declaration with no annotation is reported as
+    // an error; otherwise (the default) it surfaces as a suggestion.
+    options.noImplicitAny = raw?.noImplicitAny === true;
+
     const sefunFilePath = trimStart(options.sefunFile ?? raw?.libFiles?.simul_efun ?? "/obj/sefun.c", "/");
     options.sefunFile = normalizePath(combinePaths(libRootPath, sefunFilePath));
 

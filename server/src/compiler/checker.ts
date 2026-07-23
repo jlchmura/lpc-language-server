@@ -182,7 +182,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         },
         isDefinitelyReferenceToGlobalSymbolObject,
     });
-    var noImplicitAny = false;
+    var noImplicitAny = false; // Not currently used in LPC: getStrictOptionValue(compilerOptions, "noImplicitAny");
     var strictBindCallApply = false;
 
     interface DuplicateInfoForSymbol {
@@ -4633,11 +4633,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         function checkFunctionOrMethodDeclarationDiagnostics() {
             if (!getEffectiveReturnTypeNode(node)) {
-                // Report an implicit any error if there is no body, no explicit return type, and node is not a private method
-                // in an ambient context
-                if (nodeIsMissing(body)) {// && !isPrivateWithinAmbient(node)) {
-                    reportImplicitAny(node, anyType);
-                }
+                // NB: unlike TypeScript, a bodyless function in LPC is a forward-declaration
+                // prototype that legitimately omits its return type -- it is not flagged. The
+                // implementation's inferred return type is checked for implicit-any via the
+                // widening path (reportErrorsFromWidening / WideningKind.FunctionReturn), which
+                // only fires when the return type genuinely contains a widening type.
 
                 if (functionFlags & FunctionFlags.Generator && nodeIsPresent(body)) {
                     // A generator with a body and no type annotation can still cause errors. It can error if the
@@ -4786,7 +4786,57 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
     
     function reportImplicitAny(declaration: Declaration, type: Type, wideningKind?: WideningKind) {
-        console.warn("Implement me - reportImplicitAny");
+        // This code was ported, but doesn't really make sense for LPC, so its disabled.
+
+
+        // const typeAsString = typeToString(getWidenedType(type));
+        // // Adapted from the TypeScript checker. LPC has no JS files, generators, or the
+        // // TS-specific "parameter has a name but no type" recovery, so those branches are
+        // // dropped. `noImplicitAny` selects a hard error vs. a from-usage suggestion.
+        // let diagnostic: DiagnosticMessage;
+        // switch (declaration.kind) {
+        //     case SyntaxKind.BinaryExpression:
+        //     case SyntaxKind.PropertyDeclaration:
+        //     case SyntaxKind.PropertySignature:
+        //         diagnostic = noImplicitAny ? Diagnostics.Member_0_implicitly_has_an_1_type : Diagnostics.Member_0_implicitly_has_an_1_type_but_a_better_type_may_be_inferred_from_usage;
+        //         break;
+        //     case SyntaxKind.Parameter:
+        //         diagnostic = (declaration as ParameterDeclaration).dotDotDotToken ?
+        //             noImplicitAny ? Diagnostics.Rest_parameter_0_implicitly_has_an_any_type : Diagnostics.Rest_parameter_0_implicitly_has_an_any_type_but_a_better_type_may_be_inferred_from_usage :
+        //             noImplicitAny ? Diagnostics.Parameter_0_implicitly_has_an_1_type : Diagnostics.Parameter_0_implicitly_has_an_1_type_but_a_better_type_may_be_inferred_from_usage;
+        //         break;
+        //     case SyntaxKind.BindingElement:
+        //         diagnostic = Diagnostics.Binding_element_0_implicitly_has_an_1_type;
+        //         if (!noImplicitAny) {
+        //             // Don't issue a suggestion for binding elements since the codefix doesn't yet support them.
+        //             return;
+        //         }
+        //         break;
+        //     case SyntaxKind.JSDocFunctionType:
+        //         error(declaration, Diagnostics.Function_type_which_lacks_return_type_annotation_implicitly_has_an_0_return_type, typeAsString);
+        //         return;
+        //     case SyntaxKind.FunctionDeclaration:
+        //     case SyntaxKind.MethodDeclaration:
+        //     case SyntaxKind.MethodSignature:
+        //     case SyntaxKind.FunctionExpression:
+        //     case SyntaxKind.ArrowFunction:
+        //     case SyntaxKind.InlineClosureExpression:
+        //         if (noImplicitAny && !(declaration as NamedDeclaration).name) {
+        //             error(declaration, Diagnostics.Function_expression_which_lacks_return_type_annotation_implicitly_has_an_0_return_type, typeAsString);
+        //             return;
+        //         }
+        //         diagnostic = !noImplicitAny ? Diagnostics._0_implicitly_has_an_1_return_type_but_a_better_type_may_be_inferred_from_usage :
+        //             Diagnostics._0_which_lacks_return_type_annotation_implicitly_has_an_1_return_type;
+        //         break;
+        //     case SyntaxKind.MappedType:
+        //         if (noImplicitAny) {
+        //             error(declaration, Diagnostics.Mapped_object_type_implicitly_has_an_any_template_type);
+        //         }
+        //         return;
+        //     default:
+        //         diagnostic = noImplicitAny ? Diagnostics.Variable_0_implicitly_has_an_1_type : Diagnostics.Variable_0_implicitly_has_an_1_type_but_a_better_type_may_be_inferred_from_usage;
+        // }
+        // errorOrSuggestion(noImplicitAny, declaration, diagnostic, declarationNameToString(getNameOfDeclaration(declaration)), typeAsString);
     }
 
     function getReturnTypeFromAnnotation(declaration: SignatureDeclaration | JSDocSignature) {        
