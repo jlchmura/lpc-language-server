@@ -4,6 +4,7 @@
 
 - Fix: foreach loop variable type checking [#344](https://github.com/jlchmura/lpc-language-server/pull/344)
 - Fix: allow the `time_expression` efun to be declared in efun definition headers so it keeps completion and lpcdoc support
+- Fix: hovering the `time_expression` keyword now shows the efun signature and lpcdoc
 
 ## 1.1.48
 

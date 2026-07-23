@@ -2305,6 +2305,13 @@ function getSymbolAtLocationForQuickInfo(node: Node, checker: TypeChecker): Symb
         }
     }
 
+    // `time_expression` is a construct keyword but is also a driver efun declared in the
+    // efun headers (with lpcdoc). The keyword token has no symbol of its own, so resolve
+    // the global efun function symbol by name to give the keyword the efun's hover/doc.
+    if (node.kind === SyntaxKind.TimeExpressionKeyword && node.parent?.kind === SyntaxKind.TimeExpression) {
+        return checker.resolveName("time_expression", node, SymbolFlags.Function, /*excludeGlobals*/ false);
+    }
+
     const symbol = checker.getSymbolAtLocation(node);
     if ((!symbol || checker.isUnknownSymbol(symbol)) && isIdentifier(node)) {
         if (node.parent.kind === SyntaxKind.PropertySignature) {
