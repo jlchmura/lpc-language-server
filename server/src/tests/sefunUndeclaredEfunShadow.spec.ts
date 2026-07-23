@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
+import { createTestLanguageService, testFilePath } from "./harness.js";
 
 /**
  * End-to-end regression for the "phantom simul_efun shadows a real efun" bug.
@@ -17,57 +17,7 @@ import * as path from "path";
  *     '"Gobbledygook in string.\n"'.
  */
 function createLanguageService(files: Record<string, string>, sefunRelPath: string) {
-    const cwd = lpc.normalizePath(process.cwd());
-    const toAbs = (rel: string) => lpc.normalizePath(path.join(cwd, rel));
-
-    const fileText = new Map<string, string>();
-    for (const rel of Object.keys(files)) fileText.set(toAbs(rel), files[rel]);
-
-    const scriptFiles = Array.from(fileText.keys());
-    const scriptVersions = new Map<string, string>(scriptFiles.map(f => [f, "1"]));
-    const useCaseSensitiveFileNames = lpc.sys.useCaseSensitiveFileNames;
-    const getCanonicalFileName = lpc.createGetCanonicalFileName(useCaseSensitiveFileNames);
-    const norm = (name: string | undefined) => (name ? lpc.normalizePath(name) : name);
-
-    const options: lpc.CompilerOptions = {
-        driverType: lpc.LanguageVariant.FluffOS,
-        diagnostics: true,
-        sefunFile: toAbs(sefunRelPath),
-    };
-
-    const host: lpc.LanguageServiceHost = {
-        getCompilationSettings: () => options,
-        getCurrentDirectory: () => cwd,
-        getDefaultLibFileName: (opts) =>
-            lpc.combinePaths(cwd, lpc.getDefaultLibFolder(opts), lpc.getDefaultLibFileName(opts)),
-        getIncludeDirs: () => [],
-        getParseableFiles: () => new Set(scriptFiles.map((f) => lpc.toPath(f, cwd, getCanonicalFileName))),
-        getScriptFileNames: () => scriptFiles,
-        getScriptSnapshot: (name) => {
-            const n = norm(name);
-            if (!n) return undefined;
-            const text = fileText.get(n) ?? lpc.sys.readFile(n);
-            return text === undefined ? undefined : lpc.ScriptSnapshot.fromString(text);
-        },
-        getScriptVersion: (name) => (norm(name) ? scriptVersions.get(norm(name)!) ?? "0" : "0"),
-        isKnownTypesPackageName: () => false,
-        useCaseSensitiveFileNames: () => useCaseSensitiveFileNames,
-        fileExists: (name) => { const n = norm(name); return !!n && (fileText.has(n) || lpc.sys.fileExists(n)); },
-        readFile: (name) => { const n = norm(name); return n ? fileText.get(n) ?? lpc.sys.readFile(n) : undefined; },
-        onAllFilesNeedReparse: () => undefined,
-        onReleaseOldSourceFile: () => undefined,
-        onReleaseParsedCommandLine: () => undefined,
-    };
-
-    const fileHandler = lpc.createLpcFileHandler({
-        fileExists: (name) => host.fileExists(name),
-        readFile: (name) => host.readFile(name),
-        getIncludeDirs: () => host.getIncludeDirs(),
-        getCompilerOptions: () => host.getCompilationSettings(),
-        getCurrentDirectory: () => host.getCurrentDirectory(),
-    });
-
-    return { ls: lpc.createLanguageService(host, fileHandler), abs: toAbs };
+    return createTestLanguageService(files, { sefunFile: testFilePath(sefunRelPath) });
 }
 
 // Condensed from the mudlib's from_string(): an inline function early in the

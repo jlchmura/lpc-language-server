@@ -1,9 +1,8 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
+import { createTestLanguageService } from "./harness.js";
 
 describe("LanguageService", () => {
     it("includes EvaluateExpression arguments in findReferences/findRenameLocations", () => {
-        const fileName = lpc.normalizePath(path.join(process.cwd(), "test.c"));
         const source = `test(object who) {
     fn(who);
 
@@ -14,62 +13,7 @@ describe("LanguageService", () => {
 fn(object o) {}
 `;
 
-        const options: lpc.CompilerOptions = {
-            driverType: lpc.LanguageVariant.FluffOS,
-            diagnostics: true,
-        };
-
-        const scriptFiles = [fileName];
-        const fileText = new Map<string, string>([[fileName, source]]);
-        const scriptVersions = new Map<string, string>([[fileName, "1"]]);
-
-        const currentDirectory = lpc.normalizePath(process.cwd());
-        const useCaseSensitiveFileNames = lpc.sys.useCaseSensitiveFileNames;
-        const getCanonicalFileName = lpc.createGetCanonicalFileName(useCaseSensitiveFileNames);
-        const normalizeHostFileName = (name: string | undefined) => (name ? lpc.normalizePath(name) : name);
-
-        const host: lpc.LanguageServiceHost = {
-            getCompilationSettings: () => options,
-            getCurrentDirectory: () => currentDirectory,
-            getDefaultLibFileName: (opts) =>
-                lpc.combinePaths(currentDirectory, lpc.getDefaultLibFolder(opts), lpc.getDefaultLibFileName(opts)),
-            getIncludeDirs: () => [],
-            getParseableFiles: () => new Set(scriptFiles.map((f) => lpc.toPath(f, currentDirectory, getCanonicalFileName))),
-            getScriptFileNames: () => scriptFiles,
-            getScriptSnapshot: (name) => {
-                const normalizedName = normalizeHostFileName(name);
-                if (!normalizedName) return undefined;
-                const text = fileText.get(normalizedName) ?? lpc.sys.readFile(normalizedName);
-                return text === undefined ? undefined : lpc.ScriptSnapshot.fromString(text);
-            },
-            getScriptVersion: (name) => {
-                const normalizedName = normalizeHostFileName(name);
-                return normalizedName ? scriptVersions.get(normalizedName) ?? "0" : "0";
-            },
-            isKnownTypesPackageName: () => false,
-            useCaseSensitiveFileNames: () => useCaseSensitiveFileNames,
-            fileExists: (name) => {
-                const normalizedName = normalizeHostFileName(name);
-                return !!normalizedName && (fileText.has(normalizedName) || lpc.sys.fileExists(normalizedName));
-            },
-            readFile: (name) => {
-                const normalizedName = normalizeHostFileName(name);
-                return normalizedName ? fileText.get(normalizedName) ?? lpc.sys.readFile(normalizedName) : undefined;
-            },
-            onAllFilesNeedReparse: () => undefined,
-            onReleaseOldSourceFile: () => undefined,
-            onReleaseParsedCommandLine: () => undefined,
-        };
-
-        const fileHandler = lpc.createLpcFileHandler({
-            fileExists: (name) => host.fileExists(name),
-            readFile: (name) => host.readFile(name),
-            getIncludeDirs: () => host.getIncludeDirs(),
-            getCompilerOptions: () => host.getCompilationSettings(),
-            getCurrentDirectory: () => host.getCurrentDirectory(),
-        });
-
-        const ls = lpc.createLanguageService(host, fileHandler);
+        const { ls, fileName } = createTestLanguageService({ "test.c": source });
 
         const declPos = source.indexOf("who");
         const evalArgPos = source.lastIndexOf("who");
