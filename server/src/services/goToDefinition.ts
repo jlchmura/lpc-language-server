@@ -78,7 +78,7 @@ export function getDefinitionAtPosition(program: Program, sourceFile: SourceFile
 
     if (searchOtherFilesOnly && every(symbol.declarations, d => d.getSourceFile().fileName === sourceFile.fileName)) return undefined;
 
-    const calledDeclaration = tryGetSignatureDeclaration(typeChecker, node);
+    const calledDeclaration = preferImplementationDeclaration(tryGetSignatureDeclaration(typeChecker, node), symbol);
     // Don't go to the component constructor definition for a JSX element, just go to the component definition.
     if (calledDeclaration) {
         const sigInfo = createDefinitionFromSignatureDeclaration(typeChecker, calledDeclaration, failedAliasResolution);
@@ -154,6 +154,21 @@ function tryGetSignatureDeclaration(typeChecker: TypeChecker, node: Node): Signa
     return tryCast(signature && signature.declaration, (d): d is SignatureDeclaration => isFunctionLike(d));
 }
 
+/**
+ * In LPC a function often has a forward declaration (a prototype in a header, e.g.
+ * `foo(int i);`) plus an implementation with a body. The resolved signature points at the
+ * first candidate -- the prototype -- but goto-definition from a call should land on the
+ * implementation. If the resolved declaration has no body but a sibling declaration does,
+ * redirect to the implementation.
+ */
+function preferImplementationDeclaration(decl: SignatureDeclaration | undefined, symbol: Symbol): SignatureDeclaration | undefined {
+    if (!decl || (decl as FunctionLikeDeclaration).body) {
+        return decl;
+    }
+    const impl = find(symbol.declarations ?? emptyArray, d => isFunctionLike(d) && !!(d as FunctionLikeDeclaration).body);
+    return (impl as SignatureDeclaration | undefined) ?? decl;
+}
+
 /** Returns a CallLikeExpression where `node` is the target being invoked. */
 function getAncestorCallLikeExpression(node: Node): CallLikeExpression | undefined {
     const target = findAncestor(node, n => !isRightSideOfPropertyAccess(n));
@@ -196,24 +211,45 @@ function getDefinitionFromSymbol(typeChecker: TypeChecker, symbol: Symbol, node:
     }
 
     function getCallSignatureDefinition(): DefinitionInfo[] | undefined {
-        return isCallOrNewExpressionTarget(node) || isNameOfFunctionDeclaration(node)
-            ? getSignatureDefinition(filteredDeclarations, /*selectConstructors*/ false)
-            : undefined;
+        if (isCallOrNewExpressionTarget(node)) {
+            return getSignatureDefinition(filteredDeclarations, /*bodyOnly*/ true);
+        }
+        if (isNameOfFunctionDeclaration(node)) {
+            // On a declaration name, offer every declaration -- the forward declaration(s)
+            // (prototypes in headers) and the implementation -- with the implementation
+            // first, so goto-def can jump between the header prototype and the body.
+            return getSignatureDefinition(filteredDeclarations, /*bodyOnly*/ false);
+        }
+        return undefined;
     }
 
-    function getSignatureDefinition(signatureDeclarations: readonly Declaration[] | undefined, selectConstructors: boolean): DefinitionInfo[] | undefined {
+    function getSignatureDefinition(signatureDeclarations: readonly Declaration[] | undefined, bodyOnly: boolean): DefinitionInfo[] | undefined {
         if (!signatureDeclarations) {
             return undefined;
         }
-        const declarations = signatureDeclarations.filter(/*selectConstructors ? isConstructorDeclaration :*/ isFunctionLike);
+        const declarations = signatureDeclarations.filter(isFunctionLike);
+        if (!declarations.length) {
+            return undefined;
+        }
         const declarationsWithBody = declarations.filter(d => !!(d as FunctionLikeDeclaration).body);
 
-        // declarations defined on the global scope can be defined on multiple files. Get all of them.
-        return declarations.length
-            ? declarationsWithBody.length !== 0
+        if (bodyOnly) {
+            // declarations defined on the global scope can be defined on multiple files. Get all of them.
+            return declarationsWithBody.length !== 0
                 ? declarationsWithBody.map(x => createDefinitionInfo(x, typeChecker, symbol, node))
-                : [createDefinitionInfo(last(declarations), typeChecker, symbol, node, /*unverified*/ false, failedAliasResolution)]
-            : undefined;
+                : [createDefinitionInfo(last(declarations), typeChecker, symbol, node, /*unverified*/ false, failedAliasResolution)];
+        }
+
+        // On a declaration name, navigate to the OTHER declaration(s) so goto-def toggles
+        // between the header prototype and the implementation body: from the body it jumps
+        // to the prototype, and from the prototype to the body. (Returning the current
+        // declaration would make the editor fall back to a references peek instead.)
+        const current = findAncestor(node, isFunctionLikeDeclaration);
+        const others = declarations.filter(d => d !== current);
+        const chosen = others.length ? others : declarations;
+        // implementation(s) first among whatever we return
+        const ordered = [...chosen.filter(d => !!(d as FunctionLikeDeclaration).body), ...chosen.filter(d => !(d as FunctionLikeDeclaration).body)];
+        return ordered.map(x => createDefinitionInfo(x, typeChecker, symbol, node, /*unverified*/ false, failedAliasResolution));
     }
 }
 

@@ -21,6 +21,9 @@
             "$ref": "#/definitions/allowUndeclaredAssignmentsInLdDefinition"
         },
         {
+            "$ref": "#/definitions/noImplicitAnyDefinition"
+        },
+        {
             "$ref": "#/definitions/diagnosticsDefinition"
         },
         {
@@ -84,6 +87,15 @@
                     "description": "LDMud only. When true (the default), assigning to an undeclared variable implicitly declares it, since LDMud makes types optional. Set to false to report the assignment target as an unresolved name instead, matching FluffOS, where assigning to an undeclared variable is illegal. Has no effect under FluffOS.",
                     "type": "boolean",
                     "default": true
+                }
+            }
+        },
+        "noImplicitAnyDefinition": {
+            "properties": {
+                "noImplicitAny": {
+                    "description": "When true, report an error wherever a declaration's type is implicitly the wide 'mixed' (any) type because it lacks an annotation and none could be inferred more precisely (for example a function whose inferred return type widens to 'mixed'). When false (the default), these surface as suggestions rather than errors.",
+                    "type": "boolean",
+                    "default": false
                 }
             }
         },

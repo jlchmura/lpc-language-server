@@ -7,6 +7,7 @@
 - Fix: hovering the `time_expression` keyword now shows the efun signature and lpcdoc
 - Fix: goto-definition and hover on a super accessor (e.g. `::create()`) now resolve to the inherited parent's member instead of the local override
 - Fix: hovering the `new` keyword on the string-path clone form (`new("/path")`) no longer crashes the quick-info request
+- Fix: goto-definition now handles forward-declared functions
 
 ## 1.1.48
 
