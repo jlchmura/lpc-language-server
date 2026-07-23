@@ -188,6 +188,30 @@ void f() {
         expect(display).toContain("count");
     });
 
+    it("shows the time_expression efun doc when hovering the construct keyword", () => {
+        // `time_expression` is a construct keyword (parses as a TimeExpression node) but is
+        // also a driver efun with a declaration + lpcdoc. Hovering the keyword in either the
+        // paren form or the block form should surface the efun's signature and doc.
+        for (const body of ["time_expression(test2())", "time_expression { test2(); }"]) {
+            const source = `int test2() { return 1; }
+void test(int i) {
+    int j = ${body};
+}
+`;
+            const { ls, fileName } = createLanguageService(source);
+            const pos = source.indexOf("time_expression") + 3;
+            const quickInfo = ls.getQuickInfoAtPosition(fileName, pos);
+
+            expect(quickInfo).toBeDefined();
+            const display = getDisplayString(quickInfo!);
+            expect(display).toContain("time_expression");
+            expect(display).toContain("mixed expr");
+            // the lpcdoc from efuns/fluffos/internals.h should come through
+            const doc = quickInfo!.documentation?.map(d => d.text).join("") ?? "";
+            expect(doc).toContain("real time");
+        }
+    });
+
     it("respects an explicit value-variable annotation in a mapping foreach", () => {
         // https://github.com/jlchmura/lpc-language-server/issues/318
         // The mapping's inferred value type is a mapping, but the user explicitly

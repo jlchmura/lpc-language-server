@@ -547,7 +547,12 @@ function createChildren(
         return children;
     }
 
-    scanner.setText((sourceFile || node.getSourceFile()).text);
+    const scanSourceFile = sourceFile || node.getSourceFile();
+    scanner.setText(scanSourceFile.text);
+    // Re-scanning the gaps between AST children must use the file's driver variant, or a
+    // FluffOS-only keyword (e.g. `time_expression`) is demoted to an Identifier and trips
+    // the guard in addSyntheticNodes, aborting token enumeration for the node.
+    scanner.setLanguageVariant((scanSourceFile as SourceFile).languageVariant ?? LanguageVariant.LDMud);
     let pos = node.pos;
     Debug.assertIsDefined(pos);
     const processNode = (child: Node) => {
@@ -2298,6 +2303,13 @@ function getSymbolAtLocationForQuickInfo(node: Node, checker: TypeChecker): Symb
         if (inInlineClosure) {
             return undefined;
         }
+    }
+
+    // `time_expression` is a construct keyword but is also a driver efun declared in the
+    // efun headers (with lpcdoc). The keyword token has no symbol of its own, so resolve
+    // the global efun function symbol by name to give the keyword the efun's hover/doc.
+    if (node.kind === SyntaxKind.TimeExpressionKeyword && node.parent?.kind === SyntaxKind.TimeExpression) {
+        return checker.resolveName("time_expression", node, SymbolFlags.Function, /*excludeGlobals*/ false);
     }
 
     const symbol = checker.getSymbolAtLocation(node);
