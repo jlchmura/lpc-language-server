@@ -1892,9 +1892,26 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         }
         
         function collectModuleReferences(file: SourceFile, node: Node, inAmbientModule: boolean): void {            
-            if (isCloneObjectExpression(node) && node.arguments?.length >= 1 && isStringLiteral(node.arguments[0])) {
-                setParentRecursive(node, /*incremental*/ false); // we need parent data on imports before the program is fully bound, so we ensure it's set here                
-                pushIfNotSeen(node.arguments[0]);                
+            if (isCloneObjectExpression(node) && node.arguments?.length >= 1) {
+                setParentRecursive(node, /*incremental*/ false); // we need parent data on imports before the program is fully bound, so we ensure it's set here
+                const target = node.arguments[0];
+                if (isStringLiteral(target)) {
+                    pushIfNotSeen(target);
+                }
+                else {
+                    // The target is often built by concatenation -- commonly via macros,
+                    // e.g. `#define STD_NPC STD_BASE "npc.c"` -- which parses as adjacent
+                    // string literals rather than one. Join the parts, as inherit/new do,
+                    // so the target still enters the dependency graph.
+                    const parts = getStringLiteralsTextRecursively(target);
+                    if (parts.length) {
+                        const lit = factory.createStringLiteral(parts.join(""));
+                        (lit as Mutable<Node>).flags &= ~NodeFlags.Synthesized;
+                        setTextRange(lit, target); // keep the diagnostic pointing at the argument
+                        (lit as Mutable<Node>).parent = node; // needs a parent so the emitter doesn't break
+                        pushIfNotSeen(lit);
+                    }
+                }
             } else if (isInheritDeclaration(node)) {
                 if (isStringLiteral(node.inheritClause)) {
                     setParentRecursive(node, /*incremental*/ false); // we need parent data on imports before the program is fully bound, so we ensure it's set here
