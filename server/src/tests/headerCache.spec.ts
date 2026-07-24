@@ -140,6 +140,75 @@ describe("header parse cache", () => {
         expect(secondInc.statements.length).toEqual(2);
     });
 
+    describe("nested includes", () => {
+        const headers: Record<string, string> = {
+            "/foo.h": `#include "bar.h"\n#define FOO_TAG 1\nint foo_fn();\n`,
+            "/bar.h": `#define BAR_TAG 2\nint bar_fn();\n`,
+        };
+        function multiHandler(cache?: Map<string, unknown>): lpc.LpcFileHandler {
+            const resolve = (name: string) => "/" + name.replace(/.*\//, "");
+            return {
+                loadIncludeFile: (_src: string, name: string) => ({ filename: resolve(name), source: headers[resolve(name)] }),
+                loadInclude: (_src: string, name: string) => ({ uri: resolve(name), source: headers[resolve(name)], error: undefined }),
+                headerParseCache: cache,
+            } as unknown as lpc.LpcFileHandler;
+        }
+        function parseC(fileName: string, text: string, cache?: Map<string, unknown>): lpc.SourceFile {
+            const options = {
+                languageVersion: lpc.ScriptTarget.LPC,
+                globalIncludes: [],
+                configDefines: new Map<string, string>(),
+                fileHandler: multiHandler(cache),
+            } as lpc.CreateSourceFileOptions;
+            return lpc.createSourceFile(fileName, text, options, true, lpc.ScriptKind.LPC);
+        }
+        const src = `#include "foo.h"\nint use() { return foo_fn() + bar_fn(); }\n`;
+
+        it("caches a header with a nested include and reuses it structurally", () => {
+            const cache = new Map<string, unknown>();
+            parseC("seed.c", src, cache);              // foo.h + bar.h parsed & cached
+            expect(cache.has("/foo.h")).toBe(true);
+            expect(cache.has("/bar.h")).toBe(true);
+
+            const hit = includeOf(parseC("b.c", src, cache));
+            const fresh = includeOf(parseC("b.c", src, new Map()));
+            const hitNodes = flatten(hit);
+            const freshNodes = flatten(fresh);
+            expect(hitNodes.length).toEqual(freshNodes.length);
+            for (let i = 0; i < hitNodes.length; i++) {
+                expect(hitNodes[i].kind).toEqual(freshNodes[i].kind);
+                expect(hitNodes[i].pos).toEqual(freshNodes[i].pos);
+            }
+            // the nested bar.h include is present inside the reused foo.h
+            const nested = flatten(hit).filter(n => n.kind === lpc.SyntaxKind.IncludeDirective);
+            expect(nested.length).toBeGreaterThanOrEqual(1);
+        });
+
+        it("re-contributes cross-file import candidates on a nested-include hit", () => {
+            const cache = new Map<string, unknown>();
+            parseC("seed.c", src, cache);
+            const hitFile = parseC("b.c", src, cache);
+            const freshFile = parseC("b.c", src, new Map());
+            // same set of import candidates whether reused or freshly parsed
+            expect(hitFile.importCandidates.length).toEqual(freshFile.importCandidates.length);
+        });
+
+        it("folds a cache-hit nested header's deps into the outer fingerprint (noteReads)", () => {
+            // Order matters: cache bar.h FIRST (direct include), so when foo.h is first
+            // parsed its nested bar.h is a HIT -- noteReads must still record bar.h's
+            // dependencies into foo.h's fingerprint. We then verify foo.h reuse is sound.
+            const cache = new Map<string, unknown>();
+            parseC("barfirst.c", `#include "bar.h"\nint x = BAR_TAG;\n`, cache); // caches bar.h
+            expect(cache.has("/bar.h")).toBe(true);
+            parseC("foofirst.c", src, cache);   // foo.h parsed, bar.h HIT during it
+            expect(cache.has("/foo.h")).toBe(true);
+
+            const hit = includeOf(parseC("b.c", src, cache));
+            const fresh = includeOf(parseC("b.c", src, new Map()));
+            expect(flatten(hit).length).toEqual(flatten(fresh).length);
+        });
+    });
+
     it("does NOT reuse when a dependency macro differs (guard already defined)", () => {
         const cache = new Map<string, unknown>();
         parse("seed.c", includer, cache);

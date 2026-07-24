@@ -68,6 +68,13 @@ interface HeaderParseCacheEntry {
     statements: NodeArray<Statement>;
     endOfFileToken: EndOfFileToken;
     readScope: MacroReadScope;
+    /** import candidates the header contributed (nested includes/inherits/clones), as
+     *  nodes in the `statements` master -- remapped into each reuse clone. */
+    importCandidates: ImportCandidateNode[];
+    /** inherit declarations the header contributed (-> heritageClauses), as master nodes. */
+    inherits: InheritDeclaration[];
+    /** parse diagnostics the header produced (detached; header-coordinate positions). */
+    diagnostics: DiagnosticWithDetachedLocation[];
 }
 
 export namespace LpcParser {
@@ -2071,6 +2078,7 @@ export namespace LpcParser {
                     // so we can decide whether the parse is safe to cache.
                     macroEnv.pushReadScope();
                     const importCandidatesBefore = importCandidates.length;
+                    const inheritsBefore = inherits.length;
                     const diagnosticsBefore = parseDiagnostics.length;
                     const condDepthBefore = condFrames.length;
 
@@ -2091,19 +2099,27 @@ export namespace LpcParser {
 
                     const readScope = macroEnv.popReadScope();
 
-                    // Cache the parse when it is self-contained: balanced conditionals,
-                    // no nested imports (includes/inherits) to remap, and no parse
-                    // diagnostics to replay. Other headers still parse correctly, just
-                    // uncached. See HeaderParseCacheEntry.
-                    const selfContained = condFrames.length === condDepthBefore
-                        && importCandidates.length === importCandidatesBefore
-                        && parseDiagnostics.length === diagnosticsBefore;
+                    // Cache the parse when it is self-contained (balanced conditionals).
+                    // Nested imports (includes / inherits / clones), macro (re)defines,
+                    // and parse diagnostics are all captured and replayed on reuse, so a
+                    // reused parse reproduces a fresh one exactly. Non-self-contained
+                    // headers still parse correctly, just uncached.
+                    const selfContained = condFrames.length === condDepthBefore;
                     if (cache && selfContained) {
+                        // Master is cloned with a node map so the captured import /
+                        // inherit deltas can be re-expressed as master nodes.
+                        const storeMap = new Map<Node, Node>();
+                        const masterStatements = factory.createNodeArray(cloneParsedNodes(statements, storeMap));
+                        const remap = <T extends Node>(nodes: readonly T[], from: number): T[] =>
+                            nodes.slice(from).map(n => storeMap.get(n) as T | undefined).filter(Boolean) as T[];
                         cache.set(resolvedFilename, {
                             text: includeFile.source,
-                            statements: factory.createNodeArray(cloneParsedNodes(statements)),
+                            statements: masterStatements,
                             endOfFileToken: cloneParsedNodes([endOfFileToken])[0],
                             readScope,
+                            importCandidates: remap(importCandidates, importCandidatesBefore),
+                            inherits: remap(inherits, inheritsBefore),
+                            diagnostics: parseDiagnostics.slice(diagnosticsBefore),
                         });
                     }
 
@@ -2145,7 +2161,10 @@ export namespace LpcParser {
             // Replayed #defines resolve their body text via includeFileCache.
             includeFileCache.set(resolvedFilename, source);
 
-            const clonedStatements = cloneParsedNodes(cached.statements as readonly Statement[]);
+            // Clone with a node map so the header's import candidates / inherits can be
+            // remapped onto the fresh clone.
+            const cloneMap = new Map<Node, Node>();
+            const clonedStatements = cloneParsedNodes(cached.statements as readonly Statement[], cloneMap);
             const clonedEof = cloneParsedNodes([cached.endOfFileToken])[0];
 
             (includeDirective as Mutable<IncludeDirective>).statements = factory.createNodeArray(clonedStatements);
@@ -2154,6 +2173,28 @@ export namespace LpcParser {
             setParent(clonedEof, includeDirective);
 
             replayHeaderMacroWrites(clonedStatements, resolvedFilename);
+
+            // Re-contribute the header's cross-file references against the clone.
+            for (const cand of cached.importCandidates) {
+                const mapped = cloneMap.get(cand);
+                if (mapped) addImportCandidate(mapped as ImportCandidateNode);
+            }
+            for (const inh of cached.inherits) {
+                const mapped = cloneMap.get(inh);
+                if (mapped) inherits.push(mapped as InheritDeclaration);
+            }
+
+            // Replay the header's parse diagnostics as fresh copies (positions are in
+            // the header's coordinate space, identical for every includer). Copying
+            // avoids sharing objects that get a `.file` attached per source file.
+            for (const d of cached.diagnostics) {
+                parseDiagnostics.push({ ...d });
+            }
+
+            // If we are reused while an outer header is being cached, fold our macro
+            // dependencies into that outer fingerprint (we were not re-parsed, so the
+            // reads did not happen naturally).
+            macroEnv.noteReads(cached.readScope.observed.keys());
         });
     }
 

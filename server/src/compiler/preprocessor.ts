@@ -55,6 +55,14 @@ export interface MacroEnvironment {
     /** stop capturing the innermost scope and return what it observed */
     popReadScope(): MacroReadScope;
 
+    /**
+     * Record reads for `names` into the active scope(s) using their current state.
+     * Used when a nested `#include` is served from cache during an outer header's
+     * caching parse: the nested header's dependencies must still fold into the outer
+     * header's fingerprint, even though it was not re-parsed.
+     */
+    noteReads(names: Iterable<string>): void;
+
     clear(): void;
 }
 
@@ -75,10 +83,10 @@ function isNodeLike(v: any): v is Node {
     return !!v && typeof v === "object" && typeof v.kind === "number" && !Array.isArray(v);
 }
 
-function cloneValue(v: any): any {
-    if (isNodeLike(v)) return cloneNodeDeep(v);
+function cloneValue(v: any, map: Map<Node, Node> | undefined): any {
+    if (isNodeLike(v)) return cloneNodeDeep(v, map);
     if (Array.isArray(v)) {
-        const arr: any = v.map(cloneValue);
+        const arr: any = v.map((x: any) => cloneValue(x, map));
         // Preserve NodeArray metadata when present (plain arrays simply lack these).
         if (typeof (v as any).pos === "number") {
             arr.pos = (v as any).pos;
@@ -96,11 +104,12 @@ function cloneValue(v: any): any {
  * caller via `setParentRecursive`). The clone keeps the node's prototype so class
  * methods (getStart, getSourceFile, ...) and `instanceof` still work.
  */
-function cloneNodeDeep<T extends Node>(node: T): T {
+function cloneNodeDeep<T extends Node>(node: T, map: Map<Node, Node> | undefined): T {
     const clone: any = Object.create(Object.getPrototypeOf(node));
+    if (map) map.set(node, clone);
     for (const key of Object.keys(node)) {
         if (key === "parent") continue; // re-established after the whole subtree is cloned
-        clone[key] = cloneValue((node as any)[key]);
+        clone[key] = cloneValue((node as any)[key], map);
     }
     return clone;
 }
@@ -108,11 +117,13 @@ function cloneNodeDeep<T extends Node>(node: T): T {
 /**
  * Deep-clone an array of freshly-parsed statements, returning independent nodes with
  * `parent` pointers re-established. Positions are left untouched (the header parses
- * in its own coordinate space, identical for every includer).
+ * in its own coordinate space, identical for every includer). If `map` is provided it
+ * is populated with original->clone for every node, so callers can remap references
+ * (e.g. import candidates / inherit declarations) into the clone.
  */
-export function cloneParsedNodes<T extends Node>(nodes: readonly T[]): T[] {
+export function cloneParsedNodes<T extends Node>(nodes: readonly T[], map?: Map<Node, Node>): T[] {
     const clones = nodes.map(n => {
-        const c = cloneNodeDeep(n);
+        const c = cloneNodeDeep(n, map);
         setParentRecursive(c, /*incremental*/ false);
         return c;
     });
@@ -394,6 +405,10 @@ export function createMacroEnvironment(): MacroEnvironment {
         },
         popReadScope() {
             return readScopes.pop() ?? { observed: new Map() };
+        },
+        noteReads(names) {
+            if (!readScopes.length) return;
+            for (const name of names) recordRead(name);
         },
         clear() {
             table.clear();
