@@ -1,4 +1,4 @@
-import { createScanner, LanguageVariant, Macro, ScriptTarget, SyntaxKind } from "./_namespaces/lpc.js";
+import { createScanner, LanguageVariant, Macro, Node, NodeArray, ScriptTarget, setParentRecursive, SyntaxKind } from "./_namespaces/lpc.js";
 
 /**
  * Records which macros a stretch of parsing consulted. A "definedness" read is
@@ -28,8 +28,20 @@ export interface MacroEnvironment {
 
     /** tracked: records a definedness read against the active scope */
     isDefined(name: string): boolean;
-    /** tracked: records a value read against the active scope when `name` is defined */
+    /**
+     * tracked: records a *definedness* read for `name` (referencing it means "this
+     * name becoming a macro would change the parse") and, when it resolves to a
+     * defined macro, an additional *value* read (its body matters). Returns the macro
+     * or undefined.
+     */
     lookup(name: string): Macro | undefined;
+
+    /**
+     * Produce a stable fingerprint of the *current* definitions of every macro named
+     * in `scope`. Two parses that read the same names and see the same definitions
+     * yield the same fingerprint -- the basis for reusing a cached header parse.
+     */
+    hashState(scope: MacroReadScope): string;
 
     /** untracked lookup -- use when the access is not a semantic dependency */
     hasRaw(name: string): boolean;
@@ -44,6 +56,67 @@ export interface MacroEnvironment {
     popReadScope(): MacroReadScope;
 
     clear(): void;
+}
+
+// ---------------------------------------------------------------------------
+// Deep clone of parsed subtrees (for the #include header-parse cache)
+//
+// A cached header parse can be reused across every file that includes it, but AST
+// nodes cannot be shared: the binder stamps `symbol`/`locals`/`parent` onto each
+// node per includer. So each reuse takes an independent deep copy of a *pristine,
+// unbound* master snapshot. This clone is structural and generic (it does not
+// enumerate node types): it copies own properties, recursing into any Node/NodeArray
+// value, and re-establishes `parent` afterwards. It is only valid on freshly parsed,
+// unbound trees -- before binding introduces back-references and cycles beyond
+// `parent`.
+// ---------------------------------------------------------------------------
+
+function isNodeLike(v: any): v is Node {
+    return !!v && typeof v === "object" && typeof v.kind === "number" && !Array.isArray(v);
+}
+
+function cloneValue(v: any): any {
+    if (isNodeLike(v)) return cloneNodeDeep(v);
+    if (Array.isArray(v)) {
+        const arr: any = v.map(cloneValue);
+        // Preserve NodeArray metadata when present (plain arrays simply lack these).
+        if (typeof (v as any).pos === "number") {
+            arr.pos = (v as any).pos;
+            arr.end = (v as any).end;
+            arr.hasTrailingComma = (v as any).hasTrailingComma;
+            arr.transformFlags = (v as any).transformFlags;
+        }
+        return arr;
+    }
+    return v;
+}
+
+/**
+ * Deep-clone a single node (excluding its `parent`, which is re-derived by the
+ * caller via `setParentRecursive`). The clone keeps the node's prototype so class
+ * methods (getStart, getSourceFile, ...) and `instanceof` still work.
+ */
+function cloneNodeDeep<T extends Node>(node: T): T {
+    const clone: any = Object.create(Object.getPrototypeOf(node));
+    for (const key of Object.keys(node)) {
+        if (key === "parent") continue; // re-established after the whole subtree is cloned
+        clone[key] = cloneValue((node as any)[key]);
+    }
+    return clone;
+}
+
+/**
+ * Deep-clone an array of freshly-parsed statements, returning independent nodes with
+ * `parent` pointers re-established. Positions are left untouched (the header parses
+ * in its own coordinate space, identical for every includer).
+ */
+export function cloneParsedNodes<T extends Node>(nodes: readonly T[]): T[] {
+    const clones = nodes.map(n => {
+        const c = cloneNodeDeep(n);
+        setParentRecursive(c, /*incremental*/ false);
+        return c;
+    });
+    return clones;
 }
 
 /** A raw preprocessor token: the scanner kind plus its source text (for identifiers/literals). */
@@ -295,7 +368,13 @@ export function createMacroEnvironment(): MacroEnvironment {
         },
         lookup(name) {
             const macro = table.get(name);
-            if (macro && readScopes.length) recordValue(name);
+            if (readScopes.length) {
+                // Referencing a name is a dependency on it *not* silently becoming a
+                // macro in another includer, so record definedness on every lookup...
+                recordDefinedness(name);
+                // ...and, when it is a macro here, also on its body (value).
+                if (macro) recordValue(name);
+            }
             return macro;
         },
         hasRaw(name) {
@@ -306,6 +385,25 @@ export function createMacroEnvironment(): MacroEnvironment {
         },
         forEach(cb) {
             table.forEach(cb);
+        },
+        hashState(scope) {
+            const names = new Set<string>();
+            scope.definedness.forEach(n => names.add(n));
+            scope.values.forEach(n => names.add(n));
+            const parts: string[] = [];
+            for (const name of Array.from(names).sort()) {
+                const macro = table.get(name);
+                if (!macro) {
+                    parts.push(name + " U");
+                }
+                else {
+                    const body = macro.range && macro.getText
+                        ? macro.getText().substring(macro.range.pos, macro.range.end)
+                        : "";
+                    parts.push(name + " D " + body);
+                }
+            }
+            return parts.join("");
         },
         pushReadScope() {
             readScopes.push({ definedness: new Set(), values: new Set() });
