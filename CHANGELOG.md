@@ -1,5 +1,12 @@
 # LPC Language Services Changelog
 
+## 1.1.50
+
+- Fix: show macros from `#include` files in completion results
+- Fix: macro goto-def and find-references
+- Fix: macro #if logic now fully supported
+- Refactored preparser and macro expansion for speed and better reliability
+
 ## 1.1.49
 
 - Fix: foreach loop variable type checking [#344](https://github.com/jlchmura/lpc-language-server/pull/344)
