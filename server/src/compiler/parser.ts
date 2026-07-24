@@ -75,6 +75,9 @@ interface HeaderParseCacheEntry {
     inherits: InheritDeclaration[];
     /** parse diagnostics the header produced (detached; header-coordinate positions). */
     diagnostics: DiagnosticWithDetachedLocation[];
+    /** macro-origin links for macro-expanded nodes (master node -> root macro name),
+     *  replayed into the includer's nodeMacroMap so macro-origin hover keeps working. */
+    macroMap: Map<Node, string>;
 }
 
 export namespace LpcParser {
@@ -2112,6 +2115,12 @@ export namespace LpcParser {
                         const masterStatements = factory.createNodeArray(cloneParsedNodes(statements, storeMap));
                         const remap = <T extends Node>(nodes: readonly T[], from: number): T[] =>
                             nodes.slice(from).map(n => storeMap.get(n) as T | undefined).filter(Boolean) as T[];
+                        // Capture macro-origin links (original -> name) as master-node links.
+                        const macroMap = new Map<Node, string>();
+                        storeMap.forEach((master, original) => {
+                            const name = nodeMacroMap.get(original);
+                            if (name !== undefined) macroMap.set(master, name);
+                        });
                         cache.set(resolvedFilename, {
                             text: includeFile.source,
                             statements: masterStatements,
@@ -2120,6 +2129,7 @@ export namespace LpcParser {
                             importCandidates: remap(importCandidates, importCandidatesBefore),
                             inherits: remap(inherits, inheritsBefore),
                             diagnostics: parseDiagnostics.slice(diagnosticsBefore),
+                            macroMap,
                         });
                     }
 
@@ -2173,6 +2183,13 @@ export namespace LpcParser {
             setParent(clonedEof, includeDirective);
 
             replayHeaderMacroWrites(clonedStatements, resolvedFilename);
+
+            // Restore macro-origin links onto the clones (the Synthesized/MacroContext
+            // flags already survive the deep clone; only the nodeMacroMap entry is lost).
+            for (const [master, name] of cached.macroMap) {
+                const clone = cloneMap.get(master);
+                if (clone) nodeMacroMap.set(clone, name);
+            }
 
             // Re-contribute the header's cross-file references against the clone.
             for (const cand of cached.importCandidates) {

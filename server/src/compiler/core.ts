@@ -40,6 +40,34 @@ export function identity<T>(x: T) {
     return x;
 }
 
+/**
+ * A `Map` bounded to `maxSize` entries with least-recently-used eviction. Reading or
+ * (re)writing a key marks it most-recently-used; once the map exceeds `maxSize`, the
+ * least-recently-used entry (insertion-order oldest) is dropped. It is a real `Map`
+ * subclass, so consumers use it transparently.
+ */
+export class LRUCache<K, V> extends Map<K, V> {
+    constructor(private readonly maxSize: number) {
+        super();
+    }
+    override get(key: K): V | undefined {
+        if (!super.has(key)) return undefined;
+        const value = super.get(key)!;
+        // move to the most-recently-used position (Map preserves insertion order)
+        super.delete(key);
+        super.set(key, value);
+        return value;
+    }
+    override set(key: K, value: V): this {
+        if (super.has(key)) super.delete(key);
+        super.set(key, value);
+        while (this.maxSize > 0 && super.size > this.maxSize) {
+            super.delete(super.keys().next().value as K);
+        }
+        return this;
+    }
+}
+
 
 /**
  * Appends a range of value to an array, returning the array.

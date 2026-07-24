@@ -1,5 +1,6 @@
 import { pushIfDefined } from "../utils.js";
 import {
+    LRUCache,
     AssignmentDeclarationKind,
     BaseType,
     BinaryExpression,
@@ -1363,6 +1364,12 @@ export function getDefaultCompilerOptions(): CompilerOptions {
     };
 }
 
+/**
+ * Max distinct headers retained in the persistent header-parse cache. Bounds memory
+ * for long sessions over large mudlibs; hot headers stay resident via LRU.
+ */
+const HEADER_PARSE_CACHE_MAX = 512;
+
 export function createLanguageService(
     host: LanguageServiceHost,
     fileHandler: LpcFileHandler,
@@ -1388,8 +1395,9 @@ export function createLanguageService(
     const syntaxTreeCache: SyntaxTreeCache = new SyntaxTreeCache(host);
     // Persistent across program builds: parsed `#include` headers keyed by resolved
     // path. Entries self-invalidate when a header's text changes, so reused parses
-    // survive edits to *other* files -- the common LSP hot path.
-    const headerParseCache = new Map<string, unknown>();
+    // survive edits to *other* files -- the common LSP hot path. LRU-bounded so a long
+    // session over a large mudlib doesn't retain every header ever parsed.
+    const headerParseCache = new LRUCache<string, unknown>(HEADER_PARSE_CACHE_MAX);
     let program: Program;
     let lastProjectVersion: string;
     let lastTypesRootVersion = 0;

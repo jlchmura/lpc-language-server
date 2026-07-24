@@ -219,4 +219,101 @@ describe("header parse cache", () => {
         // header body is guarded out -> no statements
         expect(gInc.statements.length).toEqual(0);
     });
+
+    it("restores macro-origin links (nodeMacroMap) on a hit", () => {
+        // The header expands a macro; the expanded nodes carry a macro-origin link used
+        // for hover. A reused parse must restore those links, matching a fresh parse.
+        const hdr = `#define TWICE(x) ((x) + (x))\nint calc() { return TWICE(5); }\n`;
+        const handler = {
+            loadIncludeFile: () => ({ filename: "/m.h", source: hdr }),
+            loadInclude: () => ({ uri: "/m.h", source: hdr, error: undefined }),
+            headerParseCache: new Map<string, unknown>(),
+        } as unknown as lpc.LpcFileHandler;
+        const opts = (fh: lpc.LpcFileHandler) => ({
+            languageVersion: lpc.ScriptTarget.LPC,
+            globalIncludes: [],
+            configDefines: new Map<string, string>(),
+            fileHandler: fh,
+        } as lpc.CreateSourceFileOptions);
+        const doParse = (name: string, fh: lpc.LpcFileHandler) =>
+            lpc.createSourceFile(name, `#include "m.h"\n`, opts(fh), true, lpc.ScriptKind.LPC);
+
+        doParse("seed.c", handler);                 // populate
+        const hitFile = doParse("b.c", handler);    // hit
+        const freshFile = doParse("b.c", { ...handler, headerParseCache: new Map() } as lpc.LpcFileHandler);
+
+        const macroLinks = (sf: lpc.SourceFile) =>
+            flatten(includeOf(sf)).filter(n => sf.nodeMacroMap?.get(n) === "TWICE").length;
+
+        const hitLinks = macroLinks(hitFile);
+        expect(hitLinks).toBeGreaterThan(0);                 // links present on the clone
+        expect(hitLinks).toEqual(macroLinks(freshFile));     // and match a fresh parse
+    });
+
+    it("stays correct when the cache evicts an entry (LRU-bounded)", () => {
+        // Two distinct headers with a cap-1 cache: including the second evicts the
+        // first, so re-including the first is a miss that must still parse correctly.
+        const hdrs: Record<string, string> = {
+            "/p.h": `#define P 1\nint p_fn();\n`,
+            "/q.h": `#define Q 2\nint q_fn();\n`,
+        };
+        const resolve = (n: string) => "/" + n.replace(/.*\//, "");
+        const handler = {
+            loadIncludeFile: (_s: string, n: string) => ({ filename: resolve(n), source: hdrs[resolve(n)] }),
+            loadInclude: (_s: string, n: string) => ({ uri: resolve(n), source: hdrs[resolve(n)], error: undefined }),
+            headerParseCache: new lpc.LRUCache<string, unknown>(1),
+        } as unknown as lpc.LpcFileHandler;
+        const optsFor = (fh: lpc.LpcFileHandler) => ({
+            languageVersion: lpc.ScriptTarget.LPC,
+            globalIncludes: [],
+            configDefines: new Map<string, string>(),
+            fileHandler: fh,
+        } as lpc.CreateSourceFileOptions);
+        const parseP = (name: string, fh: lpc.LpcFileHandler) =>
+            includeOf(lpc.createSourceFile(name, `#include "p.h"\nint u(){ return p_fn(); }\n`, optsFor(fh), true, lpc.ScriptKind.LPC));
+
+        parseP("a.c", handler);                                   // caches p.h
+        // include q.h to evict p.h (cap 1)
+        lpc.createSourceFile("b.c", `#include "q.h"\n`, optsFor(handler), true, lpc.ScriptKind.LPC);
+        expect((handler.headerParseCache as Map<string, unknown>).has("/p.h")).toBe(false); // evicted
+
+        const afterEvict = parseP("c.c", handler);               // miss -> re-parse
+        const fresh = parseP("fresh.c", { ...handler, headerParseCache: new Map() } as lpc.LpcFileHandler);
+        expect(flatten(afterEvict).length).toEqual(flatten(fresh).length);
+    });
+});
+
+describe("LRUCache", () => {
+    it("evicts the least-recently-used entry past the cap", () => {
+        const m = new lpc.LRUCache<string, number>(2);
+        m.set("a", 1);
+        m.set("b", 2);
+        m.set("c", 3); // evicts "a" (oldest)
+        expect(m.has("a")).toBe(false);
+        expect(m.get("b")).toBe(2);
+        expect(m.get("c")).toBe(3);
+        expect(m.size).toBe(2);
+    });
+
+    it("a get() marks an entry most-recently-used", () => {
+        const m = new lpc.LRUCache<string, number>(2);
+        m.set("a", 1);
+        m.set("b", 2);
+        expect(m.get("a")).toBe(1); // "a" is now most-recent
+        m.set("c", 3);              // evicts "b", not "a"
+        expect(m.has("a")).toBe(true);
+        expect(m.has("b")).toBe(false);
+        expect(m.has("c")).toBe(true);
+    });
+
+    it("re-setting an existing key refreshes its recency without growing size", () => {
+        const m = new lpc.LRUCache<string, number>(2);
+        m.set("a", 1);
+        m.set("b", 2);
+        m.set("a", 10); // refresh "a"
+        m.set("c", 3);  // evicts "b"
+        expect(m.size).toBe(2);
+        expect(m.get("a")).toBe(10);
+        expect(m.has("b")).toBe(false);
+    });
 });
