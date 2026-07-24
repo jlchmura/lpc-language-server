@@ -336,11 +336,18 @@ export function fileIncludeReasonToDiagnostics(program: Program, reason: FileInc
     }
 }
 
-const sysFormatDiagnosticsHost: FormatDiagnosticsHost | undefined = sys ? {
-    getCurrentDirectory: () => sys.getCurrentDirectory(),
-    getNewLine: () => sys.newLine,
-    getCanonicalFileName: createGetCanonicalFileName(sys.useCaseSensitiveFileNames),
-} : undefined;
+// Computed lazily: `sys` lives in a module that may not be initialized yet when this
+// module is evaluated (the ESM import graph is circular), so touching it at module scope
+// throws a TDZ error in environments that don't bundle the compiler into a single file.
+let sysFormatDiagnosticsHostCache: FormatDiagnosticsHost | undefined;
+function getSysFormatDiagnosticsHost(): FormatDiagnosticsHost | undefined {
+    if (!sys) return undefined;
+    return sysFormatDiagnosticsHostCache ??= {
+        getCurrentDirectory: () => sys.getCurrentDirectory(),
+        getNewLine: () => sys.newLine,
+        getCanonicalFileName: createGetCanonicalFileName(sys.useCaseSensitiveFileNames),
+    };
+}
 
 
 /**
@@ -349,7 +356,8 @@ const sysFormatDiagnosticsHost: FormatDiagnosticsHost | undefined = sys ? {
  * @internal
  */
 export function createDiagnosticReporter(system: System, pretty?: boolean): DiagnosticReporter {
-    const host: FormatDiagnosticsHost = system === sys && sysFormatDiagnosticsHost ? sysFormatDiagnosticsHost : {
+    const sysFormatDiagnosticsHost = system === sys ? getSysFormatDiagnosticsHost() : undefined;
+    const host: FormatDiagnosticsHost = sysFormatDiagnosticsHost ?? {
         getCurrentDirectory: () => system.getCurrentDirectory(),
         getNewLine: () => system.newLine,
         getCanonicalFileName: createGetCanonicalFileName(system.useCaseSensitiveFileNames),
