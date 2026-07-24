@@ -97,6 +97,24 @@ describe("macro goto-definition", () => {
         }
     });
 
+    it("spans the whole macro name for a string-valued macro", () => {
+        // `NPC_KEY` expands to a string literal, and reference spans normally trim the
+        // surrounding quotes -- but a macro node's range covers the *invocation*, which
+        // has no quotes, so trimming dropped the first and last character (`PC_KE`).
+        const s2 = `#define NPC_KEY "npc"\n\ntest() {\n    string k = NPC_KEY;\n    return k;\n}\n`;
+        const { ls, abs } = createTestLanguageService({ "keys.c": s2 });
+
+        const useStart = s2.indexOf("NPC_KEY", s2.indexOf("test()"));
+        const refs = ls.findReferences(abs("keys.c"), useStart) ?? [];
+        const all = refs.flatMap(r => r.references);
+        expect(all.length).toBeGreaterThan(0);
+
+        // every span must cover exactly `NPC_KEY` (7 chars), never the trimmed `PC_KE`
+        expect(all.every(x => x.textSpan.length === "NPC_KEY".length)).toBe(true);
+        expect(all.map(x => x.textSpan.start).sort((x, y) => x - y))
+            .toEqual([s2.indexOf("NPC_KEY"), useStart]);
+    });
+
     it("hover on the macro use still works (control)", () => {
         const { ls, abs } = createTestLanguageService(files);
         const qi = ls.getQuickInfoAtPosition(abs("macro_pos.c"), usePos);

@@ -220,7 +220,10 @@ function getContextNodeForNodeEntry(node: Node): ContextNode | undefined {
 function getTextSpan(node: Node, sourceFile: SourceFile, endNode?: Node): TextSpan {
     let start = node.getStart(sourceFile);
     let end = (endNode || node).getEnd();
-    if (isStringLiteral(node) && (end - start) > 2) {
+    // Trim the surrounding quotes of a string literal -- but NOT when the node came from
+    // a macro expansion. Such a node's range spans the *invocation* (e.g. `NPC_KEY`),
+    // which has no quotes, so trimming would drop the macro name's first/last character.
+    if (isStringLiteral(node) && (end - start) > 2 && !(node.flags & NodeFlags.MacroContext)) {
         Debug.assert(endNode === undefined);
         start += 1;
         end -= 1;
