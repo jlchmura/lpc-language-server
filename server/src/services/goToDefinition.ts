@@ -1,4 +1,4 @@
-import { Symbol, createTextSpanFromBounds, Declaration, DefinitionInfo, emptyArray, FileReference, findAncestor, forEach, FunctionLikeDeclaration, getTouchingPropertyName, isDefaultClause, isFunctionLikeDeclaration, isSwitchStatement, Node, Program, ScriptElementKind, SignatureDeclaration, SourceFile, SwitchStatement, SymbolFlags, SyntaxKind, TypeChecker, SymbolDisplay, getNameOfDeclaration, createTextSpanFromNode, NodeFlags, hasInitializer, HasInitializer, hasEffectiveModifier, ModifierFlags, FindAllReferences, TextSpan, concatenate, every, mapDefined, tryCast, isFunctionLike, isAssignmentExpression, isCallLikeExpression, canHaveSymbol, filter, some, map, find, isCallOrNewExpressionTarget, isNameOfFunctionDeclaration, CallLikeExpression, isRightSideOfPropertyAccess, getInvokedExpression, isPropertyName, isBindingElement, isNewExpressionTarget, textRangeContainsPositionInclusive, IncludeDirective, getTouchingToken, ResolvedModuleWithFailedLookupLocations, getDirectoryPath, resolvePath, isStringLiteral, getPreEmitDiagnostics, Debug, isIncludeDirective, last, isInExternalFileContext, getSourceFileOrIncludeOfNode } from "./_namespaces/lpc";
+import { getMacroDefineSymbol, Symbol, createTextSpanFromBounds, Declaration, DefinitionInfo, emptyArray, FileReference, findAncestor, forEach, FunctionLikeDeclaration, getTouchingPropertyName, isDefaultClause, isFunctionLikeDeclaration, isSwitchStatement, Node, Program, ScriptElementKind, SignatureDeclaration, SourceFile, SwitchStatement, SymbolFlags, SyntaxKind, TypeChecker, SymbolDisplay, getNameOfDeclaration, createTextSpanFromNode, NodeFlags, hasInitializer, HasInitializer, hasEffectiveModifier, ModifierFlags, FindAllReferences, TextSpan, concatenate, every, mapDefined, tryCast, isFunctionLike, isAssignmentExpression, isCallLikeExpression, canHaveSymbol, filter, some, map, find, isCallOrNewExpressionTarget, isNameOfFunctionDeclaration, CallLikeExpression, isRightSideOfPropertyAccess, getInvokedExpression, isPropertyName, isBindingElement, isNewExpressionTarget, textRangeContainsPositionInclusive, IncludeDirective, getTouchingToken, ResolvedModuleWithFailedLookupLocations, getDirectoryPath, resolvePath, isStringLiteral, getPreEmitDiagnostics, Debug, isIncludeDirective, last, isInExternalFileContext, getSourceFileOrIncludeOfNode } from "./_namespaces/lpc";
 import { isContextWithStartAndEndNode } from "./_namespaces/lpc.FindAllReferences";
 
 /** @internal */
@@ -44,16 +44,23 @@ export function getDefinitionAtPosition(program: Program, sourceFile: SourceFile
                 return [createDefinitionInfoFromSwitch(switchStatement, sourceFile)];
             }
             break;
-        case SyntaxKind.StringLiteral:
+        case SyntaxKind.StringLiteral: {
+            // Only an `#include "path"` string resolves to a file. Any other string
+            // literal must fall through to normal symbol resolution -- previously this
+            // case fell through into IncludeDirective and produced a bogus definition
+            // built from an undefined filename (name: undefined, span 0+0).
             const includeParent = findAncestor(node, isIncludeDirective);
             if (includeParent) {
                 const includeFilename = includeParent.fileName;
                 return [getDefinitionInfoForFileReference(includeFilename, includeFilename, false)];
             }
-        case SyntaxKind.IncludeDirective:
-            const includeDirective = node as IncludeDirective;    
+            break;
+        }
+        case SyntaxKind.IncludeDirective: {
+            const includeDirective = node as IncludeDirective;
             const includeFilename = includeDirective.fileName;
             return [getDefinitionInfoForFileReference(includeFilename, includeFilename, false)];
+        }
     }
 
     let { symbol, failedAliasResolution } = getSymbol(node, typeChecker, stopAtAlias);
@@ -432,6 +439,15 @@ function shouldSkipAlias(node: Node, declaration: Node): boolean {
 }
 
 function getSymbol(node: Node, checker: TypeChecker, stopAtAlias: boolean | undefined) {
+    // A macro *use* leaves no identifier node behind -- the expansion replaced it. The
+    // expanded nodes carry `MacroContext` and the originating macro name is recorded in
+    // `sourceFile.nodeMacroMap`, so resolve the `#define` symbol from that. This mirrors
+    // getSymbolAtLocationForQuickInfo, which is why hover already worked here.
+    const macroSymbol = getMacroDefineSymbol(node, checker);
+    if (macroSymbol) {
+        return { symbol: macroSymbol, failedAliasResolution: false };
+    }
+
     const symbol = checker.getSymbolAtLocation(node);
     // If this is an alias, and the request came at the declaration location
     // get the aliased symbol instead. This allows for goto def on an import e.g.

@@ -1,6 +1,7 @@
 import { pushIfDefined } from "../utils.js";
 import { StringCompletions } from "./_namespaces/lpc.Completions.js";
 import {
+    IncludeDirective,
     BinaryExpression,
     BindingElement,
     BindingPattern,
@@ -3375,16 +3376,30 @@ function getCompletionData(
 
 
     function getMacroSymbols(): void {
-        // defines are always bound to the source file
+        // Defines are bound to the source file, but a `#include` is inlined as a nested
+        // statement list, so macros from headers are NOT top-level statements. Walk into
+        // include directives (which can nest) as well, or header macros never appear.
         const file = getSourceFileOfNode(node);
-                
-        if (isSourceFile(file) && file.statements) {
-            forEach(file.statements, statement => {
+        if (!isSourceFile(file) || !file.statements) return;
+
+        // The same header can be reached more than once (e.g. via two includes), so
+        // dedupe by symbol to avoid duplicate completion entries.
+        const seen = new Set<Symbol>();
+        const collect = (statements: readonly Node[] | undefined): void => {
+            forEach(statements, statement => {
                 if (isDefineDirective(statement)) {
-                    pushIfDefined(symbols, typeChecker.getSymbolAtLocation(statement));
+                    const symbol = typeChecker.getSymbolAtLocation(statement);
+                    if (symbol && !seen.has(symbol)) {
+                        seen.add(symbol);
+                        symbols.push(symbol);
+                    }
+                }
+                else if (statement.kind === SyntaxKind.IncludeDirective) {
+                    collect((statement as IncludeDirective).statements);
                 }
             });
-        }
+        };
+        collect(file.statements);
     }
 
     function getTypeScriptMemberSymbols(): void {

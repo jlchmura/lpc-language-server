@@ -1714,8 +1714,8 @@ export function createLanguageService(
                 host.useSourceOfProjectReferenceRedirect
             ),
             getParsedCommandLine,
-            jsDocParsingMode: host.jsDocParsingMode,            
-            getParseableFiles: maybeBind(host, host.getParseableFiles),            
+            jsDocParsingMode: host.jsDocParsingMode,
+            getParseableFiles: maybeBind(host, host.getParseableFiles),
         };
 
         host.setCompilerHost?.(compilerHost);

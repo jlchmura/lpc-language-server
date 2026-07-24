@@ -1,4 +1,4 @@
-import { Symbol, Type, AssignmentDeclarationKind, findAncestor, getAssignmentDeclarationKind, hasSyntacticModifier, Identifier, isAccessExpression, isBinaryExpression, isBindingElement, isDeclaration, isStatement, ModifierFlags, NamedDeclaration, Node, StringLiteral, SyntaxKind, TextSpan, BinaryExpression, find, isExpressionStatement, isVariableDeclarationList, isVariableStatement, SwitchStatement, isForEachStatement, ForEachStatement, isArrayLiteralOrObjectLiteralDestructuringPattern, first, isBreakOrContinueStatement, isStringLiteral, isComputedPropertyName, SourceFile, Debug, createTextSpanFromBounds, CancellationToken, getTouchingPropertyName, mapDefined, Program, ReferencedSymbol, getDeclarationFromName, isLiteralComputedPropertyDeclarationName, append, BindingElement, Block, CallExpression, canHaveSymbol, cast, CheckFlags, climbPastPropertyAccess, compareValues, contains, createTextSpan, createTextSpanFromRange, emptyArray, Expression, FileIncludeReason, filter, findIndex, firstDefined, flatMap, forEach, forEachChild, forEachChildRecursively, forEachReturnStatement, FunctionDeclaration, FunctionExpression, FunctionLikeDeclaration, getAdjustedReferenceLocation, getAncestor, getCheckFlags, getContainerNode, getDeclarationOfKind, getEffectiveModifierFlags, getLocalSymbolForExportDefault, getMeaningFromDeclaration, getMeaningFromLocation, getNameOfDeclaration, getNodeId, getSymbolId, getSyntacticModifierFlags, GoToDefinition, hasEffectiveModifier, hasInitializer, InternalSymbolName, isCallExpression, isClassLike, isConstructorDeclaration, isDeclarationName, isExternalModule, isExternalOrCommonJsModule, isFunctionExpression, isFunctionLike, isFunctionLikeDeclaration, isIdentifier, isIdentifierPart, isInJSFile, isLiteralTypeNode, isNewExpressionTarget, isObjectLiteralMethod, isParameter, isPropertyAccessExpression, isQualifiedName, isReferencedFile, isRightSideOfPropertyAccess, isSourceFile, isTypeLiteralNode, isTypeNode, isUnionTypeNode, isVariableDeclarationInitializedToBareOrAccessedRequire, isVariableLike, JSDocPropertyLikeTag, length, MultiMap, NodeFlags, ObjectLiteralExpression, or, ParameterDeclaration, ParenthesizedExpression, Path, PropertyAccessExpression, rangeIsOnSingleLine, ReferencedSymbolEntry, ScriptTarget, SemanticMeaning, SignatureDeclaration, some, stripQuotes, SymbolFlags, SymbolId, symbolName, tokenToString, TransformFlags, tryAddToSet, tryCast, TypeChecker, TypeLiteralNode, ReferenceEntry, DocumentSpan, Declaration, isWriteAccess, PropertyAssignment, PropertyDeclaration, VariableDeclaration, ScriptElementKind, ReferencedSymbolDefinitionInfo, SymbolDisplayPart, firstOrUndefined, SymbolDisplay, displayPart, SymbolDisplayPartKind, textPart, getTextOfNode, skipAlias, isTypeKeyword, isVoidExpression, isJumpStatementTarget, getTargetLabel, isLabelOfLabeledStatement, nodeSeenTracker, isInString, getNameTable, getContextualTypeFromParentOrAncestorTypeNode, isNoSubstitutionTemplateLiteral, isPropertySignature, ModuleExportName, getNextJSDocCommentLocation, isInNonReferenceComment, isTypeElement, hasType, getAllSuperTypeNodes, SuperContainer, StructDeclaration, getSuperContainer, isStatic, getContainingObjectLiteralElement, addToSeen, getAdjustedRenameLocation, getReferencedFileLocation, isReferenceFileLocation, map, QuotePreference, RenameLocation, isStringLiteralLike, isShorthandPropertyAssignment, isObjectLiteralExpression, isNumericLiteral, getQuoteFromPreference, emptyOptions, isJSDocPropertyLikeTag, isJSDocTypeLiteral, getSourceFileOrIncludeOfNode, isInExternalFileContext } from "./_namespaces/lpc";
+import { getMacroDefineSymbol, getOriginatingMacroName, Symbol, Type, AssignmentDeclarationKind, findAncestor, getAssignmentDeclarationKind, hasSyntacticModifier, Identifier, isAccessExpression, isBinaryExpression, isBindingElement, isDeclaration, isStatement, ModifierFlags, NamedDeclaration, Node, StringLiteral, SyntaxKind, TextSpan, BinaryExpression, find, isExpressionStatement, isVariableDeclarationList, isVariableStatement, SwitchStatement, isForEachStatement, ForEachStatement, isArrayLiteralOrObjectLiteralDestructuringPattern, first, isBreakOrContinueStatement, isStringLiteral, isComputedPropertyName, SourceFile, Debug, createTextSpanFromBounds, CancellationToken, getTouchingPropertyName, mapDefined, Program, ReferencedSymbol, getDeclarationFromName, isLiteralComputedPropertyDeclarationName, append, BindingElement, Block, CallExpression, canHaveSymbol, cast, CheckFlags, climbPastPropertyAccess, compareValues, contains, createTextSpan, createTextSpanFromRange, emptyArray, Expression, FileIncludeReason, filter, findIndex, firstDefined, flatMap, forEach, forEachChild, forEachChildRecursively, forEachReturnStatement, FunctionDeclaration, FunctionExpression, FunctionLikeDeclaration, getAdjustedReferenceLocation, getAncestor, getCheckFlags, getContainerNode, getDeclarationOfKind, getEffectiveModifierFlags, getLocalSymbolForExportDefault, getMeaningFromDeclaration, getMeaningFromLocation, getNameOfDeclaration, getNodeId, getSymbolId, getSyntacticModifierFlags, GoToDefinition, hasEffectiveModifier, hasInitializer, InternalSymbolName, isCallExpression, isClassLike, isConstructorDeclaration, isDeclarationName, isExternalModule, isExternalOrCommonJsModule, isFunctionExpression, isFunctionLike, isFunctionLikeDeclaration, isIdentifier, isIdentifierPart, isInJSFile, isLiteralTypeNode, isNewExpressionTarget, isObjectLiteralMethod, isParameter, isPropertyAccessExpression, isQualifiedName, isReferencedFile, isRightSideOfPropertyAccess, isSourceFile, isTypeLiteralNode, isTypeNode, isUnionTypeNode, isVariableDeclarationInitializedToBareOrAccessedRequire, isVariableLike, JSDocPropertyLikeTag, length, MultiMap, NodeFlags, ObjectLiteralExpression, or, ParameterDeclaration, ParenthesizedExpression, Path, PropertyAccessExpression, rangeIsOnSingleLine, ReferencedSymbolEntry, ScriptTarget, SemanticMeaning, SignatureDeclaration, some, stripQuotes, SymbolFlags, SymbolId, symbolName, tokenToString, TransformFlags, tryAddToSet, tryCast, TypeChecker, TypeLiteralNode, ReferenceEntry, DocumentSpan, Declaration, isWriteAccess, PropertyAssignment, PropertyDeclaration, VariableDeclaration, ScriptElementKind, ReferencedSymbolDefinitionInfo, SymbolDisplayPart, firstOrUndefined, SymbolDisplay, displayPart, SymbolDisplayPartKind, textPart, getTextOfNode, skipAlias, isTypeKeyword, isVoidExpression, isJumpStatementTarget, getTargetLabel, isLabelOfLabeledStatement, nodeSeenTracker, isInString, getNameTable, getContextualTypeFromParentOrAncestorTypeNode, isNoSubstitutionTemplateLiteral, isPropertySignature, ModuleExportName, getNextJSDocCommentLocation, isInNonReferenceComment, isTypeElement, hasType, getAllSuperTypeNodes, SuperContainer, StructDeclaration, getSuperContainer, isStatic, getContainingObjectLiteralElement, addToSeen, getAdjustedRenameLocation, getReferencedFileLocation, isReferenceFileLocation, map, QuotePreference, RenameLocation, isStringLiteralLike, isShorthandPropertyAssignment, isObjectLiteralExpression, isNumericLiteral, getQuoteFromPreference, emptyOptions, isJSDocPropertyLikeTag, isJSDocTypeLiteral, getSourceFileOrIncludeOfNode, isInExternalFileContext } from "./_namespaces/lpc";
 import { ExportKind, ImportExport, ImportTracker, ExportInfo, ImportsResult, ModuleReference, findModuleReferences, createImportTracker, getImportOrExportSymbol } from "./importTracker";
 
 
@@ -220,7 +220,10 @@ function getContextNodeForNodeEntry(node: Node): ContextNode | undefined {
 function getTextSpan(node: Node, sourceFile: SourceFile, endNode?: Node): TextSpan {
     let start = node.getStart(sourceFile);
     let end = (endNode || node).getEnd();
-    if (isStringLiteral(node) && (end - start) > 2) {
+    // Trim the surrounding quotes of a string literal -- but NOT when the node came from
+    // a macro expansion. Such a node's range spans the *invocation* (e.g. `NPC_KEY`),
+    // which has no quotes, so trimming would drop the macro name's first/last character.
+    if (isStringLiteral(node) && (end - start) > 2 && !(node.flags & NodeFlags.MacroContext)) {
         Debug.assert(endNode === undefined);
         start += 1;
         end -= 1;
@@ -346,6 +349,10 @@ function declarationIsWriteAccess(decl: Declaration): boolean {
         case SyntaxKind.VariableDeclaration:
         case SyntaxKind.PropertyDeclaration:
             return !!(decl as VariableDeclaration | PropertyDeclaration).initializer;// || isCatchClause(decl.parent);
+
+        // A `#define` establishes the macro's value, so the definition site is a write.
+        case SyntaxKind.DefineDirective:
+            return true;
 
         // case SyntaxKind.MethodSignature:
         // case SyntaxKind.PropertySignature:
@@ -537,7 +544,8 @@ export namespace Core {
 
         const checker = program.getTypeChecker();
         // constructors should use the class symbol, detected by name, if present
-        const symbol = checker.getSymbolAtLocation(node);//isConstructorDeclaration(node) && node.parent.name || node);
+        // Resolve macro uses (whose identifier was consumed by expansion) to the #define.
+        const symbol = getMacroDefineSymbol(node, checker) ?? checker.getSymbolAtLocation(node);//isConstructorDeclaration(node) && node.parent.name || node);
 
         // Could not find a symbol e.g. unknown identifier
         if (!symbol) {
@@ -1437,7 +1445,12 @@ export namespace Core {
     function getReferencesAtLocation(sourceFile: SourceFile, position: number, search: Search, state: State, addReferencesHere: boolean): void {
         const referenceLocation = getTouchingPropertyName(sourceFile, position);
 
-        if (!isValidReferencePosition(referenceLocation, search.text)) {
+        // A macro use is replaced by its expansion, so the node here is part of that
+        // expansion (e.g. a literal) rather than an identifier spelling the macro name.
+        // Accept it when it originated from a macro matching the searched name.
+        const isMacroUse = getOriginatingMacroName(referenceLocation) === search.text;
+
+        if (!isMacroUse && !isValidReferencePosition(referenceLocation, search.text)) {
             // This wasn't the start of a token.  Check to see if it might be a
             // match in a comment or string if that's what the caller is asking
             // for.
@@ -1452,7 +1465,7 @@ export namespace Core {
             return;
         } 
 
-        if (!hasMatchingMeaning(referenceLocation, state)) return;
+        if (!isMacroUse && !hasMatchingMeaning(referenceLocation, state)) return;
         
         // there may be a better way to do this, but LPC inherits aren't resovled yet
         // unless the type checker has run, and we need to that to find symbols for the
@@ -1460,7 +1473,10 @@ export namespace Core {
         const top = referenceLocation.getSourceFile();
         state.checker.getDiagnostics(top);
 
-        let referenceSymbol = state.checker.getSymbolAtLocation(referenceLocation);
+        // A macro use is expanded away, so the node here is part of the expansion; map
+        // it back to the `#define` symbol so macro uses count as references.
+        let referenceSymbol = getMacroDefineSymbol(referenceLocation, state.checker)
+            ?? state.checker.getSymbolAtLocation(referenceLocation);
         if (!referenceSymbol) {
             return;
         }

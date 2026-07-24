@@ -1019,6 +1019,23 @@ export function createScanner(
     var nextStateId = 2;
     var stateEndings: SavedStatePos[] = [];
 
+    // Undo journal for `stateEndings` slot writes, used to roll back speculation.
+    //
+    // `scan()` rewrites stateEndings[stateId] on *every* token, so snapshotting the
+    // whole array per speculation was O(states) -- and states grow by one per stream
+    // switch (every macro expansion / include). That made macro-heavy parsing
+    // quadratic. Instead we record (index, previousValue) only while speculating and
+    // undo on rollback: O(writes) instead of O(states). Note the old snapshot was a
+    // *shallow* copy, so in-place `.end` mutations were never protected by it either;
+    // journaling slot writes preserves exactly the previous semantics.
+    var stateEndingsJournal: { i: number; v: SavedStatePos | undefined; }[] = [];
+    var speculationDepth = 0;
+
+    function setStateEnding(i: number, v: SavedStatePos) {
+        if (speculationDepth > 0) stateEndingsJournal.push({ i, v: stateEndings[i] });
+        stateEndings[i] = v;
+    }
+
     // Current position (end position of text of current token)
     var pos: number;
     var fileName: string;    
@@ -2065,7 +2082,7 @@ export function createScanner(
         asteriskSeen = false;
 
         // Debug.assert(!stateEndings[stateId] || stateEndings[stateId].end <= pos, "State ending cannot be after the current position");
-        stateEndings[stateId] = createPosState(pos, fileName);
+        setStateEnding(stateId, createPosState(pos, fileName));
 
         while (true) {
             tokenStart = pos;
@@ -2078,7 +2095,7 @@ export function createScanner(
                 const saveStateId = stateId;
                 dontRescan = nextState();
                                 
-                stateEndings[stateId] ??= createPosState(pos, fileName);
+                if (stateEndings[stateId] === undefined) setStateEnding(stateId, createPosState(pos, fileName));
                 stateEndings[stateId].end = pos;
                 // Debug.assert(stateId !== saveStateId, "Scanner state must change");
                 streamSwitched = true;
@@ -2891,7 +2908,7 @@ export function createScanner(
         tokenFlags = TokenFlags.None;
 
         Debug.assert(!stateEndings[stateId] || stateEndings[stateId].end <= pos, "State ending cannot be after the current position");
-        stateEndings[stateId] = createPosState(pos, fileName);
+        setStateEnding(stateId, createPosState(pos, fileName));
         
         if (pos >= end) {
             return token = SyntaxKind.EndOfFileToken;
@@ -2923,7 +2940,7 @@ export function createScanner(
         tokenFlags = TokenFlags.None;
 
         // Debug.assert(!stateEndings[stateId] || stateEndings[stateId].end <= pos, "State ending cannot be after the current position");
-        stateEndings[stateId] = createPosState(pos, fileName);
+        setStateEnding(stateId, createPosState(pos, fileName));
 
         if (pos >= end) {
             return token = SyntaxKind.EndOfFileToken;
@@ -3088,13 +3105,15 @@ export function createScanner(
         setText(newText, start, length);
         fileName = newFileName;
 
-        stateEndings[stateId] = createPosState(pos, fileName);
+        setStateEnding(stateId, createPosState(pos, fileName));
 
         return nextState;
     }    
 
-    function speculationHelper<T>(callback: () => T, isLookahead: boolean): T {                
-        const saveStateCache = [...stateEndings];
+    function speculationHelper<T>(callback: () => T, isLookahead: boolean): T {
+        // Mark the undo journal instead of copying the whole stateEndings array.
+        const journalMark = stateEndingsJournal.length;
+        speculationDepth++;
         const saveStateId = stateId;
         const saveNextId = nextStateId;
         const saveNextState = nextState;
@@ -3145,13 +3164,23 @@ export function createScanner(
                 nextState();
             }
 
-            releaseSpeculationState();                        
-            
-            stateEndings = saveStateCache;
+            releaseSpeculationState();
+
+            // Undo the slot writes made while speculating (newest first).
+            speculationDepth--;
+            for (let k = stateEndingsJournal.length - 1; k >= journalMark; k--) {
+                const entry = stateEndingsJournal[k];
+                stateEndings[entry.i] = entry.v!;
+            }
+            stateEndingsJournal.length = journalMark;
             nextStateId = saveNextId;
 
-            Debug.assert(stateId <= saveStateId, "State id mismatch");            
+            Debug.assert(stateId <= saveStateId, "State id mismatch");
         } else {
+            // Committed: keep the journal entries so any *enclosing* speculation can
+            // still undo them; drop them entirely once no speculation is active.
+            speculationDepth--;
+            if (speculationDepth === 0) stateEndingsJournal.length = 0;
             // in this case we don't want to release any states created
             // but we do need to set the state back to the original
             releaseSpeculationState(true);            
@@ -3193,7 +3222,7 @@ export function createScanner(
         fileName = "";
 
         // initialize the state ending
-        stateEndings[stateId] = createPosState(start, fileName);
+        setStateEnding(stateId, createPosState(start, fileName));
         
         setText(text, start, length);
         const result = callback();
@@ -3275,7 +3304,7 @@ export function createScanner(
         tokenValue = undefined!;
         tokenFlags = TokenFlags.None;        
         if (resetEnding) {
-            stateEndings[stateId] = createPosState(position, fileName);
+            setStateEnding(stateId, createPosState(position, fileName));
         }
     }
 
