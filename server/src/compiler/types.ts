@@ -5402,6 +5402,13 @@ export interface CompilerHost extends ModuleResolutionHost {
     useCaseSensitiveFileNames(): boolean;
     getNewLine(): string;
     readDirectory?(rootDir: string, extensions: readonly string[], excludes: readonly string[] | undefined, includes: readonly string[], depth?: number): string[];
+    /**
+     * Optional persistent cache of parsed `#include` headers, shared across successive
+     * program builds (see `LpcFileHandler.headerParseCache`). A long-lived host (e.g. the
+     * language service) supplies one so header parses survive edits; a batch host omits
+     * it and each program gets its own.
+     */
+    headerParseCache?: Map<string, unknown>;
 
     /*
      * CompilerHost must either implement resolveModuleNames (in case if it wants to be completely in charge of

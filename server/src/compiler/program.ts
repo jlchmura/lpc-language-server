@@ -170,6 +170,13 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         getCompilerOptions: () => options,
     });
 
+    // If the host provides a persistent header-parse cache (e.g. the language service,
+    // which outlives individual program builds), share it so header parses survive
+    // across edits; otherwise the fileHandler keeps its own program-scoped cache.
+    if (host.headerParseCache) {
+        fileHandler.headerParseCache = host.headerParseCache;
+    }
+
     
     // A parallel array to projectReferences storing the results of reading in the referenced tsconfig files
     let resolvedProjectReferences: readonly (ResolvedProjectReference | undefined)[] | undefined;

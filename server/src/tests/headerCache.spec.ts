@@ -108,6 +108,38 @@ describe("header parse cache", () => {
         expect(hitFile.parseDiagnostics.length).toEqual(freshFile.parseDiagnostics.length);
     });
 
+    it("self-invalidates when the header text changes across builds", () => {
+        // A persistent cache is shared across program builds; a changed header must not
+        // be served from a stale entry. Simulate by sharing one cache while the header
+        // source changes between parses.
+        const cache = new Map<string, unknown>();
+        let currentHeader = "int alpha();\n";
+        const handler = {
+            loadIncludeFile: () => ({ filename: "/v.h", source: currentHeader }),
+            loadInclude: () => ({ uri: "/v.h", source: currentHeader, error: undefined }),
+            headerParseCache: cache,
+        } as unknown as lpc.LpcFileHandler;
+        const opts = {
+            languageVersion: lpc.ScriptTarget.LPC,
+            globalIncludes: [],
+            configDefines: new Map<string, string>(),
+            fileHandler: handler,
+        } as lpc.CreateSourceFileOptions;
+
+        const src = `#include "v.h"\nint main() {}\n`;
+        const first = lpc.createSourceFile("a.c", src, opts, true, lpc.ScriptKind.LPC);
+        const firstInc = first.statements.find(s => s.kind === lpc.SyntaxKind.IncludeDirective) as lpc.IncludeDirective;
+
+        // change the header, re-parse against the SAME cache
+        currentHeader = "int beta(); int gamma();\n";
+        const second = lpc.createSourceFile("b.c", src, opts, true, lpc.ScriptKind.LPC);
+        const secondInc = second.statements.find(s => s.kind === lpc.SyntaxKind.IncludeDirective) as lpc.IncludeDirective;
+
+        // must reflect the NEW header (2 declarations), not the stale 1
+        expect(firstInc.statements.length).toEqual(1);
+        expect(secondInc.statements.length).toEqual(2);
+    });
+
     it("does NOT reuse when a dependency macro differs (guard already defined)", () => {
         const cache = new Map<string, unknown>();
         parse("seed.c", includer, cache);

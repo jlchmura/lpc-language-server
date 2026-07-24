@@ -1386,6 +1386,10 @@ export function createLanguageService(
     }
     
     const syntaxTreeCache: SyntaxTreeCache = new SyntaxTreeCache(host);
+    // Persistent across program builds: parsed `#include` headers keyed by resolved
+    // path. Entries self-invalidate when a header's text changes, so reused parses
+    // survive edits to *other* files -- the common LSP hot path.
+    const headerParseCache = new Map<string, unknown>();
     let program: Program;
     let lastProjectVersion: string;
     let lastTypesRootVersion = 0;
@@ -1714,8 +1718,9 @@ export function createLanguageService(
                 host.useSourceOfProjectReferenceRedirect
             ),
             getParsedCommandLine,
-            jsDocParsingMode: host.jsDocParsingMode,            
-            getParseableFiles: maybeBind(host, host.getParseableFiles),            
+            jsDocParsingMode: host.jsDocParsingMode,
+            getParseableFiles: maybeBind(host, host.getParseableFiles),
+            headerParseCache,
         };
 
         host.setCompilerHost?.(compilerHost);
