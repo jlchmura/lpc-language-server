@@ -7359,13 +7359,26 @@ export interface MacroParameter extends ReadonlyTextRange, MacroIncludedFileRang
     text: string;
 }
 
+/**
+ * The parts of a `Macro` a `PositionState` needs to remember. Only `name`, `pos` and
+ * `end` are ever read back (macro-origin naming, chain walking, and end-position
+ * computation), so a position snapshot copies just these three fields rather than
+ * cloning the whole mutable `Macro` -- which is on the hot path of every parse
+ * function. A `Macro` is structurally assignable to this.
+ */
+export interface MacroPositionSnapshot {
+    name: string;
+    pos?: PositionState;
+    end?: number;
+}
+
 export interface PositionState {
     pos: number;
     tokenStart: number;
     fileName: string;
-    macro: Macro;    
+    macro: MacroPositionSnapshot;
     include: IncludeDirective;
-    stateId: number;    
+    stateId: number;
 }
 
 
