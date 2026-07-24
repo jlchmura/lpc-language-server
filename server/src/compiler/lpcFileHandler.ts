@@ -13,8 +13,7 @@ export interface LpcFileHandlerHost {
 export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
     return {
         loadInclude,
-        loadIncludeFile,
-        headerParseCache: new Map<string, unknown>(),
+        loadIncludeFile
     };
 
     function loadInclude(sourceFilename: string, filename: string): LoadImportResult {

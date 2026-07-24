@@ -1,142 +1,17 @@
-import { createScanner, LanguageVariant, Macro, Node, NodeArray, ScriptTarget, SyntaxKind } from "./_namespaces/lpc.js";
+import { createScanner, LanguageVariant, Macro, ScriptTarget, SyntaxKind } from "./_namespaces/lpc.js";
+
 
 /**
- * Records the macro dependencies of a stretch of parsing: for each macro name the
- * parse consulted, the macro's state *at the moment of first read* -- which, for a
- * header, is its state at the include point, before the header itself can redefine
- * it. Reuse of a cached header parse is valid exactly when every recorded name still
- * has that same state (`matchesCurrentState`), so an includer that defines one of the
- * header's dependencies differently forces a fresh parse.
- *
- * Capturing state-at-first-read (rather than hashing current state) is what makes
- * include guards cacheable: `#ifndef FOO_H` records FOO_H as *undefined*; the guarded
- * `#define FOO_H` that follows does not change the recorded value, so a second
- * includer (where FOO_H is likewise undefined at the include point) still matches.
- */
-export interface MacroReadScope {
-    /** macro name -> encoded state observed at first read (see `encodeState`) */
-    observed: Map<string, string>;
-}
-
-/**
- * Owns the macro table and mediates every access to it. Reads flow through
- * `isDefined`/`lookup` so they can be recorded into the active read scope;
- * `hasRaw`/`getRaw` are untracked and exist for bookkeeping that is not a
- * semantic dependency (e.g. redefinition checks).
+ * Owns the macro table and mediates every access to it, so macro lookups have a single
+ * chokepoint (used by `#if` evaluation, `#define` redefinition checks and expansion).
  */
 export interface MacroEnvironment {
     define(name: string, macro: Macro): void;
     undef(name: string): void;
-
-    /** tracked: records `name`'s state at first read against the active scope(s) */
     isDefined(name: string): boolean;
-    /**
-     * tracked: records `name`'s state at first read (referencing a name is a
-     * dependency on it not silently becoming -- or ceasing to be -- a macro, and on
-     * its body when it is one). Returns the macro or undefined.
-     */
     lookup(name: string): Macro | undefined;
-
-    /**
-     * True when every name `scope` recorded still has the same state now as when it
-     * was first read. This is the reuse test for a cached header parse.
-     */
-    matchesCurrentState(scope: MacroReadScope): boolean;
-
-    /** untracked lookup -- use when the access is not a semantic dependency */
-    hasRaw(name: string): boolean;
-    /** untracked lookup -- use when the access is not a semantic dependency */
-    getRaw(name: string): Macro | undefined;
-
     forEach(cb: (macro: Macro, name: string) => void): void;
-
-    /** begin capturing reads; scopes nest, inner reads bubble up to outer scopes */
-    pushReadScope(): void;
-    /** stop capturing the innermost scope and return what it observed */
-    popReadScope(): MacroReadScope;
-
-    /**
-     * Record reads for `names` into the active scope(s) using their current state.
-     * Used when a nested `#include` is served from cache during an outer header's
-     * caching parse: the nested header's dependencies must still fold into the outer
-     * header's fingerprint, even though it was not re-parsed.
-     */
-    noteReads(names: Iterable<string>): void;
-
     clear(): void;
-}
-
-// ---------------------------------------------------------------------------
-// Deep clone of parsed subtrees (for the #include header-parse cache)
-//
-// A cached header parse can be reused across every file that includes it, but AST
-// nodes cannot be shared: the binder stamps `symbol`/`locals`/`parent` onto each
-// node per includer. So each reuse takes an independent deep copy of a *pristine,
-// unbound* master snapshot. This clone is structural and generic (it does not
-// enumerate node types): it copies own properties, recursing into any Node/NodeArray
-// value, and re-establishes `parent` afterwards. It is only valid on freshly parsed,
-// unbound trees -- before binding introduces back-references and cycles beyond
-// `parent`.
-// ---------------------------------------------------------------------------
-
-function isNodeLike(v: any): v is Node {
-    return !!v && typeof v === "object" && typeof v.kind === "number" && !Array.isArray(v);
-}
-
-/**
- * Deep-clone a property value, threading `parent` (the enclosing node's clone) so
- * child nodes get their `parent` set in this single pass -- no separate
- * `setParentRecursive` traversal.
- */
-function cloneValue(v: any, parent: Node | undefined, map: Map<Node, Node> | undefined): any {
-    if (isNodeLike(v)) return cloneNodeDeep(v, parent, map);
-    if (Array.isArray(v)) {
-        const n = v.length;
-        const arr: any = new Array(n);
-        for (let i = 0; i < n; i++) arr[i] = cloneValue(v[i], parent, map);
-        // Preserve NodeArray metadata when present (plain arrays simply lack these).
-        const na = v as any;
-        if (typeof na.pos === "number") {
-            arr.pos = na.pos;
-            arr.end = na.end;
-            arr.hasTrailingComma = na.hasTrailingComma;
-            arr.transformFlags = na.transformFlags;
-        }
-        return arr;
-    }
-    return v;
-}
-
-/**
- * Deep-clone a single node, setting `parent` inline. The clone keeps the node's
- * prototype so class methods (getStart, getSourceFile, ...) and `instanceof` work.
- */
-function cloneNodeDeep<T extends Node>(node: T, parent: Node | undefined, map: Map<Node, Node> | undefined): T {
-    const clone: any = Object.create(Object.getPrototypeOf(node));
-    if (map) map.set(node, clone);
-    const keys = Object.keys(node);
-    for (let i = 0; i < keys.length; i++) {
-        const key = keys[i];
-        if (key === "parent") continue;
-        clone[key] = cloneValue((node as any)[key], clone, map);
-    }
-    clone.parent = parent;
-    return clone;
-}
-
-/**
- * Deep-clone an array of freshly-parsed statements, returning independent nodes with
- * `parent` pointers established in a single pass. Positions are left untouched (the
- * header parses in its own coordinate space, identical for every includer). The roots'
- * own `parent` is left undefined for the caller to set (to the include directive). If
- * `map` is provided it is populated with original->clone for every node, so callers can
- * remap references (e.g. import candidates / inherit declarations) into the clone.
- */
-export function cloneParsedNodes<T extends Node>(nodes: readonly T[], map?: Map<Node, Node>): T[] {
-    const n = nodes.length;
-    const clones: T[] = new Array(n);
-    for (let i = 0; i < n; i++) clones[i] = cloneNodeDeep(nodes[i], /*parent*/ undefined, map);
-    return clones;
 }
 
 /** A raw preprocessor token: the scanner kind plus its source text (for identifiers/literals). */
@@ -357,27 +232,6 @@ function expandConditionTokens(tokens: readonly PreprocessorToken[], env: MacroE
 
 export function createMacroEnvironment(): MacroEnvironment {
     const table = new Map<string, Macro>();
-    // Stack of active read scopes. Empty in the common case (no capture), so the
-    // hot lookup path pays nothing beyond a length check.
-    const readScopes: MacroReadScope[] = [];
-
-    /** Encode a name's current state: "U" if undefined, else "D" + its body text. */
-    function encodeState(name: string): string {
-        const macro = table.get(name);
-        if (!macro) return "U";
-        const body = macro.range && macro.getText
-            ? macro.getText().substring(macro.range.pos, macro.range.end)
-            : "";
-        return "D" + body;
-    }
-
-    /** Record `name`'s current state in every active scope that hasn't seen it yet. */
-    function recordRead(name: string) {
-        for (let i = 0; i < readScopes.length; i++) {
-            const observed = readScopes[i].observed;
-            if (!observed.has(name)) observed.set(name, encodeState(name));
-        }
-    }
 
     return {
         define(name, macro) {
@@ -387,41 +241,16 @@ export function createMacroEnvironment(): MacroEnvironment {
             table.delete(name);
         },
         isDefined(name) {
-            if (readScopes.length) recordRead(name);
             return table.has(name);
         },
         lookup(name) {
-            if (readScopes.length) recordRead(name);
-            return table.get(name);
-        },
-        hasRaw(name) {
-            return table.has(name);
-        },
-        getRaw(name) {
             return table.get(name);
         },
         forEach(cb) {
             table.forEach(cb);
         },
-        matchesCurrentState(scope) {
-            for (const [name, observed] of scope.observed) {
-                if (encodeState(name) !== observed) return false;
-            }
-            return true;
-        },
-        pushReadScope() {
-            readScopes.push({ observed: new Map() });
-        },
-        popReadScope() {
-            return readScopes.pop() ?? { observed: new Map() };
-        },
-        noteReads(names) {
-            if (!readScopes.length) return;
-            for (const name of names) recordRead(name);
-        },
         clear() {
             table.clear();
-            readScopes.length = 0;
         },
     };
 }

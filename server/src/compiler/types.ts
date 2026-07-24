@@ -5402,13 +5402,6 @@ export interface CompilerHost extends ModuleResolutionHost {
     useCaseSensitiveFileNames(): boolean;
     getNewLine(): string;
     readDirectory?(rootDir: string, extensions: readonly string[], excludes: readonly string[] | undefined, includes: readonly string[], depth?: number): string[];
-    /**
-     * Optional persistent cache of parsed `#include` headers, shared across successive
-     * program builds (see `LpcFileHandler.headerParseCache`). A long-lived host (e.g. the
-     * language service) supplies one so header parses survive edits; a batch host omits
-     * it and each program gets its own.
-     */
-    headerParseCache?: Map<string, unknown>;
 
     /*
      * CompilerHost must either implement resolveModuleNames (in case if it wants to be completely in charge of
@@ -6847,14 +6840,6 @@ export type LpcLoadImportResult = {
 export interface LpcFileHandler extends IFileHandler  {
     loadIncludeFile(sourceFilename: string, filename: string, localFirst: boolean, additionalSearchDirs?: string[]): LpcLoadImportResult
     loadInclude(sourceFilename: string, filename: string): LoadImportResult;
-    /**
-     * Cross-file cache of parsed `#include` headers, keyed by resolved header path.
-     * Lets every includer reuse a pristine, unbound parse instead of re-parsing the
-     * header inline. Entries self-invalidate on header-text change. The value shape is
-     * private to the parser (see `HeaderParseCacheEntry`). Program-scoped today; can be
-     * promoted to a host-persistent map for cross-rebuild reuse.
-     */
-    headerParseCache?: Map<string, unknown>;
 }
 
 export interface TransformationResult<T extends Node> {

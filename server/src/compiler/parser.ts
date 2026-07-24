@@ -1,4 +1,4 @@
-import { AmpersandToken, ArrayLiteralExpression, ArrayTypeNode, BaseNodeFactory, BinaryExpression, BinaryOperatorToken, BindingPattern, Block, BooleanLiteral, BreakOrContinueStatement, BreakStatement, ByRefElement, CallExpression, CaseBlock, CaseClause, CaseOrDefaultClause, CastExpression, CatchExpression, CatchStatement, TimeExpression, CharacterCodes, CloneObjectExpression, CommaListExpression, CommentRange, ConditionalExpression, ContinueStatement, Debug, DefaultClause, DefineDirective, Diagnostic, DiagnosticArguments, DiagnosticMessage, DiagnosticWithDetachedLocation, Diagnostics, DoWhileStatement, ElementAccessExpression, EndOfFileToken, EntityName, EvaluateExpression, Expression, ExpressionStatement, ExpressionWithTypeArguments, Extension, ForEachChildNodes, ForEachStatement, ForStatement, FunctionDeclaration, FunctionExpression, HasJSDoc, Identifier, IfStatement, ImpliedStringConcatExpression, ImportCandidateNode, IncludeDirective, InferTypeNode, InheritClauseNodeType, InheritDeclaration, InlineClosureExpression, IntersectionTypeNode, IterationStatement, JSDoc, JSDocAugmentsTag, JSDocAuthorTag, JSDocCallbackTag, JSDocClassTag, JSDocComment, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocOverrideTag, JSDocParameterTag, JSDocParsingMode, JSDocPrivateTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocProtectedTag, JSDocPublicTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocTypedefTag, JSDocUnknownTag, JSDocVariableTag, JSDocVariadicType, JsonMinusNumericLiteral, JsonObjectExpressionStatement, JsonSourceFile, KeywordSyntaxKind, LabeledStatement, LambdaExpression, LambdaIdentifierExpression, LambdaOperatorExpression, LambdaOperatorToken, LanguageVariant, LeftHandSideExpression, LiteralExpression, LiteralLikeNode, LiteralTypeNode, createMacroEnvironment, MacroEnvironment, MacroPositionSnapshot, evaluatePreprocessorCondition, PreprocessorToken, cloneParsedNodes, MacroReadScope, LpcFileHandler, LpcLoadImportResult, Macro, MacroParameter, MapLike, MappingEntryExpression, MappingLiteralExpression, MappingTypeNode, MemberExpression, MethodSignature, MissingDeclaration, Modifier, ModifierLike, Mutable, MutableNodeArray, NamedObjectTypeNode, NewExpression, NewExpressionArgument, NewStructExpression, Node, NodeArray, NodeFactory, NodeFactoryFlags, NodeFlags, NullLiteral, NumericLiteral, ObjectLiteralElementLike, ObjectLiteralExpression, OperatorPrecedence, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PositionState, PostfixUnaryExpression, PostfixUnaryOperator, PragmaContext, PragmaDefinition, PragmaDirective, PragmaKindFlags, PragmaMap, PragmaPseudoMap, PragmaPseudoMapEntry, PrefixUnaryExpression, PrefixUnaryOperator, PreprocessorDirective, PrimaryExpression, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAccessToken, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, QualifiedName, QuestionDotToken, RangeExpression, RefToken, ResolutionMode, ReturnStatement, ScriptKind, ScriptTarget, ShorthandPropertyAssignment, SourceFile, SpreadElement, Statement, StringLiteral, StructDeclaration, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, TemplateExpression, TemplateSpan, Ternary, TextChangeRange, TextRange, Token, TupleTypeNode, TypeAssertion, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnaryExpression, UndefDirective, UnionTypeNode, UpdateExpression, VariableDeclaration, VariableDeclarationList, VariableStatement, WhileStatement, addRange, addRelatedInfo, append, attachFileToDiagnostics, canHaveJSDoc, commentPragmas, concatenate, containsParseError, createDetachedDiagnostic, createNodeFactory, createScanner, emptyArray, emptyMap, fileExtensionIs, first, firstOrUndefined, flatten, forEach, forEachEntry, getAnyExtensionFromPath, getBaseFileName, getBinaryOperatorPrecedence, getDirectoryPath, getFullWidth, getJSDocCommentRanges, getLeadingCommentRanges, getSpellingSuggestion, idText, identity, isArray, isArrayTypeNode, isAssignmentOperator, isBinaryExpression, isIdentifier as isIdentifierNode, isIdentifierText, isJSDocReturnTag, isJSDocTypeTag, isKeyword, isKeywordOrPunctuation, isLeftHandSideExpression, isLiteralKind, isModifierKind, isNonReservedKeyword, isParenthesizedExpression, isStringLiteral, isStringOrNumericLiteralLike, isStructTypeNode, isTemplateExpression, isTypeReferenceNode, last, lastOrUndefined, map, mapDefined, nodeIsMissing, nodeIsPresent, objectAllocator, performance, setNodeFlags, setParent, setParentRecursive, setTextRangePos, setTextRangePosEnd, setTextRangePosWidth, skipTrivia, some, startsWith, supportedDeclarationExtensions, textToKeywordObj, toArray, tokenIsIdentifierOrKeyword, tokenToString, tracing } from "./_namespaces/lpc";
+import { AmpersandToken, ArrayLiteralExpression, ArrayTypeNode, BaseNodeFactory, BinaryExpression, BinaryOperatorToken, BindingPattern, Block, BooleanLiteral, BreakOrContinueStatement, BreakStatement, ByRefElement, CallExpression, CaseBlock, CaseClause, CaseOrDefaultClause, CastExpression, CatchExpression, CatchStatement, TimeExpression, CharacterCodes, CloneObjectExpression, CommaListExpression, CommentRange, ConditionalExpression, ContinueStatement, Debug, DefaultClause, DefineDirective, Diagnostic, DiagnosticArguments, DiagnosticMessage, DiagnosticWithDetachedLocation, Diagnostics, DoWhileStatement, ElementAccessExpression, EndOfFileToken, EntityName, EvaluateExpression, Expression, ExpressionStatement, ExpressionWithTypeArguments, Extension, ForEachChildNodes, ForEachStatement, ForStatement, FunctionDeclaration, FunctionExpression, HasJSDoc, Identifier, IfStatement, ImpliedStringConcatExpression, ImportCandidateNode, IncludeDirective, InferTypeNode, InheritClauseNodeType, InheritDeclaration, InlineClosureExpression, IntersectionTypeNode, IterationStatement, JSDoc, JSDocAugmentsTag, JSDocAuthorTag, JSDocCallbackTag, JSDocClassTag, JSDocComment, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocOverrideTag, JSDocParameterTag, JSDocParsingMode, JSDocPrivateTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocProtectedTag, JSDocPublicTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocTypedefTag, JSDocUnknownTag, JSDocVariableTag, JSDocVariadicType, JsonMinusNumericLiteral, JsonObjectExpressionStatement, JsonSourceFile, KeywordSyntaxKind, LabeledStatement, LambdaExpression, LambdaIdentifierExpression, LambdaOperatorExpression, LambdaOperatorToken, LanguageVariant, LeftHandSideExpression, LiteralExpression, LiteralLikeNode, LiteralTypeNode, createMacroEnvironment, MacroEnvironment, MacroPositionSnapshot, evaluatePreprocessorCondition, PreprocessorToken, LpcFileHandler, LpcLoadImportResult, Macro, MacroParameter, MapLike, MappingEntryExpression, MappingLiteralExpression, MappingTypeNode, MemberExpression, MethodSignature, MissingDeclaration, Modifier, ModifierLike, Mutable, MutableNodeArray, NamedObjectTypeNode, NewExpression, NewExpressionArgument, NewStructExpression, Node, NodeArray, NodeFactory, NodeFactoryFlags, NodeFlags, NullLiteral, NumericLiteral, ObjectLiteralElementLike, ObjectLiteralExpression, OperatorPrecedence, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PositionState, PostfixUnaryExpression, PostfixUnaryOperator, PragmaContext, PragmaDefinition, PragmaDirective, PragmaKindFlags, PragmaMap, PragmaPseudoMap, PragmaPseudoMapEntry, PrefixUnaryExpression, PrefixUnaryOperator, PreprocessorDirective, PrimaryExpression, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAccessToken, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, QualifiedName, QuestionDotToken, RangeExpression, RefToken, ResolutionMode, ReturnStatement, ScriptKind, ScriptTarget, ShorthandPropertyAssignment, SourceFile, SpreadElement, Statement, StringLiteral, StructDeclaration, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, TemplateExpression, TemplateSpan, Ternary, TextChangeRange, TextRange, Token, TupleTypeNode, TypeAssertion, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnaryExpression, UndefDirective, UnionTypeNode, UpdateExpression, VariableDeclaration, VariableDeclarationList, VariableStatement, WhileStatement, addRange, addRelatedInfo, append, attachFileToDiagnostics, canHaveJSDoc, commentPragmas, concatenate, containsParseError, createDetachedDiagnostic, createNodeFactory, createScanner, emptyArray, emptyMap, fileExtensionIs, first, firstOrUndefined, flatten, forEach, forEachEntry, getAnyExtensionFromPath, getBaseFileName, getBinaryOperatorPrecedence, getDirectoryPath, getFullWidth, getJSDocCommentRanges, getLeadingCommentRanges, getSpellingSuggestion, idText, identity, isArray, isArrayTypeNode, isAssignmentOperator, isBinaryExpression, isIdentifier as isIdentifierNode, isIdentifierText, isJSDocReturnTag, isJSDocTypeTag, isKeyword, isKeywordOrPunctuation, isLeftHandSideExpression, isLiteralKind, isModifierKind, isNonReservedKeyword, isParenthesizedExpression, isStringLiteral, isStringOrNumericLiteralLike, isStructTypeNode, isTemplateExpression, isTypeReferenceNode, last, lastOrUndefined, map, mapDefined, nodeIsMissing, nodeIsPresent, objectAllocator, performance, setNodeFlags, setParent, setParentRecursive, setTextRangePos, setTextRangePosEnd, setTextRangePosWidth, skipTrivia, some, startsWith, supportedDeclarationExtensions, textToKeywordObj, toArray, tokenIsIdentifierOrKeyword, tokenToString, tracing } from "./_namespaces/lpc";
 
 const enum SpeculationKind {
     TryParse,
@@ -40,28 +40,6 @@ function Macro(this: Macro, name: string, fileName: string, getText: () => strin
 type IncludeGraph = Map<string, Set<string>>;
 
 /**
- * Approximate clone-time cost of one macro expansion, in units of "nodes". A header is
- * cached only when `macroExpansions * this > nodeCount`, i.e. when re-parsing (whose
- * cost is dominated by macro expansion) is more expensive than deep-cloning a cached
- * parse (whose cost scales with node count). Calibrated from benchmarks where cloning a
- * pure-declaration header is ~3.7x slower than parsing, while a macro-heavy header is
- * ~3x faster to clone than to parse.
- */
-const MACRO_EXPANSION_CLONE_EQUIV = 20;
-
-/**
- * When true (default), the header-parse cache only stores headers whose parse was
- * expensive enough that cloning beats re-parsing (the macro-density gate). Tests that
- * validate cache *correctness* rather than the perf heuristic disable it to force
- * caching of small fixtures. @internal
- */
-let headerCacheCostGateEnabled = true;
-/** @internal */
-export function setHeaderCacheCostGateForTests(enabled: boolean): void {
-    headerCacheCostGateEnabled = enabled;
-}
-
-/**
  * One level of `#if`/`#ifdef`/`#elif`/`#else`/`#endif` nesting.
  * - `parentActive`: whether the enclosing region emits code (a nested conditional
  *    inside a disabled block never activates).
@@ -77,30 +55,6 @@ interface CondFrame {
     seenElse: boolean;
 }
 
-/**
- * A cached parse of an `#include` header (see `LpcFileHandler.headerParseCache`).
- * `statements`/`endOfFileToken` are a pristine, UNBOUND deep-clone master -- every
- * includer takes its own clone, so binding never touches the master. `readScope` is
- * the macro state the header's parse depended on (recorded at first read); a reuse is
- * valid only when `matchesCurrentState(readScope)` holds and the header text is
- * unchanged.
- */
-interface HeaderParseCacheEntry {
-    text: string;
-    statements: NodeArray<Statement>;
-    endOfFileToken: EndOfFileToken;
-    readScope: MacroReadScope;
-    /** import candidates the header contributed (nested includes/inherits/clones), as
-     *  nodes in the `statements` master -- remapped into each reuse clone. */
-    importCandidates: ImportCandidateNode[];
-    /** inherit declarations the header contributed (-> heritageClauses), as master nodes. */
-    inherits: InheritDeclaration[];
-    /** parse diagnostics the header produced (detached; header-coordinate positions). */
-    diagnostics: DiagnosticWithDetachedLocation[];
-    /** macro-origin links for macro-expanded nodes (master node -> root macro name),
-     *  replayed into the includer's nodeMacroMap so macro-origin hover keeps working. */
-    macroMap: Map<Node, string>;
-}
 
 export namespace LpcParser {
     // Share a single scanner across all calls to parse a source file.  This helps speed things
@@ -157,10 +111,6 @@ export namespace LpcParser {
     var isSpeculating: boolean = false;
     var currentToken: SyntaxKind;
     var nodeCount: number;
-    // Count of macro expansions performed. Used to decide whether an #include header
-    // is worth caching: cloning a cached parse only beats re-parsing when the parse was
-    // expensive (macro-heavy). See the cache-store gate in processIncludeDirective.
-    var macroExpansionCount: number;
     var identifiers: Map<string, string>;    
     var identifierCount: number;
     var includeFileCache: Map<string, string>;
@@ -278,7 +228,6 @@ export namespace LpcParser {
 
         parseDiagnostics = [];
         nodeCount = 0;
-        macroExpansionCount = 0;
         topLevel = true;
         suppressSemicolonInsertion = false;
         identifiers = new Map<string, string>();        
@@ -822,7 +771,6 @@ export namespace LpcParser {
 
     function processMacroSubstitution(incomingToken: SyntaxKind, tokenValue: string, macro: Macro): SyntaxKind {
         // we are in a macro substitution
-        macroExpansionCount++;
         macro.disabled = true;
         macro.originFilename = scanner.getFileName();
         macro.posInOrigin = scanner.getTokenFullStart();
@@ -2064,127 +2012,59 @@ export namespace LpcParser {
 
             // store the text inside the sourcefile node
             (includeDirective as Mutable<IncludeDirective>).text = includeFile.source;
-
+            
             // TODO do we need to set .path?
 
-            const cache = fileHandler?.headerParseCache as Map<string, HeaderParseCacheEntry> | undefined;
-            const cached = cache?.get(resolvedFilename);
-            const canReuse = !!cached
-                && cached.text === includeFile.source
-                && macroEnv.matchesCurrentState(cached.readScope);
+            doInsideOfContext(NodeFlags.IncludeContext, () => {
+                addImportCandidate(includeDirective);                
 
-            if (canReuse) {
-                // Cache hit: reuse the pristine parse instead of re-scanning the header.
-                reuseCachedInclude(includeDirective, resolvedFilename, includeFile.source, cached!);
-                includeResult = true;
-                includeDirective.inactiveCodeRanges = inactiveRanges;
-                inactiveRanges = saveInactiveRanges;
-            }
-            else {
-                doInsideOfContext(NodeFlags.IncludeContext, () => {
-                    addImportCandidate(includeDirective);
+                // cache source text                
+                const includeSourceText = includeFile.source;
+                includeFileCache.set(resolvedFilename, includeFile.source);
 
-                    // cache source text
-                    const includeSourceText = includeFile.source;
-                    includeFileCache.set(resolvedFilename, includeFile.source);
+                // create scanner for include            
+                const saveTopDirective = currentTopLevelIncludeDirective;
+                const saveDirective = currentIncludeDirective;
 
-                    // create scanner for include
-                    const saveTopDirective = currentTopLevelIncludeDirective;
-                    const saveDirective = currentIncludeDirective;
+                const revertStream = scanner.switchStream(
+                    resolvedFilename, includeSourceText, 0, includeSourceText.length, false /* revertOnEOF */,
+                    ()=>{
+                        includes.delete(resolvedFilename);
 
-                    const revertStream = scanner.switchStream(
-                        resolvedFilename, includeSourceText, 0, includeSourceText.length, false /* revertOnEOF */,
-                        ()=>{
-                            includes.delete(resolvedFilename);
+                        currentTopLevelIncludeDirective = saveTopDirective!;
+                        currentIncludeDirective = saveDirective;
+                        currentToken = scanner.getToken();
 
-                            currentTopLevelIncludeDirective = saveTopDirective!;
-                            currentIncludeDirective = saveDirective;
-                            currentToken = scanner.getToken();
-
-                            return false;
-                        }
-                    );
-
-                    currentTopLevelIncludeDirective ??= includeDirective;
-                    currentIncludeDirective = includeDirective;
-
-                    // Capture which macros this header depends on, how many import
-                    // candidates / diagnostics exist before, and the conditional depth,
-                    // so we can decide whether the parse is safe to cache.
-                    macroEnv.pushReadScope();
-                    const importCandidatesBefore = importCandidates.length;
-                    const inheritsBefore = inherits.length;
-                    const diagnosticsBefore = parseDiagnostics.length;
-                    const condDepthBefore = condFrames.length;
-                    const nodeCountBefore = nodeCount;
-                    const macroExpansionsBefore = macroExpansionCount;
-
-                    // prime the scanner
-                    nextToken();
-
-                    // parse statements and store them on the node
-                    // this is similar to parseSourceFileWorker
-                    const pos = getPositionState();
-                    const statements = parseList(ParsingContext.SourceElements, parseStatement, pos);
-
-                    Debug.assert(token() === SyntaxKind.EndOfFileToken);
-                    const endHasJSDoc = hasPrecedingJSDocComment();
-                    const endOfFileToken = withJSDoc(parseTokenNode<EndOfFileToken>(), endHasJSDoc);
-
-                    (includeDirective as Mutable<IncludeDirective>).statements = factory.createNodeArray(statements);
-                    (includeDirective as Mutable<IncludeDirective>).endOfFileToken = endOfFileToken;
-
-                    const readScope = macroEnv.popReadScope();
-
-                    // Cache the parse when it is self-contained (balanced conditionals).
-                    // Nested imports (includes / inherits / clones), macro (re)defines,
-                    // and parse diagnostics are all captured and replayed on reuse, so a
-                    // reused parse reproduces a fresh one exactly. Non-self-contained
-                    // headers still parse correctly, just uncached.
-                    const selfContained = condFrames.length === condDepthBefore;
-                    // Cost gate: reusing a cached parse means deep-cloning it, which only
-                    // beats re-parsing when the parse was expensive -- i.e. macro-heavy.
-                    // Each macro expansion (scanner stream-switch + re-scan) costs roughly
-                    // 20 nodes' worth of clone time, so cache only when expansions clear
-                    // that bar; a pure declaration header is cheaper to just re-parse.
-                    const nodeDelta = nodeCount - nodeCountBefore;
-                    const expansionDelta = macroExpansionCount - macroExpansionsBefore;
-                    const worthCaching = !headerCacheCostGateEnabled
-                        || expansionDelta * MACRO_EXPANSION_CLONE_EQUIV > nodeDelta;
-                    if (cache && selfContained && worthCaching) {
-                        // Master is cloned with a node map so the captured import /
-                        // inherit deltas can be re-expressed as master nodes.
-                        const storeMap = new Map<Node, Node>();
-                        const masterStatements = factory.createNodeArray(cloneParsedNodes(statements, storeMap));
-                        const remap = <T extends Node>(nodes: readonly T[], from: number): T[] =>
-                            nodes.slice(from).map(n => storeMap.get(n) as T | undefined).filter(Boolean) as T[];
-                        // Capture macro-origin links (original -> name) as master-node links.
-                        const macroMap = new Map<Node, string>();
-                        storeMap.forEach((master, original) => {
-                            const name = nodeMacroMap.get(original);
-                            if (name !== undefined) macroMap.set(master, name);
-                        });
-                        cache.set(resolvedFilename, {
-                            text: includeFile.source,
-                            statements: masterStatements,
-                            endOfFileToken: cloneParsedNodes([endOfFileToken])[0],
-                            readScope,
-                            importCandidates: remap(importCandidates, importCandidatesBefore),
-                            inherits: remap(inherits, inheritsBefore),
-                            diagnostics: parseDiagnostics.slice(diagnosticsBefore),
-                            macroMap,
-                        });
+                        return false;
                     }
+                );            
+                
+                currentTopLevelIncludeDirective ??= includeDirective;
+                currentIncludeDirective = includeDirective;
 
-                    revertStream();
+                // prime the scanner
+                nextToken();
 
-                    includeResult = true;
-                });
+                // parse statements and store them on the node
+                // this is similar to parseSourceFileWorker                
+                const pos = getPositionState();
+                const statements = parseList(ParsingContext.SourceElements, parseStatement, pos);
+                
+                Debug.assert(token() === SyntaxKind.EndOfFileToken);                
+                const endHasJSDoc = hasPrecedingJSDocComment();
+                const endOfFileToken = withJSDoc(parseTokenNode<EndOfFileToken>(), endHasJSDoc);
 
-                includeDirective.inactiveCodeRanges = inactiveRanges;
-                inactiveRanges = saveInactiveRanges;
-            }
-        }
+                (includeDirective as Mutable<IncludeDirective>).statements = factory.createNodeArray(statements);
+                (includeDirective as Mutable<IncludeDirective>).endOfFileToken = endOfFileToken;                
+                
+                revertStream();
+                                
+                includeResult = true;
+            });
+
+            includeDirective.inactiveCodeRanges = inactiveRanges;
+            inactiveRanges = saveInactiveRanges;
+        } 
 
         // if there are more include files in the stack, process the next one 
         const nextIncludeDirective = includeFileStack.shift();
@@ -2198,92 +2078,6 @@ export namespace LpcParser {
         }
 
         return includeResult;
-    }
-
-    /**
-     * Reuse a cached header parse: clone the pristine statement subtree under this
-     * include directive and replay the header's macro (re)definitions, without
-     * re-scanning the header. The clone gives each includer independent nodes for the
-     * binder to stamp; positions stay in the header's coordinate space, so file
-     * attribution (via `getSourceFileOrIncludeOfNode` walking parents to this include)
-     * is identical to a fresh parse.
-     */
-    function reuseCachedInclude(includeDirective: IncludeDirective, resolvedFilename: string, source: string, cached: HeaderParseCacheEntry): void {
-        doInsideOfContext(NodeFlags.IncludeContext, () => {
-            addImportCandidate(includeDirective);
-            // Replayed #defines resolve their body text via includeFileCache.
-            includeFileCache.set(resolvedFilename, source);
-
-            // Only build the original->clone map when there is actually something to
-            // remap (nested imports / inherits / macro-origin links). Pure declaration
-            // headers -- the common case -- skip it, avoiding a Map insertion per node.
-            const needMap = cached.importCandidates.length > 0 || cached.inherits.length > 0 || cached.macroMap.size > 0;
-            const cloneMap = needMap ? new Map<Node, Node>() : undefined;
-            const clonedStatements = cloneParsedNodes(cached.statements as readonly Statement[], cloneMap);
-            const clonedEof = cloneParsedNodes([cached.endOfFileToken])[0];
-
-            (includeDirective as Mutable<IncludeDirective>).statements = factory.createNodeArray(clonedStatements);
-            (includeDirective as Mutable<IncludeDirective>).endOfFileToken = clonedEof;
-            forEach(clonedStatements, s => setParent(s, includeDirective));
-            setParent(clonedEof, includeDirective);
-
-            replayHeaderMacroWrites(clonedStatements, resolvedFilename);
-
-            if (cloneMap) {
-                // Restore macro-origin links onto the clones (the Synthesized/MacroContext
-                // flags already survive the deep clone; only the nodeMacroMap entry is lost).
-                for (const [master, name] of cached.macroMap) {
-                    const clone = cloneMap.get(master);
-                    if (clone) nodeMacroMap.set(clone, name);
-                }
-
-                // Re-contribute the header's cross-file references against the clone.
-                for (const cand of cached.importCandidates) {
-                    const mapped = cloneMap.get(cand);
-                    if (mapped) addImportCandidate(mapped as ImportCandidateNode);
-                }
-                for (const inh of cached.inherits) {
-                    const mapped = cloneMap.get(inh);
-                    if (mapped) inherits.push(mapped as InheritDeclaration);
-                }
-            }
-
-            // Replay the header's parse diagnostics as fresh copies (positions are in
-            // the header's coordinate space, identical for every includer). Copying
-            // avoids sharing objects that get a `.file` attached per source file.
-            for (const d of cached.diagnostics) {
-                parseDiagnostics.push({ ...d });
-            }
-
-            // If we are reused while an outer header is being cached, fold our macro
-            // dependencies into that outer fingerprint (we were not re-parsed, so the
-            // reads did not happen naturally).
-            macroEnv.noteReads(cached.readScope.observed.keys());
-        });
-    }
-
-    /**
-     * Re-register the macro effects of a cached header in the includer's macro table,
-     * by walking the (cloned) header statements for `#define`/`#undef` directives in
-     * source order. Only headers whose parse produced no errors are cached, so a
-     * `#define` here never needs to reproduce an "already defined" diagnostic -- and
-     * the fingerprint guarantees the includer's pre-include state matches the original.
-     */
-    function replayHeaderMacroWrites(statements: readonly Statement[], macroSourceFilename: string): void {
-        const visit = (node: Node): void => {
-            if (node.kind === SyntaxKind.DefineDirective) {
-                const directive = node as DefineDirective;
-                const name = directive.name;
-                if (isIdentifierNode(name) && name.text.length > 0 && !macroEnv.hasRaw(name.text)) {
-                    macroEnv.define(name.text, createMacro(directive, macroSourceFilename));
-                }
-            }
-            else if (node.kind === SyntaxKind.UndefDirective) {
-                macroEnv.undef((node as UndefDirective).name.text);
-            }
-            forEachChild(node, visit);
-        };
-        forEach(statements, visit);
     }
 
     function hasCircularDependency(includeGraph: IncludeGraph, startFile: string): boolean {
@@ -2405,9 +2199,6 @@ export namespace LpcParser {
 
         if (isIdentifierNode(identifier) && identifierText?.length > 0) {
             if (macroEnv.isDefined(identifierText)) {
-                // isDefined (not hasRaw) so the read is recorded: whether this #define
-                // errors or takes effect depends on prior state, which the header-parse
-                // cache fingerprint must capture.
                 parseErrorAt(identifierStart, identifierStart + identifierText.length, pos.fileName, Diagnostics.Macro_already_defined_0, identifierText);
             } else {
                 macroEnv.define(identifierText, createMacro(macroNode, macroTextFilename));
