@@ -428,7 +428,11 @@ function isDeclarationKind(kind: SyntaxKind) {
         || kind === SyntaxKind.PropertyAssignment
         || kind === SyntaxKind.PropertyDeclaration
         // || kind === SyntaxKind.PropertySignature        
-        || kind === SyntaxKind.ShorthandPropertyAssignment        
+        || kind === SyntaxKind.ShorthandPropertyAssignment
+        // A `#define` declares a symbol (see bindDefineDirective), so its name behaves
+        // like any other declaration name -- this is what lets getSymbolAtLocation
+        // resolve the macro from its definition site (goto-def / find-all-references).
+        || kind === SyntaxKind.DefineDirective
         || kind === SyntaxKind.TypeParameter
         || kind === SyntaxKind.VariableDeclaration        
         || kind === SyntaxKind.JSDocTypedefTag

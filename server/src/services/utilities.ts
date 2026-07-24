@@ -2942,3 +2942,36 @@ export function getPossibleGenericSignatures(called: Expression, typeArgumentCou
     const signatures = isNewExpression(called.parent) ? type.getConstructSignatures() : type.getCallSignatures();
     return signatures.filter(candidate => !!candidate.typeParameters && candidate.typeParameters.length >= typeArgumentCount);
 }
+
+/**
+ * The name of the macro a node originated from, or undefined when it did not come from
+ * a macro expansion.
+ *
+ * A macro *use* leaves no identifier node in the tree -- the expansion replaced it. The
+ * resulting nodes carry `NodeFlags.MacroContext` and span the invocation's text range,
+ * with the originating macro name recorded in `sourceFile.nodeMacroMap`. The link is
+ * recorded per node, so walk up while it is missing: the node touching a position may be
+ * an inner node of the expansion while the name sits on an enclosing one.
+ */
+export function getOriginatingMacroName(node: Node): string | undefined {
+    if (!node || !(node.flags & NodeFlags.MacroContext)) return undefined;
+    const macroMap = node.getSourceFile()?.nodeMacroMap;
+    if (!macroMap) return undefined;
+
+    for (let n: Node | undefined = node; n && (n.flags & NodeFlags.MacroContext); n = n.parent) {
+        const name = macroMap.get(n);
+        if (name) return name;
+    }
+    return undefined;
+}
+
+/**
+ * Resolve the `#define` symbol behind a node that came from a macro expansion, or
+ * undefined when the node did not originate in a macro. Lets goto-definition,
+ * find-all-references and hover all resolve macro uses consistently.
+ */
+export function getMacroDefineSymbol(node: Node, checker: TypeChecker): Symbol | undefined {
+    const macroName = getOriginatingMacroName(node);
+    if (!macroName) return undefined;
+    return checker.resolveName(macroName, node.parent ?? node, SymbolFlags.Define, /*excludeGlobals*/ false);
+}

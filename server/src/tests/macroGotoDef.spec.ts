@@ -72,6 +72,31 @@ describe("macro goto-definition", () => {
         expect(defs.some(d => d.fileName.endsWith("other.h"))).toBe(true);
     });
 
+    it("goto-definition ON the #define resolves to the macro itself", () => {
+        // VS Code only offers "show references" when goto-definition lands you where you
+        // already are, so the definition site must resolve rather than return nothing.
+        const { ls, abs } = createTestLanguageService(files);
+        const defs = ls.getDefinitionAtPosition(abs("macro_pos.c"), defPos + "#define ".length) ?? [];
+        expect(defs.length).toBeGreaterThan(0);
+        expect(defs[0].name).toEqual("ARR");
+        expect(defs[0].textSpan.start).toEqual(src.indexOf("ARR"));
+    });
+
+    it("find-all-references finds the #define and its uses, from either end", () => {
+        const { ls, abs } = createTestLanguageService(files);
+        const file = abs("macro_pos.c");
+        const defNamePos = defPos + "#define ".length;
+        const expected = [src.indexOf("ARR"), src.indexOf("= ARR;") + 2].sort((a, b) => a - b);
+
+        for (const [label, pos] of [["from the #define", defNamePos], ["from a use", usePos]] as [string, number][]) {
+            const refs = ls.findReferences(file, pos) ?? [];
+            const starts = refs.flatMap(r => r.references.map(x => x.textSpan.start)).sort((a, b) => a - b);
+            expect({ label, starts }).toEqual({ label, starts: expected });
+            // spans cover exactly the `ARR` token
+            expect(refs.flatMap(r => r.references).every(x => x.textSpan.length === 3)).toBe(true);
+        }
+    });
+
     it("hover on the macro use still works (control)", () => {
         const { ls, abs } = createTestLanguageService(files);
         const qi = ls.getQuickInfoAtPosition(abs("macro_pos.c"), usePos);

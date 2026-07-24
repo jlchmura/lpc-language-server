@@ -1,4 +1,4 @@
-import { Symbol, createTextSpanFromBounds, Declaration, DefinitionInfo, emptyArray, FileReference, findAncestor, forEach, FunctionLikeDeclaration, getTouchingPropertyName, isDefaultClause, isFunctionLikeDeclaration, isSwitchStatement, Node, Program, ScriptElementKind, SignatureDeclaration, SourceFile, SwitchStatement, SymbolFlags, SyntaxKind, TypeChecker, SymbolDisplay, getNameOfDeclaration, createTextSpanFromNode, NodeFlags, hasInitializer, HasInitializer, hasEffectiveModifier, ModifierFlags, FindAllReferences, TextSpan, concatenate, every, mapDefined, tryCast, isFunctionLike, isAssignmentExpression, isCallLikeExpression, canHaveSymbol, filter, some, map, find, isCallOrNewExpressionTarget, isNameOfFunctionDeclaration, CallLikeExpression, isRightSideOfPropertyAccess, getInvokedExpression, isPropertyName, isBindingElement, isNewExpressionTarget, textRangeContainsPositionInclusive, IncludeDirective, getTouchingToken, ResolvedModuleWithFailedLookupLocations, getDirectoryPath, resolvePath, isStringLiteral, getPreEmitDiagnostics, Debug, isIncludeDirective, last, isInExternalFileContext, getSourceFileOrIncludeOfNode } from "./_namespaces/lpc";
+import { getMacroDefineSymbol, Symbol, createTextSpanFromBounds, Declaration, DefinitionInfo, emptyArray, FileReference, findAncestor, forEach, FunctionLikeDeclaration, getTouchingPropertyName, isDefaultClause, isFunctionLikeDeclaration, isSwitchStatement, Node, Program, ScriptElementKind, SignatureDeclaration, SourceFile, SwitchStatement, SymbolFlags, SyntaxKind, TypeChecker, SymbolDisplay, getNameOfDeclaration, createTextSpanFromNode, NodeFlags, hasInitializer, HasInitializer, hasEffectiveModifier, ModifierFlags, FindAllReferences, TextSpan, concatenate, every, mapDefined, tryCast, isFunctionLike, isAssignmentExpression, isCallLikeExpression, canHaveSymbol, filter, some, map, find, isCallOrNewExpressionTarget, isNameOfFunctionDeclaration, CallLikeExpression, isRightSideOfPropertyAccess, getInvokedExpression, isPropertyName, isBindingElement, isNewExpressionTarget, textRangeContainsPositionInclusive, IncludeDirective, getTouchingToken, ResolvedModuleWithFailedLookupLocations, getDirectoryPath, resolvePath, isStringLiteral, getPreEmitDiagnostics, Debug, isIncludeDirective, last, isInExternalFileContext, getSourceFileOrIncludeOfNode } from "./_namespaces/lpc";
 import { isContextWithStartAndEndNode } from "./_namespaces/lpc.FindAllReferences";
 
 /** @internal */
@@ -436,28 +436,6 @@ function shouldSkipAlias(node: Node, declaration: Node): boolean {
     //     return false;
     // }
     return true;
-}
-
-/**
- * Resolve the `#define` symbol for a node that came from a macro expansion, or
- * undefined when the node did not originate in a macro. Walks up while the macro-origin
- * link is missing, because the node touching the cursor may be an inner node of the
- * expansion while the macro name is recorded on an enclosing one.
- */
-function getMacroDefineSymbol(node: Node, checker: TypeChecker): Symbol | undefined {
-    if (!(node.flags & NodeFlags.MacroContext)) return undefined;
-    const sourceFile = node.getSourceFile();
-    const macroMap = sourceFile?.nodeMacroMap;
-    if (!macroMap) return undefined;
-
-    for (let n: Node | undefined = node; n && (n.flags & NodeFlags.MacroContext); n = n.parent) {
-        const macroName = macroMap.get(n);
-        if (macroName) {
-            const symbol = checker.resolveName(macroName, n.parent ?? n, SymbolFlags.Define, /*excludeGlobals*/ false);
-            if (symbol) return symbol;
-        }
-    }
-    return undefined;
 }
 
 function getSymbol(node: Node, checker: TypeChecker, stopAtAlias: boolean | undefined) {
