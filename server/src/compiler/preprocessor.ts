@@ -1,19 +1,21 @@
 import { createScanner, LanguageVariant, Macro, Node, NodeArray, ScriptTarget, setParentRecursive, SyntaxKind } from "./_namespaces/lpc.js";
 
 /**
- * Records which macros a stretch of parsing consulted. A "definedness" read is
- * produced by `#ifdef`/`#ifndef`/`defined()` (only the defined-or-not state was
- * observed); a "value" read is produced when a macro is actually expanded (its
- * body was observed). The union of these names is the dependency set used to
- * fingerprint an `#include` for the header-parse cache -- if none of those macros
- * changed between two includers, the header parses identically and the cached
- * parse can be reused. See the preprocessor design notes.
+ * Records the macro dependencies of a stretch of parsing: for each macro name the
+ * parse consulted, the macro's state *at the moment of first read* -- which, for a
+ * header, is its state at the include point, before the header itself can redefine
+ * it. Reuse of a cached header parse is valid exactly when every recorded name still
+ * has that same state (`matchesCurrentState`), so an includer that defines one of the
+ * header's dependencies differently forces a fresh parse.
+ *
+ * Capturing state-at-first-read (rather than hashing current state) is what makes
+ * include guards cacheable: `#ifndef FOO_H` records FOO_H as *undefined*; the guarded
+ * `#define FOO_H` that follows does not change the recorded value, so a second
+ * includer (where FOO_H is likewise undefined at the include point) still matches.
  */
 export interface MacroReadScope {
-    /** names whose defined/undefined state was observed */
-    definedness: Set<string>;
-    /** names whose expansion (body) was observed */
-    values: Set<string>;
+    /** macro name -> encoded state observed at first read (see `encodeState`) */
+    observed: Map<string, string>;
 }
 
 /**
@@ -26,22 +28,20 @@ export interface MacroEnvironment {
     define(name: string, macro: Macro): void;
     undef(name: string): void;
 
-    /** tracked: records a definedness read against the active scope */
+    /** tracked: records `name`'s state at first read against the active scope(s) */
     isDefined(name: string): boolean;
     /**
-     * tracked: records a *definedness* read for `name` (referencing it means "this
-     * name becoming a macro would change the parse") and, when it resolves to a
-     * defined macro, an additional *value* read (its body matters). Returns the macro
-     * or undefined.
+     * tracked: records `name`'s state at first read (referencing a name is a
+     * dependency on it not silently becoming -- or ceasing to be -- a macro, and on
+     * its body when it is one). Returns the macro or undefined.
      */
     lookup(name: string): Macro | undefined;
 
     /**
-     * Produce a stable fingerprint of the *current* definitions of every macro named
-     * in `scope`. Two parses that read the same names and see the same definitions
-     * yield the same fingerprint -- the basis for reusing a cached header parse.
+     * True when every name `scope` recorded still has the same state now as when it
+     * was first read. This is the reuse test for a cached header parse.
      */
-    hashState(scope: MacroReadScope): string;
+    matchesCurrentState(scope: MacroReadScope): boolean;
 
     /** untracked lookup -- use when the access is not a semantic dependency */
     hasRaw(name: string): boolean;
@@ -324,10 +324,8 @@ function expandConditionTokens(tokens: readonly PreprocessorToken[], env: MacroE
                 for (const e of body) out.push(e);
                 continue;
             }
-            if (!macro) {
-                // record the dependency on this name being undefined
-                env.isDefined(t.value);
-            }
+            // `lookup` above already recorded the dependency (incl. the negative case
+            // where this name must stay a non-macro). A surviving identifier is 0.
             out.push(t);
             continue;
         }
@@ -343,15 +341,21 @@ export function createMacroEnvironment(): MacroEnvironment {
     // hot lookup path pays nothing beyond a length check.
     const readScopes: MacroReadScope[] = [];
 
-    function recordDefinedness(name: string) {
-        for (let i = 0; i < readScopes.length; i++) {
-            readScopes[i].definedness.add(name);
-        }
+    /** Encode a name's current state: "U" if undefined, else "D" + its body text. */
+    function encodeState(name: string): string {
+        const macro = table.get(name);
+        if (!macro) return "U";
+        const body = macro.range && macro.getText
+            ? macro.getText().substring(macro.range.pos, macro.range.end)
+            : "";
+        return "D" + body;
     }
 
-    function recordValue(name: string) {
+    /** Record `name`'s current state in every active scope that hasn't seen it yet. */
+    function recordRead(name: string) {
         for (let i = 0; i < readScopes.length; i++) {
-            readScopes[i].values.add(name);
+            const observed = readScopes[i].observed;
+            if (!observed.has(name)) observed.set(name, encodeState(name));
         }
     }
 
@@ -363,19 +367,12 @@ export function createMacroEnvironment(): MacroEnvironment {
             table.delete(name);
         },
         isDefined(name) {
-            if (readScopes.length) recordDefinedness(name);
+            if (readScopes.length) recordRead(name);
             return table.has(name);
         },
         lookup(name) {
-            const macro = table.get(name);
-            if (readScopes.length) {
-                // Referencing a name is a dependency on it *not* silently becoming a
-                // macro in another includer, so record definedness on every lookup...
-                recordDefinedness(name);
-                // ...and, when it is a macro here, also on its body (value).
-                if (macro) recordValue(name);
-            }
-            return macro;
+            if (readScopes.length) recordRead(name);
+            return table.get(name);
         },
         hasRaw(name) {
             return table.has(name);
@@ -386,30 +383,17 @@ export function createMacroEnvironment(): MacroEnvironment {
         forEach(cb) {
             table.forEach(cb);
         },
-        hashState(scope) {
-            const names = new Set<string>();
-            scope.definedness.forEach(n => names.add(n));
-            scope.values.forEach(n => names.add(n));
-            const parts: string[] = [];
-            for (const name of Array.from(names).sort()) {
-                const macro = table.get(name);
-                if (!macro) {
-                    parts.push(name + " U");
-                }
-                else {
-                    const body = macro.range && macro.getText
-                        ? macro.getText().substring(macro.range.pos, macro.range.end)
-                        : "";
-                    parts.push(name + " D " + body);
-                }
+        matchesCurrentState(scope) {
+            for (const [name, observed] of scope.observed) {
+                if (encodeState(name) !== observed) return false;
             }
-            return parts.join("");
+            return true;
         },
         pushReadScope() {
-            readScopes.push({ definedness: new Set(), values: new Set() });
+            readScopes.push({ observed: new Map() });
         },
         popReadScope() {
-            return readScopes.pop() ?? { definedness: new Set(), values: new Set() };
+            return readScopes.pop() ?? { observed: new Map() };
         },
         clear() {
             table.clear();

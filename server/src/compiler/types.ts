@@ -6838,8 +6838,16 @@ export type LpcLoadImportResult = {
     error?: string;
 }
 export interface LpcFileHandler extends IFileHandler  {
-    loadIncludeFile(sourceFilename: string, filename: string, localFirst: boolean, additionalSearchDirs?: string[]): LpcLoadImportResult    
+    loadIncludeFile(sourceFilename: string, filename: string, localFirst: boolean, additionalSearchDirs?: string[]): LpcLoadImportResult
     loadInclude(sourceFilename: string, filename: string): LoadImportResult;
+    /**
+     * Cross-file cache of parsed `#include` headers, keyed by resolved header path.
+     * Lets every includer reuse a pristine, unbound parse instead of re-parsing the
+     * header inline. Entries self-invalidate on header-text change. The value shape is
+     * private to the parser (see `HeaderParseCacheEntry`). Program-scoped today; can be
+     * promoted to a host-persistent map for cross-rebuild reuse.
+     */
+    headerParseCache?: Map<string, unknown>;
 }
 
 export interface TransformationResult<T extends Node> {
