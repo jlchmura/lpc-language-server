@@ -951,7 +951,7 @@ function tryLoadModuleUsingOptionalResolutionSettings(extensions: Extensions, mo
 }
 
 function tryLoadModuleUsingRootDirs(extensions: Extensions, moduleName: string, containingDirectory: string, loader: ResolutionKindSpecificLoader, state: ModuleResolutionState): Resolved | undefined {
-    if (!state.compilerOptions.rootDir) {
+    if (!state.compilerOptions.rootDirs) {
         return undefined;
     }
 
