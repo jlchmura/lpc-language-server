@@ -44,16 +44,23 @@ export function getDefinitionAtPosition(program: Program, sourceFile: SourceFile
                 return [createDefinitionInfoFromSwitch(switchStatement, sourceFile)];
             }
             break;
-        case SyntaxKind.StringLiteral:
+        case SyntaxKind.StringLiteral: {
+            // Only an `#include "path"` string resolves to a file. Any other string
+            // literal must fall through to normal symbol resolution -- previously this
+            // case fell through into IncludeDirective and produced a bogus definition
+            // built from an undefined filename (name: undefined, span 0+0).
             const includeParent = findAncestor(node, isIncludeDirective);
             if (includeParent) {
                 const includeFilename = includeParent.fileName;
                 return [getDefinitionInfoForFileReference(includeFilename, includeFilename, false)];
             }
-        case SyntaxKind.IncludeDirective:
-            const includeDirective = node as IncludeDirective;    
+            break;
+        }
+        case SyntaxKind.IncludeDirective: {
+            const includeDirective = node as IncludeDirective;
             const includeFilename = includeDirective.fileName;
             return [getDefinitionInfoForFileReference(includeFilename, includeFilename, false)];
+        }
     }
 
     let { symbol, failedAliasResolution } = getSymbol(node, typeChecker, stopAtAlias);
@@ -431,7 +438,38 @@ function shouldSkipAlias(node: Node, declaration: Node): boolean {
     return true;
 }
 
+/**
+ * Resolve the `#define` symbol for a node that came from a macro expansion, or
+ * undefined when the node did not originate in a macro. Walks up while the macro-origin
+ * link is missing, because the node touching the cursor may be an inner node of the
+ * expansion while the macro name is recorded on an enclosing one.
+ */
+function getMacroDefineSymbol(node: Node, checker: TypeChecker): Symbol | undefined {
+    if (!(node.flags & NodeFlags.MacroContext)) return undefined;
+    const sourceFile = node.getSourceFile();
+    const macroMap = sourceFile?.nodeMacroMap;
+    if (!macroMap) return undefined;
+
+    for (let n: Node | undefined = node; n && (n.flags & NodeFlags.MacroContext); n = n.parent) {
+        const macroName = macroMap.get(n);
+        if (macroName) {
+            const symbol = checker.resolveName(macroName, n.parent ?? n, SymbolFlags.Define, /*excludeGlobals*/ false);
+            if (symbol) return symbol;
+        }
+    }
+    return undefined;
+}
+
 function getSymbol(node: Node, checker: TypeChecker, stopAtAlias: boolean | undefined) {
+    // A macro *use* leaves no identifier node behind -- the expansion replaced it. The
+    // expanded nodes carry `MacroContext` and the originating macro name is recorded in
+    // `sourceFile.nodeMacroMap`, so resolve the `#define` symbol from that. This mirrors
+    // getSymbolAtLocationForQuickInfo, which is why hover already worked here.
+    const macroSymbol = getMacroDefineSymbol(node, checker);
+    if (macroSymbol) {
+        return { symbol: macroSymbol, failedAliasResolution: false };
+    }
+
     const symbol = checker.getSymbolAtLocation(node);
     // If this is an alias, and the request came at the declaration location
     // get the aliased symbol instead. This allows for goto def on an import e.g.
