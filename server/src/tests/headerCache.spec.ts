@@ -6,6 +6,11 @@ import * as lpc from "./_namespaces/lpc.js";
  * the includer independent node identities.
  */
 describe("header parse cache", () => {
+    // These tests validate cache *correctness* (reuse == fresh parse), independent of
+    // the macro-density perf gate that decides *whether* a header is worth caching.
+    beforeAll(() => lpc.setHeaderCacheCostGateForTests(false));
+    afterAll(() => lpc.setHeaderCacheCostGateForTests(true));
+
     const headerSource = [
         "#ifndef H_H",
         "#define H_H",
@@ -280,6 +285,42 @@ describe("header parse cache", () => {
         const afterEvict = parseP("c.c", handler);               // miss -> re-parse
         const fresh = parseP("fresh.c", { ...handler, headerParseCache: new Map() } as lpc.LpcFileHandler);
         expect(flatten(afterEvict).length).toEqual(flatten(fresh).length);
+    });
+});
+
+describe("header cache cost gate", () => {
+    // Gate ENABLED here (the default): only macro-heavy headers -- where cloning beats
+    // re-parsing -- are cached. Cheap-to-parse headers are left uncached to avoid the
+    // clone being slower than a re-parse.
+    function parseWith(header: string): Map<string, unknown> {
+        const cache = new Map<string, unknown>();
+        const fh = {
+            loadIncludeFile: () => ({ filename: "/x.h", source: header }),
+            loadInclude: () => ({ uri: "/x.h", source: header, error: undefined }),
+            headerParseCache: cache,
+        } as unknown as lpc.LpcFileHandler;
+        const opts = {
+            languageVersion: lpc.ScriptTarget.LPC,
+            globalIncludes: [],
+            configDefines: new Map<string, string>(),
+            fileHandler: fh,
+        } as lpc.CreateSourceFileOptions;
+        lpc.createSourceFile("a.c", `#include "x.h"\nint main() {}\n`, opts, true, lpc.ScriptKind.LPC);
+        return cache;
+    }
+
+    it("does NOT cache a cheap pure-declaration header", () => {
+        let hdr = "#ifndef X\n#define X\n";
+        for (let i = 0; i < 50; i++) hdr += `int fn_${i}(int a);\n`;
+        hdr += "#endif\n";
+        expect(parseWith(hdr).has("/x.h")).toBe(false);
+    });
+
+    it("caches a macro-heavy header (cloning beats re-parsing)", () => {
+        let hdr = "#ifndef X\n#define X\n#define SQ(v) ((v)*(v))\n";
+        for (let i = 0; i < 50; i++) hdr += `int g_${i} = SQ(${i}) + SQ(${i}) + SQ(${i});\n`;
+        hdr += "#endif\n";
+        expect(parseWith(hdr).has("/x.h")).toBe(true);
     });
 });
 

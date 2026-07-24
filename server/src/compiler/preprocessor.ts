@@ -1,4 +1,4 @@
-import { createScanner, LanguageVariant, Macro, Node, NodeArray, ScriptTarget, setParentRecursive, SyntaxKind } from "./_namespaces/lpc.js";
+import { createScanner, LanguageVariant, Macro, Node, NodeArray, ScriptTarget, SyntaxKind } from "./_namespaces/lpc.js";
 
 /**
  * Records the macro dependencies of a stretch of parsing: for each macro name the
@@ -83,16 +83,24 @@ function isNodeLike(v: any): v is Node {
     return !!v && typeof v === "object" && typeof v.kind === "number" && !Array.isArray(v);
 }
 
-function cloneValue(v: any, map: Map<Node, Node> | undefined): any {
-    if (isNodeLike(v)) return cloneNodeDeep(v, map);
+/**
+ * Deep-clone a property value, threading `parent` (the enclosing node's clone) so
+ * child nodes get their `parent` set in this single pass -- no separate
+ * `setParentRecursive` traversal.
+ */
+function cloneValue(v: any, parent: Node | undefined, map: Map<Node, Node> | undefined): any {
+    if (isNodeLike(v)) return cloneNodeDeep(v, parent, map);
     if (Array.isArray(v)) {
-        const arr: any = v.map((x: any) => cloneValue(x, map));
+        const n = v.length;
+        const arr: any = new Array(n);
+        for (let i = 0; i < n; i++) arr[i] = cloneValue(v[i], parent, map);
         // Preserve NodeArray metadata when present (plain arrays simply lack these).
-        if (typeof (v as any).pos === "number") {
-            arr.pos = (v as any).pos;
-            arr.end = (v as any).end;
-            arr.hasTrailingComma = (v as any).hasTrailingComma;
-            arr.transformFlags = (v as any).transformFlags;
+        const na = v as any;
+        if (typeof na.pos === "number") {
+            arr.pos = na.pos;
+            arr.end = na.end;
+            arr.hasTrailingComma = na.hasTrailingComma;
+            arr.transformFlags = na.transformFlags;
         }
         return arr;
     }
@@ -100,33 +108,34 @@ function cloneValue(v: any, map: Map<Node, Node> | undefined): any {
 }
 
 /**
- * Deep-clone a single node (excluding its `parent`, which is re-derived by the
- * caller via `setParentRecursive`). The clone keeps the node's prototype so class
- * methods (getStart, getSourceFile, ...) and `instanceof` still work.
+ * Deep-clone a single node, setting `parent` inline. The clone keeps the node's
+ * prototype so class methods (getStart, getSourceFile, ...) and `instanceof` work.
  */
-function cloneNodeDeep<T extends Node>(node: T, map: Map<Node, Node> | undefined): T {
+function cloneNodeDeep<T extends Node>(node: T, parent: Node | undefined, map: Map<Node, Node> | undefined): T {
     const clone: any = Object.create(Object.getPrototypeOf(node));
     if (map) map.set(node, clone);
-    for (const key of Object.keys(node)) {
-        if (key === "parent") continue; // re-established after the whole subtree is cloned
-        clone[key] = cloneValue((node as any)[key], map);
+    const keys = Object.keys(node);
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        if (key === "parent") continue;
+        clone[key] = cloneValue((node as any)[key], clone, map);
     }
+    clone.parent = parent;
     return clone;
 }
 
 /**
  * Deep-clone an array of freshly-parsed statements, returning independent nodes with
- * `parent` pointers re-established. Positions are left untouched (the header parses
- * in its own coordinate space, identical for every includer). If `map` is provided it
- * is populated with original->clone for every node, so callers can remap references
- * (e.g. import candidates / inherit declarations) into the clone.
+ * `parent` pointers established in a single pass. Positions are left untouched (the
+ * header parses in its own coordinate space, identical for every includer). The roots'
+ * own `parent` is left undefined for the caller to set (to the include directive). If
+ * `map` is provided it is populated with original->clone for every node, so callers can
+ * remap references (e.g. import candidates / inherit declarations) into the clone.
  */
 export function cloneParsedNodes<T extends Node>(nodes: readonly T[], map?: Map<Node, Node>): T[] {
-    const clones = nodes.map(n => {
-        const c = cloneNodeDeep(n, map);
-        setParentRecursive(c, /*incremental*/ false);
-        return c;
-    });
+    const n = nodes.length;
+    const clones: T[] = new Array(n);
+    for (let i = 0; i < n; i++) clones[i] = cloneNodeDeep(nodes[i], /*parent*/ undefined, map);
     return clones;
 }
 

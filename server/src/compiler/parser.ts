@@ -40,6 +40,28 @@ function Macro(this: Macro, name: string, fileName: string, getText: () => strin
 type IncludeGraph = Map<string, Set<string>>;
 
 /**
+ * Approximate clone-time cost of one macro expansion, in units of "nodes". A header is
+ * cached only when `macroExpansions * this > nodeCount`, i.e. when re-parsing (whose
+ * cost is dominated by macro expansion) is more expensive than deep-cloning a cached
+ * parse (whose cost scales with node count). Calibrated from benchmarks where cloning a
+ * pure-declaration header is ~3.7x slower than parsing, while a macro-heavy header is
+ * ~3x faster to clone than to parse.
+ */
+const MACRO_EXPANSION_CLONE_EQUIV = 20;
+
+/**
+ * When true (default), the header-parse cache only stores headers whose parse was
+ * expensive enough that cloning beats re-parsing (the macro-density gate). Tests that
+ * validate cache *correctness* rather than the perf heuristic disable it to force
+ * caching of small fixtures. @internal
+ */
+let headerCacheCostGateEnabled = true;
+/** @internal */
+export function setHeaderCacheCostGateForTests(enabled: boolean): void {
+    headerCacheCostGateEnabled = enabled;
+}
+
+/**
  * One level of `#if`/`#ifdef`/`#elif`/`#else`/`#endif` nesting.
  * - `parentActive`: whether the enclosing region emits code (a nested conditional
  *    inside a disabled block never activates).
@@ -135,6 +157,10 @@ export namespace LpcParser {
     var isSpeculating: boolean = false;
     var currentToken: SyntaxKind;
     var nodeCount: number;
+    // Count of macro expansions performed. Used to decide whether an #include header
+    // is worth caching: cloning a cached parse only beats re-parsing when the parse was
+    // expensive (macro-heavy). See the cache-store gate in processIncludeDirective.
+    var macroExpansionCount: number;
     var identifiers: Map<string, string>;    
     var identifierCount: number;
     var includeFileCache: Map<string, string>;
@@ -252,6 +278,7 @@ export namespace LpcParser {
 
         parseDiagnostics = [];
         nodeCount = 0;
+        macroExpansionCount = 0;
         topLevel = true;
         suppressSemicolonInsertion = false;
         identifiers = new Map<string, string>();        
@@ -794,8 +821,9 @@ export namespace LpcParser {
     }
 
     function processMacroSubstitution(incomingToken: SyntaxKind, tokenValue: string, macro: Macro): SyntaxKind {
-        // we are in a macro substitution                
-        macro.disabled = true;                
+        // we are in a macro substitution
+        macroExpansionCount++;
+        macro.disabled = true;
         macro.originFilename = scanner.getFileName();
         macro.posInOrigin = scanner.getTokenFullStart();
         macro.endInOrigin = scanner.getTokenFullStart() + tokenValue.length + 1;
@@ -2084,6 +2112,8 @@ export namespace LpcParser {
                     const inheritsBefore = inherits.length;
                     const diagnosticsBefore = parseDiagnostics.length;
                     const condDepthBefore = condFrames.length;
+                    const nodeCountBefore = nodeCount;
+                    const macroExpansionsBefore = macroExpansionCount;
 
                     // prime the scanner
                     nextToken();
@@ -2108,7 +2138,16 @@ export namespace LpcParser {
                     // reused parse reproduces a fresh one exactly. Non-self-contained
                     // headers still parse correctly, just uncached.
                     const selfContained = condFrames.length === condDepthBefore;
-                    if (cache && selfContained) {
+                    // Cost gate: reusing a cached parse means deep-cloning it, which only
+                    // beats re-parsing when the parse was expensive -- i.e. macro-heavy.
+                    // Each macro expansion (scanner stream-switch + re-scan) costs roughly
+                    // 20 nodes' worth of clone time, so cache only when expansions clear
+                    // that bar; a pure declaration header is cheaper to just re-parse.
+                    const nodeDelta = nodeCount - nodeCountBefore;
+                    const expansionDelta = macroExpansionCount - macroExpansionsBefore;
+                    const worthCaching = !headerCacheCostGateEnabled
+                        || expansionDelta * MACRO_EXPANSION_CLONE_EQUIV > nodeDelta;
+                    if (cache && selfContained && worthCaching) {
                         // Master is cloned with a node map so the captured import /
                         // inherit deltas can be re-expressed as master nodes.
                         const storeMap = new Map<Node, Node>();
@@ -2171,9 +2210,11 @@ export namespace LpcParser {
             // Replayed #defines resolve their body text via includeFileCache.
             includeFileCache.set(resolvedFilename, source);
 
-            // Clone with a node map so the header's import candidates / inherits can be
-            // remapped onto the fresh clone.
-            const cloneMap = new Map<Node, Node>();
+            // Only build the original->clone map when there is actually something to
+            // remap (nested imports / inherits / macro-origin links). Pure declaration
+            // headers -- the common case -- skip it, avoiding a Map insertion per node.
+            const needMap = cached.importCandidates.length > 0 || cached.inherits.length > 0 || cached.macroMap.size > 0;
+            const cloneMap = needMap ? new Map<Node, Node>() : undefined;
             const clonedStatements = cloneParsedNodes(cached.statements as readonly Statement[], cloneMap);
             const clonedEof = cloneParsedNodes([cached.endOfFileToken])[0];
 
@@ -2184,21 +2225,23 @@ export namespace LpcParser {
 
             replayHeaderMacroWrites(clonedStatements, resolvedFilename);
 
-            // Restore macro-origin links onto the clones (the Synthesized/MacroContext
-            // flags already survive the deep clone; only the nodeMacroMap entry is lost).
-            for (const [master, name] of cached.macroMap) {
-                const clone = cloneMap.get(master);
-                if (clone) nodeMacroMap.set(clone, name);
-            }
+            if (cloneMap) {
+                // Restore macro-origin links onto the clones (the Synthesized/MacroContext
+                // flags already survive the deep clone; only the nodeMacroMap entry is lost).
+                for (const [master, name] of cached.macroMap) {
+                    const clone = cloneMap.get(master);
+                    if (clone) nodeMacroMap.set(clone, name);
+                }
 
-            // Re-contribute the header's cross-file references against the clone.
-            for (const cand of cached.importCandidates) {
-                const mapped = cloneMap.get(cand);
-                if (mapped) addImportCandidate(mapped as ImportCandidateNode);
-            }
-            for (const inh of cached.inherits) {
-                const mapped = cloneMap.get(inh);
-                if (mapped) inherits.push(mapped as InheritDeclaration);
+                // Re-contribute the header's cross-file references against the clone.
+                for (const cand of cached.importCandidates) {
+                    const mapped = cloneMap.get(cand);
+                    if (mapped) addImportCandidate(mapped as ImportCandidateNode);
+                }
+                for (const inh of cached.inherits) {
+                    const mapped = cloneMap.get(inh);
+                    if (mapped) inherits.push(mapped as InheritDeclaration);
+                }
             }
 
             // Replay the header's parse diagnostics as fresh copies (positions are in
