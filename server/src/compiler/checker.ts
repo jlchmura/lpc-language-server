@@ -12514,7 +12514,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // if (!(node.flags & NodeFlags.InWithStatement)) {
             switch (node.kind) {
                 case SyntaxKind.Identifier:
-                    const symbolFlags = isCallExpression(node.parent) ? SymbolFlags.Function : undefined;
+                    // FluffOS lets a variable holding a closure be called by bare name, so a
+                    // call target is not necessarily a Function symbol. Narrowing the meaning
+                    // here makes getResolvedSymbol fail for such locals -- and because it both
+                    // reports Cannot_find_name_0 and caches the miss on the node, every later
+                    // consumer inherits the bad resolution. resolveCallExpression already
+                    // guards the same way for the non-identifier callee case.
+                    const symbolFlags = isCallExpression(node.parent) && languageVariant !== LanguageVariant.FluffOS
+                        ? SymbolFlags.Function
+                        : undefined;
                     const symbol = getExportSymbolOfValueSymbolIfExported(getResolvedSymbol(node as Identifier, symbolFlags));
                     return getExplicitTypeOfSymbol(symbol, diagnostic);
                 // case SyntaxKind.ThisKeyword:
