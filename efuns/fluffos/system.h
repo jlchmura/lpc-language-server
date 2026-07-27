@@ -264,11 +264,16 @@ mapping *function_profile( object ob );
 object
  * @param str the name of the function to check for
  * @param ob the object to check in
+ * @param flag if nonzero, protected and private functions are reported as well
  * @returns the file name of the object that defines the function  'str'  in
  * object  'ob'.  The  returned value can be other than 'file_name(ob)' if
  * the function is defined by an inherited object.
  *
  * 0 is returned if the function was not defined.
+ *
+ * By default, functions that cannot be called from outside the object
+ * (protected and private functions) are treated as not defined. If 'flag'
+ * is specified and is nonzero, such functions are reported as well.
  *
  * Note that function_exists() does not check shadows.
  *
@@ -277,6 +282,8 @@ object
  *
  */
 varargs string function_exists( string str, object ob );
+
+varargs string function_exists( string str, object ob, int flag );
 
 /**
  * flush_messages - send all pending messages to a user

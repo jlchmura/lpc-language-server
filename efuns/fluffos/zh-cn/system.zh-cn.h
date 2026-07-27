@@ -242,19 +242,26 @@ mixed *function_profile( object ob );
  * function_exists()  -  查找对象中给定函数所在的文件
  * @param str 要检查的函数名称
  * @param ob 要检查的对象
+ * @param flag 如果为非零值，protected 和 private 类型的函数也会被报告
  * @returns 定义函数 'str' 的对象的文件名 'ob'。
  * 返回值可以与 'file_name(ob)' 不同，如果函数是由一个继
  * 承的对象定义的。
- * 
+ *
  * 如果函数未定义，则返回 0。
- * 
+ *
+ * 默认情况下，无法从对象外部呼叫的函数（protected 和 private
+ * 类型）会被视为未定义。如果指定参数 'flag' 且为非零值，
+ * 这些函数也会被报告。
+ *
  * 请注意，function_exists() 不检查阴影。
- * 
+ *
  * 如果没有对象作为第二个参数传入，则此 efun 将默认为
  * this_object()。
  *
  */
 varargs string function_exists( string str, object ob );
+
+varargs string function_exists( string str, object ob, int flag );
 
 /**
  * flush_messages - 发送所有待处理的消息给用户
