@@ -1,9 +1,5 @@
 // arrays.h
 
-#undef ALL_ARRAY_TYPES
-#define ALL_ARRAY_TYPES string*|int*|float*|object*|mixed*|function*
-#undef ALL_PRIMITIVE_TYPES
-#define ALL_PRIMITIVE_TYPES string|int|float|object|mixed|function
 
 /**
  * unique_array() - partitions an array of objects into groups
@@ -19,17 +15,19 @@
  *
  * @template {object} T
  * @param {T*} obarr The array of objects to partition
- * @param separator The function to use to partition the array
+ * @param {string} separator The name of the function in each object to partition by
  * @param {T} skip The value to skip
  * @returns {<T*>*} The partitioned array
  */
 varargs mixed unique_array(object *obarr, string separator, mixed skip);
 
 /**
- * @template T, Y
+ * @template T
  * @callback uniqueArrayCallback
- * @param {T} element The element to test
- * @returns {Y} The map callback return value
+ * @param {T} element The element to group
+ * @returns {mixed} The value to group by -- elements returning equal values are
+ *                  grouped together. Its type does not affect the result type, so
+ *                  unlike mapArrayCallback there is nothing to parameterise here.
  */
 
 
@@ -47,7 +45,7 @@ varargs mixed unique_array(object *obarr, string separator, mixed skip);
  *
  * @template T
  * @param {T*} arr The array of objects to partition
- * @param {uniqueArrayCallback<T,Y>} f The function to use to partition the array
+ * @param {uniqueArrayCallback<T>} f The function to use to partition the array
  * @param {T|void} skip The value to skip
  * @returns {<T*>*} The partitioned array
  */

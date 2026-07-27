@@ -123,3 +123,33 @@ describe("filter_array keeps the input element type", () => {
         expect(diagnosticsFor(`test() {\n  string *items = ({ "abc" });\n  int *r = filter_array(items, "f", this_object());\n}\n`)).toEqual([]);
     });
 });
+
+describe("unique_array partitions into an array of arrays of the input element type", () => {
+    // Its callback tag referenced `uniqueArrayCallback<T,Y>` while only `T` was declared. `Y`
+    // is never used in the result -- unique_array groups by whatever the callback returns, and
+    // that value's type does not reach the return type -- so the callback is now single-
+    // parameter rather than declaring a type argument nothing consumes.
+    it("returns the input element type nested one level deeper", () => {
+        expect(diagnosticsFor(`test() {\n  string *s = ({ "a" });\n  string **g = unique_array(s, (: $1 :));\n}\n`)).toEqual([]);
+    });
+
+    it("reports a wrong element type", () => {
+        expect(diagnosticsFor(`test() {\n  string *s = ({ "a" });\n  int **g = unique_array(s, (: $1 :));\n}\n`).join(" "))
+            .toContain("2322:");
+    });
+
+    it("reports a result that is not nested", () => {
+        expect(diagnosticsFor(`test() {\n  string *s = ({ "a" });\n  string *g = unique_array(s, (: $1 :));\n}\n`).join(" "))
+            .toContain("2322:");
+    });
+
+    it("contextually types the closure's $1 as the array's element type", () => {
+        expect(hoverAt(`test() {\n  string *s = ({ "a" });\n  string **g = unique_array(s, (: $1 :));\n}\n`, "$1 :)")).toBe("string");
+    });
+
+    it("types the ob->separator() form too", () => {
+        expect(diagnosticsFor(`test() {\n  object *o = ({});\n  object **g = unique_array(o, "sep", 0);\n}\n`)).toEqual([]);
+        expect(diagnosticsFor(`test() {\n  object *o = ({});\n  int **g = unique_array(o, "sep", 0);\n}\n`).join(" "))
+            .toContain("2322:");
+    });
+});

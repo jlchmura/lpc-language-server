@@ -1,10 +1,5 @@
 // arrays.h
 
-#undef ALL_ARRAY_TYPES
-#define ALL_ARRAY_TYPES string*|int*|float*|object*|mixed*|function*
-#undef ALL_PRIMITIVE_TYPES
-#define ALL_PRIMITIVE_TYPES string|int|float|object|mixed|function
-
 
 /**
  * unique_array() - 将对象数组分区为组
@@ -16,9 +11,35 @@
  * 不同，数组的每个元素将被传递给f，并根据f的返回值进行分区。
  * 特别是，数组不需要由对象组成。
  *
+ * @template {object} T
+ * @param {T*} obarr 要分区的对象数组
+ * @param {string} separator 每个对象中用于分区的函数名
+ * @param {T} skip 要跳过的值
+ * @returns {<T*>*} 分区后的数组
  */
 mixed unique_array( object *obarr, string separator, void | mixed skip);
-mixed unique_array( mixed *arr, function f, void | mixed skip );
+
+/**
+ * @template T
+ * @callback uniqueArrayCallback
+ * @param {T} element 要分组的元素
+ * @returns {mixed} 用于分组的值——返回相同值的元素会被分到一组。
+ *                  它的类型不影响结果类型，因此与 mapArrayCallback
+ *                  不同，这里没有需要参数化的类型。
+ */
+
+/**
+ * unique_array() - 使用函数指针将数组分区为组。
+ *
+ * 数组的每个元素将被传递给f，并根据f的返回值进行分区。
+ *
+ * @template T
+ * @param {T*} arr 要分区的数组
+ * @param {uniqueArrayCallback<T>} f 用于分区的函数
+ * @param {T|void} skip 要跳过的值
+ * @returns {<T*>*} 分区后的数组
+ */
+<mixed*>* unique_array( mixed *arr, function f, void | mixed skip );
 
 /**
  * sort_array() - 对数组进行排序
