@@ -4735,9 +4735,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // arrow function's declared parameters would.
             if (isInlineClosureExpression(declaration) && !parameters.length) {
                 parameters.push(...getInlineClosureParameters(declaration));
-                // The driver passes 0 for a `$N` with no corresponding argument, so under-supply
-                // is legal: every synthesized parameter is effectively optional.
-                minArgumentCount = 0;
+                // Every `$N` the body reads is required, matching how a declared parameter list
+                // is treated. The driver itself is laxer -- an unsupplied `$N` reads as 0 rather
+                // than faulting -- so this is a deliberate strictness, on the grounds that a
+                // closure reading `$1` from a call that passes nothing is a mistake.
+                minArgumentCount = parameters.length;
             }
 
             if (thisTag && thisTag.typeExpression) {
@@ -20056,7 +20058,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             const name = parameterToParameterDeclarationName(parameterSymbol, parameterDeclaration, context);
             const isOptional = parameterDeclaration && isOptionalParameter(parameterDeclaration) || getCheckFlags(parameterSymbol) & CheckFlags.OptionalParameter;
             // const questionToken = isOptional ? factory.createToken(SyntaxKind.QuestionToken) : undefined;
-            const ampToken = isByRefParameterDeclaration(parameterDeclaration) ? factory.createToken(parameterDeclaration.ampToken.kind) : undefined;            
+            // Not every parameter symbol has a declaration -- a synthesized one (an inline
+            // closure's `$N`, or a union signature's combined parameters) has none.
+            const ampToken = parameterDeclaration && isByRefParameterDeclaration(parameterDeclaration) ? factory.createToken(parameterDeclaration.ampToken.kind) : undefined;
             const parameterNode = factory.createParameterDeclaration(
                 modifiers,
                 dotDotDotToken,
@@ -30701,8 +30705,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     const flowType = getTypeAtFlowNode(flow.antecedent);
                     return createFlowType(getBaseTypeOfLiteralType(getTypeFromFlowType(flowType)), isIncomplete(flowType));
                 }
+                // A `function`-typed variable acts like auto too. The driver has no closure
+                // subtyping -- every closure is just `function` -- so the declared type says
+                // nothing a reference can use. Narrowing to the closure most recently assigned
+                // is what gives a later `f(...)` a signature to check the call against.
+                if (declaredType === globalClosureType) {
+                    const assignedType = getWidenedLiteralType(getInitialOrAssignedType(flow));
+                    return isTypeAssignableTo(assignedType, declaredType) ? assignedType : declaredType;
+                }
                 // LPC object & mixed types should act like auto here.
-                if (declaredType === autoType || 
+                if (declaredType === autoType ||
                     declaredType === autoArrayType || 
                     declaredType === objectType || 
                     declaredType === mixedType || 
@@ -33990,7 +34002,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             else {
                 diagnostic = getDiagnosticForCallNode(node, error, parameterRange, args.length);
             }
-            const parameter = closestSignature?.declaration?.parameters[closestSignature.thisParameter ? args.length + 1 : args.length];
+            // An inline closure has no parameter list to point at -- its parameters are the
+            // `$N` the body reads -- so there may be nothing to attach the related info to.
+            const parameter = closestSignature?.declaration?.parameters?.[closestSignature.thisParameter ? args.length + 1 : args.length];
             if (parameter && !(parameter.flags & NodeFlags.ExternalFile)) {
                 const messageAndArgs: DiagnosticAndArguments = isBindingPattern(parameter.name) ? [Diagnostics.An_argument_matching_this_binding_pattern_was_not_provided]
                     : isRestParameter(parameter) ? [Diagnostics.Arguments_for_the_rest_parameter_0_were_not_provided, idText(getFirstIdentifier(parameter.name))]
@@ -34063,7 +34077,24 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return !!(t.flags & (TypeFlags.Void | TypeFlags.Undefined | TypeFlags.Unknown | TypeFlags.Any));
     }
 
-    function hasCorrectArity(node: CallLikeExpression, args: readonly Expression[], signature: Signature, signatureHelpTrailingComma = false) {        
+    /**
+     * Whether a call may pass more arguments than the signature has parameters.
+     *
+     * True for an inline closure. The driver ignores arguments the body never reads, and unlike
+     * a declared parameter list -- a contract the author wrote down -- a closure's arity is
+     * inferred from the highest `$N` it happens to reference. Holding a call to that inferred
+     * maximum would reject the ordinary LPC pattern of a dispatcher invoking stored callbacks
+     * with a fixed argument count while each one reads only what it needs.
+     *
+     * Note this is about how the closure is *called*, not where its `$N` types came from. A
+     * `$1` typed from a `mixed arg ...` position fills one slot of that rest parameter; the
+     * rest-ness describes the efun being called, not the closure being written.
+     */
+    function signatureAcceptsExtraArguments(signature: Signature): boolean {
+        return !!signature.declaration && isInlineClosureExpression(signature.declaration);
+    }
+
+    function hasCorrectArity(node: CallLikeExpression, args: readonly Expression[], signature: Signature, signatureHelpTrailingComma = false) {
         let argCount: number;
         let callIsIncomplete = false; // In incomplete call we want to be lenient when we have too few arguments
         let effectiveParameterCount = getParameterCount(signature);
@@ -34107,12 +34138,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // If a spread argument is present, check that it corresponds to a rest parameter or at least that it's in the valid range.
             const spreadArgIndex = getSpreadArgumentIndex(args);
             if (spreadArgIndex >= 0) {
-                return spreadArgIndex >= getMinArgumentCount(signature) && (hasEffectiveRestParameter(signature) || spreadArgIndex < getParameterCount(signature));
+                return spreadArgIndex >= getMinArgumentCount(signature) && (hasEffectiveRestParameter(signature) || signatureAcceptsExtraArguments(signature) || spreadArgIndex < getParameterCount(signature));
             }
         }
 
         // Too many arguments implies incorrect arity.
-        if (!hasEffectiveRestParameter(signature) && argCount > effectiveParameterCount) {
+        if (!hasEffectiveRestParameter(signature) && !signatureAcceptsExtraArguments(signature) && argCount > effectiveParameterCount) {
             return false;
         }
 
