@@ -7,6 +7,13 @@ let nextFlowId = 1;
 
 const anon = "(anonymous)";
 
+/**
+ * The meaning `getResolvedSymbol` looks up unless a caller asks for something narrower.
+ * Only a lookup with this exact meaning may report `Cannot_find_name_0` or be cached on
+ * the node -- see `getResolvedSymbol`.
+ */
+const defaultResolvedSymbolMeaning = SymbolFlags.Value | SymbolFlags.ExportValue;
+
 const enum MappedTypeNameTypeKind {
     None,
     Filtering,
@@ -12514,8 +12521,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // if (!(node.flags & NodeFlags.InWithStatement)) {
             switch (node.kind) {
                 case SyntaxKind.Identifier:
-                    const symbolFlags = isCallExpression(node.parent) ? SymbolFlags.Function : undefined;
-                    const symbol = getExportSymbolOfValueSymbolIfExported(getResolvedSymbol(node as Identifier, symbolFlags));
+                    // FluffOS lets a variable holding a closure be called by bare name, so a
+                    // call target is not necessarily a Function symbol. Narrowing the meaning
+                    // here would make the lookup miss for such locals and cost us the flow type
+                    // of every call to one. resolveCallExpression already guards the same way
+                    // for the non-identifier callee case.
+                    const symbolFlags = isCallExpression(node.parent) && languageVariant !== LanguageVariant.FluffOS
+                        ? SymbolFlags.Function
+                        : undefined;
+                    // This is a probe -- the caller tolerates `undefined` -- so it must neither
+                    // report nor poison the resolution cache for the consumers that follow.
+                    const symbol = getExportSymbolOfValueSymbolIfExported(getResolvedSymbol(node as Identifier, symbolFlags, /*speculative*/ true));
                     return getExplicitTypeOfSymbol(symbol, diagnostic);
                 // case SyntaxKind.ThisKeyword:
                 //     return getExplicitThisType(node);
@@ -22659,20 +22675,40 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
     }
     
-    function getResolvedSymbol(node: Identifier, symbolFlags = SymbolFlags.Value | SymbolFlags.ExportValue): Symbol {
+    /**
+     * Resolve an identifier to its symbol, caching the result on the node.
+     *
+     * `speculative` is for callers that are merely probing -- "can I cheaply determine what
+     * this name means?" -- and that cope with a miss on their own. A speculative lookup does
+     * neither of the two things a normal one does, because both are irreversible:
+     *
+     *   - it does not report `Cannot_find_name_0`. The probe may be asking under a narrower
+     *     meaning than the consumer that follows, and there is no way to unqueue a diagnostic
+     *     once the wider lookup succeeds.
+     *   - it does not write `links.resolvedSymbol`. The cache is not keyed on the requested
+     *     meaning, so a probe's miss would otherwise be read back as a genuine failure by
+     *     every later consumer of this node.
+     */
+    function getResolvedSymbol(node: Identifier, symbolFlags = defaultResolvedSymbolMeaning, speculative = false): Symbol {
         const links = getNodeLinks(node);
-        if (!links.resolvedSymbol) {
-            links.resolvedSymbol = !nodeIsMissing(node) &&
-                    resolveName(
-                        node,
-                        node,
-                        symbolFlags,
-                        getCannotFindNameDiagnosticForName(node),
-                        !isWriteOnlyAccess(node),
-                        /*excludeGlobals*/ false,
-                    ) || unknownSymbol;
+        if (links.resolvedSymbol) {
+            return links.resolvedSymbol;
         }
-        return links.resolvedSymbol;
+
+        const symbol = !nodeIsMissing(node) &&
+                resolveName(
+                    node,
+                    node,
+                    symbolFlags,
+                    speculative ? /*nameNotFoundMessage*/ undefined : getCannotFindNameDiagnosticForName(node),
+                    !isWriteOnlyAccess(node),
+                    /*excludeGlobals*/ false,
+                ) || unknownSymbol;
+
+        if (!speculative) {
+            links.resolvedSymbol = symbol;
+        }
+        return symbol;
     }
     
     function getParentOfSymbol(symbol: Symbol): Symbol | undefined {
@@ -31736,8 +31772,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                         return superMember;
                     }
                 }
-                const result = resolveEntityName(name, meaning, /*ignoreErrors*/ true, /*dontResolveAlias*/ true, getHostSignatureFromJSDoc(name));
-                if (!result && isJSDoc) {                    
+                let result = resolveEntityName(name, meaning, /*ignoreErrors*/ true, /*dontResolveAlias*/ true, getHostSignatureFromJSDoc(name));
+                // In FluffOS a variable holding a closure is callable by bare name, so a call
+                // target that isn't a Function symbol is not an error -- it's a value. Mirror
+                // resolveCallExpression, which prefers a Function of that name and falls back
+                // to Value; without this, goto-definition and hover are dead on such calls.
+                if (!result && languageVariant === LanguageVariant.FluffOS && meaning === SymbolFlags.Function && isCallExpression(name.parent) && name.parent.expression === name) {
+                    result = resolveEntityName(name, SymbolFlags.Value, /*ignoreErrors*/ true, /*dontResolveAlias*/ true, getHostSignatureFromJSDoc(name));
+                }
+                if (!result && isJSDoc) {
                     const container = findAncestor(name, or(isClassLike, isInterfaceDeclaration));
                     if (container) {
                         return resolveJSDocMemberName(name, /*ignoreErrors*/ true, getSymbolOfDeclaration(container));
