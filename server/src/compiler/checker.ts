@@ -8,6 +8,17 @@ let nextFlowId = 1;
 const anon = "(anonymous)";
 
 /**
+ * Names the binder gives a type that has no user-visible name of its own. They are internal
+ * markers, never something to show a reader -- a type carrying one renders structurally instead.
+ */
+function isAnonymousSymbolName(name: string | undefined): boolean {
+    return name === InternalSymbolName.Function
+        || name === InternalSymbolName.Type
+        || name === InternalSymbolName.Object
+        || name === InternalSymbolName.Class;
+}
+
+/**
  * The meaning `getResolvedSymbol` looks up unless a caller asks for something narrower.
  * Only a lookup with this exact meaning may report `Cannot_find_name_0` or be cached on
  * the node -- see `getResolvedSymbol`.
@@ -20490,10 +20501,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 //     return factory.createKeywordTypeNode(SyntaxKind.ObjectKeyword);
                 // }
 
-                if (!type.aliasSymbol) {
+                // A named object type -- LPC's `object "/path/to/file"` -- carries the file path
+                // as its symbol name, which is what makes displaying that name useful. An
+                // anonymous type has no such name: the binder calls it `__function`, `__type`
+                // and so on, and rendering one of those as a path yields `object "__function"`.
+                // Those fall through to the structural rendering below, which knows how to print
+                // the call signature an inline closure actually has.
+                if (!type.aliasSymbol && !isAnonymousSymbolName(type.symbol?.name as string)) {
                     // this is a named object symbol
                     // display the filename as part of the type name
-                    context.approximateLength += 3;                                                  
+                    context.approximateLength += 3;
                     return factory.createNamedObjectTypeNode(factory.createStringLiteral(trimQuotes(type.symbol.name)), factory.createKeywordTypeNode(SyntaxKind.ObjectKeyword));
                     // return factory.createKeywordTypeNode(SyntaxKind.ObjectKeyword);
                 }

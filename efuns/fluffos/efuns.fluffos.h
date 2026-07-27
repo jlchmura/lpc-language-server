@@ -1,4 +1,6 @@
-/** These objects must be here - they are used by the type checker for various non-primitive types */
+// MARK: driver intrisinc types
+// Used by the type checker for various non-primitive types 
+
 object __LS__Array;
 object __LS__Mapping;
 object __LS__Object;
@@ -38,7 +40,7 @@ object __LS__Closure;
 #define __DEBUG_MACRO__         1
 
 /*
- * efun definitions
+ * MARK: efun definitions
  * 
  * The doc comments in the FluffOS efun files were created 
  * from the FluffOS source code.

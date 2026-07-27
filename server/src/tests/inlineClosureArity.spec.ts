@@ -116,7 +116,25 @@ describe("a narrowed closure variable is still a function", () => {
     });
 
     it("renders its signature rather than the bare keyword", () => {
+        // A closure-valued variable reads as the function it holds, in the same shape an efun
+        // gets (`function mixed evaluate(mixed f...)`): kind, return type, name, parameters.
         const hover = hoverAt(`void p(string s) { function f = (: strlen($1) :); f(s); }`, "f(s)");
-        expect(hover).toContain("(string $1) => int");
+        expect(hover).toBe("(local var) int f(string $1)");
+    });
+
+    it("names the type LPC-style where the type itself is written out", () => {
+        // Error text spells the type rather than a declaration, and LPC has no arrow syntax --
+        // so it reads return-type-first with `function` standing in for the name.
+        const diagnostics = diagnosticsFor(`void g(int n) {} void p() { function f = (: strlen($1) :); g(f); }`);
+        expect(diagnostics.join(" ")).toContain("int function(string $1)");
+    });
+
+    it("does not leak the binder's internal name for an anonymous type", () => {
+        // The closure's symbol is `__function` -- TypeScript's InternalSymbolName for an
+        // unnamed function expression. Rendering an anonymous type as a *named object* type
+        // used to print that marker as though it were an object path.
+        const hover = hoverAt(`void p(string s) { function f = (: strlen($1) :); f(s); }`, "f(s)");
+        expect(hover).not.toContain("__function");
+        expect(hover).not.toContain("__LS__");
     });
 });

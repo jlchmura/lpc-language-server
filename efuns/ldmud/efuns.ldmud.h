@@ -69,9 +69,10 @@
 #define __GCRYPT__                  0 /* cryptographic routines provided by libgcrypt */
 #define __DEPRECATED__              0 /* support for obsolete and deprecated efuns */
 
-/* ldmud efuns */
 
-/** Used by the type checker for various non-primitive types */
+// MARK: driver intrisinc types
+// Used by the type checker for various non-primitive types 
+
 object __LS__Array;
 object __LS__Mapping;
 object __LS__Object;
@@ -82,6 +83,8 @@ object __LS__Int;
 object __LS__ReadonlyArray;
 object __LS__String;
 object __LS__Closure;
+
+// MARK: ldmud efuns
 
 #include "efun.h"
 #include "obsolete.h"
