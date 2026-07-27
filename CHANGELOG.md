@@ -8,7 +8,7 @@
 - Refactored preparser and macro expansion for speed and better reliability
 - Fix: spurious "Cannot find name" on FluffOS closure-variable calls
 - Fix: closure-variable calls now resolve to the correct function signature and return type
-- Improve array type checking and array efun signatures
+- Fix: Incorrect array result types and efun signatures
 
 ## 1.1.49
 
