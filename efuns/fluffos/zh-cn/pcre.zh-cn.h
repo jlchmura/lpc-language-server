@@ -31,21 +31,41 @@ string pcre_replace(string input, string pattern, string *replacments, void|int 
  *
  * 类似于php的preg_match_all，这个EFUN返回一个字符串数组的数组，包含所有匹配项和捕获的组。
  *
+ * 返回数组的每个元素描述一次匹配：一个字符串数组，其第一个元素是完整匹配的文本，
+ * 其余元素依次是该次匹配捕获的组。
+ *
  * 可选的 pcre_flags 参数是编译模式时应用的 PCRE 选项标志的位掩码（例如忽略大小写、多行模式）。
  *
  */
-mixed pcre_match_all(string input, string pattern, void|int pcre_flags);
+<string*>* pcre_match_all(string input, string pattern, void|int pcre_flags);
 
 /**
  * pcre_match() - 正则表达式处理器
  *
  * 由于向后兼容的原因与正则表达式efun类似，但利用了PCRE库。
  *
+ * 当传入单个字符串时，如果模式匹配该字符串则返回非零值，否则返回零。
+ * 在这种形式下，单独给出的第三个整数参数会被视为 pcre_flags。
+ *
  * 可选的 pcre_flags 参数是编译模式时应用的 PCRE 选项标志的位掩码（例如忽略大小写、多行模式）。
- * 当 lines 是单个字符串时，单独给出的第三个整数参数会被视为 pcre_flags 而不是 flag。
  *
  */
-mixed pcre_match(string|string *lines, string pattern, void|int flag, void|int pcre_flags);
+int pcre_match(string subject, string pattern, void|int pcre_flags);
+
+/**
+ * pcre_match() - 正则表达式处理器
+ *
+ * 由于向后兼容的原因与正则表达式efun类似，但利用了PCRE库。
+ *
+ * 当传入字符串数组时，返回由匹配模式的行组成的数组。可选的 flag 参数是一个位域：
+ * 设置了位 2 时，改为返回不匹配的行；设置了位 1 时，返回形如
+ * ({ index1 + 1, match1, ..., indexn + 1, matchn }) 的数组，其中每个 index
+ * 是其后那一行在 lines 中的位置。
+ *
+ * 可选的 pcre_flags 参数是编译模式时应用的 PCRE 选项标志的位掩码（例如忽略大小写、多行模式）。
+ *
+ */
+string *pcre_match(string *lines, string pattern, void|int flag, void|int pcre_flags);
 
 /**
  * pcre_extract() - 提取匹配部分

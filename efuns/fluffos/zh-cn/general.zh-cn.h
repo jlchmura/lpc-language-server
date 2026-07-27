@@ -338,8 +338,8 @@ string|mapping filter(string|mapping source, function f, mixed *extra... );
 /**
  * @template T
  * @callback filterCallback
- * @param {T} element The element to map
- * @returns The map callback return value
+ * @param {T} element 要测试的元素
+ * @returns {int} 非零表示保留该元素，零表示丢弃
  */
 
 /**

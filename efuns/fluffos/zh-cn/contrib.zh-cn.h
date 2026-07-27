@@ -145,6 +145,9 @@ mixed store_class_member(mixed instantiated_class, int class_element, mixed valu
  *
  * 随机重排列给定数组的元素（改变原数组!!!）
  *
+ * @template T
+ * @param {T*} arr 要打乱的数组
+ * @returns {T*} 打乱后的数组
  */
 mixed *shuffle(mixed *arr);
 
@@ -332,8 +335,10 @@ varargs string query_num(int num, int many);
  * 返回当前 notify_fail 设置（funcp 或字符串）
  * #ifndef NO_ADD_ACTION
  *
+ * @returns {string|function} 当前的 notify_fail 设置，根据其设置方式，
+ * 可能是字符串或函数指针。
  */
-mixed query_notify_fail();
+string|function query_notify_fail();
 
 /**
  * query_ip_port - 返回连接的本地端口
@@ -436,8 +441,16 @@ object *named_livings( void );
  * 搜索 (int|float|string) 数组中的最小值。如果 flag 为 0 或
  * 被省略，则返回最小值，否则返回其首次出现的索引。
  *
+ * @template {int|float|string} T
+ * @param {T*} arr 要搜索的数组
+ * @returns {T} 数组中的最小值
  */
 mixed min(mixed * arr);
+
+/**
+ * min() - 当 flag 非零时，返回最小值首次出现的索引（int），
+ * 而不是最小值本身，因此返回类型保持为 `mixed`。
+ */
 mixed min(mixed * arr, int flag);
 
 /**
@@ -461,8 +474,16 @@ mapping memory_summary();
  * 搜索 (int|float|string) 数组中的最大值。如果 flag 为 0 或
  * 被省略，则返回最大值，否则返回其首次出现的索引。
  *
+ * @template {int|float|string} T
+ * @param {T*} arr 要搜索的数组
+ * @returns {T} 数组中的最大值
  */
-mixed max(mixed * arr); 
+mixed max(mixed * arr);
+
+/**
+ * max() - 当 flag 非零时，返回最大值首次出现的索引（int），
+ * 而不是最大值本身，因此返回类型保持为 `mixed`。
+ */
 mixed max(mixed * arr, int flag);
 
 /**
@@ -669,6 +690,9 @@ void event(object | object * target, string event_name, mixed *args...);
  *
  * 返回给定数组的随机元素
  *
+ * @template T
+ * @param {T*} arr 要从中选取的数组
+ * @returns {T} 数组中的一个随机元素
  */
 mixed element_of(mixed *arr);
 
@@ -728,6 +752,9 @@ void debug_message(string msg);
  * 
  * 当你希望有通过引用传递的数据，但又不想改变原始数据时，这特别有用。
  *
+ * @template T
+ * @param {T} arg 要拷贝的值
+ * @returns {T} 与输入类型相同的深拷贝
  */
 mixed copy(mixed arg);
 
@@ -830,7 +857,8 @@ mixed assemble_class( mixed *elements );
 /**
  * abs() - 返回一个数的绝对值
  *
- * 返回提供的 <number> 的绝对值。
+ * 返回提供的 <number> 的绝对值。结果与参数的数值类型相同：
+ * int 返回 int，float 返回 float。
  *
  * int value = abs( 10 );      // 10
  * int value = abs( -10 );     // 10
@@ -838,4 +866,9 @@ mixed assemble_class( mixed *elements );
  * float value = abs( -3.14 ); // 3.140000
  *
  */
-mixed abs( int | float number );
+int abs( int number );
+
+/**
+ * abs() - 返回一个浮点数的绝对值。
+ */
+float abs( float number );

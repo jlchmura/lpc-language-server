@@ -41,11 +41,15 @@ string pcre_replace(string input, string pattern, string *replacments, void|int 
  * Similiar to php preg_match_all, this EFUN returns a array of string arrays,
  * containing all matches and captured groups.
  *
+ * Each element of the result describes one match: a string array whose
+ * first element is the full matched text and whose remaining elements are
+ * that match's captured groups, in order.
+ *
  * The optional pcre_flags argument is a bitmask of PCRE option flags
  * (e.g. case-insensitive, multiline) applied when compiling the pattern.
  *
  */
-mixed pcre_match_all(string input, string pattern, void|int pcre_flags);
+<string*>* pcre_match_all(string input, string pattern, void|int pcre_flags);
 
 /**
  * pcre_match() - regular expression handler
@@ -53,13 +57,33 @@ mixed pcre_match_all(string input, string pattern, void|int pcre_flags);
  * analog with regexp efun for backwards compatibility reasons but utilizing
  * the PCRE library.
  *
+ * When the subject is a single string, returns nonzero if the pattern
+ * matches it and zero otherwise. In this form a lone third integer
+ * argument is treated as pcre_flags.
+ *
  * The optional pcre_flags argument is a bitmask of PCRE option flags
  * (e.g. case-insensitive, multiline) applied when compiling the pattern.
- * When lines is a single string, a lone third integer argument is treated
- * as pcre_flags rather than as flag.
  *
  */
-mixed pcre_match(string|string *lines, string pattern, void|int flag, void|int pcre_flags);
+int pcre_match(string subject, string pattern, void|int pcre_flags);
+
+/**
+ * pcre_match() - regular expression handler
+ *
+ * analog with regexp efun for backwards compatibility reasons but utilizing
+ * the PCRE library.
+ *
+ * When given an array of lines, returns an array holding those lines which
+ * match the pattern. The optional 'flag' argument is a bit field: with bit
+ * 2 set, the non-matching lines are returned instead; with bit 1 set, the
+ * result is of the form ({ index1 + 1, match1, ..., indexn + 1, matchn })
+ * where each index is the position of the following line in 'lines'.
+ *
+ * The optional pcre_flags argument is a bitmask of PCRE option flags
+ * (e.g. case-insensitive, multiline) applied when compiling the pattern.
+ *
+ */
+string *pcre_match(string *lines, string pattern, void|int flag, void|int pcre_flags);
 
 /**
  * pcre_extract() - extract matching parts

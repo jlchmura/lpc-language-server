@@ -240,6 +240,9 @@ mixed *filter_array( mixed *arr, function f, mixed extra... );
  *
  * Returns a random element from an array.
  *
+ * @template T
+ * @param {T*} arr The array to pick from
+ * @returns {T} A random element of the array
  */
 mixed element_of(mixed *arr);
 

@@ -408,6 +408,29 @@ string lower_case( string str );
 string implode( mixed *arr, string del );
 
 /**
+ * @template T, Y
+ * @callback implodeCallback
+ * @param {Y} acc 到目前为止累积的值
+ * @param {T} element 数组中的下一个元素
+ * @returns {Y} 新的累积值
+ */
+
+/**
+ * implode() - 通过应用函数指针归约数组。
+ *
+ * 在这种形式下，implode() 对数组进行折叠：它从左到右组合各元素，
+ * 反复以当前的累积结果和下一个元素调用 'f'，并返回最后一次调用的返回值。
+ * 可选的 'extra' 参数存在时用作起始值；否则以数组的第一个元素作为起始值。
+ *
+ * @template T, Y
+ * @param {T*} arr 要归约的数组
+ * @param {implodeCallback<T,Y>} f 将累积值与每个元素组合的函数
+ * @param {Y|void} extra 累积值的起始值
+ * @returns {Y} 累积得到的值
+ */
+mixed implode( mixed *arr, function f, void | mixed extra );
+
+/**
  * hash() - 使用指定算法对字符串进行哈希
  *
  * 返回字符串 `str` 的 `algo` 算法的哈希。
