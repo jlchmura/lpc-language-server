@@ -16679,10 +16679,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 else if (isArrayType(leftType) && isArrayType(rightType)) {
                     // LPC allows array addition and subtraction
                     const leftElementType = first(leftType.resolvedTypeArguments);
-                    const rightElementType = first(rightType.resolvedTypeArguments);               
-                    if (areTypesComparable(leftElementType, rightElementType)) {
+                    const rightElementType = first(rightType.resolvedTypeArguments);
+                    // Assignability, not comparability. The result keeps the left array's
+                    // element type, so every element coming from the right has to fit it --
+                    // and comparability succeeds when merely *some* union constituent matches,
+                    // which let `string* += ({ "f", 123 })` through: the right element type is
+                    // `string | int`, and its `string` half was enough to satisfy the check.
+                    if (isTypeAssignableTo(rightElementType, leftElementType)) {
                         resultType = leftType;
-                    }                                        
+                    }
                 } 
                 else if (isMappingType(leftType) && isMappingType(rightType)) {
                     resultType = leftType;
@@ -30750,6 +30755,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     (isArrayType(declaredType) && declaredType.resolvedTypeArguments && !isAnonymousObjectType(first(declaredType.resolvedTypeArguments)))
                 ) {
                     if (isEmptyArrayAssignment(node)) {
+                        // An evolving array starts empty and takes its element type from what
+                        // later gets assigned into it -- right for `mixed *x = ({})`, where the
+                        // element type is genuinely open. But `string *x = ({})` already states
+                        // what the array holds, and evolving from that discarded the declared
+                        // element type: the variable drifted to `mixed*` and `x += ({ 123 })`
+                        // stopped being an error.
+                        const declaredElementType = isArrayType(declaredType) ? declaredType.resolvedTypeArguments?.[0] : undefined;
+                        if (declaredElementType && !isTypeAny(declaredElementType)) {
+                            return declaredType;
+                        }
                         return getEvolvingArrayType(neverType);
                     }
                     const assignedType = getWidenedLiteralType(getInitialOrAssignedType(flow));
