@@ -76,21 +76,38 @@ varargs <mixed*>* unique_array(mixed *arr, function f, mixed skip );
  * that the array must be homogeneous, composed entirely of a single type,
  * where  that type is string, int, or float.  Arrays of arrays are sorted
  * by sorting based on the first element, making database sorts possible.
- * @template {ALL_ARRAY_TYPES} T
- * @param {T} arr The array to sort
- * @returns {T} The sorted array
+ * @template T
+ * @param {T*} arr The array to sort
+ * @returns {T*} The sorted array
  */
 mixed *sort_array( mixed *arr, string fun, object ob, mixed extra... );
+
+/**
+ * sort_array() - sort an array using a function pointer to compare elements.
+ *
+ * @template T
+ * @param {T*} arr The array to sort
+ * @returns {T*} The sorted array
+ */
 mixed *sort_array( mixed *arr, function f, mixed extra... );
+
+/**
+ * sort_array() - sort an array using the built-in sort routines. A 'direction'
+ * of 1 or 0 sorts in ascending order, -1 in descending order.
+ *
+ * @template T
+ * @param {T*} arr The array to sort
+ * @returns {T*} The sorted array
+ */
 mixed *sort_array( mixed *arr, int direction );
 
 /**
  * shuffle() - Rearrange the elements in the array in random order
  *
  * Shuffle the array and return.
- * @template {ALL_ARRAY_TYPES} T
- * @param {T} arr The array to shuffle
- * @returns {T} The shuffled array
+ * @template T
+ * @param {T*} arr The array to shuffle
+ * @returns {T*} The shuffled array
  */
 mixed *shuffle(mixed *arr);
 
@@ -153,6 +170,27 @@ varargs int member_array( mixed item, mixed * | string arr, void | int start );
  *
  */
 mixed *map_array( mixed *arr, string fun, object ob, mixed extra... );
+
+/**
+ * @template T, Y
+ * @callback mapArrayCallback
+ * @param {T} element The element being mapped
+ * @returns {Y} The replacement for that element
+ */
+
+/**
+ * map_array() - modify an array of elements via application of a function pointer.
+ *
+ * The result holds whatever 'f' returns, so mapping a `string*` through a callback
+ * returning an int yields an `int*`. The `ob->fun()` form above cannot be typed this
+ * way -- the function is named by a string, so its return type is not knowable -- and
+ * stays `mixed*`.
+ *
+ * @template T, Y
+ * @param {T*} arr The array to map
+ * @param {mapArrayCallback<T,Y>} f The function applied to each element
+ * @returns {Y*} The mapped array
+ */
 mixed *map_array( mixed *arr, function f, mixed extra... );
 
 /**
@@ -169,6 +207,20 @@ mixed *map_array( mixed *arr, function f, mixed extra... );
  *
  */
 mixed *filter_array( mixed *arr, string fun, object|string ob, mixed extra... );
+
+/**
+ * filter_array() - return a selective sub-array using a function pointer.
+ *
+ * Unlike map_array(), filtering selects elements rather than transforming them, so the
+ * result holds the same element type as the input -- the callback's return value is only
+ * the keep-or-discard test. The `ob->fun()` form above cannot be typed this way and stays
+ * `mixed*`.
+ *
+ * @template T
+ * @param {T*} arr The array to filter
+ * @param {filterCallback<T>} f Nonzero to keep the element, zero to discard it
+ * @returns {T*} The elements that passed the test
+ */
 mixed *filter_array( mixed *arr, function f, mixed extra... );
 
 /**

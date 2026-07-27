@@ -30754,6 +30754,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     // see https://github.com/jlchmura/lpc-language-server/issues/190
                     (isArrayType(declaredType) && declaredType.resolvedTypeArguments && !isAnonymousObjectType(first(declaredType.resolvedTypeArguments)))
                 ) {
+                    // Whether the declaration states what the array holds. `mixed*` does not
+                    // count: `mixed` is `any`, which says nothing about the contents.
+                    const declaresElementType = isArrayType(declaredType) && !isTypeAny(declaredType.resolvedTypeArguments?.[0] ?? anyType);
+
                     if (isEmptyArrayAssignment(node)) {
                         // An evolving array starts empty and takes its element type from what
                         // later gets assigned into it -- right for `mixed *x = ({})`, where the
@@ -30761,13 +30765,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                         // what the array holds, and evolving from that discarded the declared
                         // element type: the variable drifted to `mixed*` and `x += ({ 123 })`
                         // stopped being an error.
-                        const declaredElementType = isArrayType(declaredType) ? declaredType.resolvedTypeArguments?.[0] : undefined;
-                        if (declaredElementType && !isTypeAny(declaredElementType)) {
-                            return declaredType;
-                        }
-                        return getEvolvingArrayType(neverType);
+                        return declaresElementType ? declaredType : getEvolvingArrayType(neverType);
                     }
                     const assignedType = getWidenedLiteralType(getInitialOrAssignedType(flow));
+                    // Narrowing may only make a type more specific. An efun returning `mixed*`
+                    // passes the assignability check below -- `mixed` is `any` -- but adopting it
+                    // would widen the reference past its own declaration, so `int *r = sort_array(...)`
+                    // would report `r` as `mixed*` from then on. Keep what the author declared.
+                    if (declaresElementType && isArrayType(assignedType) && isTypeAny(assignedType.resolvedTypeArguments?.[0] ?? anyType)) {
+                        return declaredType;
+                    }
                     return isTypeAssignableTo(assignedType, declaredType) ? assignedType : anyArrayType;
                 }
                 const t = isInCompoundLikeAssignment(node) ? getBaseTypeOfLiteralType(declaredType) : declaredType;
