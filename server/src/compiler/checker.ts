@@ -4730,6 +4730,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 minArgumentCount = parameters.length;                
             }
 
+            // An inline closure has no parameter list -- its parameters are the `$1`..`$N` the
+            // body references. Synthesize them so the closure carries a real arity, the way an
+            // arrow function's declared parameters would.
+            if (isInlineClosureExpression(declaration) && !parameters.length) {
+                parameters.push(...getInlineClosureParameters(declaration));
+                // The driver passes 0 for a `$N` with no corresponding argument, so under-supply
+                // is legal: every synthesized parameter is effectively optional.
+                minArgumentCount = 0;
+            }
+
             if (thisTag && thisTag.typeExpression) {
                 thisParameter = createSymbolWithType(createSymbol(SymbolFlags.FunctionScopedVariable, InternalSymbolName.This), getTypeFromTypeNode(thisTag.typeExpression));
             }
@@ -15246,6 +15256,186 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     interface InlineClosureNodeLinks extends NodeLinks {
         contextualSignatureInferenceContext?: InferenceContext;
+        /** Synthesized `$1`..`$N` parameters, in order. Empty if the body uses none. */
+        closureParameters?: Symbol[];
+        /** `$N` references in the body, bucketed by position. */
+        closureParameterReferences?: Identifier[][];
+    }
+
+    interface ClosureParameterSymbolLinks extends SymbolLinks {
+        closureDeclaration?: InlineClosureExpression;
+        closureParameterIndex?: number;
+    }
+
+    /**
+     * The 1-based index of an inline-closure implicit parameter reference (`$1` -> 1), or 0 if
+     * the identifier isn't one. Unlike a TypeScript arrow function, an LPC inline closure has no
+     * parameter list -- `$1`..`$9` are ordinary identifiers that the driver binds positionally.
+     */
+    function getInlineClosureParameterIndex(node: Node): number {
+        if (!isIdentifier(node) || node.text.charCodeAt(0) !== CharacterCodes.$) {
+            return 0;
+        }
+        const match = /^\$(\d+)$/.exec(node.text);
+        return match ? Number.parseInt(match[1], 10) : 0;
+    }
+
+    /**
+     * Every `$N` referenced directly by this closure's body, bucketed by position (index 0 holds
+     * the `$1` references). A nested `(: ... :)` rebinds `$1`..`$9`, so the walk stops there --
+     * the nearest enclosing closure owns them, which is the rule the `$N` lookups have always
+     * used. The array's length is the closure's arity; a position the body skips gets an empty
+     * bucket, since `(: $2 :)` still takes two arguments.
+     */
+    function getInlineClosureParameterReferences(node: InlineClosureExpression): Identifier[][] {
+        const links = getNodeLinks(node) as InlineClosureNodeLinks;
+        if (!links.closureParameterReferences) {
+            const references: Identifier[][] = [];
+            const visit = (child: Node): void => {
+                if (isInlineClosureExpression(child)) {
+                    return;
+                }
+                const index = getInlineClosureParameterIndex(child);
+                if (index > 0) {
+                    (references[index - 1] ??= []).push(child as Identifier);
+                }
+                forEachChild(child, visit);
+            };
+            const body = node.body as Node | NodeArray<Expression> | undefined;
+            if (isArray(body)) {
+                (body as NodeArray<Expression>).forEach(visit);
+            }
+            else if (body) {
+                visit(body as Node);
+            }
+            for (let i = 0; i < references.length; i++) {
+                references[i] ??= [];
+            }
+            links.closureParameterReferences = references;
+        }
+        return links.closureParameterReferences;
+    }
+
+    /**
+     * Real parameter symbols for a closure's `$1`..`$N`, so the closure gets a `Signature` with
+     * an honest arity instead of an empty one. Their types stay lazy -- see
+     * `getTypeOfClosureParameter` -- because resolving a contextual signature here would recurse
+     * back through the call whose arguments we are in the middle of resolving.
+     */
+    function getInlineClosureParameters(node: InlineClosureExpression): Symbol[] {
+        const links = getNodeLinks(node) as InlineClosureNodeLinks;
+        if (!links.closureParameters) {
+            const count = getInlineClosureParameterReferences(node).length;
+            const parameters: Symbol[] = [];
+            for (let i = 0; i < count; i++) {
+                const symbol = createSymbol(SymbolFlags.FunctionScopedVariable, `$${i + 1}` as string, CheckFlags.ClosureParameter);
+                const symbolLinks = symbol.links as ClosureParameterSymbolLinks;
+                symbolLinks.closureDeclaration = node;
+                symbolLinks.closureParameterIndex = i;
+                parameters.push(symbol);
+            }
+            links.closureParameters = parameters;
+        }
+        return links.closureParameters;
+    }
+
+    /**
+     * What a single use of `$N` tells us about its type. Only argument position is read: LPC's
+     * operators are overloaded across so many types (`+` alone spans int, float, string, array
+     * and mapping) that inferring from them would invent a narrow type the driver never
+     * promised, and every downstream error built on it would be a false positive.
+     */
+    function getInlineClosureParameterTypeFromUse(reference: Identifier): Type | undefined {
+        const parent = reference.parent;
+        if (!parent || !isCallExpression(parent) || parent.expression === reference) {
+            return undefined;
+        }
+        const argumentIndex = parent.arguments?.indexOf(reference) ?? -1;
+        if (argumentIndex < 0) {
+            return undefined;
+        }
+        // Deliberately not getResolvedSignature: overload resolution needs the types of the
+        // call's arguments, and this reference is one of them. Reading the callee's declared
+        // signature instead keeps the inference one-directional. A callee with more than one
+        // signature is skipped rather than guessed at.
+        const callee = parent.expression;
+        if (!isIdentifier(callee)) {
+            return undefined;
+        }
+        const calleeSymbol = resolveName(
+            callee,
+            callee,
+            SymbolFlags.Function | SymbolFlags.Value,
+            /*nameNotFoundMessage*/ undefined,
+            /*isUse*/ false,
+            /*excludeGlobals*/ false,
+        );
+        if (!calleeSymbol) {
+            return undefined;
+        }
+        const signatures = getSignaturesOfType(getTypeOfSymbol(calleeSymbol), SignatureKind.Call);
+        return signatures.length === 1 ? tryGetTypeAtPosition(signatures[0], argumentIndex) : undefined;
+    }
+
+    /**
+     * Infer `$N`'s type from how the body uses it. Uses that resolve to `mixed` -- a variadic
+     * `mixed arg ...` parameter, say -- carry no information and are skipped, so a more specific
+     * use elsewhere can still win. Uses that disagree fall back to `mixed` rather than
+     * intersecting: a wrong narrow type here would surface as a spurious error at the call site.
+     */
+    function getInlineClosureParameterTypeFromUsage(closure: InlineClosureExpression, index: number): Type | undefined {
+        const references = getInlineClosureParameterReferences(closure)[index];
+        let candidate: Type | undefined;
+        for (const reference of references ?? emptyArray) {
+            const type = getInlineClosureParameterTypeFromUse(reference);
+            if (!type || isTypeAny(type)) {
+                continue;
+            }
+            if (!candidate) {
+                candidate = type;
+            }
+            else if (candidate !== type) {
+                return undefined;
+            }
+        }
+        return candidate;
+    }
+
+    function getTypeOfClosureParameter(symbol: Symbol): Type {
+        const links = getSymbolLinks(symbol) as ClosureParameterSymbolLinks;
+        if (links.type) {
+            return links.type;
+        }
+        const closure = links.closureDeclaration;
+        const index = links.closureParameterIndex ?? 0;
+        if (!closure) {
+            return mixedType;
+        }
+        // Inferring from usage means resolving the callees the body passes `$N` to, and one of
+        // those can lead back here. Report `mixed` for the re-entrant request rather than
+        // caching it -- the outer request still gets to record the real answer.
+        if (!pushTypeResolution(symbol, TypeSystemPropertyName.Type)) {
+            return mixedType;
+        }
+        // A contextual signature -- `filter(arr, (: $1 > 0 :))` -- is the caller telling us
+        // outright, so it outranks anything we could deduce from the body.
+        const contextualSignature = getInlineClosureContextualSignature(closure);
+        const type = (contextualSignature && tryGetTypeAtPosition(contextualSignature, index))
+            || getInlineClosureParameterTypeFromUsage(closure, index)
+            || mixedType;
+        popTypeResolution();
+        return links.type ??= type;
+    }
+
+    /** The parameter type for `$index` (1-based) of the closure enclosing `node`, if any. */
+    function getTypeOfInlineClosureParameterReference(node: Node, index: number): Type | undefined {
+        const closure = findAncestor(node, isInlineClosureExpression);
+        if (!closure) {
+            return undefined;
+        }
+        const parameters = getInlineClosureParameters(closure);
+        const parameter = parameters[index - 1];
+        return parameter && getTypeOfSymbol(parameter);
     }
 
     function ensureInlineClosureContext(node: InlineClosureExpression): InlineClosureNodeLinks {
@@ -15276,27 +15466,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function checkLambdaIdentifierExpression(node: LambdaIdentifierExpression, checkMode: CheckMode | undefined): Type {
-        // inline closures use `$1`, `$2`, ... for implicit parameters.
-        // We infer their types from the contextual signature of the containing `(: ... :)` closure.
+        // The `#'1` form names the same implicit parameter as `$1`, so it reads the type off the
+        // enclosing closure's signature rather than repeating the contextual-signature lookup.
         const name = node.name;
         if (name && name.kind === SyntaxKind.Identifier) {
-            const text = (name as Identifier).text;
-            const index = Number.parseInt(text, 10);
+            const index = Number.parseInt((name as Identifier).text, 10);
             if (!Number.isNaN(index) && index > 0) {
-                const closure = findAncestor(node, isInlineClosureExpression);
-                if (closure) {
-                    const contextualSignature = getInlineClosureContextualSignature(closure);
-                    const contextualType = contextualSignature && getTypeAtPosition(contextualSignature, index - 1);
-                    if (contextualType) {
-                        return contextualType;
-                    }
-
-                    // Fall back to the closure's own signature (e.g. explicitly declared parameters).
-                    const ownSignature = getSignatureFromDeclaration(closure);
-                    const ownType = ownSignature && getTypeAtPosition(ownSignature, index - 1);
-                    if (ownType) {
-                        return ownType;
-                    }
+                const parameterType = getTypeOfInlineClosureParameterReference(node, index);
+                if (parameterType) {
+                    return parameterType;
                 }
             }
         }
@@ -23699,6 +23877,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (checkFlags & CheckFlags.ReverseMapped) {
             return getTypeOfReverseMappedSymbol(symbol as ReverseMappedSymbol);
         }
+        if (checkFlags & CheckFlags.ClosureParameter) {
+            return getTypeOfClosureParameter(symbol);
+        }
         if (symbol.flags & (SymbolFlags.Variable | SymbolFlags.Property)) {
             return getTypeOfVariableOrParameterOrProperty(symbol);
         }
@@ -25004,22 +25185,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         //     return checkThisExpression(node);
         // }
 
-        // inline closures use `$1`, `$2`, ... as implicit parameters. Treat those as contextually
-        // typed parameters rather than normal identifiers so we can infer their types from the call site.
-        if (node.text.charCodeAt(0) === CharacterCodes.$) {
-            const match = /^\$(\d+)$/.exec(node.text);
-            if (match) {
-                const index = Number.parseInt(match[1], 10);
-                if (index > 0) {
-                    const closure = findAncestor(node, isInlineClosureExpression);
-                    if (closure) {
-                        const contextualSignature = getInlineClosureContextualSignature(closure);
-                        const contextualType = contextualSignature && getTypeAtPosition(contextualSignature, index - 1);
-                        if (contextualType) {
-                            return contextualType;
-                        }
-                    }
-                }
+        // Inline closures use `$1`, `$2`, ... as implicit parameters. They resolve to the
+        // synthesized parameter symbols on the enclosing closure's signature, so the type comes
+        // from the same place a declared parameter's would.
+        const closureParameterIndex = getInlineClosureParameterIndex(node);
+        if (closureParameterIndex > 0) {
+            const parameterType = getTypeOfInlineClosureParameterReference(node, closureParameterIndex);
+            if (parameterType) {
+                return parameterType;
             }
         }
 
