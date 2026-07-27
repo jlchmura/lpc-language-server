@@ -2541,10 +2541,19 @@ export function getFunctionFlags(node: SignatureDeclaration | undefined) {
  *
  * @internal
  */
-export function getEffectiveReturnTypeNode(node: SignatureDeclaration | JSDocSignature): TypeNode | undefined {    
-    return isJSDocSignature(node) ?
-        node.type && node.type.typeExpression && node.type.typeExpression.type :        
-        (isInJSFile(node) ? getJSDocReturnType(node) : undefined) ?? node.type;
+export function getEffectiveReturnTypeNode(node: SignatureDeclaration | JSDocSignature): TypeNode | undefined {
+    if (isJSDocSignature(node)) {
+        return node.type && node.type.typeExpression && node.type.typeExpression.type;
+    }
+    const docType = isInJSFile(node) ? getJSDocReturnType(node) : undefined;
+    // `@returns` narrows the element the same way `@param` and `@type` do, so a `*` on the
+    // declared return type has to survive it -- `mixed *f()` with `@returns {T}` returns `T*`.
+    // Without this the two halves of one signature disagreed: the parameter kept its array rank
+    // and the return type quietly lost it, so a generic efun handed back its element type.
+    if (docType && node.type && shouldJsDocTypeOverrideTypeNode(node.type)) {
+        return preserveDeclaredArrayRank(node.type, docType);
+    }
+    return docType ?? node.type;
 }
 
 /** @internal */
@@ -3305,20 +3314,7 @@ export function getEffectiveTypeAnnotationNode(node: Node, originatingFile?: Sou
         // narrows the element (e.g. `@type {STD_NPC}`), preserve the declarator's array
         // rank by wrapping the JSDoc type in an array. Without this, the `*` is dropped and
         // `mobs` is treated as a single object instead of an array (see #317).
-        if (possibleType !== type && isArrayTypeNode(type) && !isArrayTypeNode(possibleType)) {
-            const overrideHost = type as TypeNode & { jsDocArrayTypeOverride?: ArrayTypeNode };
-            const cached = overrideHost.jsDocArrayTypeOverride;
-            if (cached && cached.elementType === possibleType) {
-                possibleType = cached;
-            }
-            else {
-                const wrapped = factory.createArrayTypeNode(possibleType);
-                setParent(wrapped, type.parent);
-                setTextRangePosEnd(wrapped, type.pos, type.end);
-                overrideHost.jsDocArrayTypeOverride = wrapped;
-                possibleType = wrapped;
-            }
-        }
+        possibleType = preserveDeclaredArrayRank(type, possibleType);
         if (isVariableDeclaration(node) && isIdentifier(node.name) && shouldJsDocTypeOverrideTypeNode(possibleType)) {
             // for a variable with a jsdoc overridable type, look to see if there is a @var tag            
             // we can't use the node's file, because that may be different. the @var tag will be in the file
@@ -3344,6 +3340,30 @@ export function getEffectiveTypeAnnotationNode(node: Node, originatingFile?: Sou
     }
 
     return tryGetJsDocType();
+}
+
+/**
+ * An LPC declarator carries its own array rank -- `object *mobs`, `mixed *sort_array(...)` --
+ * while a doc type often narrows only the element: `@type {STD_NPC}`, `@returns {T}`. Re-apply
+ * the declarator's array so the `*` is not dropped (see #317).
+ *
+ * The wrapped node is cached on the declared type node, so repeated calls hand back the same
+ * node rather than a fresh one each time.
+ */
+function preserveDeclaredArrayRank(declaredType: TypeNode, docType: TypeNode): TypeNode {
+    if (docType === declaredType || !isArrayTypeNode(declaredType) || isArrayTypeNode(docType)) {
+        return docType;
+    }
+    const overrideHost = declaredType as TypeNode & { jsDocArrayTypeOverride?: ArrayTypeNode; };
+    const cached = overrideHost.jsDocArrayTypeOverride;
+    if (cached && cached.elementType === docType) {
+        return cached;
+    }
+    const wrapped = factory.createArrayTypeNode(docType);
+    setParent(wrapped, declaredType.parent);
+    setTextRangePosEnd(wrapped, declaredType.pos, declaredType.end);
+    overrideHost.jsDocArrayTypeOverride = wrapped;
+    return wrapped;
 }
 
 function shouldJsDocTypeOverrideTypeNode(type: TypeNode): boolean {

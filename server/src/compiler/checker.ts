@@ -16679,10 +16679,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 else if (isArrayType(leftType) && isArrayType(rightType)) {
                     // LPC allows array addition and subtraction
                     const leftElementType = first(leftType.resolvedTypeArguments);
-                    const rightElementType = first(rightType.resolvedTypeArguments);               
-                    if (areTypesComparable(leftElementType, rightElementType)) {
+                    const rightElementType = first(rightType.resolvedTypeArguments);
+                    // Assignability, not comparability. The result keeps the left array's
+                    // element type, so every element coming from the right has to fit it --
+                    // and comparability succeeds when merely *some* union constituent matches,
+                    // which let `string* += ({ "f", 123 })` through: the right element type is
+                    // `string | int`, and its `string` half was enough to satisfy the check.
+                    if (isTypeAssignableTo(rightElementType, leftElementType)) {
                         resultType = leftType;
-                    }                                        
+                    }
                 } 
                 else if (isMappingType(leftType) && isMappingType(rightType)) {
                     resultType = leftType;
@@ -30749,10 +30754,27 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     // see https://github.com/jlchmura/lpc-language-server/issues/190
                     (isArrayType(declaredType) && declaredType.resolvedTypeArguments && !isAnonymousObjectType(first(declaredType.resolvedTypeArguments)))
                 ) {
+                    // Whether the declaration states what the array holds. `mixed*` does not
+                    // count: `mixed` is `any`, which says nothing about the contents.
+                    const declaresElementType = isArrayType(declaredType) && !isTypeAny(declaredType.resolvedTypeArguments?.[0] ?? anyType);
+
                     if (isEmptyArrayAssignment(node)) {
-                        return getEvolvingArrayType(neverType);
+                        // An evolving array starts empty and takes its element type from what
+                        // later gets assigned into it -- right for `mixed *x = ({})`, where the
+                        // element type is genuinely open. But `string *x = ({})` already states
+                        // what the array holds, and evolving from that discarded the declared
+                        // element type: the variable drifted to `mixed*` and `x += ({ 123 })`
+                        // stopped being an error.
+                        return declaresElementType ? declaredType : getEvolvingArrayType(neverType);
                     }
                     const assignedType = getWidenedLiteralType(getInitialOrAssignedType(flow));
+                    // Narrowing may only make a type more specific. An efun returning `mixed*`
+                    // passes the assignability check below -- `mixed` is `any` -- but adopting it
+                    // would widen the reference past its own declaration, so `int *r = sort_array(...)`
+                    // would report `r` as `mixed*` from then on. Keep what the author declared.
+                    if (declaresElementType && isArrayType(assignedType) && isTypeAny(assignedType.resolvedTypeArguments?.[0] ?? anyType)) {
+                        return declaredType;
+                    }
                     return isTypeAssignableTo(assignedType, declaredType) ? assignedType : anyArrayType;
                 }
                 const t = isInCompoundLikeAssignment(node) ? getBaseTypeOfLiteralType(declaredType) : declaredType;

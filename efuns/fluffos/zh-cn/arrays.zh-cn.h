@@ -1,10 +1,5 @@
 // arrays.h
 
-#undef ALL_ARRAY_TYPES
-#define ALL_ARRAY_TYPES string*|int*|float*|object*|mixed*|function*
-#undef ALL_PRIMITIVE_TYPES
-#define ALL_PRIMITIVE_TYPES string|int|float|object|mixed|function
-
 
 /**
  * unique_array() - 将对象数组分区为组
@@ -16,9 +11,35 @@
  * 不同，数组的每个元素将被传递给f，并根据f的返回值进行分区。
  * 特别是，数组不需要由对象组成。
  *
+ * @template {object} T
+ * @param {T*} obarr 要分区的对象数组
+ * @param {string} separator 每个对象中用于分区的函数名
+ * @param {T} skip 要跳过的值
+ * @returns {<T*>*} 分区后的数组
  */
 mixed unique_array( object *obarr, string separator, void | mixed skip);
-mixed unique_array( mixed *arr, function f, void | mixed skip );
+
+/**
+ * @template T
+ * @callback uniqueArrayCallback
+ * @param {T} element 要分组的元素
+ * @returns {mixed} 用于分组的值——返回相同值的元素会被分到一组。
+ *                  它的类型不影响结果类型，因此与 mapArrayCallback
+ *                  不同，这里没有需要参数化的类型。
+ */
+
+/**
+ * unique_array() - 使用函数指针将数组分区为组。
+ *
+ * 数组的每个元素将被传递给f，并根据f的返回值进行分区。
+ *
+ * @template T
+ * @param {T*} arr 要分区的数组
+ * @param {uniqueArrayCallback<T>} f 用于分区的函数
+ * @param {T|void} skip 要跳过的值
+ * @returns {<T*>*} 分区后的数组
+ */
+<mixed*>* unique_array( mixed *arr, function f, void | mixed skip );
 
 /**
  * sort_array() - 对数组进行排序
@@ -38,21 +59,38 @@ mixed unique_array( mixed *arr, function f, void | mixed skip );
  * 完全由单一类型组成，其中该类型可以是string、int或float。
  * 数组中的数组通过基于第一个元素进行排序，从而使数据库
  * 排序成为可能。
- * @template {ALL_ARRAY_TYPES} T
- * @param {T} arr 要排序的数组
- * @returns {T} 排序后的数组
+ * @template T
+ * @param {T*} arr 要排序的数组
+ * @returns {T*} 排序后的数组
  */
 mixed *sort_array( mixed *arr, string fun, object ob );
+
+/**
+ * sort_array() - 使用函数指针比较元素来对数组进行排序。
+ *
+ * @template T
+ * @param {T*} arr 要排序的数组
+ * @returns {T*} 排序后的数组
+ */
 mixed *sort_array( mixed *arr, function f );
+
+/**
+ * sort_array() - 使用内置排序routine对数组进行排序。'direction'
+ * 为1或0时按升序排序，为-1时按降序排序。
+ *
+ * @template T
+ * @param {T*} arr 要排序的数组
+ * @returns {T*} 排序后的数组
+ */
 mixed *sort_array( mixed *arr, int direction );
 
 /**
  * shuffle() - 将数组中的元素随机排列
  *
  * 随机打乱数组并返回。
- * @template {ALL_ARRAY_TYPES} T
- * @param {T} arr 要打乱的数组
- * @returns {T} 打乱后的数组
+ * @template T
+ * @param {T*} arr 要打乱的数组
+ * @returns {T*} 打乱后的数组
  */
 mixed *shuffle(mixed *arr);
 
@@ -114,6 +152,26 @@ varargs int member_array( mixed item, mixed * | string arr, void | int start );
  *
  */
 mixed *map_array( mixed *arr, string fun, object ob, mixed extra... );
+
+/**
+ * @template T, Y
+ * @callback mapArrayCallback
+ * @param {T} element 被映射的元素
+ * @returns {Y} 该元素的替换值
+ */
+
+/**
+ * map_array() - 通过应用函数指针修改元素数组。
+ *
+ * 结果持有'f'返回的内容，因此将 `string*` 通过返回int的回调
+ * 映射后得到 `int*`。上面的 `ob->fun()` 形式无法这样标注类型
+ * ——函数由字符串命名，其返回类型不可知——因此保持 `mixed*`。
+ *
+ * @template T, Y
+ * @param {T*} arr 要映射的数组
+ * @param {mapArrayCallback<T,Y>} f 应用于每个元素的函数
+ * @returns {Y*} 映射后的数组
+ */
 mixed *map_array( mixed *arr, function f, mixed extra... );
 
 /**
@@ -130,6 +188,19 @@ mixed *map_array( mixed *arr, function f, mixed extra... );
  *
  */
 mixed *filter_array( mixed *arr, string fun, object|string ob, mixed extra... );
+
+/**
+ * filter_array() - 使用函数指针返回选择性的子数组。
+ *
+ * 与 map_array() 不同，过滤是选择元素而非转换元素，因此结果的
+ * 元素类型与输入相同——回调的返回值只是保留或丢弃的判断。
+ * 上面的 `ob->fun()` 形式无法这样标注类型，因此保持 `mixed*`。
+ *
+ * @template T
+ * @param {T*} arr 要过滤的数组
+ * @param {filterCallback<T>} f 非零表示保留该元素，零表示丢弃
+ * @returns {T*} 通过测试的元素
+ */
 mixed *filter_array( mixed *arr, function f, mixed extra... );
 
 /**
