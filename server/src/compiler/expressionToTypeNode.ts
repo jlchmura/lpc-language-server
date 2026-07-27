@@ -104,6 +104,9 @@ export function createSyntacticTypeNodeBuilder(options: CompilerOptions, resolve
             case SyntaxKind.FunctionType:            
             case SyntaxKind.FunctionExpression:
             case SyntaxKind.ArrowFunction:
+            // An inline closure is function-like with a body, so its return type is inferred the
+            // same way. Reachable now that closures carry a signature worth rendering.
+            case SyntaxKind.InlineClosureExpression:
             // case SyntaxKind.JSDocFunctionType:
             case SyntaxKind.JSDocSignature:
                 return createReturnFromSignature(node, context);

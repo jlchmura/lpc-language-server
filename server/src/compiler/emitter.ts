@@ -2064,7 +2064,14 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
     }
 
     function emitFunctionType(node: FunctionTypeNode) {
-        emitSignatureAndBody(node, emitFunctionTypeHead, emitFunctionTypeBody);
+        // LPC has no arrow type syntax -- and no way to write a function type at all, so these
+        // nodes are only ever synthesized for display. Render them the way LPC declares a
+        // function: return type first, with the `function` keyword standing in for the name.
+        // `int function(string $1)` rather than `(string $1) => int`.
+        emit(node.type);
+        writeSpace();
+        writeKeyword("function");
+        emitParameters(node, node.parameters);
     }
     
     function emitVariableStatement(node: VariableStatement) {
@@ -4837,7 +4844,14 @@ export function createJsPrinter(printerOptions: PrinterOptions = {}, handlers: P
     }
 
     function emitFunctionType(node: FunctionTypeNode) {
-        emitSignatureAndBody(node, emitFunctionTypeHead, emitFunctionTypeBody);
+        // LPC has no arrow type syntax -- and no way to write a function type at all, so these
+        // nodes are only ever synthesized for display. Render them the way LPC declares a
+        // function: return type first, with the `function` keyword standing in for the name.
+        // `int function(string $1)` rather than `(string $1) => int`.
+        emit(node.type);
+        writeSpace();
+        writeKeyword("function");
+        emitParameters(node, node.parameters);
     }
     
     function isEmptyBlock(block: BlockLike) {

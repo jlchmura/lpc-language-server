@@ -1031,13 +1031,12 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
                     case ScriptElementKind.letElement:
                     case ScriptElementKind.parameterElement:
                     case ScriptElementKind.localVariableElement:
-                        // If it is call or construct signature of lambda's write type name
-                        displayParts.push(punctuationPart(SyntaxKind.ColonToken));
-                        displayParts.push(spacePart());
-                        if (!(getObjectFlags(type) & ObjectFlags.Anonymous) && type.symbol) {
-                            addRange(displayParts, symbolToDisplayParts(typeChecker, type.symbol, enclosingDeclaration, /*meaning*/ undefined, SymbolFormatFlags.AllowAnyNodeKind | SymbolFormatFlags.WriteTypeParametersOrArguments));
-                            displayParts.push(lineBreakPart());
-                        }
+                        // A variable holding a closure reads as the function it is:
+                        // `(local var) int f(mixed $1)`. TypeScript writes `f: (…) => int` here,
+                        // but LPC has no arrow syntax, and the prefix above has already written
+                        // the return type and name -- so the arrow form repeated both, giving
+                        // `int f: int function(mixed $1)`. Use the same plain parameter-list form
+                        // the efuns get, which is what the default branch below does.
                         if (useConstructSignatures) {
                             // if (signature.flags & SignatureFlags.Abstract) {
                             //     displayParts.push(keywordPart(SyntaxKind.AbstractKeyword));
@@ -1046,7 +1045,7 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
                             displayParts.push(keywordPart(SyntaxKind.NewKeyword));
                             displayParts.push(spacePart());
                         }
-                        addSignatureDisplayParts(signature, allSignatures, TypeFormatFlags.WriteArrowStyleSignature);
+                        addSignatureDisplayParts(signature, allSignatures);
                         break;
 
                     default:
