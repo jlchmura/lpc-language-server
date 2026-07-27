@@ -6,6 +6,7 @@
 - Fix: macro goto-def and find-references
 - Fix: macro #if logic now fully supported
 - Refactored preparser and macro expansion for speed and better reliability
+- Fix spurious "Cannot find name" on FluffOS closure-variable calls
 
 ## 1.1.49
 
