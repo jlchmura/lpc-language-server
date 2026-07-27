@@ -148,18 +148,26 @@ int socket_close( int s );
  * 创建一个套接字时，它存在于一个命名空间（地址族）中，但未分配名称。
  * socket_bind() 请求将端口分配给套接字 s。
  *
+ * 可选的 addr 参数指定要绑定的本地地址，格式为 "127.0.0.1 23"。
+ * 给出 addr 时它优先于 port；否则套接字绑定到 mud IP（如果已配置）
+ * 或任意地址上的给定端口。
+ *
  */
-int socket_bind( int s, int port );
+int socket_bind( int s, int port, void | string addr );
 
 /**
  * socket_address() - 返回 efun 套接字的远程地址
  *
  * socket_address() 返回 efun 套接字 s 的远程地址。返回的地址格式为：
- * 
+ *
  * "127.0.0.1 23"。
  *
+ * s 也可以是一个交互式对象，此时返回该用户连接的地址。
+ * 如果可选的 local 标志非零，则返回套接字的本地（绑定）地址，
+ * 而不是远程地址。
+ *
  */
-string socket_address( int s );
+string socket_address( int | object s, void | int local );
 
 /**
  * socket_acquire() - 假定一个套接字的所有权

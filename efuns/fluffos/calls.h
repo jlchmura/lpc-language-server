@@ -89,14 +89,14 @@ int remove_call_out( int handle );
 int remove_call_out();
 
 /**
- * shadowp()  -  determine  whether  or  not  a  given object it shadowing
-another
+ * query_shadowing()  -  determine  whether  or  not  a  given  object  is
+shadowing another
  *
  * Returns the object that 'ob' is shadowing, or zero (0)  if  it  is  not
  * shadowing any object.
  *
  */
-object shadowp( object ob );
+object query_shadowing( object ob );
 
 /**
  * previous_object() - returns the object(s) that called the current func‐

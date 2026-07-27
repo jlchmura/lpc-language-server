@@ -18,7 +18,7 @@ int undefinedp( mixed arg );
  * 待完成
  *
  */
-int uncompress_file(string, string);
+int uncompress_file(string, void|string);
 
 /**
  * uncompress
@@ -92,8 +92,10 @@ int sizeof( mixed var );
  *
  * 待完成
  *
+ * 如果省略对象参数，则默认为 this_object()。
+ *
  */
-string * shallow_inherit_list(object);
+string * shallow_inherit_list(void|object);
 
 /**
  * send_zmp
@@ -166,7 +168,7 @@ void request_term_type();
  * 待完成
  *
  */
-void request_term_size(int);
+void request_term_size(void|int);
 
 /**
  * parse_remove
@@ -182,7 +184,7 @@ void parse_remove(string);
  * 待完成
  *
  */
-mixed parse_my_rules(object, string, int);
+mixed parse_my_rules(object, string, void|int);
 
 /**
  * parse_dump
@@ -198,7 +200,7 @@ string parse_dump();
  * 待完成
  *
  */
-void parse_add_synonym(string, string, string);
+void parse_add_synonym(string, string, void|string);
 
 
 /**
@@ -423,7 +425,7 @@ mixed * destructed_objects();
  * 待完成
  *
  */
-int compress_file(string, string);
+int compress_file(string, void|string);
 
 /**
  * compress
@@ -486,8 +488,10 @@ int classp(mixed arg);
  *
  * 待补充
  *
+ * 如果省略 'flag'，则默认为 0。
+ *
  */
-string check_memory(int);
+string check_memory(void|int flag);
 
 /**
  * angle

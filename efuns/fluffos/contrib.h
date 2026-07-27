@@ -19,7 +19,7 @@ string zonetime(string timezone, int timestamp);
  * @param {object} ob - object to query
  * @param {int} flag (optional) defaults to 0
  */
-mixed *variables(object ob, int flag);
+mixed *variables(object ob, void|int flag);
 
 /**
  * upper_case() - returns a string with every letter supplied in the source
@@ -153,6 +153,20 @@ mixed store_class_member(mixed instantiated_class, int class_element, mixed valu
 mixed *shuffle(mixed *arr);
 
 /**
+ * set_os_env() - set or unset an OS environment variable (allow-listed)
+ *
+ * Sets the operating-system environment variable <name> to <value>, or
+ * unsets it when 'value' is omitted. Returns 1 on success, 0 on an
+ * operating-system level failure.
+ *
+ * Writes are denied unless <name> appears in the runtime config option
+ * "writable os environment variables" (colon-separated, empty by
+ * default). Writable names are implicitly readable via get_os_env().
+ *
+ */
+int set_os_env(string name, void|string value);
+
+/**
  *
  *
  *
@@ -189,7 +203,7 @@ the number of sides to each die, with bonus if supplied.
  * @param {int} sides - number of sides on each die
  * @param {int} bonus - (optional) bonus to add to the roll, defaults to 0
  */
-int roll_MdN(int rolls, int sides, int bonus);
+int roll_MdN(int rolls, int sides, void|int bonus);
 
 /**
  * restore_from_string() - like restore_object(), but restores variables from
@@ -197,9 +211,9 @@ a string where the string is in the same format as from restore_object()
  *
  * uses string as restore_object uses file meaning of int the same
  * @param {string} str - string to restore from
- * @param {int} flag - defaults to 0
+ * @param {int} flag - (optional) defaults to 0
  */
-void restore_from_string(string str, int flag);
+void restore_from_string(string str, void|int flag);
 
 /**
  * replaceable - check if object is replaceable
@@ -484,6 +498,35 @@ int is_daylight_savings_time(string timezone, int timestamp);
 object *heart_beats( void );
 
 /**
+ * has_cycle() - test whether a value contains a reference loop
+ *
+ * Returns 1 if the reference graph of <value> contains a loop (a
+ * structure that can reach itself), 0 otherwise.
+ *
+ * The walk follows array and class items, mapping keys and values, and a
+ * function pointer's captured argument list. Objects are leaves. Sharing
+ * without a loop is NOT a cycle and returns 0.
+ *
+ * The traversal is iterative and has no nesting-depth limit.
+ *
+ */
+int has_cycle(mixed value);
+
+/**
+ * get_os_env() - read an OS environment variable (allow-listed)
+ *
+ * Returns the value of the operating-system environment variable <name>,
+ * or undefined if the variable is not set.
+ *
+ * Access is denied unless <name> appears in the runtime config option
+ * "allowed os environment variables" (or in "writable os environment
+ * variables", which implies readability). Both lists are colon-separated
+ * and empty by default.
+ *
+ */
+string get_os_env(string name);
+
+/**
  * get_garbage() - get all clones without environments or inventories which are
 not shadowing.
  *
@@ -531,7 +574,7 @@ information for all functions in a passed object.
  * @param {object} ob - object to query
  * @param {int} [flag] (optional) defaults to 0
  */
-mixed *functions(object ob, int flag);
+mixed *functions(object ob, void|int flag);
 
 /**
  * function_owner - returns the object defining the given function
@@ -540,6 +583,25 @@ mixed *functions(object ob, int flag);
  *
  */
 object function_owner(function f);
+
+/**
+ * find_cycles() - locate every reference loop in a value
+ *
+ * Returns one index path per slot that closes a reference loop in
+ * <value>. An empty array means the value is acyclic. Breaking exactly
+ * the returned slots would make the value loop-free; break_cycles()
+ * does that in one call.
+ *
+ * Path syntax, concatenated from the outermost container inward:
+ * [3] array item 3, .2 class field 2, ["name"] mapping value,
+ * [key <map>] a mapping KEY, (args) a function pointer's captured
+ * argument list.
+ *
+ * Which slot of a loop is reported depends on traversal order, so treat
+ * the paths as diagnostics, not as a stable contract.
+ *
+ */
+string *find_cycles(mixed value);
 
 /**
  * file_length - return the line count of a file
@@ -745,7 +807,27 @@ int compressedp(object ob);
  * // })
  *
  */
-mixed *classes(object ob, int verbose);
+mixed *classes(object ob, void|int verbose);
+
+/**
+ * break_cycles() - safely clear every reference loop in a value
+ *
+ * Clears every reference loop in <value> IN PLACE and returns the number
+ * of edges that were broken. Because compound values are passed by
+ * reference, the caller's value (and every other holder of it) sees the
+ * change.
+ *
+ * Only the loop-closing back-edges are touched: an array/class item or
+ * mapping value that closes a loop is overwritten with 0; a mapping key
+ * that closes a loop has its whole key/value node deleted; everything
+ * not part of a loop is left untouched. One broken edge un-loops an
+ * entire ring, so a ring of N containers counts as 1, not N.
+ *
+ * Afterwards has_cycle(value) is 0 and the value can be saved,
+ * deep-copied, and printed again.
+ *
+ */
+int break_cycles(mixed value);
 
 /**
  * base_name - return the base name without object id (OID)

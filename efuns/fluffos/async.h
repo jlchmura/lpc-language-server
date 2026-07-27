@@ -79,6 +79,8 @@ void async_getdir( string dir, function callback );
  * );
  * ```
  *
+ * Any extra arguments are passed along to the callback.
+ *
  */
-void async_db_exec( int handle, string sql_query, function callback );
+void async_db_exec( int handle, string sql_query, string | function callback, mixed arg ... );
 

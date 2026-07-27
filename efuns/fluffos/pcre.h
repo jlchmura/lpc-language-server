@@ -29,8 +29,11 @@ string pcre_replace_callback( string subject, string pattern, string fun, object
  * elements of the replacement array. Number of subgroups and the size of the
  * replacement array must match.
  *
+ * The optional pcre_flags argument is a bitmask of PCRE option flags
+ * (e.g. case-insensitive, multiline) applied when compiling the pattern.
+ *
  */
-string pcre_replace(string input, string pattern, string *replacments);
+string pcre_replace(string input, string pattern, string *replacments, void|int pcre_flags);
 
 /**
  * pcre_match_all() - find all matches
@@ -38,8 +41,11 @@ string pcre_replace(string input, string pattern, string *replacments);
  * Similiar to php preg_match_all, this EFUN returns a array of string arrays,
  * containing all matches and captured groups.
  *
+ * The optional pcre_flags argument is a bitmask of PCRE option flags
+ * (e.g. case-insensitive, multiline) applied when compiling the pattern.
+ *
  */
-mixed pcre_match_all(string input, string pattern);
+mixed pcre_match_all(string input, string pattern, void|int pcre_flags);
 
 /**
  * pcre_match() - regular expression handler
@@ -47,16 +53,26 @@ mixed pcre_match_all(string input, string pattern);
  * analog with regexp efun for backwards compatibility reasons but utilizing
  * the PCRE library.
  *
+ * The optional pcre_flags argument is a bitmask of PCRE option flags
+ * (e.g. case-insensitive, multiline) applied when compiling the pattern.
+ * When lines is a single string, a lone third integer argument is treated
+ * as pcre_flags rather than as flag.
+ *
  */
-mixed pcre_match(string|string *lines, string pattern, void|int flag);
+mixed pcre_match(string|string *lines, string pattern, void|int flag, void|int pcre_flags);
 
 /**
  * pcre_extract() - extract matching parts
  *
  * returns an array of captured groups specified in pattern.
  *
+ * If include_names is nonzero, a mapping of named capture groups to their
+ * matched values is appended as the final element of the returned array.
+ * The optional pcre_flags argument is a bitmask of PCRE option flags
+ * (e.g. case-insensitive, multiline) applied when compiling the pattern.
+ *
  */
-string *pcre_extract(string input, string pattern);
+string *pcre_extract(string input, string pattern, void|int include_names, void|int pcre_flags);
 
 /**
  * pcre_cache() - return content of the pcre cache

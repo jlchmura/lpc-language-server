@@ -43,16 +43,6 @@ int trace( int traceflags );
 int time_expression( mixed expr );
 
 /**
- * swap - 显式交换文件
- *
- * 此efun应仅保留用于调试。它允许对象显式交换出。如果启用，强烈建议使用模拟efun覆盖（用于此efun）以防止滥用。
- * 
- * 注意：已被销毁、已经交换出、包含心跳、克隆、继承或互动的对象，无法被交换出。
- *
- */
-void swap( object );
-
-/**
  * set_malloc_mask() - 设置控制显示内存分配调试信息的掩码
  *
  * 此efun仅在构建驱动时在options.h中同时定义DEBUGMALLOC和DEBUGMALLOC_EXTENSIONS时可用。该掩码控制在驱动分配和释放内存时显示哪些内存相关的调试信息。有关更多信息，请参阅驱动源代码中的md.c。
@@ -150,20 +140,12 @@ int refs( mixed data );
 string query_load_average( void );
 
 /**
- * opcprof() - 报告各种 efun 的调用频率统计信息
- *
- * 该函数转储每个 efunction 和 eoperator 的统计信息。如果未指定参数，则信息将转储到名为 /OPCPROF.efun 和 /OPCPROF.eoper 的文件中。如果指定了参数，则该名称将用作转储的文件名。
- *
- */
-void opcprof( string | void );
-
-/**
  * mud_status() - 报告各种驱动程序和 mudlib 统计信息
  *
  * 此函数将驱动程序和 mudlib 统计信息写到调用者的屏幕上。如果 extra 非零，则将写入额外的信息。此函数替换了 vanilla 3.1.2 中硬编码的 'status' 和 'status tables' 命令。
  *
  */
-void mud_status( int extra );
+string mud_status( void|int extra );
 
 /**
  * moncontrol() - 开启/关闭执行过程中的分析
@@ -201,30 +183,33 @@ void malloc_status( void );
 string | int get_config( int );
 
 /**
+ * find_orphaned_cycles() - 检测（并回收）因引用环被丢弃而泄漏的内存
+ *
+ * 扫描驱动程序中所有存活的数组、类、映射和函数指针，并返回不可达的
+ * 数据块数量——即在最后一个外部引用被丢弃后，仅靠引用环维持存活的
+ * 数据块。纯引用计数永远无法回收这类数据块，refs()、break_cycles()
+ * 等 LPC 层工具也无法再触及它们。
+ *
+ * 如果 'flag' 非零，这些孤立的数据块也会被安全地回收：它们引用的
+ * 字符串、缓冲区和对象会被正常释放，仍然可以从其他地方访问到的值
+ * 不受影响，环中的成员本身则被释放。
+ *
+ * 仍然可达的引用环不会被报告——在仍持有引用时请使用 has_cycle() /
+ * find_cycles() / break_cycles()。
+ *
+ * 此 efun 仅在调试构建（DEBUGMALLOC_EXTENSIONS）中可用；请使用
+ * #if efun_defined(find_orphaned_cycles) 保护调用处。
+ *
+ */
+int find_orphaned_cycles(void|int flag);
+
+/**
  * dumpallobj() - 报告已加载的所有对象的各种统计信息
  *
  * 此函数转储已加载的所有对象的统计信息。如果未指定参数，则信息将转储到名为 /OBJ_DUMP 的文件中。如果指定了参数，则该名称将用作转储的文件名。
  *
  */
 void dumpallobj( string | void );
-
-/**
- * dump_socket_status() - 显示每个 LPC 套接字的状态
- *
- * dump_socket_status() 是一个诊断工具，它显示 MudOS 驱动程序中配置的所有 LPC 套接字的当前状态。它对于调试 LPC 套接字应用程序非常有用。输出中的每一行对应于一个 LPC 套接字。第一行对应于 LPC 套接字描述符 0，第二行对应于 1，以此类推。套接字的总数是在构建驱动程序时配置的。
- * 
- * 第一列 "Fd" 是与 LPC 套接字关联的操作系统文件描述符。"State" 是 LPC 套接字的当前操作状态。"Mode" 是套接字模式，在调用 socket_create() 时作为参数传递。局部和远程地址是互联网地址和端口号以互联网点符号表示。'*' 表示某个地址或端口为 0。注意，处于 CLOSED 状态的 LPC 套接字当前未在使用，因此为该套接字显示的数据可能是特殊的。
- * 
- * 以下输出是在 Portals 上生成的，当时运行的唯一套接字应用程序是 MWHOD。它表明当前有两个套接字在使用，一个在 STREAM 模式套接字上监听连接请求，另一个在 DATAGRAM 模式套接字上等待传入数据。
- * 
- * Fd    状态      模式      本地地址      远程地址
- * --  ---------  --------  -----------------  ------------------
- * 13   LISTEN     STREAM   *.6889             *.*
- * 14    BOUND    DATAGRAM  *.6888             *.*
- * -1    CLOSED      MUD    *.*                *.*
- *
- */
-void dump_socket_status( void );
 
 /**
  * dump_prog() - 转储/反汇编一个LPC对象
@@ -266,7 +251,7 @@ void dump_file_descriptors( void );
  * 这个efun只有在DEBUGMALLOC和DEBUGMALLOC_EXTENSIONS在驱动程序构建时都在options.h中定义的情况下才可用。debugmalloc() efun将转储由DMALLOC()和相关宏分配的内存片段的信息，如果与宏提供的标记的掩码按位与（&）结果非零。详情请阅读驱动程序源代码中的md.c和config.h。
  *
  */
-void debugmalloc( string filename, int mask );
+string debugmalloc( string filename, void|int mask );
 
 /**
  * debug_levels

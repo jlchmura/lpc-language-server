@@ -17,7 +17,8 @@
  * with a string containing that data.
  * `write_call_back` - I am not 100% sure what would be written to the external
  * command, but, this is a required parameter.
- * `close_call_back` - When the socket closes, this function is called.
+ * `close_call_back` - When the socket closes, this function is called. This
+ * argument may be omitted.
  *
  * This is a very basic example using the information provided in this document
  *
@@ -26,5 +27,5 @@ int external_start(int external_index,
                    string *args,
                    string|function read_call_back,
                    string|function write_call_back,
-                   string|function close_call_back);
+                   void|string|function close_call_back);
 

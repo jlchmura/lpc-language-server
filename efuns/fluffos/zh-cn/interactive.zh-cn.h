@@ -266,8 +266,10 @@ varargs string query_ip_number( object ob );
  * 
  * 该结果被缓存，此函数没有开销。
  *
+ * 如果省略 'ob'，则默认为 this_player()。
+ *
  */
-string query_ip_name( object ob );
+string query_ip_name( void|object ob );
 
 /**
  * query_idle()  -  查询一个交互式玩家闲置了多少秒
@@ -402,7 +404,7 @@ int notify_fail( string | function str );
  * message("say", this_player()->query_cap_name() + " says: Hello!", environment(this_player()), ({ this_player() }));
  *
  */
-void message( mixed type, string message, mixed target, mixed exclude );
+void message( mixed type, string message, mixed target, void|object|object *exclude );
 
 /**
  * interactive() - 检测给定对象是否为互动对象
@@ -439,7 +441,7 @@ varargs void input_to(string | function fun, mixed flag, mixed args... );
  *
  * @param {object} ob - 要检查的对象，默认为F_THIS_OBJECT
  */
-int in_input( object ob );
+int in_input( void|object ob );
 
 /**
  * in_edit() - 确定玩家是否在编辑器中
@@ -455,16 +457,20 @@ varargs string in_edit( object ob );
  *
  * 如果互动用户在其客户端启用了ZMP协议，则返回非零值。 如果用户未启用，则返回0。
  *
+ * 如果省略 'user'，则默认为 this_object()。
+ *
  */
-int has_zmp(object user);
+int has_zmp(void|object user);
 
 /**
  * has_mxp
  *
  * 如果互动用户在其客户端启用了MXP协议，则返回非零值。 如果用户未启用，则返回0。
  *
+ * 如果省略 'user'，则默认为 this_object()。
+ *
  */
-int has_mxp(object user);
+int has_mxp(void|object user);
 
 /**
  * has_gmcp() - 返回给定互动用户的客户端是否启用了GMCP协议
@@ -474,8 +480,30 @@ int has_mxp(object user);
  * 注意：
  * FluffOS要求在运行时配置中设置以下选项以支持GMCP协议。
  *
+ * 如果省略 'user'，则默认为 this_object()。
+ *
  */
-int has_gmcp( object user );
+int has_gmcp( void|object user );
+
+/**
+ * has_msdp
+ *
+ * 如果互动用户在其客户端启用了MSDP协议，则返回非零值。 如果用户未启用，则返回0。
+ *
+ * 如果省略 'user'，则默认为 this_object()。
+ *
+ */
+int has_msdp(void|object user);
+
+/**
+ * has_msp
+ *
+ * 如果互动用户在其客户端启用了MSP协议，则返回非零值。 如果用户未启用，则返回0。
+ *
+ * 如果省略 'user'，则默认为 this_object()。
+ *
+ */
+int has_msp(void|object user);
 
 /**
  * get_char  - 使输入的下一个字符发送到指定函数
@@ -564,9 +592,13 @@ void enable_commands( int setup_actions = 0 );
  * 可选的 <restricted> 标志限制编辑器的能力，例如插入文件和使用
  * 不同文件名进行保存。
  *
+ * 可选的 <scroll_lines> 参数设置编辑器滚动命令（例如 'z'）
+ * 显示的行数。默认为 20。
+ *
  */
 varargs void ed( string file, string exit_fn, int restricted );
 varargs void ed( string file, string write_fn, string exit_fn, int restricted );
+varargs void ed( string file, string write_fn, string exit_fn, int restricted, int scroll_lines );
 
 /**
  * disable_wizard() - 移除对象的巫师特权

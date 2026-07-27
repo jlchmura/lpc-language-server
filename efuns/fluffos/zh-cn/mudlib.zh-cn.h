@@ -96,8 +96,10 @@ varargs int living( object ob );
  *
  * 返回对象的用户 ID。对象的 uid 在对象创建时由 creator_file() 函数确定。
  *
+ * 如果省略 'ob'，则默认为 this_object()。
+ *
  */
-string getuid( object ob );
+string getuid( void|object ob );
 
 /**
  * geteuid() - 返回对象或函数的有效用户 ID
@@ -106,8 +108,10 @@ string getuid( object ob );
  * 类型为 'function' 的参数，它返回创建该 'function' 变量的对象的 euid。
  * 如果在函数变量构造时，该对象没有 euid，则存储对象的 uid。
  *
+ * 如果省略参数，则默认为 this_object()。
+ *
  */
-string geteuid( object|function );
+string geteuid( void|object|function );
 
 /**
  * find_living() - 找到与给定 ID 匹配的生活对象
