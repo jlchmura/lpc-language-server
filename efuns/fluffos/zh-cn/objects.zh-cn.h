@@ -13,8 +13,10 @@ varargs int virtualp( object arg );
  *
  * 向房间 'ob' 中的所有对象发送消息 'str'。 'ob' 也可以是房间的文件名（字符串）。如果指定了 'exclude'，则排除数组中的所有对象将不会接收此消息。
  *
+ * 'exclude' 可以省略，并且既可以是单个对象，也可以是对象数组。
+ *
  */
-void tell_room( mixed ob, string str, object *exclude );
+void tell_room( mixed ob, string str, void | object | object *exclude );
 
 /**
  * tell_object() - 向对象发送消息
@@ -119,11 +121,13 @@ int objectp( mixed arg );
  * next_inventory() - 返回同一库存中的下一个对象
  *
  * 返回与 'ob' 在同一库存中的下一个对象。
- * 
+ *
+ * 如果未提供对象，则该 efun 将默认为 this_object()。
+ *
  * 警告：如果对象 'ob' 被 "move_object()" 移动，则 "next_inventory()" 将从新的库存中返回一个对象。
  *
  */
-object next_inventory( object ob );
+object next_inventory( void | object ob );
 
 /**
  * new() - 加载对象/类的新副本
@@ -187,7 +191,7 @@ object load_object( string str );
  * 如果未提供对象，则该 efun 将默认为 this_object()。
  *
  */
-object first_inventory( mixed ob );
+object first_inventory( void | object | string ob );
 
 /**
  * find_object() - 通过文件名查找对象
@@ -229,11 +233,13 @@ varargs void destruct( object ob );
  * deep_inventory() - 返回对象的嵌套库存
  *
  * 返回一个包含 <ob> 的库存及其包含的所有对象的数组，以及那些对象的库存中的所有对象，依此类推。
- * 
- * 如果未提供对象，则该 efun 将默认为 this_object()。
+ *
+ * 如果未提供对象，则该 efun 将默认为 this_object()。第一个参数也可以是一个对象数组。
+ *
+ * 可以提供一个可选的过滤函数 <f>，它将对遇到的每个对象进行调用。其返回值决定结果：0 跳过该对象及其库存，1 包含该对象并深入其库存，2 包含该对象但不深入，3 深入其库存但不包含该对象本身。
  *
  */
-varargs object *deep_inventory( object ob );
+varargs object *deep_inventory( object | object * | function obs, void | function f );
 
 /**
  * clonep() - 确定给定变量是否指向一个克隆对象

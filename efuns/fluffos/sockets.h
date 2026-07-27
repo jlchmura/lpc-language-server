@@ -173,23 +173,33 @@ int socket_close( int s );
  * ily)  but has no name assigned. socket_bind() requests that the port be
  * assigned to the socket s.
  *
+ * The optional addr argument specifies the local address to bind to,  of
+ * the  form  "127.0.0.1 23".   When  addr  is given it takes  precedence
+ * over port; otherwise the socket is bound to  the  mud  IP  (if  confi‐
+ * gured) or to any address, on the given port.
+ *
  */
 
 
-int socket_bind( int s, int port );
+int socket_bind( int s, int port, void | string addr );
 
 /**
  * socket_address() - return the remote address for an efun socket
  *
  * socket_address()  returns the remote address for an efun socket s.  The
  * returned address is of the form:
- * 
+ *
  * "127.0.0.1 23".
+ *
+ * s may also be an interactive object,  in which case  the  address  of
+ * that user's connection is returned.   If the optional  local  flag is
+ * nonzero, the local (bound) address of the socket is returned  instead
+ * of the remote address.
  *
  */
 
 
-string socket_address( int s );
+string socket_address( int | object s, void | int local );
 
 /**
  * socket_acquire() - assume ownership of a socket

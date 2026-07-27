@@ -76,12 +76,12 @@ int remove_call_out( int handle );
 int remove_call_out();
 
 /**
- * shadowp() - 确定给定对象是否正在影藏另一个对象
+ * query_shadowing() - 确定给定对象是否正在影藏另一个对象
  *
  * 返回 'ob' 正在影藏的对象，如果它没有影藏任何对象，则返回零 (0)。
  *
  */
-object shadowp( object ob );
+object query_shadowing( object ob );
 
 /**
  * previous_object() - 返回调用当前函数的对象(s)

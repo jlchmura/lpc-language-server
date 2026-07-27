@@ -18,6 +18,32 @@ int write_buffer( string | buffer dest,
                   mixed source );
 
 /**
+ * to_buffer() - convert a string or an array of ints to a buffer
+ *
+ * Returns a buffer holding the bytes of <x>:
+ *
+ * - A string contributes its raw UTF-8 bytes (a multi-byte character
+ * becomes several bytes).
+ * - An array must contain only ints in the range 0..255; each element
+ * becomes one byte.  Any other item raises an error.
+ * - A buffer is returned unchanged.
+ *
+ * This efun is also the implicit promotion used by the compiler, so a
+ * string or an array of ints can be used directly wherever a buffer is
+ * expected in an assignment context:
+ *
+ * ```c
+ * buffer b;
+ *
+ * b = to_buffer("é");        // ({ 0xC3, 0xA9 }) -- 2 UTF-8 bytes
+ * b = to_buffer(({ 7, 255 }));
+ * b = to_buffer(({ 300 }));  // error: item out of 0..255
+ * ```
+ *
+ */
+buffer to_buffer( string | buffer | mixed *x );
+
+/**
  * read_buffer() - read from a file and return a buffer, or return part of
 a buffer as a string
  *

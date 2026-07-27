@@ -284,8 +284,10 @@ varargs string query_ip_number( object ob );
  * 
  * The result is cached, there is no overhead for this function.
  *
+ * If 'ob' is omitted, it defaults to this_player().
+ *
  */
-string query_ip_name( object ob );
+string query_ip_name( void|object ob );
 
 /**
  * query_idle()  -  determine  how  many seconds an interactive player has
@@ -473,7 +475,7 @@ int notify_fail( string | function str );
  * message("say", this_player()->query_cap_name() + " says: Hello!", environment(this_player()), ({ this_player() }));
  *
  */
-void message( mixed type, string message, mixed target, mixed exclude );
+void message( mixed type, string message, mixed target, void|object|object *exclude );
 
 /**
  * interactive() - detects whether or not a given object is an interactive
@@ -521,7 +523,7 @@ varargs int input_to( string | function fun, mixed flag, mixed args... );
  *
  * @param {object} ob - the object to check, defaults to F_THIS_OBJECT
  */
-int in_input( object ob );
+int in_input( void|object ob );
 
 /**
  * in_edit() - determine if a player is in the editor
@@ -539,8 +541,10 @@ varargs string in_edit( object ob );
  * Return non-zero if interactive user has the ZMP protocol enabled in their
  * client. 0 will be returned if the user does not.
  *
+ * If 'user' is omitted, it defaults to this_object().
+ *
  */
-int has_zmp(object user);
+int has_zmp(void|object user);
 
 /**
  * has_mxp
@@ -548,8 +552,10 @@ int has_zmp(object user);
  * Return non-zero if interactive user has the MXP protocol enabled in
  * their client. 0 will be returned if the user does not.
  *
+ * If 'user' is omitted, it defaults to this_object().
+ *
  */
-int has_mxp(object user);
+int has_mxp(void|object user);
 
 /**
  * has_gmcp() - returns whether a given interactive user's client has
@@ -562,8 +568,32 @@ GMCP protocol enabled
  * FluffOS requires the following option to be set in the runtime config
  * in order to support the GMCP protocol.
  *
+ * If 'user' is omitted, it defaults to this_object().
+ *
  */
-int has_gmcp( object user );
+int has_gmcp( void|object user );
+
+/**
+ * has_msdp
+ *
+ * Return non-zero if interactive user has the MSDP protocol enabled in
+ * their client. 0 will be returned if the user does not.
+ *
+ * If 'user' is omitted, it defaults to this_object().
+ *
+ */
+int has_msdp(void|object user);
+
+/**
+ * has_msp
+ *
+ * Return non-zero if interactive user has the MSP protocol enabled in
+ * their client. 0 will be returned if the user does not.
+ *
+ * If 'user' is omitted, it defaults to this_object().
+ *
+ */
+int has_msp(void|object user);
 
 /**
  * get_char  -  causes  next  character of input to be sent to a specified
@@ -670,9 +700,13 @@ varargs void enable_commands(int setup_actions);
  * The optional <restricted> flag limits the editor's  capabilities,  such
  * as inserting a file, and saving using an alternate file name.
  *
+ * The optional <scroll_lines> argument sets the number of lines displayed
+ * by the editor's scrolling commands (such as 'z').  It defaults to 20.
+ *
  */
 varargs void ed( string file, string exit_fn, int restricted );
 varargs void ed( string file, string write_fn, string exit_fn, int restricted );
+varargs void ed( string file, string write_fn, string exit_fn, int restricted, int scroll_lines );
 
 /**
  * disable_wizard() - remove wizard priveleges from an object

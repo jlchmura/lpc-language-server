@@ -35,7 +35,7 @@ int write_bytes( string path, int start, string series );
  * @param {string} str - the file or directory to get information about
  * @param {int} flag defaults 0, if 0, return an array of information, if -1, return an array of subarrays
  */
-varargs mixed stat( string str, int flag );
+mixed *stat( string str, void | int flag );
 
 /**
  * rmdir() - remove a directory
@@ -86,7 +86,7 @@ string
  * the entire file is returned.
  *
  */
-string read_bytes( string path, int start, int length );
+string read_bytes( string path, void | int start, void | int length );
 
 /**
  * mkdir() - make a directory

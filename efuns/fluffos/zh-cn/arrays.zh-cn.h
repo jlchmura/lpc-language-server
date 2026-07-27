@@ -114,6 +114,14 @@ int pointerp( mixed arg );
  * 
  * 注意，如果第二个参数是一个字符串，第一个参数必须是一个
  * int，表示您在提供的字符串中要查找的字符。
+ *
+ * 可选的 'flags' 参数是一个位字段：
+ *
+ * 1  - 'item' 是一个字符串前缀：以 'item' 开头的元素匹配。
+ * 2  - 从数组末尾向后搜索（仅限数组）；返回最后一个
+ * 匹配项的索引。
+ * 4  - 'item' 是一个函数：它将对每个元素进行调用，第一个
+ * 使其返回真值的元素匹配。
  * @example
  * ```c
  * member_array( "red", ({ "red", "blue", "red", "green", "red", }) ) ;
@@ -133,9 +141,15 @@ int pointerp( mixed arg );
  * 
  * member_array('Z', "Drink the FluffOS Kool-Aid!") ;
  * // -1
+ *
+ * member_array( (: $1 > 10 :), ({ 1, 5, 42, 77 }), 0, 4 ) ;
+ * // 2
+ *
+ * member_array( "red", ({ "red", "blue", "red" }), 0, 2 ) ;
+ * // 2（最后一次出现）
  * ```
  */
-varargs int member_array( mixed item, mixed * | string arr, void | int start );
+varargs int member_array( mixed item, mixed * | string arr, void | int start, void | int flags );
 
 /**
  * map_array() - 通过应用函数修改元素数组

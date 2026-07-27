@@ -235,7 +235,7 @@ mixed *localtime( int time );
  * to this_object().
  *
  */
-int inherits( string file, object obj );
+int inherits( string file, void|object obj );
 
 /**
  * inherit_list() - get a list of parents of an object
@@ -247,7 +247,7 @@ int inherits( string file, object obj );
  * If no object is supplied, this efun will default to this_object().
  *
  */
-string *inherit_list( object obj );
+string *inherit_list( void|object obj );
 
 /**
  * function_profile() - get function profiling information for an object
@@ -257,7 +257,7 @@ string *inherit_list( object obj );
  * piled with PROFILE_FUNCTIONS defined.
  *
  */
-mapping *function_profile( object ob );
+mapping *function_profile( void|object ob );
 
 /**
  * function_exists()  -  find  the  file containing a given function in an
@@ -341,23 +341,6 @@ int find_call_out( int handle ) ;
 int eval_cost();
 
 /**
- * errorp() - determine whether or not a given variable is an error code
- *
- * Returns 1 if 'arg' is an integer that is an error code.
- *
- * Eventually  efuns  will  be  modified to return standard error codes so
- * that code like this will be possible:
- *
- * if (errorp(result = efun_call()))
- * printf("error = %d\n", result);
- *
- * In future, there will also be a perror(result)  efun  to  return  error
- * string that goes with a particular error integer.
- *
- */
-int errorp( mixed arg );
-
-/**
  * error - generate a run-time error
  *
  * A  run-time error 'err' will be generated when error() is called.  Exe‐
@@ -379,7 +362,7 @@ void error( string err );
  * If no object is supplied, this efun will default to this_object().
  *
  */
-string *deep_inherit_list( object obj );
+string *deep_inherit_list( void|object obj );
 
 /**
  * ctime() - return a time string

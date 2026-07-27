@@ -214,7 +214,7 @@ mixed *localtime( int time );
  * this_object()。
  *
  */
-int inherits( string file, object obj );
+int inherits( string file, void|object obj );
 
 /**
  * inherit_list() - 获取对象的父对象列表
@@ -226,7 +226,7 @@ int inherits( string file, object obj );
  * 如果没有对象被提供，此 efun 将默认为 this_object()。
  *
  */
-string *inherit_list( object obj );
+string *inherit_list( void|object obj );
 
 /**
  * function_profile() - 获取对象的函数性能分析信息
@@ -236,7 +236,7 @@ string *inherit_list( object obj );
  * 编译时，这才可用。
  *
  */
-mixed *function_profile( object ob );
+mapping *function_profile( void|object ob );
 
 /**
  * function_exists()  -  查找对象中给定函数所在的文件
@@ -312,21 +312,6 @@ int find_call_out( int handle ) ;
 int eval_cost();
 
 /**
- * errorp() - 确定给定变量是否为错误代码
- *
- * 如果 'arg' 是一个错误代码的整数，则返回 1。
- * 
- * 最终 efuns 将被修改为返回标准错误代码，以便可以使用如下代码：
- * 
- * if (errorp(result = efun_call()))
- * printf("error = %d\n", result);
- * 
- * 将来，还将有一个 perror(result) efun 返回与特定错误整数相关的错误字符串。
- *
- */
-int errorp( mixed arg );
-
-/**
  * error - 生成运行时错误
  *
  * 当调用 error() 时，将生成一个运行时错误 'err'。当前线程的执行将中止，调试日志将记录追踪信息。
@@ -344,7 +329,7 @@ void error( string err );
  * 如果未提供对象，此 efun 将默认使用 this_object()。
  *
  */
-string *deep_inherit_list( object obj );
+string *deep_inherit_list( void|object obj );
 
 /**
  * ctime() - 返回时间字符串

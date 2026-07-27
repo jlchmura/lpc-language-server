@@ -77,5 +77,7 @@ void async_getdir( string dir, function callback );
  * );
  * ```
  *
+ * 任何额外的参数都将传递给回调函数。
+ *
  */
-void async_db_exec( int handle, string sql_query, function callback );
+void async_db_exec( int handle, string sql_query, string | function callback, mixed arg ... );

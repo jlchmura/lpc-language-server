@@ -31,7 +31,7 @@ int write_bytes( string path, int start, string series );
  * @param {string} str - 要获取信息的文件或目录
  * @param {int} flag 默认值为 0，如果为 0，则返回信息数组；如果为 -1，则返回子数组数组
  */
-mixed stat( string str, int flag );
+mixed *stat( string str, void | int flag );
 
 /**
  * rmdir() - 删除一个目录
@@ -77,7 +77,7 @@ varargs string read_file( string file, int start_line, int number_of_lines );
  * read_bytes 将失败。如果省略第二个和第三个参数，将返回整个文件。
  *
  */
-string read_bytes( string path, int start, int length );
+string read_bytes( string path, void | int start, void | int length );
 
 /**
  * mkdir() - 创建一个目录

@@ -112,8 +112,10 @@ varargs int living( object ob );
  * Returns  the  user id of an object.  The uid of an object is determined
  * at object creation by the creator_file() function.
  *
+ * If 'ob' is omitted, it defaults to this_object().
+ *
  */
-string getuid( object ob );
+string getuid( void|object ob );
 
 /**
  * geteuid() - return the effective user id of an object or function
@@ -124,8 +126,10 @@ string getuid( object ob );
  * If the object, at the time of the function variable's construction, had
  * no euid, the object's uid is stored instead.
  *
+ * If the argument is omitted, it defaults to this_object().
+ *
  */
-string geteuid( object|function );
+string geteuid( void|object|function );
 
 /**
  * find_living() - find a living object matching a given id

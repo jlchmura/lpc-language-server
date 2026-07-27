@@ -50,19 +50,6 @@ took
 int time_expression( mixed expr );
 
 /**
- * swap - swap out a file explicitly
- *
- * This  efun  should be reserved for debugging only.  It allows an object
- * to be explicitly swapped out.  If enabled, it is  strongly  recommended
- * that a simul_efun override (for this efun) be used to prevent abuse.
- * 
- * Note:  objects which have been destructed, already swapped out, contain
- * a heart beat, cloned, inherited, or interactive, cannot be swapped out.
- *
- */
-void swap( object );
-
-/**
  * set_malloc_mask()  -  sets the mask controlling display of malloc debug
 info
  *
@@ -183,17 +170,6 @@ int refs( mixed data );
 string query_load_average( void );
 
 /**
- * opcprof() - reports statistics on calling frequencies of various efuns
- *
- * This  function dumps a list of statistics on each efunction and eopera‐
- * tor.  If no argument is specified, then the information will be  dumped
- * to  files  named  /OPCPROF.efun  and /OPCPROF.eoper.  If an argument is
- * specified, then that name is used as the filename for the dump.
- *
- */
-void opcprof( string | void );
-
-/**
  * mud_status() - report various driver and mudlib statistics
  *
  * This  function  writes  driver  and  mudlib  statistics to the caller's
@@ -202,7 +178,7 @@ void opcprof( string | void );
  * tables' commands in vanilla 3.1.2.
  *
  */
-string mud_status( int extra );
+string mud_status( void|int extra );
 
 /**
  * moncontrol() - turns on/off profiling during execution
@@ -255,6 +231,30 @@ string malloc_status( void );
 string | int get_config( int );
 
 /**
+ * find_orphaned_cycles() - detect (and reclaim) memory leaked by dropped
+reference loops
+ *
+ * Scans every live array, class, mapping, and function pointer in the
+ * driver and returns the number of blocks that are unreachable -- kept
+ * alive only by a reference loop after the last outside reference was
+ * dropped.  Pure reference counting can never reclaim such blocks, and no
+ * LPC-level tool (refs(), break_cycles()) can reach them anymore.
+ *
+ * If 'flag' is non-zero, the orphaned blocks are also reclaimed, safely:
+ * strings, buffers, and objects they referenced are released normally,
+ * values still reachable elsewhere are untouched, and the loop members
+ * themselves are freed.
+ *
+ * Reachable loops are NOT reported -- use has_cycle() / find_cycles() /
+ * break_cycles() while you still hold a reference.
+ *
+ * This efun is only available on debugging builds (DEBUGMALLOC_EXTENSIONS);
+ * guard call sites with #if efun_defined(find_orphaned_cycles).
+ *
+ */
+int find_orphaned_cycles(void|int flag);
+
+/**
  * dumpallobj()  - report various statistics on all objects that have been
 loaded
  *
@@ -265,40 +265,6 @@ loaded
  *
  */
 void dumpallobj( string | void );
-
-/**
- * dump_socket_status() - display the status of each LPC socket
- *
- * dump_socket_status()  is  a diagnostic facility which displays the cur‐
- * rent status of all LPC sockets configured into the MudOS driver.  It is
- * useful  for debugging LPC sockets applications.  Each row in the output
- * corresponds to a single LPC socket.  The first row corresponds  to  LPC
- * socket descriptor 0, the second row, 1, etc.  The total number of sock‐
- * ets is configured when the driver is built.
- * 
- * The first column "Fd" is the operating system file  descriptor  associ‐
- * ated  with the LPC socket.  "State" is the current operational state of
- * the LPC socket.  "Mode" is the socket mode, which is passed as an argu‐
- * ment to socket_create().  The local and remote addresses are the Inter‐
- * net address and port numbers in Internet dot notations.  '*'  indicates
- * an  address  or  which  is  0.  N.B. LPC sockets that are in the CLOSED
- * state are not currently in use; therefore the data displayed  for  that
- * socket may be idiosyncratic.
- * 
- * The  following  output  was generated on Portals, where the only socket
- * application running at the time was MWHOD.  It indicates that two sock‐
- * ets  are  current in use, one is listening for connection requests on a
- * STREAM mode socket.  The other is waiting for incoming data on a  DATA‐
- * GRAM mode socket.
- * 
- * Fd    State      Mode      Local Address      Remote Address
- * --  ---------  --------  -----------------  ------------------
- * 13   LISTEN     STREAM   *.6889             *.*
- * 14    BOUND    DATAGRAM  *.6888             *.*
- * -1    CLOSED      MUD    *.*                *.*
- *
- */
-void dump_socket_status( void );
 
 /**
  * dump_prog() - dump/disassemble an LPC object
@@ -355,7 +321,7 @@ string dump_file_descriptors( void );
  * config.h in the driver source for more information.
  *
  */
-string debugmalloc( string filename, int mask );
+string debugmalloc( string filename, void|int mask );
 
 /**
  * debug_levels

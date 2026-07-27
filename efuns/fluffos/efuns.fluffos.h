@@ -65,6 +65,7 @@ object __LS__Closure;
 #include "general.h"
 #include "interactive.h"
 #include "internals.h"
+#include "jsbridge.h"
 #include "mappings.h"
 #include "misc.h"
 #include "mudlib.h"

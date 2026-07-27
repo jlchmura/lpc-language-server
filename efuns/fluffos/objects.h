@@ -17,8 +17,11 @@ varargs int virtualp( object arg );
  * also be the filename of the room (string).  If 'exclude' is  specified,
  * all objects in the exclude array will not receive the message.
  *
+ * 'exclude' may be omitted, and may be a single object as well as an array
+ * of objects.
+ *
  */
-void tell_room( mixed ob, string str, object *exclude );
+void tell_room( mixed ob, string str, void | object | object *exclude );
 
 /**
  * tell_object() - send a message to an object
@@ -184,12 +187,14 @@ int objectp( mixed arg );
  * next_inventory() - return the next object in the same inventory
  *
  * Return the next object in the same inventory as 'ob'.
- * 
+ *
+ * If no object is supplied, this efun will default to this_object().
+ *
  * Warning:   If  the  object  'ob'  is  moved  by  "move_object()",  then
  * "next_inventory()" will return an object from the new inventory.
  *
  */
-object next_inventory( object ob );
+object next_inventory( void | object ob );
 
 /**
  * new() - load a new copy of an object/class
@@ -262,7 +267,7 @@ object load_object( string str );
  * If no object is supplied, this efun will default to this_object().
  *
  */
-object first_inventory( mixed ob );
+object first_inventory( void | object | string ob );
 
 /**
  * find_object() - find an object by file name
@@ -318,11 +323,18 @@ varargs void destruct( object ob );
  * Returns  an array of the objects contained in the inventory of <ob> and
  * all the objects contained in the inventories of those  objects  and  so
  * on.
- * 
- * If no object is supplied, this efun will default to this_object().
+ *
+ * If no object is supplied, this efun will default to this_object().  The
+ * first argument may also be an array of objects.
+ *
+ * An optional filter function <f> may be supplied, which is called with
+ * each object encountered.  Its return value controls the result: 0 skips
+ * the object and its inventory, 1 includes the object and descends into
+ * its inventory, 2 includes the object without descending, and 3 descends
+ * without including the object itself.
  *
  */
-varargs object *deep_inventory( object ob );
+varargs object *deep_inventory( object | object * | function obs, void | function f );
 
 /**
  * clonep() - determine whether or not a given variable points to a cloned

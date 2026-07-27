@@ -63,6 +63,7 @@ object __LS__Closure;
 #include "general.zh-cn.h"
 #include "interactive.zh-cn.h"
 #include "internals.zh-cn.h"
+#include "jsbridge.zh-cn.h"
 #include "mappings.zh-cn.h"
 #include "misc.zh-cn.h"
 #include "mudlib.zh-cn.h"

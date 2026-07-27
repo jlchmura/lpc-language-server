@@ -21,32 +21,42 @@ string pcre_replace_callback(string input, string pattern, string|function, mixe
  *
  * 返回一个字符串，其中所有捕获的组已被替换数组的元素替换。子组数量和替换数组的大小必须匹配。
  *
+ * 可选的 pcre_flags 参数是编译模式时应用的 PCRE 选项标志的位掩码（例如忽略大小写、多行模式）。
+ *
  */
-string pcre_replace(string input, string pattern, string *replacments);
+string pcre_replace(string input, string pattern, string *replacments, void|int pcre_flags);
 
 /**
  * pcre_match_all() - 查找所有匹配项
  *
  * 类似于php的preg_match_all，这个EFUN返回一个字符串数组的数组，包含所有匹配项和捕获的组。
  *
+ * 可选的 pcre_flags 参数是编译模式时应用的 PCRE 选项标志的位掩码（例如忽略大小写、多行模式）。
+ *
  */
-mixed pcre_match_all(string input, string pattern);
+mixed pcre_match_all(string input, string pattern, void|int pcre_flags);
 
 /**
  * pcre_match() - 正则表达式处理器
  *
  * 由于向后兼容的原因与正则表达式efun类似，但利用了PCRE库。
  *
+ * 可选的 pcre_flags 参数是编译模式时应用的 PCRE 选项标志的位掩码（例如忽略大小写、多行模式）。
+ * 当 lines 是单个字符串时，单独给出的第三个整数参数会被视为 pcre_flags 而不是 flag。
+ *
  */
-mixed pcre_match(string|string *lines, string pattern, void|int flag);
+mixed pcre_match(string|string *lines, string pattern, void|int flag, void|int pcre_flags);
 
 /**
  * pcre_extract() - 提取匹配部分
  *
  * 返回模式中指定的捕获组的数组。
  *
+ * 如果 include_names 非零，则在返回数组的末尾追加一个映射，将命名捕获组映射到其匹配的值。
+ * 可选的 pcre_flags 参数是编译模式时应用的 PCRE 选项标志的位掩码（例如忽略大小写、多行模式）。
+ *
  */
-string *pcre_extract(string input, string pattern);
+string *pcre_extract(string input, string pattern, void|int include_names, void|int pcre_flags);
 
 /**
  * pcre_cache() - 返回pcre缓存的内容
