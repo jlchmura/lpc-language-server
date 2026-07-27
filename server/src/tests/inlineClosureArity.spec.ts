@@ -138,3 +138,28 @@ describe("a narrowed closure variable is still a function", () => {
         expect(hover).not.toContain("__LS__");
     });
 });
+
+describe("documenting an inline closure's implicit parameters", () => {
+    function withDoc(tag: string, closure: string): string {
+        return `void probe() {\n    /**\n     * Doc\n     * ${tag}\n     */\n    function f = ${closure};\n}\n`;
+    }
+
+    it("accepts an @param tag naming a $N the closure actually has", () => {
+        // `$N` are not ParameterDeclarations, so the unmatched-@param check -- which walks
+        // `node.parameters` -- saw an empty list and reported every tag as unmatched.
+        expect(diagnosticsFor(withDoc("@param {mixed} $1 first", `(: call_out_walltime("p", 5.0, $1) :)`))).toEqual([]);
+        expect(diagnosticsFor(withDoc("@param {mixed} $1 a\n     * @param {mixed} $2 b", `(: $1 + $2 :)`))).toEqual([]);
+    });
+
+    it("still reports an @param naming a position the closure does not read", () => {
+        expect(diagnosticsFor(withDoc("@param {mixed} $2 second", `(: call_out_walltime("p", 5.0, $1) :)`)))
+            .toEqual(["8024: LPCDoc '@param' tag has name '$2', but there is no parameter with that name."]);
+        expect(diagnosticsFor(withDoc("@param {mixed} $1 first", `(: 42 :)`)))
+            .toEqual(["8024: LPCDoc '@param' tag has name '$1', but there is no parameter with that name."]);
+    });
+
+    it("still reports an @param with a name that is not a $N at all", () => {
+        expect(diagnosticsFor(withDoc("@param {mixed} nope x", `(: call_out_walltime("p", 5.0, $1) :)`)))
+            .toEqual(["8024: LPCDoc '@param' tag has name 'nope', but there is no parameter with that name."]);
+    });
+});

@@ -59,6 +59,16 @@
             "name": "storage.modifier.lpc"
         },
         {
+            "comment": "Inline closure implicit parameters: $1 .. $9. Listed before the numeric rule because the digits would otherwise be tokenized on their own, leaving the '$' unscoped. '$' is a valid identifier character in LPC, so the boundaries keep this from matching inside a name like 'x$1'.",
+            "match": "(?<![A-Za-z0-9_$])\\$[0-9]+(?![A-Za-z0-9_$])",
+            "name": "variable.parameter.lpc"
+        },
+        {
+            "comment": "The '$' of a '$(expr)' closure capture, as in '(: $(tp) :)'. Only the '$' is matched so the parentheses still nest normally. Same boundary guard as above: '$' is an identifier character, so a call to a function actually named 'x$' must not light up.",
+            "match": "(?<![A-Za-z0-9_$])\\$(?=\\()",
+            "name": "keyword.operator.lpc"
+        },
+        {
             "comment": "Numeric values",
             "match": "(?:\\b|(?<!\\.)(?=\\.))((0(x|X)[0-9a-fA-F_]*)|(([0-9_]+\\.?[0-9_]*)|(\\.[0-9_]+))((-)?[0-9_]+)?)\\b",
             "name": "constant.numeric.lpc"

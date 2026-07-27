@@ -10364,6 +10364,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
         });
 
+        // An inline closure has no parameter list to walk -- `$1`..`$N` are its parameters,
+        // synthesized from the body -- so `@param $1` would look unmatched. Seed the names, but
+        // deliberately not `parametersByName`: that map is keyed to real ParameterDeclarations
+        // for the type and ref-modifier checks below, which a synthesized symbol cannot satisfy.
+        if (isInlineClosureExpression(node)) {
+            for (const parameter of getInlineClosureParameters(node)) {
+                parameters.add(parameter.name as string);
+            }
+        }
+
         const containsArguments = containsArgumentsReference(node);
         if (containsArguments) {
             const lastJSDocParamIndex = jsdocParameters.length - 1;
