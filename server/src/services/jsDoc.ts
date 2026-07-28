@@ -63,6 +63,7 @@ import {
     JSDocTag,
     JSDocTagInfo,
     JSDocTemplateTag,
+    JSDocReturnTag,
     JSDocThrowsTag,
     JSDocTypedefTag,
     JSDocTypeTag,
@@ -262,6 +263,18 @@ export function getJsDocTagsFromDeclarations(declarations?: Declaration[], check
         for (const tag of tags) {
             infos.push({ name: tag.tagName.text, text: getCommentDisplayParts(tag, checker) });
             infos.push(...getJSDocPropertyTagsInfo(tryGetJSDocPropertyTags(tag), checker));
+            if (isJSDocOverloadTag(tag)) {
+                // The parser folds the @param/@returns tags that follow an @overload
+                // into its JSDocSignature; flatten them back out so each overload's
+                // members render beneath its *@overload* heading instead of vanishing.
+                for (const paramTag of tag.typeExpression.parameters) {
+                    infos.push({ name: paramTag.tagName.text, text: getCommentDisplayParts(paramTag, checker) });
+                }
+                const returnTag = tag.typeExpression.type;
+                if (returnTag) {
+                    infos.push({ name: returnTag.tagName.text, text: getCommentDisplayParts(returnTag, checker) });
+                }
+            }
         }
     });
     return infos;
@@ -292,7 +305,8 @@ function getCommentDisplayParts(tag: JSDocTag, checker?: TypeChecker): SymbolDis
     const displayParts: SymbolDisplayPart[] = [];
     switch (kind) {
         case SyntaxKind.JSDocThrowsTag:
-            const typeExpression = (tag as JSDocThrowsTag).typeExpression;
+        case SyntaxKind.JSDocReturnTag:
+            const typeExpression = (tag as JSDocThrowsTag | JSDocReturnTag).typeExpression;
             return typeExpression ? withNode(typeExpression) :
                 comment === undefined ? undefined : getDisplayPartsFromComment(comment, checker);
         case SyntaxKind.JSDocImplementsTag:
@@ -341,13 +355,20 @@ function getCommentDisplayParts(tag: JSDocTag, checker?: TypeChecker): SymbolDis
             //         displayParts.push(...withNode(typeExpression));
             //     }
             // }
-            const { name } = tag as JSDocTypedefTag | JSDocCallbackTag | JSDocPropertyTag | JSDocParameterTag | JSDocSeeTag;            
+            const { name } = tag as JSDocTypedefTag | JSDocCallbackTag | JSDocPropertyTag | JSDocParameterTag | JSDocSeeTag;
             if (name) {
-                displayParts.push(...withNode(name));
+                // Surface the authored LPCDoc type ahead of the name so hovers can
+                // render `@param {mixed*} cb — ...` instead of dropping the type.
+                if (isJSDocPropertyLikeTag(tag) && tag.typeExpression) {
+                    displayParts.push(textPart(tag.typeExpression.getText()), spacePart());
+                }
+                // preserve the [name] optional-parameter brackets from the source
+                const nameText = isJSDocPropertyLikeTag(tag) && tag.isBracketed ? `[${name.getText()}]` : name.getText();
+                displayParts.push(...addComment(nameText));
             } else if (comment) {
                 displayParts.push(...getDisplayPartsFromComment(comment, checker));
             }
-            
+
             return displayParts;
         default:
             return comment === undefined ? undefined : getDisplayPartsFromComment(comment, checker);

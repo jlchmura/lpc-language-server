@@ -81,6 +81,6 @@ int mul(int a, int b) {
         const pos = source.indexOf("mul(int");
         const quickInfo = ls.getQuickInfoAtPosition(fileName, pos);
 
-        expect(getTag(quickInfo, "returns")).toBe("the product a * b");
+        expect(getTag(quickInfo, "returns")).toBe("{int} the product a * b");
     });
 });

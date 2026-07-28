@@ -34,7 +34,7 @@ mixed call_back(mixed *cb) {
         const pos = source.indexOf("call_back(mixed");
         const quickInfo = ls.getQuickInfoAtPosition(fileName, pos);
 
-        expect(getTag(quickInfo, "returns")).toBe("Result from callback execution");
+        expect(getTag(quickInfo, "returns")).toBe("{mixed|undefined} Result from callback execution");
         // the derailed parse used to consume the rest of the comment too
         expect(getTag(quickInfo, "see")).toContain("valid_function");
     });
@@ -55,7 +55,7 @@ string maybe() {
         const pos = source.indexOf("maybe()");
         const quickInfo = ls.getQuickInfoAtPosition(fileName, pos);
 
-        expect(getTag(quickInfo, "returns")).toBe("Something or nothing");
+        expect(getTag(quickInfo, "returns")).toBe("{undefined|string} Something or nothing");
     });
 
     it("macros in code still expand when a doc comment is attached", () => {
@@ -73,7 +73,7 @@ mixed maybe() {
         const quickInfo = ls.getQuickInfoAtPosition(fileName, pos);
 
         // doc tag survives...
-        expect(getTag(quickInfo, "returns")).toBe("Something or nothing");
+        expect(getTag(quickInfo, "returns")).toBe("{mixed|undefined} Something or nothing");
         // ...and the body still parses: `undefined` expanded to `([])[0]`, so the
         // return expression is an element access, not a bare unresolved name
         const syntactic = ls.getSyntacticDiagnostics(fileName);
