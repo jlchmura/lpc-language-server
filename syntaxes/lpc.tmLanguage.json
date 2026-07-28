@@ -184,7 +184,7 @@
                     "name": "punctuation.separator.continuation.lpc"
                 },
                 {
-                    "include": "$base"
+                    "include": "$self"
                 }
             ]
         },
@@ -314,7 +314,7 @@
                     "include": "#block"
                 },
                 {
-                    "include": "$base"
+                    "include": "$self"
                 }
             ]
         },
@@ -405,7 +405,7 @@
             "name": "meta.parens.lpc",
             "patterns": [
                 {
-                    "include": "$base"
+                    "include": "$self"
                 }
             ]
         },
@@ -452,7 +452,7 @@
                     "end": "(?=^\\s*#\\s*endif\\b.*$)",
                     "patterns": [
                         {
-                            "include": "$base"
+                            "include": "$self"
                         }
                     ]
                 },
@@ -559,7 +559,7 @@
                     "end": "(?=^\\s*#\\s*(else|endif)\\b.*$)",
                     "patterns": [
                         {
-                            "include": "$base"
+                            "include": "$self"
                         }
                     ]
                 }
@@ -625,7 +625,7 @@
             "end": "^\\s*(#\\s*(endif)\\b).*$",
             "patterns": [
                 {
-                    "include": "$base"
+                    "include": "$self"
                 }
             ]
         },
