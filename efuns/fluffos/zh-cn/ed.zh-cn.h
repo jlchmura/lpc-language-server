@@ -25,11 +25,19 @@ int query_ed_mode();
  * 返回结果输出。编辑会话保持活跃，可以进一步调用 ed_cmd() 发送命令。
  * 
  * 如果 restricted 为1，则将禁用更改正在编辑的文件的命令。
- * 
+ *
+ * 如果 scroll_lines 为非零值，它设置编辑器滚动命令（如 'z'）
+ * 显示的行数。默认值为 20。
+ *
+ * 当 ed_start() 恰好以两个参数调用时，第二个参数等于 1 会被视为
+ * 'restricted'；其他任何值都会被视为 'scroll_lines'。
+ *
  * 每个对象一次只能有一个编辑会话处于活跃状态。
  *
  */
 string ed_start(void|string file, void|int restricted);
+
+string ed_start(string file, int restricted, int scroll_lines);
 
 /**
  * ed_cmd() - 向编辑会话发送命令

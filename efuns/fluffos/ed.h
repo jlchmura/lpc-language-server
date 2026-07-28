@@ -29,11 +29,20 @@ int query_ed_mode();
  * 
  * If restricted is 1, the commands that change which file is being edited
  * will be disabled.
- * 
+ *
+ * If scroll_lines is nonzero, it sets the number of lines displayed by the
+ * editor's scrolling commands (such as 'z').  The default is 20.
+ *
+ * When ed_start() is called with exactly two arguments, a second argument
+ * equal to 1 is treated as 'restricted'; any other value is treated as
+ * 'scroll_lines'.
+ *
  * Only one ed session can be active per object at a time.
  *
  */
 string ed_start(void|string file, void|int restricted);
+
+string ed_start(string file, int restricted, int scroll_lines);
 
 /**
  * ed_cmd() - send a command to an ed session
