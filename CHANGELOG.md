@@ -2,8 +2,10 @@
 
 ## 1.1.51
 
-- Fix: unstyled code in doc-comment @example blocks- #359
+- Fix: unstyled code in doc-comment @example blocks - #359
 - Fix: FluffOS efun signature improvements & updates
+- Fix: LPCDoc macro expansion inside doc types - #360
+- Fix: LPCDoc Margin asterisks leaking into tag comments - #360
 
 ## 1.1.50
 
