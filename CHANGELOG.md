@@ -1,5 +1,10 @@
 # LPC Language Services Changelog
 
+## 1.1.51
+
+- Fix: unstyled code in doc-comment @example blocks- #359
+- Fix: FluffOS efun signature improvements & updates
+
 ## 1.1.50
 
 - Fix: show macros from `#include` files in completion results
