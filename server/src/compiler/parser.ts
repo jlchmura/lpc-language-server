@@ -733,7 +733,11 @@ export namespace LpcParser {
 
         switch (incomingToken) {
             default:
-                if (allowMacroProcessing && (incomingToken == SyntaxKind.Identifier || isNonReservedKeyword(incomingToken))) {
+                // Inside a JSDoc comment, keywords are LPCDoc type vocabulary (`undefined`,
+                // `object`, `function`, ...) and must win over same-named macros (e.g. a
+                // mudlib's `#define undefined ([])[0]`); plain identifiers still expand so
+                // macro-valued doc types like `{STD_BODY}` keep resolving.
+                if (allowMacroProcessing && (incomingToken == SyntaxKind.Identifier || (isNonReservedKeyword(incomingToken) && !inContext(NodeFlags.JSDoc)))) {
                     const tokenValue = scanner.getTokenValue();
                     let macro: Macro;
         
@@ -6359,6 +6363,19 @@ export namespace LpcParser {
                     comments.push(text);
                     indent += text.length;
                 }
+                function tokenIsFirstOnLine(): boolean {
+                    const text = scanner.getText();
+                    for (let i = scanner.getTokenStart() - 1; i >= 0; i--) {
+                        const ch = text.charCodeAt(i);
+                        if (ch === CharacterCodes.lineFeed || ch === CharacterCodes.carriageReturn) {
+                            return true;
+                        }
+                        if (ch !== CharacterCodes.space && ch !== CharacterCodes.tab) {
+                            return false;
+                        }
+                    }
+                    return false;
+                }
                 if (initialMargin !== undefined) {
                     // jump straight to saving comments if there is some initial indentation
                     if (initialMargin !== "") {
@@ -6423,8 +6440,14 @@ export namespace LpcParser {
                             pushComment(scanner.getTokenValue());
                             break;
                         case SyntaxKind.AsteriskToken:
-                            if (state === JSDocState.BeginningOfLine) {
-                                // leading asterisks start recording on the *next* (non-whitespace) token
+                            if (state === JSDocState.BeginningOfLine || (comments.length === 0 && parts.length === 0 && tokenIsFirstOnLine())) {
+                                // Leading asterisks start recording on the *next* (non-whitespace)
+                                // token. The second test catches a stale entry token: a tag body
+                                // parsed with the regular (trivia-skipping) scanner, e.g. a @see
+                                // name reference, consumes the newline after it, so the next
+                                // line's margin asterisk arrives here without a preceding
+                                // NewLineTrivia. Its line position identifies it as margin, not
+                                // comment text.
                                 state = JSDocState.SawAsterisk;
                                 indent += 1;
                                 break;
