@@ -172,14 +172,14 @@ export function getNonAssignedNameOfDeclaration(declaration: Declaration | Expre
     switch (declaration.kind) {
         case SyntaxKind.Identifier:
             return declaration as Identifier;
-        // case SyntaxKind.JSDocPropertyTag:
-        // case SyntaxKind.JSDocParameterTag: {
-        //     const { name } = declaration as JSDocPropertyLikeTag;
-        //     if (name.kind === SyntaxKind.QualifiedName) {
-        //         return name.right;
-        //     }
-        //     break;
-        // }
+        case SyntaxKind.JSDocPropertyTag:
+        case SyntaxKind.JSDocParameterTag: {
+            const { name } = declaration as JSDocPropertyLikeTag;
+            if (name.kind === SyntaxKind.QualifiedName) {
+                return name.right;
+            }
+            break;
+        }
         case SyntaxKind.CallExpression:
         case SyntaxKind.BinaryExpression: {
             const expr = declaration as BinaryExpression | CallExpression;

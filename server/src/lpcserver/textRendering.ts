@@ -1,10 +1,7 @@
-import * as vscode from "vscode-languageserver";
-import * as Proto from "../server/_namespaces/lpc.server.protocol.js";
-import { protocol } from "../server/_namespaces/lpc.server.js";
-import { Debug, JSDocLinkDisplayPart, ScriptElementKind, SymbolDisplayPart } from "../server/_namespaces/lpc.js";
 import { URI } from "vscode-uri";
-import { OpenJsDocLinkCommand_Args } from "./openJsDocLink.js";
-import { Position } from "./typeConverters.js";
+import { JSDocLinkDisplayPart, SymbolDisplayPart } from "../server/_namespaces/lpc.js";
+import { protocol } from "../server/_namespaces/lpc.server.js";
+import * as Proto from "../server/_namespaces/lpc.server.protocol.js";
 import { MarkdownString } from "./MarkdownString.js";
 
 export interface IFilePathToResourceConverter {

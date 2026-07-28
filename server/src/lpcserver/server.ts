@@ -1,18 +1,18 @@
-import { Connection, Hover, InitializeResult, MarkupKind, TextDocumentPositionParams, TextDocuments, TextDocumentSyncKind, WorkspaceFolder } from "vscode-languageserver";
+import EventEmitter from "events";
+import { getHeapStatistics } from "v8";
 import * as vscode from "vscode-languageserver";
-import * as lpc from "../lpc/lpc.js";
-import * as protocol from "../server/_namespaces/lpc.server.protocol.js";
-import { Logger } from "./nodeServer";
+import { Connection, InitializeResult, TextDocumentPositionParams, TextDocuments, TextDocumentSyncKind } from "vscode-languageserver";
 import { Position, TextDocument } from "vscode-languageserver-textdocument";
 import { URI } from "vscode-uri";
-import EventEmitter from "events";
-import { convertNavtoItems, convertNavTree, getFileResourceConverter } from "./utils.js";
-import * as typeConverters from './typeConverters';
-import { KindModifiers } from "./protocol.const.js";
-import { CompletionEntryDetails, Range, SignatureHelp } from "./typeConverters";
-import { getHeapStatistics } from "v8";
-import { addMarkdownDocumentation, documentationToMarkdown, IFilePathToResourceConverter } from "./textRendering.js";
+import * as lpc from "../lpc/lpc.js";
+import * as protocol from "../server/_namespaces/lpc.server.protocol.js";
 import { MarkdownString } from "./MarkdownString.js";
+import { Logger } from "./nodeServer";
+import { KindModifiers } from "./protocol.const.js";
+import { addMarkdownDocumentation } from "./textRendering.js";
+import * as typeConverters from './typeConverters';
+import { CompletionEntryDetails, Range, SignatureHelp } from "./typeConverters";
+import { convertNavtoItems, convertNavTree, getFileResourceConverter } from "./utils.js";
 
 // generate a unique 5 digit it
 // const randomId = Math.floor(Math.random() * 90000) + 10000;

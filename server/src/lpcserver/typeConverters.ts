@@ -1,10 +1,10 @@
 import * as vscode from "vscode-languageserver";
-import * as Proto from "../server/_namespaces/lpc.server.protocol.js";
-import { protocol } from "../server/_namespaces/lpc.server.js";
-import { DocumentSpan, ScriptElementKind, SymbolDisplayPart, TextSpan, diagnosticPrefix, isString } from "../server/_namespaces/lpc.js";
 import { URI } from "vscode-uri";
+import { ScriptElementKind, diagnosticPrefix } from "../server/_namespaces/lpc.js";
+import { protocol } from "../server/_namespaces/lpc.server.js";
+import * as Proto from "../server/_namespaces/lpc.server.protocol.js";
 import { KindModifiers } from "./protocol.const.js";
-import { IFilePathToResourceConverter, asPlainTextWithLinks, documentationToMarkdown, tagsToMarkdown } from "./textRendering.js";
+import { asPlainTextWithLinks, documentationToMarkdown } from "./textRendering.js";
 import { getFileResourceConverter } from "./utils.js";
 
 export namespace Range {
