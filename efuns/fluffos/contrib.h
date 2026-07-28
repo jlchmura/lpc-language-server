@@ -149,6 +149,9 @@ mixed store_class_member(mixed instantiated_class, int class_element, mixed valu
  *
  * randomly reorders the elements of the given array (changes original!!!)
  *
+ * @template T
+ * @param {T*} arr The array to shuffle
+ * @returns {T*} The shuffled array
  */
 mixed *shuffle(mixed *arr);
 
@@ -345,8 +348,10 @@ varargs string query_num(int num, int many);
  * returns current notify_fail setting (funcp or string)
  * #ifndef NO_ADD_ACTION
  *
+ * @returns {string|function} The current notify_fail setting, which is
+ * either a string or a function pointer depending on how it was set.
  */
-mixed query_notify_fail();
+string|function query_notify_fail();
 
 /**
  * query_ip_port - returns local_port of connection
@@ -449,8 +454,17 @@ object *named_livings( void );
  * omitted the minimum value will be returned, otherwise the  first  index
  * of its occurrence.
  *
+ * @template {int|float|string} T
+ * @param {T*} arr The array to search
+ * @returns {T} The minimum value in the array
  */
 mixed min(mixed * arr);
+
+/**
+ * min() - with a nonzero flag, returns the first index of the minimum
+ * value's occurrence (an int) rather than the value itself, so the return
+ * type stays `mixed`.
+ */
 mixed min(mixed * arr, int flag);
 
 /**
@@ -475,8 +489,17 @@ mapping memory_summary();
  * omitted the maximum value will be returned, otherwise the  first  index
  * of its occurrence.
  *
+ * @template {int|float|string} T
+ * @param {T*} arr The array to search
+ * @returns {T} The maximum value in the array
  */
 mixed max(mixed * arr);
+
+/**
+ * max() - with a nonzero flag, returns the first index of the maximum
+ * value's occurrence (an int) rather than the value itself, so the return
+ * type stays `mixed`.
+ */
 mixed max(mixed * arr, int flag);
 
 /**
@@ -703,6 +726,9 @@ void event(object | object * target, string event_name, mixed *args...);
  *
  * returns random elememt of given array
  *
+ * @template T
+ * @param {T*} arr The array to pick from
+ * @returns {T} A random element of the array
  */
 mixed element_of(mixed *arr);
 
@@ -767,6 +793,9 @@ mapping
  * This is particularly useful when you wish to have data that is passed
  * by reference, but do not want to alter the original.
  *
+ * @template T
+ * @param {T} arg The value to copy
+ * @returns {T} A deep copy of the same type as the input
  */
 mixed copy(mixed arg);
 
@@ -875,7 +904,8 @@ mixed assemble_class( mixed *elements );
 /**
  * abs() - return the absolute value of a number
  *
- * Returns the absolute value of the supplied <number>.
+ * Returns the absolute value of the supplied <number>. The result has the
+ * same numeric type as its argument: an int for an int, a float for a float.
  *
  * int value = abs( 10 );      // 10
  * int value = abs( -10 );     // 10
@@ -883,7 +913,12 @@ mixed assemble_class( mixed *elements );
  * float value = abs( -3.14 ); // 3.140000
  *
  */
-mixed abs( int | float number );
+int abs( int number );
+
+/**
+ * abs() - return the absolute value of a float.
+ */
+float abs( float number );
 
 /**
  * add_a() - prefix a string with the correct indefinite article

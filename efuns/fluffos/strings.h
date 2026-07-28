@@ -460,6 +460,30 @@ string lower_case( string str );
  *
  */
 string implode( mixed *arr, string del );
+
+/**
+ * @template T, Y
+ * @callback implodeCallback
+ * @param {Y} acc The accumulated value so far
+ * @param {T} element The next element of the array
+ * @returns {Y} The new accumulated value
+ */
+
+/**
+ * implode() - reduce an array via application of a function pointer.
+ *
+ * In this form implode() folds the array: it combines the elements left to
+ * right by repeatedly calling 'f' with the running result and the next
+ * element, and returns whatever the final call returns. The optional
+ * 'extra' argument, when present, is used as the starting value; otherwise
+ * the first element of the array is.
+ *
+ * @template T, Y
+ * @param {T*} arr The array to reduce
+ * @param {implodeCallback<T,Y>} f The function combining the accumulator with each element
+ * @param {Y|void} extra The starting value for the accumulator
+ * @returns {Y} The accumulated value
+ */
 mixed implode( mixed *arr, function f, void | mixed extra );
 
 /**

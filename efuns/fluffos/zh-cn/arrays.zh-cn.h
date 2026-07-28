@@ -222,6 +222,9 @@ mixed *filter_array( mixed *arr, function f, mixed extra... );
  *
  * 返回数组中的随机元素。
  *
+ * @template T
+ * @param {T*} arr 要从中选取元素的数组
+ * @returns {T} 数组中的一个随机元素
  */
 mixed element_of(mixed *arr);
 
