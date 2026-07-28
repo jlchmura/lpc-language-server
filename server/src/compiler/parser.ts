@@ -733,7 +733,11 @@ export namespace LpcParser {
 
         switch (incomingToken) {
             default:
-                if (allowMacroProcessing && (incomingToken == SyntaxKind.Identifier || isNonReservedKeyword(incomingToken))) {
+                // Inside a JSDoc comment, keywords are LPCDoc type vocabulary (`undefined`,
+                // `object`, `function`, ...) and must win over same-named macros (e.g. a
+                // mudlib's `#define undefined ([])[0]`); plain identifiers still expand so
+                // macro-valued doc types like `{STD_BODY}` keep resolving.
+                if (allowMacroProcessing && (incomingToken == SyntaxKind.Identifier || (isNonReservedKeyword(incomingToken) && !inContext(NodeFlags.JSDoc)))) {
                     const tokenValue = scanner.getTokenValue();
                     let macro: Macro;
         
