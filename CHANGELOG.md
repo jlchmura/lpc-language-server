@@ -6,6 +6,7 @@
 - Fix: FluffOS efun signature improvements & updates
 - Fix: LPCDoc macro expansion inside doc types - #360
 - Fix: LPCDoc Margin asterisks leaking into tag comments - #360
+- Surface authored LPCDoc types in hover doc tags - #361
 
 ## 1.1.50
 
