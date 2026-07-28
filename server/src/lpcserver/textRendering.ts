@@ -24,10 +24,11 @@ function getTagDocumentation(
         case 'param':
         case 'template': {
             const body = getTagBody(tag, filePathConverter);
-            if (body?.length === 3) {
-                const param = body[1];
-                const doc = body[2];
-                const label = `*@${tag.name}* \`${param}\``;
+            if (body?.length === 4) {
+                const type = body[1];
+                const param = body[2];
+                const doc = body[3];
+                const label = `*@${tag.name}* ${type ? `\`${type}\` ` : ''}\`${param}\``;
                 if (!doc) {
                     return label;
                 }
@@ -38,10 +39,24 @@ function getTagDocumentation(
         }
 
         case 'return':
-        case 'returns': {
+        case 'returns':
+        case 'throws': {
             // For return(s), we require a non-empty body
             if (!tag.text?.length) {
                 return undefined;
+            }
+
+            // Render a leading LPCDoc type (`{mixed|undefined} comment`) as a code
+            // span so the authored type is surfaced: `*@returns* `{...}` \u2014 comment`.
+            const text = getTagBodyText(tag, filePathConverter);
+            const typed = text?.match(/^(\{[^{}]*\})[ \t]*/);
+            if (text && typed) {
+                const rest = text.slice(typed[0].length);
+                const label = `*@${tag.name}* \`${typed[1]}\``;
+                if (!rest) {
+                    return label;
+                }
+                return label + (rest.match(/\r\n|\n/g) ? '  \n' + rest : ` \u2014 ${rest}`);
             }
 
             break;
@@ -65,10 +80,11 @@ function getTagBody(tag: Proto.JSDocTagInfo, filePathConverter: IFilePathToResou
         if (parts && typeof (parts) !== 'string') {
             const params = parts.filter(p => p.kind === 'typeParameterName').map(p => p.text).join(', ');
             const docs = parts.filter(p => p.kind === 'text').map(p => convertLinkTags(p.text.replace(/^\s*-?\s*/, ''), filePathConverter)).join(' ');
-            return params ? ['', params, docs] : undefined;
+            return params ? ['', undefined!, params, docs] : undefined;
         }
     }
-    return (convertLinkTags(tag.text, filePathConverter)).split(/^(\S+)\s*-?\s*/);
+    // Optional leading `{type}` (as emitted for property-like tags), then the name.
+    return (convertLinkTags(tag.text, filePathConverter)).split(/^(?:(\{[^{}]*\})[ \t]+)?(\S+)\s*-?\s*/);
 }
 
 /**
