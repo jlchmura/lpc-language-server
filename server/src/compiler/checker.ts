@@ -20312,6 +20312,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return factory.createKeywordTypeNode(SyntaxKind.StringKeyword);
             }
             if (type.flags & TypeFlags.Number) {
+                // `floatType` carries TypeFlags.Number too (so int and float share numeric
+                // behavior), so it has to be distinguished by identity here or it would
+                // print as `int`.
+                if (type === floatType) {
+                    context.approximateLength += 5;
+                    return factory.createKeywordTypeNode(SyntaxKind.FloatKeyword);
+                }
                 context.approximateLength += 6;
                 return factory.createKeywordTypeNode(SyntaxKind.IntKeyword);
             }
