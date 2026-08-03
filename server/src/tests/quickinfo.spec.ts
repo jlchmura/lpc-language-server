@@ -70,6 +70,36 @@ void test() {
         expect(callDisplay).toContain("int");
     });
 
+    it("shows float (not int) for float declarations, calls and variables", () => {
+        // `floatType` is created with TypeFlags.Number so that int and float share numeric
+        // behavior, which made the type printer fall into the `int` branch for anything
+        // typed float: `float percent_of(...)` hovered as `function int percent_of(...)`.
+        const source = `float percent_of(float a, float b) {
+    return (a / 100.0) * b;
+}
+
+void test() {
+    float red = percent_of(1.0, 2.0);
+    float *all = ({ red });
+}
+`;
+        const { ls, fileName } = createLanguageService(source);
+
+        for (const pos of [source.indexOf("percent_of"), source.indexOf("percent_of(1.0")]) {
+            const display = getDisplayString(ls.getQuickInfoAtPosition(fileName, pos)!);
+            expect(display).toContain("float percent_of");
+            expect(display).not.toContain("int");
+        }
+
+        const varDisplay = getDisplayString(ls.getQuickInfoAtPosition(fileName, source.indexOf("red =") )!);
+        expect(varDisplay).toContain("float");
+        expect(varDisplay).not.toContain("int");
+
+        const arrDisplay = getDisplayString(ls.getQuickInfoAtPosition(fileName, source.indexOf("all ="))!);
+        expect(arrDisplay).toContain("float");
+        expect(arrDisplay).not.toContain("int");
+    });
+
     it("infers nested-mapping value type in foreach, not mixed*", () => {
         // https://github.com/jlchmura/lpc-language-server/issues/319
         const source = `mapping DIRECTIONS = ([
