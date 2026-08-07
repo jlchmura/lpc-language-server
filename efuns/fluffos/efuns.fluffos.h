@@ -73,6 +73,7 @@ object __LS__Closure;
 #include "objects.h"
 #include "parsing.h"
 #include "pcre.h"
+#include "promises.h"
 #include "sockets.h"
 #include "strings.h"
 #include "system.h"
