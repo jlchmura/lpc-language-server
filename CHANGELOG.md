@@ -1,5 +1,14 @@
 # LPC Language Services Changelog
 
+## 1.1.52
+
+- Add support for FluffOS native coroutines ([fluffos#1319](https://github.com/fluffos/fluffos/issues/1319)): the `async` function modifier, the `await` unary expression, the async-aware `acatch(expr)` / `acatch { ... }`, and the declared `promise` type
+  - A call to an `async` function types as `promise`; `return` statements inside the body are still checked against the declared return type
+  - Diagnostics for the driver's legality rules: `await`/`acatch` only directly inside an `async` body (not in functionals or anonymous functions), `await` not under `catch`/`time_expression`, and `async` only on function declarations
+  - New efun definitions: `promise_create`, `promise_resolve`, `promise_reject`, `promise_then`, `promise_catch`, `promise_status`, `promise_result`, `async_info`
+  - Syntax highlighting and keyword completion for the new keywords. All four are FluffOS-only — in LDMud they remain ordinary identifiers
+- Fix: `async` on a function declaration hung the parser instead of parsing as a modifier
+
 ## 1.1.51
 
 - Fix: unstyled code in doc-comment @example blocks - #359

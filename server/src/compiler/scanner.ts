@@ -160,8 +160,9 @@ export const textToDirectiveObj: MapLike<DirectiveSyntaxKind> = {
 const textToDirective = new Map(Object.entries(textToDirectiveObj));
 
 /** @internal */
-export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {    
-    any: SyntaxKind.AnyKeyword,        
+export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
+    acatch: SyntaxKind.ACatchKeyword,
+    any: SyntaxKind.AnyKeyword,
     break: SyntaxKind.BreakKeyword,
     buffer: SyntaxKind.BufferKeyword,
     bytes: SyntaxKind.BytesKeyword,
@@ -195,6 +196,7 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     nosave: SyntaxKind.NoSaveKeyword,
     object: SyntaxKind.ObjectKeyword,    
     private: SyntaxKind.PrivateKeyword,
+    promise: SyntaxKind.PromiseKeyword,
     protected: SyntaxKind.ProtectedKeyword,
     public: SyntaxKind.PublicKeyword,    
     ref: SyntaxKind.RefKeyword,
@@ -214,6 +216,7 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     void: SyntaxKind.VoidKeyword,    
     while: SyntaxKind.WhileKeyword,
     async: SyntaxKind.AsyncKeyword,
+    await: SyntaxKind.AwaitKeyword,
 };
 
 const textToKeyword = new Map(Object.entries(textToKeywordObj));
@@ -1968,14 +1971,19 @@ export function createScanner(
     // the object-construction operator, and `ref` marks a by-reference parameter, only in
     // FluffOS (LDMud uses `struct` for structures, `clone_object()` to construct, and `&`
     // for by-reference); `status` and `symbol` are types only in LDMud; `time_expression`
-    // is a reserved word only in FluffOS. In the other driver each is an ordinary
+    // is a reserved word only in FluffOS; `async`, `await`, `acatch` and the `promise` type
+    // are the FluffOS coroutine keywords (issue #1319). In the other driver each is an ordinary
     // identifier (e.g. a variable or function name), so demote it to an Identifier token
     // here rather than gating it per grammar position downstream.
     function isKeywordInVariant(keyword: SyntaxKind, variant: LanguageVariant): boolean {
         switch (keyword) {
+            case SyntaxKind.ACatchKeyword:
+            case SyntaxKind.AsyncKeyword:
+            case SyntaxKind.AwaitKeyword:
             case SyntaxKind.BufferKeyword:
             case SyntaxKind.ClassKeyword:
             case SyntaxKind.NewKeyword:
+            case SyntaxKind.PromiseKeyword:
             case SyntaxKind.RefKeyword:
             case SyntaxKind.TimeExpressionKeyword:
                 return variant === LanguageVariant.FluffOS;
