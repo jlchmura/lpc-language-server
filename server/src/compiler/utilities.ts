@@ -310,8 +310,8 @@ export function modifierToFlag(token: SyntaxKind): ModifierFlags {
             return ModifierFlags.Visible;
         case SyntaxKind.VarArgsKeyword:
             return ModifierFlags.VarArgs;
-        // case SyntaxKind.AsyncKeyword:
-        //     return ModifierFlags.Async;        
+        case SyntaxKind.AsyncKeyword:
+            return ModifierFlags.Async;
         // case SyntaxKind.InKeyword:
         //     return ModifierFlags.In;        
     }
@@ -2520,10 +2520,12 @@ export function getFunctionFlags(node: SignatureDeclaration | undefined) {
             // falls through
 
         case SyntaxKind.InlineClosureExpression:
-            // TODO: coroutine async here
-            // if (hasSyntacticModifier(node, ModifierFlags.Async)) {
-            //     flags |= FunctionFlags.Async;
-            // }
+            // FluffOS `async` functions (issue #1319). Functionals and anonymous function
+            // expressions cannot carry the modifier -- they run in their own frames -- but
+            // they are listed here so a stray `async` on one is still visible to the checker.
+            if (hasSyntacticModifier(node, ModifierFlags.Async)) {
+                flags |= FunctionFlags.Async;
+            }
             break;
     }
 

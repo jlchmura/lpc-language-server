@@ -42,6 +42,12 @@ export const Diagnostics = {
     Anonymous_function_expressions_are_only_supported_in_FluffOS: diag(9034, DiagnosticCategory.Error, "Anonymous_function_expressions_are_only_supported_in_FluffOS_9034", "Anonymous function expressions are only supported in FluffOS."),
     Named_object_types_are_only_supported_in_LDMud_or_in_JSDoc_type_annotations: diag(9035, DiagnosticCategory.Error, "Named_object_types_are_only_supported_in_LDMud_or_in_JSDoc_type_annotations_9035", "Named object types are only supported in LDMud, or in JSDoc type annotations."),
     Time_expression_cannot_also_have_a_block: diag(9036, DiagnosticCategory.Error, "Time_expression_cannot_also_have_a_block_9036", "Time expression cannot also have a block."),
+    await_is_only_allowed_directly_inside_an_async_function_body: diag(9037, DiagnosticCategory.Error, "await_is_only_allowed_directly_inside_an_async_function_body_9037", "'await' is only allowed directly inside an 'async' function body."),
+    acatch_is_only_allowed_directly_inside_an_async_function_body: diag(9038, DiagnosticCategory.Error, "acatch_is_only_allowed_directly_inside_an_async_function_body_9038", "'acatch' is only allowed directly inside an 'async' function body."),
+    await_is_not_allowed_inside_catch_or_time_expression_use_acatch: diag(9039, DiagnosticCategory.Error, "await_is_not_allowed_inside_catch_or_time_expression_use_acatch_9039", "'await' is not allowed inside 'catch' or 'time_expression'. Use 'acatch'."),
+    acatch_is_not_allowed_inside_catch_or_time_expression: diag(9040, DiagnosticCategory.Error, "acatch_is_not_allowed_inside_catch_or_time_expression_9040", "'acatch' is not allowed inside 'catch' or 'time_expression'."),
+    The_async_modifier_can_only_be_applied_to_function_declarations: diag(9041, DiagnosticCategory.Error, "The_async_modifier_can_only_be_applied_to_function_declarations_9041", "The 'async' modifier can only be applied to function declarations."),
+    An_async_function_returns_a_promise_so_0_is_the_type_its_return_statements_are_checked_against: diag(9042, DiagnosticCategory.Message, "An_async_function_returns_a_promise_so_0_is_the_type_its_return_statements_are_checked_against_9042", "An 'async' function returns a promise, so '{0}' is the type its return statements are checked against."),
 
     // Scanner
     _0_expected: diag(1005, DiagnosticCategory.Error, "_0_expected_1005", "'{0}' expected."),    
