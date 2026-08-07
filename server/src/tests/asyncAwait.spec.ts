@@ -154,6 +154,22 @@ async void test() {
         expect(messages(source)).toBe("");
     });
 
+    it("resolves await_callout, which turns a call_out handle into a promise", () => {
+        const source = `
+async void reindex(string *files) {
+    foreach (string f in files) {
+        await await_callout(call_out( (: 0 :), 1));
+    }
+}
+`;
+        expect(messages(source)).toBe("");
+    });
+
+    it("type-checks the call_out handle passed to await_callout", () => {
+        expect(messages(`void test() { promise p = await_callout("nope"); }`))
+            .toContain("Argument of type 'string' is not assignable to parameter of type 'int'");
+    });
+
     it("type-checks promise arguments to the promise efuns", () => {
         expect(messages(`void test() { promise_status(1); }`))
             .toContain("Argument of type 'int' is not assignable to parameter of type 'promise'");
