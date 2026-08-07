@@ -133,6 +133,46 @@ int promise_status( promise p );
 mixed promise_result( promise p );
 
 /**
+ * await_callout() - a pending call_out's completion, as a promise
+ *
+ * Returns a promise for the completion of the pending call_out named by
+ * 'handle' (the value call_out() returned). The promise is:
+ *
+ * - fulfilled with the callback's return value when the call_out fires;
+ * - rejected if the call_out is removed with remove_call_out(), or its
+ * object is destructed, before it runs;
+ * - rejected if the callback itself raises an error.
+ *
+ * Calling it twice on the same handle returns the same promise.
+ *
+ * Since `await` on a promise always suspends, this makes call_out the
+ * natural non-blocking pause inside an async function -- the awaiting
+ * function resumes with the callback's result, and with a fresh
+ * evaluation-cost budget:
+ *
+ * ```c
+ * int rows = await await_callout(call_out( (: load_chunk :), 2));
+ * ```
+ *
+ * It is an error to call this with a handle that is not pending (already
+ * fired, already removed, or never valid).
+ *
+ * ```c
+ * // yield between chunks so a long job never hits "too long evaluation"
+ * async void reindex(string *files) {
+ *     foreach (string f in files) {
+ *         index_one(f);
+ *         await await_callout(call_out( (: 0 :), 1));
+ *     }
+ *     write("done\n");
+ * }
+ * ```
+ *
+ * @see call_out, remove_call_out, async_info, promise_then
+ */
+promise await_callout( int handle );
+
+/**
  * async_info() - list the currently suspended async function frames
  *
  * Returns one mapping per async function that is currently suspended at an

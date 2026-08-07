@@ -3736,9 +3736,11 @@ export interface ACatchExpression extends PrimaryExpression {
 /**
  * `await expr` -- FluffOS's suspension point (issue #1319).
  *
- * A unary prefix expression at `!` precedence (`await a + b` is `(await a) + b`). Non-promise
- * operands pass through unchanged; a promise yields its fulfillment value, raises its
- * rejection reason, or suspends the enclosing `async` function until it settles.
+ * A unary prefix expression at `!` precedence (`await a + b` is `(await a) + b`). A non-promise
+ * operand passes through unchanged -- awaiting a plain value is not a scheduling point. A
+ * promise always suspends the enclosing `async` function, even an already-settled one; it
+ * resumes from the microtask drain with the value, or with the rejection raised at the await
+ * point. The result carries no static type either way, so this is always `mixed`.
  */
 export interface AwaitExpression extends UnaryExpression {
     readonly kind: SyntaxKind.AwaitExpression;
