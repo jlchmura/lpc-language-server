@@ -14889,8 +14889,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // grammar
         const sourceFile = getSourceFileOfNode(node);
         const sourceSymbol = getSymbolOfNode(sourceFile);
-        if (!sourceSymbol.inherits?.size && (!node.namespace || getTextOfNode(node.namespace) !== InternalSymbolName.EfunSuperPrefix)) {
+        const isEfunPrefix = !!node.namespace && getTextOfNode(node.namespace) === InternalSymbolName.EfunSuperPrefix;
+        if (!sourceSymbol.inherits?.size && !isEfunPrefix) {
             error(node, Diagnostics.Super_access_can_only_be_used_in_a_file_that_inherits_from_another_file);
+        }
+
+        // `efun::foo()` names the efun directly and has nothing to do with the inheritance
+        // chain, so it must not be held to the base-type requirement below. A file with no
+        // `inherit` -- a simul-efun override being the usual case -- otherwise fell out with
+        // errorType, and every `efun::` call in it silently evaluated to `mixed`.
+        if (isEfunPrefix) {
+            return checkIdentifier(node.name, checkMode);
         }
 
         // type

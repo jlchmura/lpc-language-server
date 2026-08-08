@@ -272,6 +272,24 @@ exports[`Compiler compiler/doWhile.c Reports correct errors for compiler/doWhile
 
 exports[`Compiler compiler/efun.fluff.filter.c Reports correct errors for compiler/efun.fluff.filter.c: diags-compiler/efun.fluff.filter.c 1`] = `""`;
 
+exports[`Compiler compiler/efunSuperOverloadResolution.c Reports correct errors for compiler/efunSuperOverloadResolution.c: diags-compiler/efunSuperOverloadResolution.c 1`] = `""`;
+
+exports[`Compiler compiler/efunSuperReturnType.c Reports correct errors for compiler/efunSuperReturnType.c: diags-compiler/efunSuperReturnType.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/efunSuperReturnType.c[90m:13[0m
+
+"
+`;
+
+exports[`Compiler compiler/efunSuperReturnTypeInherit.base.c Reports correct errors for compiler/efunSuperReturnTypeInherit.base.c: diags-compiler/efunSuperReturnTypeInherit.base.c 1`] = `""`;
+
+exports[`Compiler compiler/efunSuperReturnTypeInherit.c Reports correct errors for compiler/efunSuperReturnTypeInherit.c: diags-compiler/efunSuperReturnTypeInherit.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/efunSuperReturnTypeInherit.c[90m:9[0m
+
+"
+`;
+
 exports[`Compiler compiler/error1.c Reports correct errors for compiler/error1.c: diags-compiler/error1.c 1`] = `""`;
 
 exports[`Compiler compiler/error2.c Reports correct errors for compiler/error2.c: diags-compiler/error2.c 1`] = `""`;
