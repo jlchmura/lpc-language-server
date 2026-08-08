@@ -1,5 +1,13 @@
 # LPC Language Services Changelog
 
+## 1.1.52
+
+- Fix: efuns were always returning mixed type, even when the efun signature specified a return type.
+- Fix: efun hover did not resolve macros
+- Fix: hover should print `float` as `float` not `int`
+- Surface authored LPCDoc types in hover doc tags- #361
+- Fix: Two JSDoc tag parsing bugs: macro expansion inside doc types, and margin asterisks leaking into tag comments- #360
+
 ## 1.1.51
 
 - Fix: unstyled code in doc-comment @example blocks - #359
