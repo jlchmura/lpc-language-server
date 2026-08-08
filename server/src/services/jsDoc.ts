@@ -90,9 +90,11 @@ import {
     SyntaxKind,
     TextInsertion,
     textPart,
+    JSDocTypeExpression,
     typeAliasNamePart,
     TypeChecker,
     typeParameterNamePart,
+    typeToDisplayParts,
     VariableStatement,
 } from "./_namespaces/lpc.js";
 
@@ -307,7 +309,7 @@ function getCommentDisplayParts(tag: JSDocTag, checker?: TypeChecker): SymbolDis
         case SyntaxKind.JSDocThrowsTag:
         case SyntaxKind.JSDocReturnTag:
             const typeExpression = (tag as JSDocThrowsTag | JSDocReturnTag).typeExpression;
-            return typeExpression ? withNode(typeExpression) :
+            return typeExpression ? addComment(typeExpressionText(typeExpression)) :
                 comment === undefined ? undefined : getDisplayPartsFromComment(comment, checker);
         case SyntaxKind.JSDocImplementsTag:
             return withNode((tag as JSDocImplementsTag).class);
@@ -360,7 +362,7 @@ function getCommentDisplayParts(tag: JSDocTag, checker?: TypeChecker): SymbolDis
                 // Surface the authored LPCDoc type ahead of the name so hovers can
                 // render `@param {mixed*} cb — ...` instead of dropping the type.
                 if (isJSDocPropertyLikeTag(tag) && tag.typeExpression) {
-                    displayParts.push(textPart(tag.typeExpression.getText()), spacePart());
+                    displayParts.push(textPart(typeExpressionText(tag.typeExpression)), spacePart());
                 }
                 // preserve the [name] optional-parameter brackets from the source
                 const nameText = isJSDocPropertyLikeTag(tag) && tag.isBracketed ? `[${name.getText()}]` : name.getText();
@@ -376,6 +378,32 @@ function getCommentDisplayParts(tag: JSDocTag, checker?: TypeChecker): SymbolDis
 
     function withNode(node: Node) {
         return addComment(node.getText());
+    }
+
+    /**
+     * The text to show for a doc tag's `{type}`.
+     *
+     * Authored types are surfaced exactly as written -- `{mixed|undefined}` stays that way
+     * rather than collapsing to what it resolves to, because the annotation is the useful
+     * thing. The exception is a config-injected macro: `@returns {__LPC_CONFIG_LIBFILES_PLAYER*}`
+     * names a path the project settings supply, so unlike a mudlib's own `STD_NPC` the name
+     * carries no meaning for a reader, and printing it contradicts the signature line above
+     * which already shows the resolved type.
+     *
+     * Note the macro is deliberately not expanded when the doc type is *parsed* -- a mudlib
+     * `#define undefined` would otherwise clobber the type keyword -- so this substitution
+     * happens at display time only.
+     */
+    function typeExpressionText(typeExpression: JSDocTypeExpression): string {
+        const authored = typeExpression.getText();
+        if (checker && typeExpression.type && /\b__LPC_CONFIG_[A-Z0-9_]*\b/.test(authored)) {
+            const resolved = checker.getTypeFromTypeNode(typeExpression.type);
+            const text = resolved && typeToDisplayParts(checker, resolved, typeExpression)?.map(p => p.text).join("");
+            if (text) {
+                return `{${text}}`;
+            }
+        }
+        return authored;
     }
 
     function addComment(s: string) {
