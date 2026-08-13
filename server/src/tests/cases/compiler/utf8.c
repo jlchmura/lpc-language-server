@@ -1175,6 +1175,9 @@ UNICODE;
 
 void do_tests() {
   string tmp;
+  // Indexing a string yields the character's codepoint, not a one-character string --
+  // the same reason `foreach(int x in tmp)` below binds an int.
+  int cp;
 
   // string block don't process \U and \u
   ASSERT_EQ("\\U", text8_cp1[0..1]);
@@ -1183,7 +1186,7 @@ void do_tests() {
 
   // Multi codepoint emoji
   tmp = "👩‍👩‍👧‍👧";
-  tmp = "好"[0];
+  cp = "好"[0];
 
   // RINDEX
   ASSERT_EQ("⍕"[0], text4[<2]);

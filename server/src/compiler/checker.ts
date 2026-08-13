@@ -9878,6 +9878,26 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function getElementTypeOfArrayType(type: Type): Type | undefined {
         return isArrayType(type) ? getTypeArguments(type)[0] : undefined;
     }
+
+    /**
+     * Widen literal element types out of an array type: `0*` becomes `int*`.
+     *
+     * An array literal whose elements are all the same literal keeps that literal as its element
+     * type -- the union of `0 | 0 | 0` collapses to `0`, and nothing widens it the way a lone
+     * literal would be. Narrowing a variable to such a type fixes its elements at that one value:
+     * `int *c = ({ 0, 0, 0 })` would then reject `c[2] = random(r)`. Arrays are mutable, so a
+     * literal element type is never the useful answer for one.
+     */
+    function getWidenedArrayElementType(type: Type): Type {
+        const elementType = getElementTypeOfArrayType(type);
+        if (!elementType) {
+            return type;
+        }
+        // getWidenedLiteralType only widens *fresh* literals, and an array literal's element
+        // type has already been regularised by then, so it would be a no-op here.
+        const widenedElementType = getBaseTypeOfLiteralType(elementType);
+        return widenedElementType === elementType ? type : createArrayType(widenedElementType);
+    }
     
     /**
      * Pop an entry from the type resolution stack and return its associated result value. The result value will
@@ -15110,6 +15130,29 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return propagateOptionalTypeMarker(checkElementAccessExpression(node, checkNonNullType(nonOptionalType, node.expression), checkMode), node, nonOptionalType !== exprType);
     }
 
+    /**
+     * The result of `expr[index]` for the types LPC indexes natively.
+     *
+     * These are compiler builtins rather than library declarations. TypeScript resolves `a[0]`
+     * through `Array<T>`'s `[n: number]: T` index signature in lib.d.ts, but `__LS__Array` is
+     * declared as a bare `object` with no members, so the structural indexed-access path has
+     * nothing to resolve against and every `arr[0]` came back `mixed`.
+     *
+     * A range selects a slice rather than an element, so it yields the type it indexed:
+     * `arr[0..2]` is still an array, `str[0..2]` still a string.
+     */
+    function getLpcIndexedAccessType(node: ElementAccessExpression, objectType: Type): Type | undefined {
+        const isRange = node.argumentExpression?.kind === SyntaxKind.RangeExpression;
+        if (isArrayType(objectType)) {
+            return isRange ? objectType : getElementTypeOfArrayType(objectType);
+        }
+        if (objectType.flags & TypeFlags.StringLike) {
+            // LPC treats a string as an array of characters, and a character is an int.
+            return isRange ? stringType : intType;
+        }
+        return undefined;
+    }
+
     function checkElementAccessExpression(node: ElementAccessExpression, exprType: Type, checkMode: CheckMode | undefined): Type {
         const objectType = getAssignmentTargetKind(node) !== AssignmentKind.None || isMethodAccessForCall(node) ? getWidenedType(exprType) : exprType;
         const indexExpression = node.argumentExpression;
@@ -15131,7 +15174,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 accessFlags |= AccessFlags.ExpressionPosition;
             }
         }
-        const indexedAccessType = getIndexedAccessTypeOrUndefined(objectType, effectiveIndexType, accessFlags, node) || errorType;
+        const indexedAccessType = getLpcIndexedAccessType(node, objectType)
+            || getIndexedAccessTypeOrUndefined(objectType, effectiveIndexType, accessFlags, node)
+            || errorType;
         return checkIndexedAccessIndexType(getFlowTypeOfAccessExpression(node, getNodeLinks(node).resolvedSymbol, indexedAccessType, indexExpression, checkMode), node);
     }
 
@@ -30783,7 +30828,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                         // stopped being an error.
                         return declaresElementType ? declaredType : getEvolvingArrayType(neverType);
                     }
-                    const assignedType = getWidenedLiteralType(getInitialOrAssignedType(flow));
+                    const assignedType = getWidenedArrayElementType(getWidenedLiteralType(getInitialOrAssignedType(flow)));
                     // Narrowing may only make a type more specific. An efun returning `mixed*`
                     // passes the assignability check below -- `mixed` is `any` -- but adopting it
                     // would widen the reference past its own declaration, so `int *r = sort_array(...)`

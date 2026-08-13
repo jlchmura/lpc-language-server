@@ -5169,16 +5169,24 @@ export namespace LpcParser {
 
     function parseMaybeRangeExpression(rangeTerminatorToken:PunctuationSyntaxKind): RangeExpression | Expression {        
         const pos = getPositionState();
-        let left: Expression, right: Expression;        
+        let left: Expression, right: Expression;
+        // A `..` makes this a range even when one side is omitted -- `x..` and `..x` are both
+        // ranges. Keying off `right` alone dropped the range node for an open end, leaving the
+        // left operand behind as if it had been a plain index.
+        let sawDotDot = false;
         if (parseOptional(SyntaxKind.DotDotToken)) {
+            sawDotDot = true;
             right = allowInAnd(parseExpression);
         } else {
             left = allowInAnd(parseExpression);
-            if (parseOptional(SyntaxKind.DotDotToken) && token() !== rangeTerminatorToken) {
-                right = allowInAnd(parseExpression);
+            if (parseOptional(SyntaxKind.DotDotToken)) {
+                sawDotDot = true;
+                if (token() !== rangeTerminatorToken) {
+                    right = allowInAnd(parseExpression);
+                }
             }
         }
-        const expression = right ? finishNode(factory.createRangeExpression(left, right), pos) : left;
+        const expression = sawDotDot ? finishNode(factory.createRangeExpression(left, right), pos) : left;
         return expression;
     }
 
@@ -5190,21 +5198,30 @@ export namespace LpcParser {
 
             // element access ranges allow < tokens, i.e.
             //  foo[<bar] or foo[<1..<2] or foo[..<2]
-            let left: Expression, right: Expression;        
-            // let leftOp: Token<SyntaxKind.LessThanToken> | undefined, rightOp: Token<SyntaxKind.LessThanToken> | undefined;                        
+            let left: Expression, right: Expression;
+            // A `..` makes this a range even when one side is omitted, so `arr[2..]` and
+            // `arr[<40..]` are slices just as `arr[..2]` is. Keying off `right` alone dropped
+            // the range node for an open end and left the start operand behind as a plain
+            // index, so the access was typed as an element rather than a slice.
+            let sawDotDot = false;
+            // let leftOp: Token<SyntaxKind.LessThanToken> | undefined, rightOp: Token<SyntaxKind.LessThanToken> | undefined;
             if (parseOptional(SyntaxKind.DotDotToken)) {
+                sawDotDot = true;
                 // rightOp = parseOptionalToken(SyntaxKind.LessThanToken);
                 right = allowCommaInAnd(parseExpression);
             } else {
                 // leftOp = parseOptionalToken(SyntaxKind.LessThanToken);
                 left = allowCommaInAnd(parseExpression);
-                if (parseOptional(SyntaxKind.DotDotToken) && token() !== SyntaxKind.CloseBracketToken) {
-                    // leftOp = parseOptionalToken(SyntaxKind.LessThanToken);
-                    right = allowCommaInAnd(parseExpression);
+                if (parseOptional(SyntaxKind.DotDotToken)) {
+                    sawDotDot = true;
+                    if (token() !== SyntaxKind.CloseBracketToken) {
+                        // leftOp = parseOptionalToken(SyntaxKind.LessThanToken);
+                        right = allowCommaInAnd(parseExpression);
+                    }
                 }
             }
-            
-            const argument = right ? finishNode(factory.createRangeExpression(left, right), pos) : left;            
+
+            const argument = sawDotDot ? finishNode(factory.createRangeExpression(left, right), pos) : left;
             if (isStringOrNumericLiteralLike(argument)) {
                 argument.text = internIdentifier(argument.text);
             }

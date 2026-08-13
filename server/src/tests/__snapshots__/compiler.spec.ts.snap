@@ -34,6 +34,20 @@ Found 1 error in server/src/tests/cases/compiler/array7.c[90m:9[0m
 
 exports[`Compiler compiler/arrayElementJSDocType.c Reports correct errors for compiler/arrayElementJSDocType.c: diags-compiler/arrayElementJSDocType.c 1`] = `""`;
 
+exports[`Compiler compiler/arrayIndexElementType.c Reports correct errors for compiler/arrayIndexElementType.c: diags-compiler/arrayIndexElementType.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/arrayIndexElementType.c[90m:43[0m
+
+"
+`;
+
+exports[`Compiler compiler/arrayLiteralElementWidening.c Reports correct errors for compiler/arrayLiteralElementWidening.c: diags-compiler/arrayLiteralElementWidening.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/arrayLiteralElementWidening.c[90m:29[0m
+
+"
+`;
+
 exports[`Compiler compiler/assignment1.c Reports correct errors for compiler/assignment1.c: diags-compiler/assignment1.c 1`] = `""`;
 
 exports[`Compiler compiler/assignment2.c Reports correct errors for compiler/assignment2.c: diags-compiler/assignment2.c 1`] = `
@@ -447,6 +461,8 @@ exports[`Compiler compiler/include2.c Reports correct errors for compiler/includ
 exports[`Compiler compiler/indexAccess.c Reports correct errors for compiler/indexAccess.c: diags-compiler/indexAccess.c 1`] = `""`;
 
 exports[`Compiler compiler/indexAccess2.c Reports correct errors for compiler/indexAccess2.c: diags-compiler/indexAccess2.c 1`] = `""`;
+
+exports[`Compiler compiler/indexRangeOpenEnded.c Reports correct errors for compiler/indexRangeOpenEnded.c: diags-compiler/indexRangeOpenEnded.c 1`] = `""`;
 
 exports[`Compiler compiler/inherit1.base1.c Reports correct errors for compiler/inherit1.base1.c: diags-compiler/inherit1.base1.c 1`] = `""`;
 
