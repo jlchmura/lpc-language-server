@@ -476,6 +476,12 @@ exports[`Compiler compiler/inheritExplicitLpcBase.c Reports correct errors for c
 
 exports[`Compiler compiler/inheritLpcExtensionless.c Reports correct errors for compiler/inheritLpcExtensionless.c: diags-compiler/inheritLpcExtensionless.c 1`] = `""`;
 
+exports[`Compiler compiler/inlineClosureFunctionPointer.c Reports correct errors for compiler/inlineClosureFunctionPointer.c: diags-compiler/inlineClosureFunctionPointer.c 1`] = `""`;
+
+exports[`Compiler compiler/inlineClosureFunctionPointer.living.c Reports correct errors for compiler/inlineClosureFunctionPointer.living.c: diags-compiler/inlineClosureFunctionPointer.living.c 1`] = `""`;
+
+exports[`Compiler compiler/inlineClosureFunctionPointer.vendor.c Reports correct errors for compiler/inlineClosureFunctionPointer.vendor.c: diags-compiler/inlineClosureFunctionPointer.vendor.c 1`] = `""`;
+
 exports[`Compiler compiler/inputToPolymorphicArgFluffos.c Reports correct errors for compiler/inputToPolymorphicArgFluffos.c: diags-compiler/inputToPolymorphicArgFluffos.c 1`] = `""`;
 
 exports[`Compiler compiler/intLiteral1.c Reports correct errors for compiler/intLiteral1.c: diags-compiler/intLiteral1.c 1`] = `""`;
