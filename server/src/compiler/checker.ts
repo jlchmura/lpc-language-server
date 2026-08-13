@@ -25986,7 +25986,27 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // TODO: JC - disabling this requirement until I'm sure I want to use it
                 // !(getObjectFlags(source) & ObjectFlags.Anonymous && getObjectFlags(target) & ObjectFlags.Anonymous) &&
                 !(isGlobalType(source) && isGlobalType(target));
-        return canSkipStrictCheck;
+        // The loose object relation must never paper over a missing type predicate. A callback that
+        // isn't a type guard cannot satisfy a type-guard parameter, and if we let it, overloads that
+        // differ only in whether their callback is a type guard can never be discriminated.
+        return canSkipStrictCheck && !isMissingTypePredicate(source, target);
+    }
+
+    /**
+     * True when `target` has a call signature with an identifier type predicate (`x is T`) but no
+     * call signature of `source` is a type guard at all. This is the one structural mismatch that
+     * the relaxed (non-`strictObjectTypes`) object relation is not allowed to ignore.
+     */
+    function isMissingTypePredicate(source: Type, target: Type) {
+        const targetSignatures = getSignaturesOfType(target, SignatureKind.Call);
+        if (!some(targetSignatures, s => !isResolvingReturnTypeOfSignature(s) && !!getTypePredicateOfSignature(s) && isIdentifierTypePredicate(getTypePredicateOfSignature(s)!))) {
+            return false;
+        }
+        const sourceSignatures = getSignaturesOfType(source, SignatureKind.Call);
+        if (!sourceSignatures.length) {
+            return false;
+        }
+        return !some(sourceSignatures, s => isResolvingReturnTypeOfSignature(s) || !!getTypePredicateOfSignature(s));
     }
 
     function isGlobalType(type: Type) {        
