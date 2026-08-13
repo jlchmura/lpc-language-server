@@ -1,5 +1,11 @@
 # LPC Language Services Changelog
 
+## 1.1.53
+
+- Fix: Type checking of array element access was incorrect
+- Fix: Types were not being narrowed between two named objects
+- Fix: Type predicates in callback signatures were not being checked when an inline closure was used
+
 ## 1.1.52
 
 - Fix: efuns were always returning mixed type, even when the efun signature specified a return type.
