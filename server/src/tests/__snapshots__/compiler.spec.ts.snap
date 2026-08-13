@@ -662,6 +662,12 @@ exports[`Compiler compiler/namedObject5.c Reports correct errors for compiler/na
 
 exports[`Compiler compiler/namedObject6.c Reports correct errors for compiler/namedObject6.c: diags-compiler/namedObject6.c 1`] = `""`;
 
+exports[`Compiler compiler/narrowNamedObjectPredicate.c Reports correct errors for compiler/narrowNamedObjectPredicate.c: diags-compiler/narrowNamedObjectPredicate.c 1`] = `""`;
+
+exports[`Compiler compiler/narrowNamedObjectPredicate.living.c Reports correct errors for compiler/narrowNamedObjectPredicate.living.c: diags-compiler/narrowNamedObjectPredicate.living.c 1`] = `""`;
+
+exports[`Compiler compiler/narrowNamedObjectPredicate.vendor.c Reports correct errors for compiler/narrowNamedObjectPredicate.vendor.c: diags-compiler/narrowNamedObjectPredicate.vendor.c 1`] = `""`;
+
 exports[`Compiler compiler/new1.c Reports correct errors for compiler/new1.c: diags-compiler/new1.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/new1.c[90m:6[0m

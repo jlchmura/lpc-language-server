@@ -31795,7 +31795,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     matching || type,
                     checkDerived ?
                         t => isTypeDerivedFrom(t, c) ? t : isTypeDerivedFrom(c, t) ? c : neverType :
-                        t => isTypeStrictSubtypeOf(t, c) ? t : isTypeStrictSubtypeOf(c, t) ? c : isTypeSubtypeOf(t, c) ? t : isTypeSubtypeOf(c, t) ? c : neverType,
+                        // The candidate is tried first, which is what the comment above describes:
+                        // a predicate asserts `c`, so `c` wins whenever the two are related in both
+                        // directions. Testing `t` first is only safe where the subtype relation is
+                        // discriminating. It is not for LPC named object types -- an object with
+                        // fewer members satisfies one with more just as readily -- so
+                        // `if (vendorp(living))` matched on `t` and narrowed to nothing.
+                        t => isTypeStrictSubtypeOf(c, t) ? c : isTypeStrictSubtypeOf(t, c) ? t : isTypeSubtypeOf(c, t) ? c : isTypeSubtypeOf(t, c) ? t : neverType,
                 );
                 // If no constituents are directly related, create intersections for any generic constituents that
                 // are related by constraint.
