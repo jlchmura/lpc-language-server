@@ -1658,7 +1658,7 @@ export interface NodeFactory {
     createCloneObjectExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CloneObjectExpression;
     createTypeAssertion(type: TypeNode, expression: Expression): TypeAssertion;
     createNewStructExpression(type: StructTypeNode, argumentsArray: readonly (Expression|ObjectLiteralElementLike)[] | undefined): NewStructExpression;
-    createRangeExpression(left: Expression, right: Expression): RangeExpression;
+    createRangeExpression(left: Expression | undefined, right: Expression | undefined): RangeExpression;
     
     // JSDoc
     createJSDocText(text: string): JSDocText;
@@ -4558,8 +4558,10 @@ export interface ElementAccessExpression extends MemberExpression, Declaration, 
 
 export interface RangeExpression extends MemberExpression, Declaration, JSDocContainer, FlowContainer {
     readonly kind: SyntaxKind.RangeExpression;
-    readonly left: Expression;
-    readonly right: Expression    
+    /** Absent for an open start: `arr[..2]`. */
+    readonly left?: Expression;
+    /** Absent for an open end: `arr[2..]`. */
+    readonly right?: Expression;
 }
 
 export interface CallChain extends CallExpression {

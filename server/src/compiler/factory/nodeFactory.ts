@@ -1923,7 +1923,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api 
-    function createRangeExpression(left: Expression, right: Expression): RangeExpression {
+    function createRangeExpression(left: Expression | undefined, right: Expression | undefined): RangeExpression {
         const node = createBaseDeclaration<RangeExpression>(SyntaxKind.RangeExpression);
         node.left = left;
         node.right = right;

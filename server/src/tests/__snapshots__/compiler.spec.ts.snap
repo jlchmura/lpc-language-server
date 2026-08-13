@@ -34,6 +34,20 @@ Found 1 error in server/src/tests/cases/compiler/array7.c[90m:9[0m
 
 exports[`Compiler compiler/arrayElementJSDocType.c Reports correct errors for compiler/arrayElementJSDocType.c: diags-compiler/arrayElementJSDocType.c 1`] = `""`;
 
+exports[`Compiler compiler/arrayIndexElementType.c Reports correct errors for compiler/arrayIndexElementType.c: diags-compiler/arrayIndexElementType.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/arrayIndexElementType.c[90m:43[0m
+
+"
+`;
+
+exports[`Compiler compiler/arrayLiteralElementWidening.c Reports correct errors for compiler/arrayLiteralElementWidening.c: diags-compiler/arrayLiteralElementWidening.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/arrayLiteralElementWidening.c[90m:29[0m
+
+"
+`;
+
 exports[`Compiler compiler/assignment1.c Reports correct errors for compiler/assignment1.c: diags-compiler/assignment1.c 1`] = `""`;
 
 exports[`Compiler compiler/assignment2.c Reports correct errors for compiler/assignment2.c: diags-compiler/assignment2.c 1`] = `
@@ -448,6 +462,8 @@ exports[`Compiler compiler/indexAccess.c Reports correct errors for compiler/ind
 
 exports[`Compiler compiler/indexAccess2.c Reports correct errors for compiler/indexAccess2.c: diags-compiler/indexAccess2.c 1`] = `""`;
 
+exports[`Compiler compiler/indexRangeOpenEnded.c Reports correct errors for compiler/indexRangeOpenEnded.c: diags-compiler/indexRangeOpenEnded.c 1`] = `""`;
+
 exports[`Compiler compiler/inherit1.base1.c Reports correct errors for compiler/inherit1.base1.c: diags-compiler/inherit1.base1.c 1`] = `""`;
 
 exports[`Compiler compiler/inherit1.base2.c Reports correct errors for compiler/inherit1.base2.c: diags-compiler/inherit1.base2.c 1`] = `""`;
@@ -459,6 +475,12 @@ exports[`Compiler compiler/inheritExplicitLpc.c Reports correct errors for compi
 exports[`Compiler compiler/inheritExplicitLpcBase.c Reports correct errors for compiler/inheritExplicitLpcBase.c: diags-compiler/inheritExplicitLpcBase.c 1`] = `""`;
 
 exports[`Compiler compiler/inheritLpcExtensionless.c Reports correct errors for compiler/inheritLpcExtensionless.c: diags-compiler/inheritLpcExtensionless.c 1`] = `""`;
+
+exports[`Compiler compiler/inlineClosureFunctionPointer.c Reports correct errors for compiler/inlineClosureFunctionPointer.c: diags-compiler/inlineClosureFunctionPointer.c 1`] = `""`;
+
+exports[`Compiler compiler/inlineClosureFunctionPointer.living.c Reports correct errors for compiler/inlineClosureFunctionPointer.living.c: diags-compiler/inlineClosureFunctionPointer.living.c 1`] = `""`;
+
+exports[`Compiler compiler/inlineClosureFunctionPointer.vendor.c Reports correct errors for compiler/inlineClosureFunctionPointer.vendor.c: diags-compiler/inlineClosureFunctionPointer.vendor.c 1`] = `""`;
 
 exports[`Compiler compiler/inputToPolymorphicArgFluffos.c Reports correct errors for compiler/inputToPolymorphicArgFluffos.c: diags-compiler/inputToPolymorphicArgFluffos.c 1`] = `""`;
 
@@ -645,6 +667,12 @@ exports[`Compiler compiler/namedObject4.c Reports correct errors for compiler/na
 exports[`Compiler compiler/namedObject5.c Reports correct errors for compiler/namedObject5.c: diags-compiler/namedObject5.c 1`] = `""`;
 
 exports[`Compiler compiler/namedObject6.c Reports correct errors for compiler/namedObject6.c: diags-compiler/namedObject6.c 1`] = `""`;
+
+exports[`Compiler compiler/narrowNamedObjectPredicate.c Reports correct errors for compiler/narrowNamedObjectPredicate.c: diags-compiler/narrowNamedObjectPredicate.c 1`] = `""`;
+
+exports[`Compiler compiler/narrowNamedObjectPredicate.living.c Reports correct errors for compiler/narrowNamedObjectPredicate.living.c: diags-compiler/narrowNamedObjectPredicate.living.c 1`] = `""`;
+
+exports[`Compiler compiler/narrowNamedObjectPredicate.vendor.c Reports correct errors for compiler/narrowNamedObjectPredicate.vendor.c: diags-compiler/narrowNamedObjectPredicate.vendor.c 1`] = `""`;
 
 exports[`Compiler compiler/new1.c Reports correct errors for compiler/new1.c: diags-compiler/new1.c 1`] = `
 "
