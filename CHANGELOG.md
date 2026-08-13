@@ -1,11 +1,15 @@
 # LPC Language Services Changelog
 
-## 1.1.53
+## 1.1.54
 
 - Fix: Type checking of array element access was incorrect
 - Fix: Types were not being narrowed between two named objects
 - Fix: Type predicates in callback signatures were not being checked when an inline closure was used
 - Fix: A type-guard overload matched callbacks that were not type guards, so calls resolved to it with their type parameters uninferred (e.g. `filter` returning `mixed*` instead of `T*`)
+
+## 1.1.53
+
+- Maintenance release - no user-facing changes.
 
 ## 1.1.52
 

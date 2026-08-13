@@ -73,8 +73,12 @@ function resultTypeOf(declarations: string, call: string): string | undefined {
     const { ls, abs } = createTestLanguageService(files, {
         driverType: lpc.LanguageVariant.FluffOS,
         diagnostics: true,
-        rootDir: path.join(cwd, "lib"),
-    } as any);
+        // `getLibRootedFileName` compares an already-normalized file name against `rootDir`
+        // verbatim, so the separators have to match. `path.join` yields backslashes on Windows,
+        // which made the comparison fail there and the named object type render as an absolute
+        // path. Real configs go through `normalizePath` for the same reason.
+        rootDir: lpc.normalizePath(path.join(cwd, "lib")),
+    });
     const quickInfo = ls.getQuickInfoAtPosition(abs("lib/test.c"), test.indexOf("r;\n"));
     return quickInfo?.displayParts?.map(p => p.text).join("").replace(/\s+/g, " ");
 }
