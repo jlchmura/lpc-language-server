@@ -1,5 +1,6 @@
 import {
     ACatchExpression,
+    PromiseTypeNode,
     AmpersandToken,
     AwaitExpression,
     ArrayLiteralExpression,
@@ -381,6 +382,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
 
         // Expressions
         createCatchExpression,
+        createPromiseTypeNode,
         createACatchExpression,
         createAwaitExpression,
         createTimeExpression,
@@ -883,6 +885,14 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.modifier = modifier;
         node.modifierExpression = modifierExpression;
         node.block = block;
+        return node;
+    }
+
+    // @api
+    function createPromiseTypeNode(typeArgument?: TypeNode): PromiseTypeNode {
+        const node = createBaseNode<PromiseTypeNode>(SyntaxKind.PromiseType);
+        node.typeArgument = typeArgument;
+        node.transformFlags = TransformFlags.None;
         return node;
     }
 

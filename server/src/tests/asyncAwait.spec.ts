@@ -44,18 +44,84 @@ async int transfer(string from, int amount) {
         expect(messages(source)).toBe("");
     });
 
-    it("types a call to an async function as promise, not the declared return type", () => {
+    it("types a call to an async function as a promise of its declared return type", () => {
         // The declared type is what `return` statements inside the body check against; the
-        // caller always receives a promise.
+        // caller always receives a promise carrying that type.
         const source = `
 async int work() { return 1; }
 void test() {
-    promise p = work();
+    promise<int> p = work();
     int bad = work();
 }
 `;
-        const text = messages(source);
-        expect(text).toContain("Type 'promise' is not assignable to type 'int'");
+        expect(messages(source)).toContain("Type 'promise<int>' is not assignable to type 'int'");
+    });
+
+    it("rejects a call to an async function assigned to the wrong payload type", () => {
+        const source = `
+async int work() { return 1; }
+void test() { promise<string> p = work(); }
+`;
+        expect(messages(source)).toContain("Type 'promise<int>' is not assignable to type 'promise<string>'");
+    });
+
+    it("unwraps the payload type through await", () => {
+        const source = `
+async int work() { return 1; }
+async void test() { int n = await work(); }
+`;
+        expect(messages(source)).toBe("");
+    });
+
+    it("reports the payload type when an await result is misused", () => {
+        const source = `
+async int work() { return 1; }
+async void test() { string s = await work(); }
+`;
+        expect(messages(source)).toContain("Type 'int' is not assignable to type 'string'");
+    });
+
+    it("passes a non-promise through await unchanged", () => {
+        expect(messages(`async void test() { int n = await 42; }`)).toBe("");
+    });
+
+    it("treats bare promise as promise<mixed>, accepting any payload", () => {
+        const source = `
+async int work() { return 1; }
+void test() { promise p = work(); }
+`;
+        expect(messages(source)).toBe("");
+    });
+
+    it("distinguishes an array of promises from a promise of an array", () => {
+        // `*` binds where it is written, and an array of promises is not itself a promise,
+        // so await passes it straight through.
+        const source = `
+async void test(promise<int> *ps, promise<int *> pa) {
+    promise<int> *still = await ps;
+    int *unwrapped = await pa;
+}
+`;
+        expect(messages(source)).toBe("");
+    });
+
+    it("flattens rather than nests when an async function declares a promise return", () => {
+        // The runtime adopts a promise resolved with a promise, so the call yields exactly one.
+        const source = `
+async promise<int> work();
+void test() { promise<int> p = work(); }
+`;
+        expect(messages(source)).toBe("");
+    });
+
+    it("rejects a promise payload that is itself a promise", () => {
+        expect(messages(`void test(promise<promise<int>> p) {}`))
+            .toContain("A promise payload type may not itself be a promise.");
+    });
+
+    it("rejects a promise of void", () => {
+        expect(messages(`void test(promise<void> p) {}`))
+            .toContain("Illegal to declare a promise of type void.");
     });
 
     it("checks return statements against the declared type, not the promise", () => {
@@ -109,9 +175,9 @@ async int outer() {
     it("accepts promise as a global, parameter, return type and array element type", () => {
         const source = `
 promise pending;
-promise *queue;
-promise fetch(promise seed);
-void take(promise p, promise *ps) { mapping seen = ([ p : 1 ]); }
+promise<int> *queue;
+promise<string> fetch(promise seed);
+void take(promise p, promise<int> *ps) { mapping seen = ([ p : 1 ]); }
 `;
         expect(messages(source)).toBe("");
     });
@@ -221,6 +287,13 @@ void test() {
     it("keeps promise nominal against the other primitive types", () => {
         expect(messages(`void test(promise p) { string s = p; }`))
             .toContain("Type 'promise' is not assignable to type 'string'");
+    });
+
+    it("does not offer promise<T> to LDMud, which has no promises", () => {
+        // `promise` is not a keyword there, so this is a chain of comparisons on locals --
+        // exactly what it would have meant before any of this landed.
+        const source = `int test() { int promise, a, b; promise = 1; return promise < a > b; }`;
+        expect(messages(source, lpc.LanguageVariant.LDMud)).toBe("");
     });
 
     it("leaves async/await/acatch/promise as plain identifiers in LDMud", () => {
