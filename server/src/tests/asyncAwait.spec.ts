@@ -154,20 +154,63 @@ async void test() {
         expect(messages(source)).toBe("");
     });
 
-    it("resolves await_callout, which turns a call_out handle into a promise", () => {
+    it("resolves async_yield, the cooperative preemption point", () => {
         const source = `
-async void reindex(string *files) {
-    foreach (string f in files) {
-        await await_callout(call_out( (: 0 :), 1));
+async void reindex(mixed *rows) {
+    int i;
+    foreach (mixed row in rows) {
+        if (++i % 500 == 0) {
+            await async_yield();
+        }
     }
 }
 `;
         expect(messages(source)).toBe("");
     });
 
-    it("type-checks the call_out handle passed to await_callout", () => {
-        expect(messages(`void test() { promise p = await_callout("nope"); }`))
-            .toContain("Argument of type 'string' is not assignable to parameter of type 'int'");
+    it("resolves both forms of async_info", () => {
+        const source = `void test() { mapping *frames = async_info(); mapping stats = async_info(1); }`;
+        expect(messages(source)).toBe("");
+    });
+
+    it("no longer knows await_callout, which the driver replaced with call_out(delay)", () => {
+        expect(messages(`void test() { mixed p = await_callout(1); }`))
+            .toContain("Cannot find name 'await_callout'");
+    });
+
+    it("accepts both the classic and promise forms of call_out", () => {
+        const source = `
+async void test() {
+    int handle = call_out("cb", 2, 1);
+    promise timer = call_out(0.5);
+    await call_out(1);
+    await call_out_walltime(1);
+}
+`;
+        expect(messages(source)).toBe("");
+    });
+
+    it("accepts the async package efuns with the callback omitted", () => {
+        // Dropping the trailing callback switches each to its promise form.
+        const source = `
+async void test() {
+    string body = await async_read("/log/access");
+    mixed files = await async_getdir("/log/");
+    await async_write("/log/access", "entry", 0);
+}
+`;
+        expect(messages(source)).toBe("");
+    });
+
+    it("still accepts the async package efuns with a callback", () => {
+        const source = `
+void test() {
+    async_read("/log/access", (: 1 :));
+    async_getdir("/log/", (: 1 :));
+    async_write("/log/access", "entry", 0, (: 1 :));
+}
+`;
+        expect(messages(source)).toBe("");
     });
 
     it("type-checks promise arguments to the promise efuns", () => {

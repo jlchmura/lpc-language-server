@@ -194,8 +194,12 @@ varargs mixed *call_stack(int option);
  * call on the game loop. Rather, in real seconds. The delay can be in
  * seconds or fraction of a second.
  *
+ * The delay-only form returns a promise exactly as call_out()'s does, but
+ * measured in wall-clock time.
+ *
  */
 int call_out_walltime( string | function fun, int | float delay, mixed arg ... );
+promise call_out_walltime( int | float delay );
 
 /**
  * call_out - delayed function call in same object
@@ -230,8 +234,18 @@ int call_out_walltime( string | function fun, int | float delay, mixed arg ... )
  * The return value is an integer representing the handle of the call_out
  * which may be used as an argument to remove_call_out().
  *
+ * The second form -- a delay with NO callback -- schedules a timer and
+ * returns a promise instead of a handle: fulfilled with 0 when the delay
+ * elapses, rejected if the call_out is removed or this object is destructed
+ * first. Inside an async function, `await call_out(delay)` is the
+ * non-blocking pause idiom. Extra arguments are an error in this form, and
+ * no handle is returned, so a timer you may need to cancel individually
+ * should use the classic form. In call_out_info() such a timer's function
+ * slot reads "<timer>".
+ *
  */
 int call_out( string | function fun, int | float delay, mixed arg ... );
+promise call_out( int | float delay );
 
 /**
  * call_other() - call a function in another object
