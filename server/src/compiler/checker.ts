@@ -845,6 +845,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return globalPromiseType ? createTypeFromGenericGlobalType(globalPromiseType, [payloadType]) : anyType;
     }
 
+    /**
+     * Whether a value of this type might be a promise at runtime. `mixed` and friends might,
+     * so they are never reported; a union counts if any constituent does.
+     */
+    function typeCouldBeAPromise(type: Type): boolean {
+        if (type.flags & (TypeFlags.Any | TypeFlags.Unknown | TypeFlags.Never)) return true;
+        if (type.flags & TypeFlags.Union) return some((type as UnionType).types, typeCouldBeAPromise);
+        return isPromiseType(type);
+    }
+
     function isPromiseType(type: Type): boolean {
         return !!globalPromiseType && !!(getObjectFlags(type) & ObjectFlags.Reference) &&
             (type as TypeReference).target === globalPromiseType;
@@ -15054,6 +15064,19 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function checkAwaitExpression(node: AwaitExpression, checkMode?: CheckMode): Type {
         checkAsyncSuspensionContext(node);
         const operandType = checkExpression(node.expression, checkMode);
+
+        // Awaiting a non-promise is legal -- the driver passes the value straight through --
+        // but it is almost always a mistake: `await call_out("fn", 10)` awaits the int handle
+        // the classic form returns and suspends nothing. Only complain when the operand can
+        // never be a promise; `mixed` may well hold one at runtime.
+        if (!typeCouldBeAPromise(operandType)) {
+            error(
+                node,
+                Diagnostics.await_has_no_effect_here_0_is_not_a_promise_so_the_value_passes_through_unchanged,
+                // widened so an `await 42` reads "'int' is not a promise", not "'42'"
+                typeToString(getWidenedLiteralType(operandType)),
+            );
+        }
 
         // `await p` yields p's payload type; awaiting a non-promise -- including an array of
         // promises, which is not itself one -- passes the value, and its type, straight through.

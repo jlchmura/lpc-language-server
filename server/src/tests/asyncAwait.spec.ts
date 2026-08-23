@@ -82,7 +82,9 @@ async void test() { string s = await work(); }
     });
 
     it("passes a non-promise through await unchanged", () => {
-        expect(messages(`async void test() { int n = await 42; }`)).toBe("");
+        // The type survives; only the (warned-about) no-op await is remarked on.
+        expect(messages(`async void test() { int n = await 42; }`))
+            .toBe("'await' has no effect here: 'int' is not a promise, so the value passes through unchanged.");
     });
 
     it("treats bare promise as promise<mixed>, accepting any payload", () => {
@@ -94,15 +96,41 @@ void test() { promise p = work(); }
     });
 
     it("distinguishes an array of promises from a promise of an array", () => {
-        // `*` binds where it is written, and an array of promises is not itself a promise,
-        // so await passes it straight through.
+        // `*` binds where it is written: awaiting a promise of an array unwraps it, while an
+        // array of promises is not itself a promise and passes straight through.
+        expect(messages(`async void test(promise<int *> pa) { int *unwrapped = await pa; }`)).toBe("");
+
+        const arrayOfPromises = `async void test(promise<int> *ps) { promise<int> *still = await ps; }`;
+        expect(messages(arrayOfPromises)).toContain("'promise<int>*' is not a promise");
+    });
+
+    it("warns that await does nothing on a value that can never be a promise", () => {
+        // Legal -- the driver passes non-promises through -- but almost always a mistake.
+        // The classic call_out returns an int handle, so this suspends nothing.
+        expect(messages(`async void test() { await call_out("fn", 10); }`))
+            .toContain("'await' has no effect here: 'int' is not a promise, so the value passes through unchanged.");
+    });
+
+    it("does not warn when await is given something that may be a promise", () => {
+        // The promise forms are fine, and `mixed` may hold a promise at runtime.
         const source = `
-async void test(promise<int> *ps, promise<int *> pa) {
-    promise<int> *still = await ps;
-    int *unwrapped = await pa;
+async int work();
+async void test(mixed anything, promise<int> p, promise<int> | int either) {
+    await call_out(10);
+    await async_read("/log/access");
+    await work();
+    await anything;
+    await p;
+    await either;
 }
 `;
         expect(messages(source)).toBe("");
+    });
+
+    it("warns when the callback form of an async efun is awaited", () => {
+        // Passing a callback keeps the classic form, which returns nothing to await.
+        expect(messages(`async void test() { await async_read("/x", (: 1 :)); }`))
+            .toContain("'await' has no effect here: 'void' is not a promise");
     });
 
     it("flattens rather than nests when an async function declares a promise return", () => {
