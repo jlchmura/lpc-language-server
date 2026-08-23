@@ -133,50 +133,10 @@ int promise_status( promise p );
 mixed promise_result( promise p );
 
 /**
- * await_callout() - a pending call_out's completion, as a promise
- *
- * Returns a promise for the completion of the pending call_out named by
- * 'handle' (the value call_out() returned). The promise is:
- *
- * - fulfilled with the callback's return value when the call_out fires;
- * - rejected if the call_out is removed with remove_call_out(), or its
- * object is destructed, before it runs;
- * - rejected if the callback itself raises an error.
- *
- * Calling it twice on the same handle returns the same promise.
- *
- * Since `await` on a promise always suspends, this makes call_out the
- * natural non-blocking pause inside an async function -- the awaiting
- * function resumes with the callback's result, and with a fresh
- * evaluation-cost budget:
- *
- * ```c
- * int rows = await await_callout(call_out( (: load_chunk :), 2));
- * ```
- *
- * It is an error to call this with a handle that is not pending (already
- * fired, already removed, or never valid).
- *
- * ```c
- * // yield between chunks so a long job never hits "too long evaluation"
- * async void reindex(string *files) {
- *     foreach (string f in files) {
- *         index_one(f);
- *         await await_callout(call_out( (: 0 :), 1));
- *     }
- *     write("done\n");
- * }
- * ```
- *
- * @see call_out, remove_call_out, async_info, promise_then
- */
-promise await_callout( int handle );
-
-/**
  * async_info() - list the currently suspended async function frames
  *
- * Returns one mapping per async function that is currently suspended at an
- * `await`, oldest first. Each entry has:
+ * With no argument (or 0), returns one mapping per async function that is
+ * currently suspended at an `await`, oldest first. Each entry has:
  *
  * ```
  * "id"            int      stable identity, increasing with park order
@@ -187,13 +147,27 @@ promise await_callout( int handle );
  * "promise"       promise  the promise the async call returned
  * "awaiting"      promise  the promise being awaited
  * "ready"         int      1 if `awaiting` has settled and the resume
- *                          is already queued for a later gametick
+ *                          is already queued on the microtask drain
  * "acatch_depth"  int      number of acatch() regions around the await
  * ```
  *
  * This is the async counterpart of call_out_info(): a debugging and
  * monitoring view of pending work. An empty array means nothing is
  * suspended.
+ *
+ * With a non-zero argument, returns a single mapping describing the
+ * SCHEDULER rather than the suspended frames:
+ *
+ * ```
+ * "suspended"           int  suspended frames (sizeof of the above)
+ * "pending_deliveries"  int  settlements queued on the microtask drain
+ *                            but not yet delivered
+ * "drain_yields"        int  monotonic count of drain turns that ended with
+ *                            work still queued and re-posted themselves
+ * "drain_eval_budget"   int  the effective per-turn eval-cost budget (us)
+ * "drain_arms_loop"     int  monotonic count of EXTERNAL settles -- I/O
+ *                            completions armed via the event loop
+ * ```
  *
  * The number of concurrently suspended frames is capped by the driver
  * option "max suspended async functions"; async_info() is the way to see
@@ -205,3 +179,44 @@ promise await_callout( int handle );
  * @see call_out_info, promise_status, promise_then
  */
 mapping *async_info();
+mapping async_info( int stats );
+
+/**
+ * async_yield() - give the event loop a turn from inside an async function
+ *
+ * Returns a promise fulfilled with 0 on the next pass of the driver's event
+ * loop -- after the driver has read pending network input, queued commands
+ * and fired due timers.
+ *
+ * `await async_yield();` is therefore a cooperative preemption point: it
+ * parks the async function at a suspension point that is safe by
+ * construction and resumes it on a later microtask-drain turn, with the
+ * loop having run in between. Use it to break a long computation into
+ * pieces the driver can serve players around:
+ *
+ * ```c
+ * async void reindex(mixed *rows) {
+ *     int i;
+ *
+ *     foreach (mixed row in rows) {
+ *         index(row);
+ *         if (++i % 500 == 0) {
+ *             await async_yield();
+ *         }
+ *     }
+ * }
+ * ```
+ *
+ * Awaiting an ordinary settled promise does NOT do this. It parks, but the
+ * resume is re-queued into the same drain turn, which is what lets a
+ * sequential `await` loop run at full speed. `await call_out(0)` does not do
+ * it either. `await call_out(1)` does reach the loop, but costs a whole
+ * gametick.
+ *
+ * async_yield() does not reset the evaluation budget: a resumed frame is a
+ * new delivery, so a function that yields periodically is metered per
+ * resumption rather than as one long run.
+ *
+ * @see async_info, promise_then, call_out
+ */
+promise async_yield();

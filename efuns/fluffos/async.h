@@ -16,8 +16,16 @@
  * //  0 for success
  * }
  *
+ * With the callback OMITTED, returns a promise instead: fulfilled with 0
+ * on success, or rejected with -1 on failure. Inside an async function:
+ *
+ * ```c
+ * await async_write( "/log/access", entry, 0 );
+ * ```
+ *
  */
 void async_write( string file, string str, int flag, function callback );
+promise async_write( string file, string str, int flag );
 
 /**
  * async_read() - read a file into a string then executes a callback
@@ -33,8 +41,17 @@ void async_write( string file, string str, int flag, function callback );
  * // string file contents otherwise
  * }
  *
+ * With the callback OMITTED, returns a promise instead: fulfilled with the
+ * file's contents, or rejected with the negative int the callback would have
+ * received on failure. Inside an async function:
+ *
+ * ```c
+ * string s = await async_read( "/log/access" );
+ * ```
+ *
  */
 void async_read( string file, function callback );
+promise async_read( string file );
 
 /**
  * async_getdir() - returns information pertaining to a filesystem directory
@@ -55,8 +72,16 @@ void async_read( string file, function callback );
  * // array of matching filenames
  * }
  *
+ * With the callback OMITTED, returns a promise instead, fulfilled with the
+ * value the callback would have received. Inside an async function:
+ *
+ * ```c
+ * string *files = await async_getdir( "/log/" );
+ * ```
+ *
  */
 void async_getdir( string dir, function callback );
+promise async_getdir( string dir );
 
 /**
  * async_db_exec() - executes an sql statement then executes a callback
