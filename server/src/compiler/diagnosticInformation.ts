@@ -47,6 +47,8 @@ export const Diagnostics = {
     await_is_not_allowed_inside_catch_or_time_expression_use_acatch: diag(9039, DiagnosticCategory.Error, "await_is_not_allowed_inside_catch_or_time_expression_use_acatch_9039", "'await' is not allowed inside 'catch' or 'time_expression'. Use 'acatch'."),
     acatch_is_not_allowed_inside_catch_or_time_expression: diag(9040, DiagnosticCategory.Error, "acatch_is_not_allowed_inside_catch_or_time_expression_9040", "'acatch' is not allowed inside 'catch' or 'time_expression'."),
     The_async_modifier_can_only_be_applied_to_function_declarations: diag(9041, DiagnosticCategory.Error, "The_async_modifier_can_only_be_applied_to_function_declarations_9041", "The 'async' modifier can only be applied to function declarations."),
+    A_promise_payload_type_may_not_itself_be_a_promise: diag(9043, DiagnosticCategory.Error, "A_promise_payload_type_may_not_itself_be_a_promise_9043", "A promise payload type may not itself be a promise."),
+    Illegal_to_declare_a_promise_of_type_void: diag(9044, DiagnosticCategory.Error, "Illegal_to_declare_a_promise_of_type_void_9044", "Illegal to declare a promise of type void."),
     An_async_function_returns_a_promise_so_0_is_the_type_its_return_statements_are_checked_against: diag(9042, DiagnosticCategory.Message, "An_async_function_returns_a_promise_so_0_is_the_type_its_return_statements_are_checked_against_9042", "An 'async' function returns a promise, so '{0}' is the type its return statements are checked against."),
 
     // Scanner

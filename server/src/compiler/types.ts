@@ -860,6 +860,7 @@ export const enum SyntaxKind {
     RestType,
     ArrayType,    
     MappingType,
+    PromiseType,
     TupleType,    
     TypeLiteral,
     TypeQuery,
@@ -1453,6 +1454,7 @@ export type TypeNodeSyntaxKind =
     | SyntaxKind.StructType
     | SyntaxKind.ArrayType
     | SyntaxKind.MappingType
+    | SyntaxKind.PromiseType
     | SyntaxKind.LiteralType
     | SyntaxKind.ThisType
     | SyntaxKind.TypePredicate
@@ -1643,6 +1645,7 @@ export interface NodeFactory {
     // Expressions
     createExpressionWithTypeArguments(expression: Expression, typeArguments: readonly TypeNode[] | undefined): ExpressionWithTypeArguments;
     createCatchExpression(expression: Expression, modifier?: Identifier, modifierExpression?: Expression, block?: Block): CatchExpression;
+    createPromiseTypeNode(typeArgument?: TypeNode): PromiseTypeNode;
     createACatchExpression(expression: Expression | undefined, block?: Block): ACatchExpression;
     createAwaitExpression(expression: UnaryExpression): AwaitExpression;
     createTimeExpression(expression: Expression | undefined, block?: Block): TimeExpression;
@@ -2260,6 +2263,7 @@ export type HasChildren =
     | CatchExpression
     | ACatchExpression
     | AwaitExpression
+    | PromiseTypeNode
     | TimeExpression
     | SpreadElement
     | DefineDirective
@@ -7995,6 +7999,20 @@ export interface ConditionalType extends InstantiableType {
     mapper?: TypeMapper;
     /** @internal */
     combinedMapper?: TypeMapper;
+}
+
+/**
+ * `promise` or `promise<T>` -- FluffOS only (issue #1319).
+ *
+ * The payload type is a declaration, not a measurement: the driver tags the promise with
+ * it and never re-checks at settle time. Bare `promise` means `promise<mixed>`. A promise
+ * of a promise is not representable, matching the runtime, where resolving a promise with
+ * a promise adopts it rather than nesting.
+ */
+export interface PromiseTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.PromiseType;
+    /** absent for bare `promise`, which is `promise<mixed>` */
+    readonly typeArgument?: TypeNode;
 }
 
 export interface MappingTypeNode extends TypeNode {
