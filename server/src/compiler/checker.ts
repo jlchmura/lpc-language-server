@@ -20616,10 +20616,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (isPromiseType(type)) {
                 const payload = getTypeArguments(type as TypeReference)[0];
                 context.approximateLength += 7;
-                // `promise<mixed>` prints as bare `promise`, the spelling that produced it.
-                return factory.createPromiseTypeNode(
-                    !payload || payload === anyType ? undefined : typeToTypeNodeHelper(payload, context),
-                );
+                // Always spell out the payload, including `promise<mixed>`. Rendering starts
+                // from the type, which cannot know whether the source said `promise` or
+                // `promise<mixed>` -- they are the same type -- so collapsing one of them
+                // would only make `promise<int>` and `promise<mixed>` look inconsistent.
+                return factory.createPromiseTypeNode(typeToTypeNodeHelper(payload ?? anyType, context));
             }
             if (type.flags & TypeFlags.Object && (type === globalClosureType || type.symbol?.name === "__LS__Closure")) {
                 context.approximateLength += 8;

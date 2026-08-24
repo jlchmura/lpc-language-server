@@ -309,12 +309,22 @@ void test() {
 
     it("type-checks promise arguments to the promise efuns", () => {
         expect(messages(`void test() { promise_status(1); }`))
-            .toContain("Argument of type 'int' is not assignable to parameter of type 'promise'");
+            .toContain("Argument of type 'int' is not assignable to parameter of type 'promise<mixed>'");
     });
 
     it("keeps promise nominal against the other primitive types", () => {
         expect(messages(`void test(promise p) { string s = p; }`))
-            .toContain("Type 'promise' is not assignable to type 'string'");
+            .toContain("Type 'promise<mixed>' is not assignable to type 'string'");
+    });
+
+    it("spells out the payload when rendering a promise type", () => {
+        // Rendering starts from the type, which cannot know whether the source said
+        // `promise` or `promise<mixed>` -- they are the same type -- so both print the
+        // payload, and `promise<int>` never looks inconsistent beside them.
+        expect(messages(`void test(promise bare) { int n = bare; }`))
+            .toContain("Type 'promise<mixed>' is not assignable to type 'int'");
+        expect(messages(`void test(promise<int> typed) { string s = typed; }`))
+            .toContain("Type 'promise<int>' is not assignable to type 'string'");
     });
 
     it("does not offer promise<T> to LDMud, which has no promises", () => {
