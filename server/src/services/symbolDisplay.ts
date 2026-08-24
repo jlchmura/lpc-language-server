@@ -12,6 +12,12 @@ import {
     find,
     first,    
     firstOrUndefined,    
+    canHaveModifiers,
+    emptyArray,
+    getModifiers,
+    isVariableDeclaration,
+    isVariableDeclarationList,
+    isVariableStatement,
     forEach,
     getCombinedLocalAndExportSymbolFlags,
     getDeclarationOfKind,
@@ -1350,6 +1356,7 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
         prefixNextMeaning();
         if (symbolKind) {
             pushSymbolKind(symbolKind);
+            addModifierParts(symbol);
             if (signature) {
                 displayParts.push(spacePart());
                 addSignatureType(signature);
@@ -1360,6 +1367,37 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
             }
         }
     }    
+
+    /**
+     * Writes the declaration's modifiers -- `private`, `static`, `varargs`, `nosave` and the
+     * rest -- ahead of its type, so a hover reads the way the declaration was written.
+     *
+     * Taken from the declaration in source order rather than rebuilt from ModifierFlags: the
+     * order is the author's, and a modifier the language gains later needs no entry in a
+     * whitelist here to show up.
+     */
+    function addModifierParts(symbol: Symbol) {
+        const declaration = symbol.valueDeclaration ?? firstOrUndefined(symbol.declarations);
+        if (!declaration) {
+            return;
+        }
+
+        // A variable's modifiers sit on the enclosing statement, not on the declaration
+        // itself, so `nosave int counter;` has nothing to show at the declaration node.
+        const modifierHost = isVariableDeclaration(declaration) && isVariableDeclarationList(declaration.parent) &&
+                isVariableStatement(declaration.parent.parent)
+            ? declaration.parent.parent
+            : declaration;
+
+        if (!canHaveModifiers(modifierHost)) {
+            return;
+        }
+
+        for (const modifier of getModifiers(modifierHost) ?? emptyArray) {
+            displayParts.push(spacePart());
+            displayParts.push(keywordPart(modifier.kind));
+        }
+    }
 
     function pushSymbolKind(symbolKind: string) {
         switch (symbolKind) {
