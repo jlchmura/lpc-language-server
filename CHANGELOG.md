@@ -1,5 +1,9 @@
 # LPC Language Services Changelog
 
+## 1.1.55
+
+- Fix: Hover provider - show a declaration's modifiers- #366
+
 ## 1.1.54
 
 - Fix: Type checking of array element access was incorrect
