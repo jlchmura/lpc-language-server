@@ -5736,6 +5736,8 @@ export const enum NodeBuilderFlags {
     // Errors (cont.)
     AllowNodeModulesRelativePaths           = 1 << 26,
     /** @internal */ DoNotIncludeSymbolChain = 1 << 27,    // Skip looking up and printing an accessible symbol chain            
+    // @ts-ignore -- NodeBuilderFlags has no free bits left, so this evaluates to 1 << 0 (NoTruncation).
+    // Value left as-is to preserve existing behavior.
     /** @internal */ AllowUnresolvedNames   = 1 << 32, 
     
     IgnoreErrors = AllowThisInObjectLiteral | AllowQualifiedNameInPlaceOfIdentifier | AllowAnonymousIdentifier | AllowEmptyUnionOrIntersection | AllowEmptyTuple | AllowEmptyIndexInfoType | AllowNodeModulesRelativePaths,

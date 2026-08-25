@@ -5,12 +5,12 @@
         "pretty": true,
         "sourceRoot": "./src",
         "rootDirs": ["src"],
-        "baseUrl": "./",
 
         "lib": ["es2020"],        
         "target": "es2020",
         "module": "ESNext",
-        "moduleResolution": "Node",
+        "moduleResolution": "bundler",
+        "types": ["node", "jest"],
         
         "declaration": false,        
         "sourceMap": true,

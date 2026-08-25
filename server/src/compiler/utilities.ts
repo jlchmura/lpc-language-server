@@ -4541,7 +4541,7 @@ function createComputedCompilerOptions<T extends Record<string, CompilerOptionKe
 export const computedOptions = createComputedCompilerOptions({
     driverType: {
         dependencies: [],
-        computeValue: compilerOptions => {
+        computeValue: (compilerOptions: Pick<CompilerOptions, "driverType">) => {
             const target = compilerOptions.driverType;
             return target ?? LanguageVariant.LDMud;                
         },
