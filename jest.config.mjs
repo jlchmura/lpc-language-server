@@ -2,8 +2,8 @@
  * This config is .mjs rather than .ts because jest parses a .ts config through the
  * `typescript` package, and TypeScript 7's native compiler no longer exposes the JS API
  * that requires. For the same reason the transform is ts-jest wrapped so it compiles
- * with `@typescript/typescript6` (see scripts/ts-jest-ts6-transformer.cjs), leaving
- * `typescript` itself on 7 for `tsc -b`.
+ * with the JS-API TypeScript pinned by tools/ts-jest-compiler (see
+ * scripts/ts-jest-ts6-transformer.cjs), leaving `typescript` itself on 7 for `tsc -b`.
  *
  * @type {import("jest").Config}
  */
@@ -52,7 +52,6 @@ const config = {
         "^.+\\.[cm]?ts$": [
             "<rootDir>/scripts/ts-jest-ts6-transformer.cjs",
             {
-                compiler: "@typescript/typescript6",
                 tsconfig: "server/tsconfig.json",
                 useESM: false,
             },
