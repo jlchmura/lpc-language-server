@@ -1,6 +1,13 @@
-import type { Config } from "jest";
-
-const config: Config = {
+/**
+ * This config is .mjs rather than .ts because jest parses a .ts config through the
+ * `typescript` package, and TypeScript 7's native compiler no longer exposes the JS API
+ * that requires. For the same reason the transform is ts-jest wrapped so it compiles
+ * with `@typescript/typescript6` (see scripts/ts-jest-ts6-transformer.cjs), leaving
+ * `typescript` itself on 7 for `tsc -b`.
+ *
+ * @type {import("jest").Config}
+ */
+const config = {
     collectCoverage: true,
     collectCoverageFrom: [
         "server/src/**/*.ts",
@@ -17,15 +24,13 @@ const config: Config = {
             functions: 43,
             lines: 54,
         },
-    },    
+    },
     moduleDirectories: ["node_modules"],
     workerIdleMemoryLimit: "500MB",
     moduleFileExtensions: ["ts", "js", "mjs", "cjs", "json"],
-    extensionsToTreatAsEsm: [".ts"],
     moduleNameMapper: {
         "(.+)\\.js": "$1",
     },
-    preset: "ts-jest/presets/js-with-ts-esm",
 
     resetMocks: false,
 
@@ -44,7 +49,14 @@ const config: Config = {
     testTimeout: 30000,
 
     transform: {
-        "\\.ts?$": ["ts-jest", { useESM: true }],
+        "^.+\\.[cm]?ts$": [
+            "<rootDir>/scripts/ts-jest-ts6-transformer.cjs",
+            {
+                compiler: "@typescript/typescript6",
+                tsconfig: "server/tsconfig.json",
+                useESM: false,
+            },
+        ],
     },
 
     transformIgnorePatterns: ["node_modules/"],
