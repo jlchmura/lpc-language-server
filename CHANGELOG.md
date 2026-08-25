@@ -3,6 +3,7 @@
 ## 1.1.55
 
 - Fix: Hover provider - show a declaration's modifiers- #366
+- Update to TypeScript 7, switch ts-jest to @swc/jest
 
 ## 1.1.54
 

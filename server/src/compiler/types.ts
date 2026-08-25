@@ -127,7 +127,7 @@ export interface TypeChecker {
 
     /** Note that the resulting nodes cannot be checked. */
     typeToTypeNode(type: Type, enclosingDeclaration: Node | undefined, flags: NodeBuilderFlags | undefined): TypeNode | undefined;
-    /** @internal */ typeToTypeNode(type: Type, enclosingDeclaration: Node | undefined, flags: NodeBuilderFlags | undefined, tracker?: SymbolTracker): TypeNode | undefined; // eslint-disable-line @typescript-eslint/unified-signatures
+    /** @internal */ typeToTypeNode(type: Type, enclosingDeclaration: Node | undefined, flags: NodeBuilderFlags | undefined, internalFlags?: InternalNodeBuilderFlags, tracker?: SymbolTracker): TypeNode | undefined; // eslint-disable-line @typescript-eslint/unified-signatures
     getReturnTypeOfSignature(signature: Signature): Type;
     
     /**
@@ -5736,7 +5736,6 @@ export const enum NodeBuilderFlags {
     // Errors (cont.)
     AllowNodeModulesRelativePaths           = 1 << 26,
     /** @internal */ DoNotIncludeSymbolChain = 1 << 27,    // Skip looking up and printing an accessible symbol chain            
-    /** @internal */ AllowUnresolvedNames   = 1 << 32, 
     
     IgnoreErrors = AllowThisInObjectLiteral | AllowQualifiedNameInPlaceOfIdentifier | AllowAnonymousIdentifier | AllowEmptyUnionOrIntersection | AllowEmptyTuple | AllowEmptyIndexInfoType | AllowNodeModulesRelativePaths,
 
@@ -5744,6 +5743,19 @@ export const enum NodeBuilderFlags {
     InObjectTypeLiteral                     = 1 << 22,
     InTypeAlias                             = 1 << 23,    // Writing type in type alias declaration
     InInitialEntityName                     = 1 << 24,    // Set when writing the LHS of an entity name or entity name expression
+}
+
+/**
+ * Node builder flags that are internal to the compiler. `NodeBuilderFlags` has all 32 bits
+ * assigned, so internal-only flags live here with their own bit space and are carried on
+ * `NodeBuilderContext.internalFlags`.
+ *
+ * @internal
+ */
+// dprint-ignore
+export const enum InternalNodeBuilderFlags {
+    None                                    = 0,
+    AllowUnresolvedNames                    = 1 << 0,
 }
 
 /**

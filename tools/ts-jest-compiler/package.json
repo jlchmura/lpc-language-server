@@ -1,0 +1,9 @@
+{
+    "name": "ts-jest-compiler",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Pins the JS-API TypeScript that ts-jest compiles tests with (see scripts/ts-jest-ts6-transformer.cjs). It lives in its own package so npm nests it -- installed at the root it would hoist a second `tsc` binary that shadows the project's TypeScript 7.",
+    "dependencies": {
+        "typescript": "6.0.3"
+    }
+}

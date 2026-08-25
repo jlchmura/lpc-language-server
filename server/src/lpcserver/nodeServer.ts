@@ -75,7 +75,7 @@ export class Logger implements Logger {
         if (this.fd >= 0) {
             const buf = Buffer.from(s);
             // eslint-disable-next-line no-restricted-syntax
-            fs.writeSync(this.fd, buf, 0, buf.length, /*position*/ null);
+            fs.writeSync(this.fd, buf as unknown as Uint8Array, 0, buf.length, /*position*/ null);
         }
         if (this.traceToConsole) {
             console.debug(s);
