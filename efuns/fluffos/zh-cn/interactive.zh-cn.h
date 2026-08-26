@@ -203,7 +203,7 @@ varargs void say( string str, object obj );
  *
  */
 int resolve( string address, string callback_func );
-int resolve( string address, closure callback_func );
+int resolve( string address, function callback_func );
 
 /**
  * remove_action - 取消绑定一个命令动词到本地函数
