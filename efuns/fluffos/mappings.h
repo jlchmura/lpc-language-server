@@ -55,8 +55,7 @@ mixed match_path( mapping m, string str );
 /**
  * mapp() - determine whether or not a given variable is a mapping
  *
- * Return 1 if 'arg' is a mapping.
- *
+ * @returns {arg is mapping} 1 if 'arg' is a mapping.
  */
 int mapp( mixed arg );
 

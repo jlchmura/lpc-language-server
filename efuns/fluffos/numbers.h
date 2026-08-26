@@ -34,8 +34,7 @@ int random( int n );
 /**
  * intp() - determine whether or not a given variable is an integer
  *
- * Return 1 if 'arg' is an integer number and zero (0) otherwise.
- *
+ * @returns {arg is int} 1 if 'arg' is an integer number and zero (0) otherwise.
  */
 int intp( mixed arg );
 

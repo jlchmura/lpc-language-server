@@ -8,7 +8,7 @@
  * 1. 它是一个变量，其值等于对一个不存在的方法的 call_other 调用的返回值（例如 arg = call_other(obj, "???")）。
  * 
  * 2. 它是一个变量，其值等于对一个不存在的映射元素的访问的返回值（例如 arg = map[not_there]）。
- *
+ * @returns {arg is 0} 如果变量未定义，则返回 1，否则返回 0
  */
 int undefinedp( mixed arg );
 

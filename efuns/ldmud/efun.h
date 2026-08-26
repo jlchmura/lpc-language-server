@@ -1528,7 +1528,7 @@ float tan(int|float f);
 /**
  * symbolp
  *
- * Returns true, if arg is a symbol.
+ * @returns {arg is symbol} 1 if arg is a symbol.
  *
  * @example 
  * symbolp('foo) returns 1.
@@ -5320,7 +5320,7 @@ varargs mapping m_add(mapping map, mixed key, varargs mixed data);
 /**
  * lwobjectp
  *
- * Return 1 if arg is a lightweight object.
+ * @returns {arg is lwobject} 1 if arg is a lightweight object.
  *
  *
  */
@@ -9236,7 +9236,7 @@ int command(string str, object ob);
 /**
  * closurep
  *
- * Returns 1 if the argument is a closure.
+ * @returns {c is closure} 1 if the argument is a closure.
  *
  * @since Introduced in 3.2@70
  *
@@ -9982,7 +9982,7 @@ mixed call_coroutine(coroutine cr, mixed value = 0);
 /**
  * bytesp
  *
- * Return 1 if arg is a byte sequence.
+ * @returns {arg is bytes} 1 if arg is a byte sequence.
  *
  * @since Introducted in LDMud 3.6.0.
  *

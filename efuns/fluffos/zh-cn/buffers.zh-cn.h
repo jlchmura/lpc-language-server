@@ -64,8 +64,8 @@ int crc32( buffer | string x );
 /**
  * bufferp() - 确定给定变量是否是一个缓冲区
  *
- * 如果 'arg' 是一个缓冲区值，则返回 1，否则返回零 (0)。
- *
+ * @returns {arg is buffer} 如果 'arg' 是一个缓冲区值，则返回 1，否则返回零 (0)。
+ * @example
  * int is_buffer = bufferp( allocate_buffer(10) ); // 1
  * int is_buffer = bufferp( "Foo" ); // 0
  *

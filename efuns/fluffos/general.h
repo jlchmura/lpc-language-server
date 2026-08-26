@@ -12,7 +12,7 @@
  * 2.  it  is  a variable set equal to the return value of an access of an
  * element  in  a   mapping   that   doesn't   exist   (e.g.   arg   =
  * map[not_there]).
- *
+ * @returns {arg is 0} 1 if the variable is undefined, 0 otherwise
  */
 int undefinedp( mixed arg );
 

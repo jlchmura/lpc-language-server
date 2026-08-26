@@ -74,8 +74,8 @@ int crc32( buffer | string x );
 /**
  * bufferp() - identifies whether a given variable is a buffer
  *
- * Return 1 if 'arg' is a buffer value and zero (0) otherwise.
- *
+ * @returns {arg is buffer} 1 if 'arg' is a buffer value and zero (0) otherwise.
+ * @example
  * int is_buffer = bufferp( allocate_buffer(10) ); // 1
  * int is_buffer = bufferp( "Foo" ); // 0
  *

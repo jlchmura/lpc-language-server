@@ -80,8 +80,7 @@ float floor( float f );
 /**
  * floatp() - determine whether or not a given variable is a float
  *
- * Return 1 if 'arg' is a float number and zero (0) otherwise.
- *
+ * @returns {arg is float} 1 if 'arg' is a float number and zero (0) otherwise.
  */
 int floatp( mixed arg );
 
