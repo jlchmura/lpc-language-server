@@ -3,11 +3,17 @@
 /**
  * promise_create() - create a new pending promise
  *
- * Returns a new promise in the pending state. A promise is a first-class
- * LPC value (`typeof` returns `"promise"`) holding the eventual result of
- * an asynchronous operation. It settles exactly once, either fulfilled via
- * promise_resolve() or rejected via promise_reject(); reactions attached
- * with promise_then() run on a later gametick after settlement.
+ * Returns a new promise in the pending state, with no declared payload
+ * type -- it is a `promise<mixed>`, assignable to any `promise<T>`
+ * variable. Only an `async` function's own promise carries a declared
+ * payload.
+ *
+ * A promise is a first-class LPC value (`typeof` returns `"promise"`)
+ * holding the eventual result of an asynchronous operation. It settles
+ * exactly once, either fulfilled via promise_resolve() or rejected via
+ * promise_reject(); reactions attached with promise_then() run from the
+ * microtask drain after settlement -- never synchronously, but still
+ * within the same gametick.
  *
  * Promises compare by identity (`p == q` is true only for the same
  * promise) and may be used as mapping keys. They are not saved by
@@ -29,15 +35,26 @@ promise promise_create();
  * promise_resolve() - fulfill a pending promise
  *
  * Fulfills the pending promise 'p' with 'value' (0 if omitted). Reactions
- * attached with promise_then() and suspended `await` expressions resume on
- * a later gametick -- never synchronously from this call.
+ * attached with promise_then() and suspended `await` expressions resume
+ * from the microtask drain -- never synchronously from this call, but
+ * still within the same gametick.
  *
  * If 'value' is itself a promise, 'p' adopts its eventual state instead of
  * fulfilling immediately (flattening): 'p' stays pending until 'value'
  * settles, then settles the same way. Resolving a promise with itself is
  * an error.
  *
- * It is an error to settle a promise that is already settled.
+ * It is an error to settle a promise that is already settled -- including
+ * one whose fate is already committed to a pending adoption: after
+ * promise_resolve(p, q) with 'q' still pending, a second
+ * promise_resolve(p, ...) or promise_reject(p, ...) errors even though 'p'
+ * itself has not settled yet.
+ *
+ * It is likewise an error to settle the promise an `async` function
+ * returned -- that promise is the function body's result channel. The
+ * promises the driver hands out for a pending operation (call_out(delay),
+ * async_read()/async_write()/async_getdir(), and the one promise_then()
+ * returns) stay settleable.
  *
  * @see promise_create, promise_reject, promise_then
  */
@@ -47,15 +64,19 @@ varargs void promise_resolve( promise p, void | mixed value );
  * promise_reject() - reject a pending promise
  *
  * Rejects the pending promise 'p' with 'reason' (0 if omitted). Rejection
- * handlers attached with promise_then()/promise_catch() run on a later
- * gametick; an `await` suspended on 'p' raises 'reason' as an error at the
- * await point (catchable with `acatch`).
+ * handlers attached with promise_then()/promise_catch() run from the
+ * microtask drain -- never synchronously from this call, but still within
+ * the same gametick; an `await` suspended on 'p' raises 'reason' as an
+ * error at the await point (catchable with `acatch`).
  *
- * It is an error to settle a promise that is already settled.
+ * It is an error to settle a promise that is already settled, or one whose
+ * fate is already committed to a pending adoption, or the promise an
+ * `async` function returned.
  *
  * A rejected promise whose rejection is never observed (no handler
  * attached, result never read) is reported to the debug log when it is
- * deallocated.
+ * deallocated. The report names where the promise was REJECTED, since
+ * deallocation can be arbitrarily far from the rejection.
  *
  * @see promise_resolve, promise_catch, promise_then
  */
@@ -77,9 +98,10 @@ varargs void promise_reject( promise p, void | mixed reason );
  * An error inside a handler rejects the chained promise with the error
  * text (reported like a caught error).
  *
- * Like call_out(0), handlers run without a command context by default;
- * with the "this player in call_out" driver option, this_player() at
- * attach time is restored during the handler.
+ * Like call_out(0) callbacks, handlers are governed by the "this_player
+ * in call_out" driver option: with the option enabled (the default),
+ * this_player() at attach time is restored during the handler; with it
+ * disabled, handlers run without a command context.
  *
  * ```c
  * promise_then(fetch_account(uid),
@@ -94,10 +116,14 @@ varargs promise promise_then( promise p, void | function on_fulfilled, void | fu
 /**
  * promise_catch() - attach a rejection handler
  *
- * Shorthand for promise_then(p, 0, on_rejected): attaches only a rejection
- * handler and returns the chained promise. Fulfillment passes through
- * unchanged; a rejection runs on_rejected(reason), whose return value
- * fulfills the chained promise.
+ * Attaches only a rejection handler and returns the chained promise.
+ * Fulfillment passes through unchanged; a rejection runs
+ * on_rejected(reason), whose return value fulfills the chained promise.
+ *
+ * This is the rejection-only half of promise_then(), which cannot be
+ * spelled with promise_then() itself: its second argument must be a
+ * function whenever a third is given, so promise_then(p, 0, f) is a
+ * runtime error.
  *
  * @see promise_then, promise_reject
  */
@@ -131,6 +157,33 @@ int promise_status( promise p );
  * @see promise_status, promise_then
  */
 mixed promise_result( promise p );
+
+/**
+ * promisep() - test whether a value is a promise
+ *
+ * Returns 1 if 'arg' is a promise, 0 otherwise. The *p() type test for the
+ * `promise` type, equivalent to `typeof(arg) == "promise"`.
+ *
+ * The argument is `mixed` on purpose: the question is only interesting for
+ * a value whose type is not known statically. A variable already declared
+ * `promise` needs no test.
+ *
+ * ```c
+ * mixed p = promise_create();
+ *
+ * promisep(p);      // 1
+ * promisep(0);      // 0
+ * promisep("x");    // 0
+ * ```
+ *
+ * A promise is never a valid FULFILLED value -- resolving a promise with a
+ * promise adopts it -- so promisep() on the value an `await` yields, or on
+ * promise_result() of a fulfilled promise, is always 0. A rejection reason
+ * is not restricted that way: any value may be one, including a promise.
+ *
+ * @see promise_create, promise_status, promise_result, typeof
+ */
+int promisep( mixed arg );
 
 /**
  * async_info() - list the currently suspended async function frames
@@ -210,12 +263,19 @@ mapping async_info( int stats );
  * Awaiting an ordinary settled promise does NOT do this. It parks, but the
  * resume is re-queued into the same drain turn, which is what lets a
  * sequential `await` loop run at full speed. `await call_out(0)` does not do
- * it either. `await call_out(1)` does reach the loop, but costs a whole
- * gametick.
+ * it either -- a call_out(0) runs on the same gametick, and the
+ * "call_out(0) nest level" limit will refuse one used as a yield inside a
+ * loop. `await call_out(1)` does reach the loop, but costs a whole gametick.
  *
- * async_yield() does not reset the evaluation budget: a resumed frame is a
- * new delivery, so a function that yields periodically is metered per
- * resumption rather than as one long run.
+ * The promise is an ordinary promise: it can be stored, chained with
+ * promise_then(), or awaited from more than one place. Two calls made
+ * before the loop next runs return two distinct promises that settle at the
+ * same moment, sharing a single wake-up.
+ *
+ * async_yield() does not reset the evaluation budget. A delivery is armed
+ * with a whole "maximum evaluation cost" when it starts, and a resumed
+ * frame is a new delivery, so a function that yields periodically is
+ * metered per resumption rather than as one long run.
  *
  * @see async_info, promise_then, call_out
  */

@@ -248,6 +248,19 @@ async void test() {
         expect(messages(source)).toBe("");
     });
 
+    it("resolves promisep, whose argument is deliberately mixed", () => {
+        // The *p() test for T_PROMISE takes `mixed`: the question is only
+        // interesting for a value whose type is not known statically.
+        const source = `
+void test(mixed m, promise p) {
+    int a = promisep(m);
+    int b = promisep(p);
+    int c = promisep(0);
+}
+`;
+        expect(messages(source)).toBe("");
+    });
+
     it("resolves async_yield, the cooperative preemption point", () => {
         const source = `
 async void reindex(mixed *rows) {

@@ -16,8 +16,9 @@
  * //  0 for success
  * }
  *
- * With the callback OMITTED, returns a promise instead: fulfilled with 0
- * on success, or rejected with -1 on failure. Inside an async function:
+ * With the callback OMITTED, returns a promise instead: fulfilled on
+ * success, or rejected with the negative int the callback would have
+ * received on failure. Inside an async function:
  *
  * ```c
  * await async_write( "/log/access", entry, 0 );
@@ -73,7 +74,7 @@ promise async_read( string file );
  * }
  *
  * With the callback OMITTED, returns a promise instead, fulfilled with the
- * value the callback would have received. Inside an async function:
+ * sorted array of names. Inside an async function:
  *
  * ```c
  * string *files = await async_getdir( "/log/" );
