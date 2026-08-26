@@ -889,6 +889,13 @@ Found 1 error in server/src/tests/cases/compiler/variantKeywordBufferLdmudMisuse
 "
 `;
 
+exports[`Compiler compiler/variantKeywordBytesFluffosMisuse.c Reports correct errors for compiler/variantKeywordBytesFluffosMisuse.c: diags-compiler/variantKeywordBytesFluffosMisuse.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/variantKeywordBytesFluffosMisuse.c[90m:6[0m
+
+"
+`;
+
 exports[`Compiler compiler/variantKeywordClassLdmudMisuse.c Reports correct errors for compiler/variantKeywordClassLdmudMisuse.c: diags-compiler/variantKeywordClassLdmudMisuse.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/variantKeywordClassLdmudMisuse.c[90m:5[0m
@@ -896,9 +903,37 @@ Found 1 error in server/src/tests/cases/compiler/variantKeywordClassLdmudMisuse.
 "
 `;
 
+exports[`Compiler compiler/variantKeywordClosureFluffosMisuse.c Reports correct errors for compiler/variantKeywordClosureFluffosMisuse.c: diags-compiler/variantKeywordClosureFluffosMisuse.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/variantKeywordClosureFluffosMisuse.c[90m:7[0m
+
+"
+`;
+
+exports[`Compiler compiler/variantKeywordDeprecatedFluffosMisuse.c Reports correct errors for compiler/variantKeywordDeprecatedFluffosMisuse.c: diags-compiler/variantKeywordDeprecatedFluffosMisuse.c 1`] = `
+"
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/variantKeywordDeprecatedFluffosMisuse.c[90m:6[0m
+
+"
+`;
+
+exports[`Compiler compiler/variantKeywordLwobjectFluffosMisuse.c Reports correct errors for compiler/variantKeywordLwobjectFluffosMisuse.c: diags-compiler/variantKeywordLwobjectFluffosMisuse.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/variantKeywordLwobjectFluffosMisuse.c[90m:6[0m
+
+"
+`;
+
 exports[`Compiler compiler/variantKeywordStatusFluffosMisuse.c Reports correct errors for compiler/variantKeywordStatusFluffosMisuse.c: diags-compiler/variantKeywordStatusFluffosMisuse.c 1`] = `
 "
 Found 1 error in server/src/tests/cases/compiler/variantKeywordStatusFluffosMisuse.c[90m:5[0m
+
+"
+`;
+
+exports[`Compiler compiler/variantKeywordVirtualFluffosMisuse.c Reports correct errors for compiler/variantKeywordVirtualFluffosMisuse.c: diags-compiler/variantKeywordVirtualFluffosMisuse.c 1`] = `
+"
+Found 2 errors in the same file, starting at: server/src/tests/cases/compiler/variantKeywordVirtualFluffosMisuse.c[90m:6[0m
 
 "
 `;

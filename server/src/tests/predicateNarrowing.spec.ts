@@ -69,6 +69,13 @@ describe("*p() guard narrowing", () => {
             expect(messages(`void test(string m) { if (undefinedp(m)) { int n = m; } }`, fluffos)).toBe("");
         });
 
+        it("does not narrow on classp, which is not a single-type test", () => {
+            // classp() tests T_CLASS. There is no one type to narrow to, so it
+            // deliberately carries no predicate -- the error must survive.
+            expect(messages(`void test(mapping | int m) { if (classp(m)) { mapping x = m; } }`, fluffos))
+                .toContain("is not assignable to type 'mapping'");
+        });
+
         it("still reports the error when the guard does not cover the use", () => {
             // The narrowing must be real, not a blanket suppression: an `intp` guard
             // says nothing about the string constituent.
@@ -99,6 +106,17 @@ describe("*p() guard narrowing", () => {
             ["bytesp", "bytes", "int"],
         ])("%s narrows to %s", (guard, type, other) => {
             expect(guards(guard, type, other, ldmud)).toBe("");
+        });
+
+        it.each([
+            // Neither asks about type: clonep() distinguishes a clone from its
+            // blueprint, referencep() reports how an argument was passed. Both
+            // deliberately carry no predicate, so the error must survive.
+            ["clonep"],
+            ["referencep"],
+        ])("%s does not narrow", guard => {
+            expect(messages(`void test(mapping | int m) { if (${guard}(m)) { mapping x = m; } }`, ldmud))
+                .toContain("is not assignable to type 'mapping'");
         });
     });
 });
