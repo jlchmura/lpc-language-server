@@ -8,9 +8,10 @@ import * as path from "path";
  * inside the branch reported a spurious assignability error.
  *
  * Not every `*p()` is a type test: `clonep` and `referencep` (LDMud) ask about
- * an object's origin and how an argument was passed, and `classp` (FluffOS)
- * tests T_CLASS with no single type to narrow to. Those deliberately carry no
- * predicate.
+ * an object's origin and how an argument was passed, not its type. `classp`
+ * (FluffOS) is a type test, but an unwritable one -- it asks "is this any
+ * class?", and a class type always carries a name, so there is nothing to put
+ * after `arg is`. All three deliberately carry no predicate.
  */
 
 function messages(source: string, driverType: lpc.LanguageVariant): string {
@@ -70,8 +71,13 @@ describe("*p() guard narrowing", () => {
         });
 
         it("does not narrow on classp, which is not a single-type test", () => {
-            // classp() tests T_CLASS. There is no one type to narrow to, so it
-            // deliberately carries no predicate -- the error must survive.
+            // Not because `class` isn't a real type -- `@returns {arg is class coord}`
+            // narrows fine. It is that classp() asks "is this ANY class?", and there
+            // is no bare `class` type to name as the target: FluffOS's grammar has
+            // only `L_CLASS <name>`, and StructTypeNode requires an Identifier.
+            // pointerp() faces the same "any array" question and escapes it only
+            // because `mixed *` is a real writable supertype. So classp() carries no
+            // predicate and the error must survive.
             expect(messages(`void test(mapping | int m) { if (classp(m)) { mapping x = m; } }`, fluffos))
                 .toContain("is not assignable to type 'mapping'");
         });
