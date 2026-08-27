@@ -3,6 +3,7 @@
 ## 1.1.55
 
 - Fix: Hover provider - show a declaration's modifiers- #366
+- Fix: FluffOS keyword gating, \*p() narrowing predicates, and new(struct Foo)- #368
 - Update to TypeScript 7, switch ts-jest to @swc/jest
 
 ## 1.1.54
