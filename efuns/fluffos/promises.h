@@ -181,6 +181,7 @@ mixed promise_result( promise p );
  * promise_result() of a fulfilled promise, is always 0. A rejection reason
  * is not restricted that way: any value may be one, including a promise.
  *
+ * @returns {arg is promise} 1 if 'arg' is a promise.
  * @see promise_create, promise_status, promise_result, typeof
  */
 int promisep( mixed arg );
