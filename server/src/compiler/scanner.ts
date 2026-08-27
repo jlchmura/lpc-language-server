@@ -1967,7 +1967,8 @@ export function createScanner(
     // Some reserved words are driver-specific: `buffer` and `class` are types, `new` is
     // the object-construction operator, and `ref` marks a by-reference parameter, only in
     // FluffOS (LDMud uses `struct` for structures, `clone_object()` to construct, and `&`
-    // for by-reference); `status` and `symbol` are types only in LDMud; `time_expression`
+    // for by-reference); `bytes`, `closure`, `lwobject`, `status` and `symbol` are types,
+    // and `deprecated` and `virtual` are modifiers, only in LDMud; `time_expression`
     // is a reserved word only in FluffOS. In the other driver each is an ordinary
     // identifier (e.g. a variable or function name), so demote it to an Identifier token
     // here rather than gating it per grammar position downstream.
@@ -1979,8 +1980,13 @@ export function createScanner(
             case SyntaxKind.RefKeyword:
             case SyntaxKind.TimeExpressionKeyword:
                 return variant === LanguageVariant.FluffOS;
+            case SyntaxKind.BytesKeyword:
+            case SyntaxKind.ClosureKeyword:
+            case SyntaxKind.DeprecatedKeyword:
+            case SyntaxKind.LwObjectKeyword:
             case SyntaxKind.StatusKeyword:
             case SyntaxKind.SymbolKeyword:
+            case SyntaxKind.VirtualKeyword:
                 return variant === LanguageVariant.LDMud;
             default:
                 return true;

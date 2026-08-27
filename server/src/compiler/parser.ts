@@ -5729,10 +5729,13 @@ export namespace LpcParser {
       
         parseExpected(SyntaxKind.OpenParenToken);
         
-        if (token() == SyntaxKind.ClassKeyword) {
+        if (token() == SyntaxKind.ClassKeyword || token() == SyntaxKind.StructKeyword) {
             // fluff-style new class constructor
             // class Foo = new(class Foo);
             // class Foo = new(class Foo, name: "Bob", age: 42);
+            // `struct` is the same keyword in FluffOS -- lexer_utils.cc maps both
+            // "class" and "struct" to L_CLASS -- and `new` is FluffOS-only, so
+            // accepting either spelling here needs no driver gate.
             expression = parseType();
 
             if (parseOptional(SyntaxKind.CommaToken)) {

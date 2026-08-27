@@ -30,7 +30,6 @@ int random( int n );
 /**
  * intp() - 确定给定变量是否是整数
  *
- * 如果 'arg' 是一个整数，则返回 1，否则返回零（0）。
- *
+ * @returns {arg is int} 如果 'arg' 是一个整数，则返回 1，否则返回零（0）。
  */
 int intp( mixed arg );

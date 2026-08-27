@@ -49,8 +49,7 @@ mixed match_path( mapping m, string str );
 /**
  * mapp() - 确定给定变量是否为映射
  *
- * 如果 'arg' 是一个映射，则返回 1。
- *
+ * @returns {arg is mapping} 如果 'arg' 是一个映射，则返回 1。
  */
 int mapp( mixed arg );
 

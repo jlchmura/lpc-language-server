@@ -75,8 +75,7 @@ float floor( float f );
 /**
  * floatp() - 确定给定变量是否为浮点数
  *
- * 如果 'arg' 是浮点数，则返回 1，否则返回 0。
- *
+ * @returns {arg is float} 如果 'arg' 是浮点数，则返回 1，否则返回 0。
  */
 int floatp( mixed arg );
 
