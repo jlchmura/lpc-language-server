@@ -269,6 +269,44 @@ void test(mixed m, promise p) {
             .toContain("Type 'int | promise<mixed>' is not assignable to type 'promise<mixed>'");
     });
 
+    it("resolves the promise combinators, unwrapping each payload", () => {
+        const source = `
+async void test(promise a, promise b) {
+    mixed *every = await promise_all(({ a, b }));
+    mixed first = await promise_any(({ a, b }));
+    mixed winner = await promise_race(({ a, b }));
+    mapping *outcomes = await promise_all_settled(({ a, b }));
+}
+`;
+        expect(messages(source)).toBe("");
+    });
+
+    it("reports the combinator payloads when they are misused", () => {
+        expect(messages(`async void test(promise a) { int bad = await promise_all(({ a })); }`))
+            .toContain("Type 'mixed*' is not assignable to type 'int'");
+        expect(messages(`async void test(promise a) { int bad = await promise_all_settled(({ a })); }`))
+            .toContain("Type 'mapping*' is not assignable to type 'int'");
+    });
+
+    it("takes mixed *, not promise *, so map() output and plain values pass straight in", () => {
+        // A non-promise element counts as already fulfilled with itself, which is
+        // the whole reason the driver spells the parameter `mixed *`.
+        const source = `
+promise fetch(string name);
+async void test(string *names, promise p) {
+    mixed *rows = await promise_all(map(names, (: fetch($1) :)));
+    mixed winner = await promise_race(({ p, 42 }));
+}
+`;
+        expect(messages(source)).toBe("");
+    });
+
+    it("resolves promise_cancel, which answers whether anything was armed", () => {
+        expect(messages(`void test(promise p) { int armed = promise_cancel(p); }`)).toBe("");
+        expect(messages(`void test(promise p) { string bad = promise_cancel(p); }`))
+            .toContain("Type 'int' is not assignable to type 'string'");
+    });
+
     it("resolves async_yield, the cooperative preemption point", () => {
         const source = `
 async void reindex(mixed *rows) {
