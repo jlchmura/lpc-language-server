@@ -261,6 +261,14 @@ void test(mixed m, promise p) {
         expect(messages(source)).toBe("");
     });
 
+    it("narrows a union through promisep", () => {
+        // The union probe matters: `mixed` is assignable to everything, so a
+        // `mixed` parameter would pass whether or not the guard narrowed.
+        expect(messages(`void test(promise | int m) { if (promisep(m)) { promise p = m; } }`)).toBe("");
+        expect(messages(`void test(promise | int m) { promise p = m; }`))
+            .toContain("Type 'int | promise<mixed>' is not assignable to type 'promise<mixed>'");
+    });
+
     it("resolves async_yield, the cooperative preemption point", () => {
         const source = `
 async void reindex(mixed *rows) {
