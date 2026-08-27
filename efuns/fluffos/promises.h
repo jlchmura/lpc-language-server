@@ -187,6 +187,204 @@ mixed promise_result( promise p );
 int promisep( mixed arg );
 
 /**
+ * promise_all() - wait for every promise, failing on the first rejection
+ *
+ * Returns a promise that fulfills with an array of every input's value,
+ * POSITIONALLY: entry 'i' of the result is the value of promises[i],
+ * whatever order they settled in.
+ *
+ * If any input rejects, the returned promise rejects immediately with that
+ * reason and the remaining inputs are ignored -- they keep running, since
+ * nothing here cancels anything. Only the FIRST rejection is reported; use
+ * promise_all_settled() to see every outcome.
+ *
+ * An element that is not a promise counts as already fulfilled with
+ * itself, which is why the parameter is `mixed *` rather than `promise *`:
+ * the output of an ordinary map() can be passed straight in unwrapped.
+ *
+ * An empty array fulfills immediately with an empty array.
+ *
+ * ```c
+ * async void load(string *names) {
+ *     mixed *rows = await promise_all(map(names, (: fetch($1) :)));
+ *
+ *     // rows[i] corresponds to names[i]
+ *     write("loaded " + sizeof(rows) + "\n");
+ * }
+ * ```
+ *
+ * @see promise_any, promise_race, promise_all_settled, promise_then
+ */
+promise<mixed *> promise_all( mixed *promises );
+
+/**
+ * promise_any() - take the first promise that succeeds
+ *
+ * Returns a promise that fulfills with the value of the first input to
+ * FULFILL. Rejections are tolerated -- collected rather than propagated --
+ * so one failing source does not spoil the result.
+ *
+ * Only if EVERY input rejects does the returned promise reject, and then
+ * with an array of the reasons, positionally: entry 'i' is promises[i]'s
+ * reason.
+ *
+ * Contrast promise_race(), which is settled by the first input to settle
+ * either way -- there, a rejection wins the race.
+ *
+ * An element that is not a promise counts as already fulfilled with
+ * itself. An empty array rejects: there is nothing that could ever satisfy
+ * it.
+ *
+ * ```c
+ * async string first_reachable(string *mirrors) {
+ *     // whichever mirror answers first; a failure is ignored unless all fail
+ *     return await promise_any(map(mirrors, (: fetch($1) :)));
+ * }
+ * ```
+ *
+ * @see promise_all, promise_race, promise_all_settled
+ */
+promise promise_any( mixed *promises );
+
+/**
+ * promise_race() - settle as the first input settles, either way
+ *
+ * Returns a promise that settles exactly as the FIRST INPUT TO SETTLE does
+ * -- fulfilled with its value, or rejected with its reason. A rejection
+ * wins a race; that is the difference from promise_any(), which ignores
+ * rejections until every input has failed.
+ *
+ * The losing inputs are not cancelled. They keep running and their results
+ * are discarded, so a race is a way to stop WAITING, not a way to stop
+ * work. To stop the work itself, see promise_cancel().
+ *
+ * An element that is not a promise counts as already fulfilled with
+ * itself, and therefore wins the race outright.
+ *
+ * An EMPTY ARRAY IS AN ERROR, not a promise that never settles. This
+ * departs from JavaScript deliberately: here a permanently pending promise
+ * that something awaits is a parked frame holding its object, its program
+ * and one "max suspended async functions" slot for the life of the driver,
+ * so the mistake is refused where it is made.
+ *
+ * ```c
+ * // bound a wait without touching the operation's own promise
+ * async mixed with_timeout(promise p, int secs) {
+ *     return await promise_race(({ p, timeout_promise(secs) }));
+ * }
+ * ```
+ *
+ * @see promise_any, promise_all, promise_all_settled, promise_cancel
+ */
+promise promise_race( mixed *promises );
+
+/**
+ * promise_all_settled() - wait for every promise and report each outcome
+ *
+ * Returns a promise that fulfills once every input has settled -- it never
+ * rejects. The value is an array of one mapping per input, positionally,
+ * describing how that input ended:
+ *
+ * ```
+ * ([ "status": 1, "value":  v ])   fulfilled
+ * ([ "status": 2, "reason": r ])   rejected
+ * ```
+ *
+ * The status codes are promise_status()'s, so one vocabulary covers both.
+ * A fulfilled entry has no "reason" key and a rejected entry has no
+ * "value" key, so undefinedp() distinguishes them as reliably as "status"
+ * does.
+ *
+ * Use this instead of promise_all() when a partial failure is a result
+ * rather than an error -- fanning work out over many objects and reporting
+ * which of them succeeded, for instance.
+ *
+ * An element that is not a promise counts as already fulfilled with
+ * itself. An empty array fulfills immediately with an empty array.
+ *
+ * ```c
+ * async void reindex(object *rooms) {
+ *     mapping *results = await promise_all_settled(map(rooms, (: $1->rebuild() :)));
+ *     int i;
+ *
+ *     foreach (mapping r in results) {
+ *         if (r["status"] == 2) {
+ *             write("room " + i + " failed: " + r["reason"] + "\n");
+ *         }
+ *         i++;
+ *     }
+ * }
+ * ```
+ *
+ * @see promise_all, promise_any, promise_race, promise_status
+ */
+promise<mapping *> promise_all_settled( mixed *promises );
+
+/**
+ * promise_cancel() - ask an async function to give up
+ *
+ * Requests cancellation of the `async` function body that owns 'p'. The
+ * body's NEXT `await` raises a catchable error whose value is the string
+ * "*async function cancelled".
+ *
+ * Returns 1 if a cancellation was armed, 0 if there was nothing left to
+ * cancel -- the body already finished, or it returned a still-pending
+ * promise and is gone. A body racing its canceller to completion is a
+ * normal outcome, not an error.
+ *
+ * Cancellation is COOPERATIVE, NOT PREEMPTIVE. A body part-way through a
+ * stretch of straight-line code finishes that stretch first; a body that
+ * never awaits again runs to completion and its cancellation is never
+ * delivered at all. Nothing is torn down mid-expression.
+ *
+ * The raise behaves like any other rejection arriving at that `await`: it
+ * unwinds through enclosing `acatch` regions, runs defer() handlers in
+ * order, and -- if nothing catches it -- rejects 'p' with the same reason.
+ * A body parked on a promise that will never settle is still cancelled
+ * promptly: it is detached from that promise and its rejection scheduled
+ * directly, so cancellation is never hostage to the thing being awaited.
+ *
+ * The raise CLEARS the request. A body that catches its own cancellation
+ * may go on to `await` cleanup work and even return a value, in which case
+ * 'p' fulfills normally. Cancellation is a request a body may decline, not
+ * a verdict; cancel again if you mean it again. The alternative -- a sticky
+ * flag -- would make every cleanup `await` throw, leaving a body no way to
+ * release what it holds.
+ *
+ * ```c
+ * async int worker() {
+ *     mixed err = acatch(await slow_thing());
+ *
+ *     if (err) {
+ *         await write_log("gave up");   // does NOT re-raise
+ *         return 0;
+ *     }
+ *     return 1;
+ * }
+ * ```
+ *
+ * It is an error to cancel a promise that is not an `async` function's:
+ * only a body has a "next await" for the cancellation to arrive at. A
+ * promise_create() promise is already settleable by whoever owns it; an
+ * async_read()/async_write()/async_getdir() promise cannot stop the worker
+ * thread that is already doing the I/O; a call_out(delay) promise is not
+ * cancellable at all -- use the classic call_out() form and
+ * remove_call_out(); and rejecting a promise_then() chain link cannot stop
+ * its upstream. To stop WAITING for any of those without stopping the work,
+ * race them against a timer -- see promise_race().
+ *
+ * Cancellation does not propagate. If a cancelled body was awaiting another
+ * async function's promise, that inner body keeps running: its promise is
+ * first-class and may have other awaiters, handlers attached with
+ * promise_then(), or simply be stored somewhere, and rejecting it would
+ * settle it for all of them. A body that wants the inner work stopped too
+ * can catch its own cancellation and cancel the inner promise it holds.
+ *
+ * @see promise_race, promise_status, promise_reject, async_info
+ */
+int promise_cancel( promise p );
+
+/**
  * async_info() - list the currently suspended async function frames
  *
  * With no argument (or 0), returns one mapping per async function that is
