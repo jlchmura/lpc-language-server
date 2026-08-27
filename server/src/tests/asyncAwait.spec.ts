@@ -301,6 +301,50 @@ async void test(string *names, promise p) {
         expect(messages(source)).toBe("");
     });
 
+    it("rejects a literal empty array to promise_race", () => {
+        // The driver refuses this outright: a promise that can never settle would park
+        // an awaiting frame for the life of the driver.
+        expect(messages(`async void test() { await promise_race(({ })); }`))
+            .toContain("'promise_race' requires at least one promise");
+        expect(messages(`async void test(promise p) { await promise_race(({ p })); }`)).toBe("");
+    });
+
+    it("warns that a literal empty array to promise_any can only ever reject", () => {
+        // Legal, unlike promise_race, but futile -- so a warning rather than an error.
+        expect(messages(`async void test() { await promise_any(({ })); }`))
+            .toContain("'promise_any' of an empty array always rejects");
+        expect(diagnosticsFor(`async void test() { await promise_any(({ })); }`, lpc.LanguageVariant.FluffOS)
+            .map(d => d.category)).toContain(lpc.DiagnosticCategory.Warning);
+        expect(messages(`async void test(promise p) { await promise_any(({ p })); }`)).toBe("");
+    });
+
+    it("leaves an empty array alone for the combinators that define one", () => {
+        // promise_all and promise_all_settled both fulfill immediately with an empty
+        // array, so there is nothing to report.
+        expect(messages(`async void test() { await promise_all(({ })); }`)).toBe("");
+        expect(messages(`async void test() { await promise_all_settled(({ })); }`)).toBe("");
+    });
+
+    it("leaves promise_race alone when it is a mudlib function, not the efun", () => {
+        // The check resolves through the signature, so shadowing the efun with a
+        // local definition takes the diagnostic with it.
+        const source = `
+mixed promise_race(mixed *promises) { return 0; }
+void test() { mixed winner = promise_race(({ })); }
+`;
+        expect(messages(source)).toBe("");
+    });
+
+    it("only sees the literal spelling -- an empty array through a variable is a runtime matter", () => {
+        const source = `
+async void test() {
+    mixed *none = ({ });
+    await promise_race(none);
+}
+`;
+        expect(messages(source)).toBe("");
+    });
+
     it("resolves promise_cancel, which answers whether anything was armed", () => {
         expect(messages(`void test(promise p) { int armed = promise_cancel(p); }`)).toBe("");
         expect(messages(`void test(promise p) { string bad = promise_cancel(p); }`))

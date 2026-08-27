@@ -50,6 +50,8 @@ export const Diagnostics = {
     await_has_no_effect_here_0_is_not_a_promise_so_the_value_passes_through_unchanged: diag(9045, DiagnosticCategory.Warning, "await_has_no_effect_here_0_is_not_a_promise_so_the_value_passes_through_unchanged_9045", "'await' has no effect here: '{0}' is not a promise, so the value passes through unchanged."),
     A_promise_payload_type_may_not_itself_be_a_promise: diag(9043, DiagnosticCategory.Error, "A_promise_payload_type_may_not_itself_be_a_promise_9043", "A promise payload type may not itself be a promise."),
     Illegal_to_declare_a_promise_of_type_void: diag(9044, DiagnosticCategory.Error, "Illegal_to_declare_a_promise_of_type_void_9044", "Illegal to declare a promise of type void."),
+    promise_race_requires_at_least_one_promise_an_empty_array_is_a_driver_error: diag(9046, DiagnosticCategory.Error, "promise_race_requires_at_least_one_promise_an_empty_array_is_a_driver_error_9046", "'promise_race' requires at least one promise: an empty array is a driver error, not a promise that never settles."),
+    promise_any_of_an_empty_array_always_rejects_there_is_nothing_that_could_ever_fulfill_it: diag(9047, DiagnosticCategory.Warning, "promise_any_of_an_empty_array_always_rejects_there_is_nothing_that_could_ever_fulfill_it_9047", "'promise_any' of an empty array always rejects: there is nothing that could ever fulfill it."),
     An_async_function_returns_a_promise_so_0_is_the_type_its_return_statements_are_checked_against: diag(9042, DiagnosticCategory.Message, "An_async_function_returns_a_promise_so_0_is_the_type_its_return_statements_are_checked_against_9042", "An 'async' function returns a promise, so '{0}' is the type its return statements are checked against."),
 
     // Scanner
