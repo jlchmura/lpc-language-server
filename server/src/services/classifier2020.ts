@@ -22,11 +22,14 @@ import {
     isQualifiedName,
     isSourceFile,
     isVariableDeclaration,
+    LanguageVariant,
     ModifierFlags,
     NamedDeclaration,
     Node,
+    NodeFlags,
     ParameterDeclaration,
     Program,
+    PropertyAccessExpression,
     SemanticMeaning,
     SourceFile,
     Symbol,
@@ -212,6 +215,15 @@ function collectTokens(program: Program, sourceFile: SourceFile, span: TextSpan,
                     }
                 }
             }
+            else if (isFluffOSMappingKey(typeChecker, sourceFile, node) && isFromFile(node)) {
+                // FluffOS mapping dot-access (`m.key`, `m?.key`) is sugar for `m["key"]`,
+                // so the checker resolves it through indexed access with no property
+                // symbol (see checkPropertyAccessExpressionOrQualifiedName). Without a
+                // symbol the branch above emits nothing and the key renders unstyled, as
+                // the grammar has no rule for bare identifiers either. Classify it as a
+                // property so it reads like the member access it stands in for.
+                collector(node, reclassifyByType(typeChecker, node, TokenType.property), 0);
+            }
         }
         
         forEachChild(node, visit);        
@@ -298,6 +310,52 @@ function isExpressionInCallExpression(node: Node): boolean {
         node = node.parent;
     }
     return isCallExpression(node.parent) && node.parent.expression === node;
+}
+
+/**
+ * True for the key of a FluffOS mapping dot-access - the `key` of `m.key` or `m?.key`.
+ *
+ * Gated to FluffOS: LDMud has neither mapping dot-access nor optional chaining, so
+ * there the same syntax is an error and must not be painted as a resolved property.
+ */
+function isFluffOSMappingKey(typeChecker: TypeChecker, sourceFile: SourceFile, node: Node): boolean {
+    if (sourceFile.languageVariant !== LanguageVariant.FluffOS) {
+        return false;
+    }
+    const parent = node.parent;
+    return !!parent && isPropertyAccessExpression(parent) && parent.name === node
+        && isMappingAccessChain(typeChecker, parent);
+}
+
+/**
+ * True when `access` is a link in a chain of mapping key accesses.
+ *
+ * Only the root of such a chain types as a mapping: the checker resolves each key
+ * through indexed access, so `m.a` is `mixed`, and asking whether the *immediate*
+ * base is a mapping would classify only the first key of `m.a.b.c`. But a key can
+ * only be dot-accessed in turn if it holds a mapping, so every non-terminal link is
+ * a mapping by construction - walk back to the root and test that instead.
+ *
+ * An optional link short-circuits the walk: `?.` is mapping-only by construction, so
+ * reaching one is already proof of intent (and `m?.a?.b` is legal even when `m.a`
+ * turns out not to be a mapping, since the chain yields undefined rather than erroring).
+ *
+ * `->` is excluded throughout - that is object member access, not a mapping key, and
+ * a chain may mix the two (`m.a->func`).
+ */
+function isMappingAccessChain(typeChecker: TypeChecker, access: PropertyAccessExpression): boolean {
+    if (access.propertyAccessToken.kind === SyntaxKind.MinusGreaterThanToken) {
+        return false;
+    }
+    if (access.flags & NodeFlags.OptionalChain) {
+        return true;
+    }
+    const base = access.expression;
+    if (isPropertyAccessExpression(base)) {
+        return isMappingAccessChain(typeChecker, base);
+    }
+    const baseType = typeChecker.getTypeAtLocation(base);
+    return !!baseType && typeChecker.isMappingType(baseType);
 }
 
 function isRightSideOfQualifiedNameOrPropertyAccess(node: Node): boolean {

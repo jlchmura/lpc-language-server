@@ -1,4 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
+import { createTestLanguageService } from "./harness.js";
 import * as path from "path";
 
 /**
@@ -151,6 +152,75 @@ describe("Mapping dot-access & optional chaining", () => {
             // The left-hand side of an assignment may not be an optional property access.
             expect(diags.length).toBeGreaterThan(0);
             expect(diags.some(d => typeof d.messageText === "string" && /optional/i.test(d.messageText))).toBe(true);
+        });
+    });
+
+    describe("semantic classification", () => {
+        /**
+         * TokenType/TokenModifier are packed as `(type + 1) << 8 | modifiers`
+         * (TokenEncodingConsts), matching what the client decodes in
+         * `client/src/languageFeatures/semanticTokens.ts`.
+         */
+        const TOKEN_TYPE_PROPERTY = 9;
+
+        /** Classification emitted for `name`, or undefined if the server emitted none. */
+        function classify(source: string, name: string, driverType = lpc.LanguageVariant.FluffOS): number | undefined {
+            const { ls, fileName } = createTestLanguageService({ "test.c": source }, { driverType });
+            const { spans } = ls.getEncodedSemanticClassifications(fileName, lpc.createTextSpan(0, source.length));
+            // Anchor on the accessor (`.`, `?.` or `->`): a bare indexOf would find a
+            // short key inside an earlier word (the "a" of "mapping", say).
+            const at = new RegExp(`[.>]\\s*${name}\\b`).exec(source);
+            expect(at).not.toBeNull();
+            const offset = at!.index + at![0].length - name.length;
+            for (let i = 0; i < spans.length; i += 3) {
+                if (spans[i] === offset && spans[i + 1] === name.length) {
+                    return (spans[i + 2] >> 8) - 1;
+                }
+            }
+            return undefined;
+        }
+
+        it("classifies a mapping dot-access key as a property", () => {
+            expect(classify("void f() { mapping m = ([]); mixed r = m.key; }", "key")).toBe(TOKEN_TYPE_PROPERTY);
+        });
+
+        it("classifies an optional-chain key as a property", () => {
+            expect(classify("void f() { mapping m = ([]); mixed r = m?.key; }", "key")).toBe(TOKEN_TYPE_PROPERTY);
+        });
+
+        it("classifies every key of a nested optional chain", () => {
+            const src = "void f() { mapping m = ([]); mixed r = m?.a?.b; }";
+            expect(classify(src, "a")).toBe(TOKEN_TYPE_PROPERTY);
+            expect(classify(src, "b")).toBe(TOKEN_TYPE_PROPERTY);
+        });
+
+        it("classifies every key of a plain dot chain", () => {
+            // Only the root types as a mapping -- `m.a` is mixed -- so this only works
+            // by walking back to the root rather than testing the immediate base.
+            const src = "void f() { mapping m = ([]); mixed r = m.a.b.c; }";
+            expect(classify(src, "a")).toBe(TOKEN_TYPE_PROPERTY);
+            expect(classify(src, "b")).toBe(TOKEN_TYPE_PROPERTY);
+            expect(classify(src, "c")).toBe(TOKEN_TYPE_PROPERTY);
+        });
+
+        it("classifies chains that mix optional and plain links", () => {
+            const a = "void f() { mapping m = ([]); mixed r = m?.a.b; }";
+            expect(classify(a, "b")).toBe(TOKEN_TYPE_PROPERTY);
+            const b = "void f() { mapping m = ([]); mixed r = m.a?.b; }";
+            expect(classify(b, "b")).toBe(TOKEN_TYPE_PROPERTY);
+        });
+
+        it("does not treat an arrow link as a mapping key", () => {
+            // `->` is object member access, and a chain may mix the two.
+            expect(classify("void f() { mapping m = ([]); mixed r = m.a->func; }", "func")).toBeUndefined();
+        });
+
+        it("does not classify a mapping key under LDMud, where the syntax is an error", () => {
+            expect(classify("void f() { mapping m = ([]); mixed r = m.key; }", "key", lpc.LanguageVariant.LDMud)).toBeUndefined();
+        });
+
+        it("leaves a non-mapping base alone", () => {
+            expect(classify("void f() { int n = 1; mixed r = n.key; }", "key")).toBeUndefined();
         });
     });
 

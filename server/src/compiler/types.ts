@@ -117,6 +117,11 @@ export interface TypeChecker {
      */
     isArrayLikeType(type: Type): boolean;
     /**
+     * True if this type is a mapping. Used by the semantic classifier to
+     * recognise FluffOS mapping dot-access keys, which bind to no symbol.
+     */
+    isMappingType(type: Type): boolean;
+    /**
      * True if `contextualType` should not be considered for completions because
      * e.g. it specifies `kind: "a"` and obj has `kind: "b"`.
      *
