@@ -373,6 +373,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         getMergedSymbol,
         getAllPossiblePropertiesOfTypes,
         isArrayLikeType,
+        isMappingType,
         isNullableType,
         getNullableType,
         getNonNullableType,
