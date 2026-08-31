@@ -5456,7 +5456,21 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function getTypeFromPromiseTypeNode(node: PromiseTypeNode): Type {
         // Bare `promise` is `promise<mixed>`: it accepts any payload, which is what
         // promise_create() and the promise-form efuns return.
-        return createPromiseType(node.typeArgument ? getTypeFromTypeNode(node.typeArgument) : anyType);
+        if (!node.typeArgument) {
+            return createPromiseType(anyType);
+        }
+        const payloadType = getTypeFromTypeNode(node.typeArgument);
+        // `promise<void>` is not a spellable type -- checkPromiseType reports it, mirroring
+        // the driver's rule_atomic_type_promise_of(), which errors and then coerces the
+        // payload away. Yield errorType rather than a usable `promise<void>` so that one
+        // real error is not trailed by complaints from every later check that would see a
+        // declared type which merely isn't void -- notably "A function whose declared type
+        // is not 'void' must return a value", which is the more prominent of the two and
+        // says nothing about the actual mistake.
+        if (payloadType.flags & TypeFlags.Void) {
+            return errorType;
+        }
+        return createPromiseType(payloadType);
     }
 
     function getTypeFromTypeNodeWorker(node: TypeNode): Type {
