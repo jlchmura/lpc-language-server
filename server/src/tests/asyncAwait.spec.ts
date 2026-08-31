@@ -152,6 +152,19 @@ void test() { promise<int> p = work(); }
             .toContain("Illegal to declare a promise of type void.");
     });
 
+    it("reports a promise of void once, without a cascading return-value error", () => {
+        // Documenting an async function the way JS/TS does -- `@returns {promise<void>}`
+        // on an `async void` -- is the natural mistake, since FluffOS annotations carry
+        // the *fulfilled* type and `promise<void>` has no legal spelling at all. The tag
+        // overrides the declared `void`, so a usable `promise<void>` type would also draw
+        // "A function whose declared type is not 'void' must return a value" -- the louder
+        // of the two, and the one that says nothing about the real mistake.
+        const source = `/** @returns {promise<void>} Never fulfils. */\nasync void probe() { throw("no"); }`;
+        const text = messages(source);
+        expect(text).toContain("Illegal to declare a promise of type void.");
+        expect(text).not.toContain("must return a value");
+    });
+
     it("checks return statements against the declared type, not the promise", () => {
         const source = `async int work() { return "nope"; }`;
         expect(messages(source)).toContain("not assignable to type 'int'");
