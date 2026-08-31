@@ -2147,11 +2147,30 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         }
     }
 
-    function isErrorCallExpression(node: CallExpression) {        
-        // error() for Fluff
-        // raise_error() for LD
-        // Fluff has throw too, but it doesn't terminate execution.                
-        return isIdentifier(node.expression) && node.expression.text === (file.languageVariant === LanguageVariant.FluffOS ? "error" : "raise_error");
+    /**
+     * Calls that never return, so the code after them is unreachable.
+     *
+     * `throw()` counts under both drivers. In FluffOS it is declared `void` in core.spec
+     * and reaches the same `[[noreturn]] throw_error()` (simulate.cc) that `error()` does;
+     * LDMud documents its own `void throw(mixed)` as "Abort execution". Either way a
+     * `catch()` resumes after the catch, never after the call.
+     *
+     * `throw()` was previously excluded on the grounds that it "doesn't terminate
+     * execution", which matches neither driver. Leaving it out made any non-void function
+     * whose body only throws draw a spurious "must return a value" -- and in FluffOS that
+     * shape is the driver's own idiom for rejecting an async result, since throw_error()
+     * documents a value thrown inside an async body as becoming the rejection reason /
+     * acatch() result.
+     */
+    function isErrorCallExpression(node: CallExpression) {
+        if (!isIdentifier(node.expression)) {
+            return false;
+        }
+        const name = node.expression.text;
+        if (name === "throw") {
+            return true;
+        }
+        return name === (file.languageVariant === LanguageVariant.FluffOS ? "error" : "raise_error");
     }
 
     function bindLogicalLikeExpression(node: BinaryExpression, trueTarget: FlowLabel, falseTarget: FlowLabel) {
