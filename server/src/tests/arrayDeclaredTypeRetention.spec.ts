@@ -14,9 +14,27 @@ import { createTestLanguageService } from "./harness.js";
  * the variable widened past its own declaration from that point on.
  *
  * Scalars never had this problem: `int r = some_mixed()` stays `int`.
+ *
+ * That was first patched by guarding the one shape it was found in -- an assigned `mixed*`. The
+ * same hole then turned up for a bare `mixed`, which is not an array type and so walked past the
+ * guard:
+ *
+ *     string *candidates = reduce(path, fn, ({}));   // a simul_efun returning `mixed`
+ *     filter(candidates, (: ... :));                 // resolved on `mixed`, picking filter's
+ *                                                    // `string|mapping` overload over `mixed*`
+ *
+ * The cause was the branch's entry condition rather than either shape reaching it. #190 needs
+ * exactly one thing: a *generic* `object*` narrowing to the file-typed object array assigned into
+ * it, so `w->method()` resolves against the real file. The condition was written as "any array
+ * whose element is not already file-typed", which swept in `string*` and `int*` -- declarations
+ * that already state what they hold, gain nothing from adopting an assigned type, and can only be
+ * widened by it. Restricting the condition to a generic `object` element retires both guards'
+ * reason for existing: every other array now falls through to the ordinary path, where the
+ * declared type wins and assignment only narrows within it, which is why scalars were always
+ * immune.
  */
-function build(source: string) {
-    const { ls, abs } = createTestLanguageService({ "test.c": source }, {
+function build(source: string, extraFiles: Record<string, string> = {}) {
+    const { ls, abs } = createTestLanguageService({ "test.c": source, ...extraFiles }, {
         driverType: lpc.LanguageVariant.FluffOS,
         diagnostics: true,
     });
@@ -29,8 +47,8 @@ function hoverAt(source: string, marker: string): string | undefined {
         ?.displayParts?.map(p => p.text).join("").replace(/\s+/g, " ").trim();
 }
 
-function diagnosticsFor(source: string): string[] {
-    const { ls, file } = build(source);
+function diagnosticsFor(source: string, extraFiles?: Record<string, string>): string[] {
+    const { ls, file } = build(source, extraFiles);
     return ls.getSemanticDiagnostics(file).map(d => `${d.code}: ${lpc.flattenDiagnosticMessageText(d.messageText, " ")}`);
 }
 
@@ -49,6 +67,40 @@ describe("an array variable assigned a wider array type", () => {
         // lpc-language-server#190 -- the reason this branch exists. Only widening changed.
         const source = `test() {\n  object *w;\n  w = get_weaps();\n  w;\n}\nobject *get_weaps() { return ({ }); }\n`;
         expect(hoverAt(source, "w;\n}")).toBe("(local var) object* w");
+    });
+
+    it("keeps its declared type when the assigned type is a bare mixed", () => {
+        // `mixed*` was guarded first; `mixed` is not an array type and walked past that guard.
+        const source = `mixed g() { return ({}); }\ntest() {\n  string *r = g();\n  r;\n}\n`;
+        expect(hoverAt(source, "r;\n}")).toBe("(local var) string* r");
+    });
+
+    it("resolves a later call on the declared type, not on mixed", () => {
+        // The reported symptom: `filter` has a `string|mapping` overload declared before its
+        // `mixed*` one, so a source widened to `mixed` matched the wrong one and the result came
+        // back `string|mapping`.
+        const source = `mixed g() { return ({}); }\ntest() {\n  string *c = g();\n  string *r = filter(c, (: 1 :));\n}\n`;
+        expect(diagnosticsFor(source)).toEqual([]);
+    });
+
+    it("keeps checking the declared element type after such an assignment", () => {
+        // Widening did not just misreport the hover -- it retired every later check on the
+        // variable. This append was silently accepted.
+        const source = `mixed g() { return ({}); }\ntest() {\n  string *c = g();\n  c += ({ 123 });\n}\n`;
+        expect(diagnosticsFor(source).join(" "))
+            .toContain("2365: Operator '+=' cannot be applied to types 'string*' and 'int*'.");
+    });
+
+    it("narrows a generic object array to the file type assigned into it", () => {
+        // #190's actual case, and the only one the branch is now entered for: the element type
+        // has to reach the specific file for `->query_number()` to resolve. Asserted through
+        // diagnostics rather than hover, whose text carries an absolute path.
+        const source = `test() {\n  object *w;\n  w = get_weaps();\n  w->query_number();\n}\n`
+            + `/**\n * @returns {"object.c"*}\n */\nobject *get_weaps() { return ({ }); }\n`;
+        const files = { "object.c": `int query_number() { return 1; }\n` };
+        expect(diagnosticsFor(source, files)).toEqual([]);
+        expect(diagnosticsFor(source.replace("query_number()", "not_a_method()"), files).join(" "))
+            .toContain("2339: Property 'not_a_method' does not exist");
     });
 });
 

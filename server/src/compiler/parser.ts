@@ -718,6 +718,15 @@ export namespace LpcParser {
         // Drive preprocessor conditionals and skip over disabled regions. A conditional
         // directive is always processed (nesting must be tracked even while inactive);
         // any other token inside a disabled region is discarded.
+        //
+        // A template still has to be *scanned* as a template while it is being discarded.
+        // In executable code the parser drives the continuation, re-scanning the `}` that
+        // ends each substitution (see parseTemplateSpan); nothing drives it here. Left to
+        // plain scanning, that `}` comes back as a close brace and the closing backtick
+        // opens a fresh template head that runs to end of file -- swallowing the `#endif`
+        // and reporting an unterminated string plus an unmatched conditional directive.
+        let templateBraceDepths: number[] | undefined;
+        let braceDepth = 0;
         while (incomingToken !== SyntaxKind.EndOfFileToken) {
             if (isConditionalDirective(incomingToken)) {
                 processConditionalDirective(incomingToken);
@@ -725,6 +734,34 @@ export namespace LpcParser {
                 continue;
             }
             if (isCodeExecutable === Ternary.False) {
+                switch (incomingToken) {
+                    case SyntaxKind.TemplateHead:
+                    case SyntaxKind.TemplateMiddle:
+                        // The `${` is part of the token, so the substitution's expression
+                        // begins at the depth we are already at.
+                        (templateBraceDepths ??= []).push(braceDepth);
+                        break;
+                    case SyntaxKind.OpenBraceToken:
+                    // `({` is a single token, but it closes with a plain `}` followed by
+                    // `)`. Without counting it, an array literal inside a substitution
+                    // would look like the brace that ends the substitution.
+                    case SyntaxKind.OpenParenBraceToken:
+                        braceDepth++;
+                        break;
+                    case SyntaxKind.CloseBraceToken:
+                        if (templateBraceDepths?.length && last(templateBraceDepths) === braceDepth) {
+                            templateBraceDepths.pop();
+                            // Re-scanning yields TemplateMiddle (another substitution
+                            // follows) or TemplateTail (the literal ends). Loop around so
+                            // the result is classified like any other discarded token.
+                            incomingToken = scanner.reScanTemplateToken(/*isTaggedTemplate*/ false);
+                            continue;
+                        }
+                        if (braceDepth > 0) {
+                            braceDepth--;
+                        }
+                        break;
+                }
                 incomingToken = scanner.scan();
                 continue;
             }

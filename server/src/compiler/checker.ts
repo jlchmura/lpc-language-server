@@ -373,6 +373,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         getMergedSymbol,
         getAllPossiblePropertiesOfTypes,
         isArrayLikeType,
+        isMappingType,
         isNullableType,
         getNullableType,
         getNonNullableType,
@@ -30885,8 +30886,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     declaredType === objectType || 
                     declaredType === mixedType || 
                     isMappingType(declaredType) ||
-                    // see https://github.com/jlchmura/lpc-language-server/issues/190
-                    (isArrayType(declaredType) && declaredType.resolvedTypeArguments && !isAnonymousObjectType(first(declaredType.resolvedTypeArguments)))
+                    // see https://github.com/jlchmura/lpc-language-server/issues/190 -- a generic
+                    // `object*` narrows to the file-typed object array assigned into it. Only the
+                    // generic element type qualifies: an array that already states what it holds
+                    // (`string*`, `int*`) gains nothing here and can only be widened by it.
+                    (isArrayType(declaredType) && declaredType.resolvedTypeArguments?.length === 1 && first(declaredType.resolvedTypeArguments) === objectType)
                 ) {
                     // Whether the declaration states what the array holds. `mixed*` does not
                     // count: `mixed` is `any`, which says nothing about the contents.

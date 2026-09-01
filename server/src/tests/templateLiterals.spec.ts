@@ -120,6 +120,60 @@ describe("Template literals", () => {
         });
     });
 
+    describe("inside an inactive preprocessor region", () => {
+        /**
+         * A template in disabled code still has to be *scanned* as a template even though
+         * every token is thrown away. In executable code the parser drives the continuation,
+         * re-scanning the `}` that ends each substitution (parseTemplateSpan); the skip loop
+         * that discards disabled tokens had nothing driving it. The `}` came back as a plain
+         * close brace, so the closing backtick opened a fresh template head that ran to end
+         * of file -- swallowing the `#endif` and cascading into unrelated-looking errors
+         * (unmatched conditional, unterminated string, "invalid character" on each `\` in
+         * the swallowed region, and bogus checker errors from the wrecked parse).
+         *
+         * A backtick with no interpolation was never affected: it scans as a single
+         * NoSubstitutionTemplateLiteral, so there is no `}` to re-scan.
+         */
+        it("does not run past the #endif", () => {
+            const sf = parse("void f() {\n  int x = 1;\n#if 0\n  y(`val ${x}`);\n#endif\n}");
+            expect(sf.parseDiagnostics.length).toBe(0);
+        });
+
+        it("was already fine without interpolation, and still is", () => {
+            expect(parse("void f() {\n#if 0\n  y(`val`);\n#endif\n}").parseDiagnostics.length).toBe(0);
+            expect(parse('void f() {\n#if 0\n  y("val\\n");\n#endif\n}').parseDiagnostics.length).toBe(0);
+        });
+
+        it("handles several substitutions and nested templates", () => {
+            expect(parse("void f() {\n#if 0\n  y(`a${x}b${x}c`);\n#endif\n}").parseDiagnostics.length).toBe(0);
+            expect(parse("void f() {\n#if 0\n  y(`a${ `i${x}` }b`);\n#endif\n}").parseDiagnostics.length).toBe(0);
+        });
+
+        it("counts `({` so an array literal's brace is not read as the substitution's", () => {
+            // `({` is a single token but closes with a plain `}` followed by `)`. Left
+            // uncounted, that `}` matches the substitution's depth and ends the template early.
+            expect(parse("void f() {\n#if 0\n  y(`a${ ({1,2})[0] }b`);\n#endif\n}").parseDiagnostics.length).toBe(0);
+            expect(parse("void f() {\n#if 0\n  { y(`a${x}b`); }\n#endif\n}").parseDiagnostics.length).toBe(0);
+        });
+
+        it("leaves the region's own escapes alone", () => {
+            expect(parse("void f() {\n#if 0\n  y(`a${x}\\n`);\n#endif\n}").parseDiagnostics.some(d => d.code === 1127)).toBe(false);
+        });
+
+        it("still sees the directives that follow", () => {
+            expect(parse("void f() {\n#if 0\n  y(`a${x}`);\n#else\n  x = 2;\n#endif\n}").parseDiagnostics.length).toBe(0);
+            expect(parse("void f() {\n#if 0\n  y(`a${x}`);\n#if 1\n  x = 1;\n#endif\n#endif\n}").parseDiagnostics.length).toBe(0);
+        });
+
+        it("reports a genuinely unterminated template the same way a plain string is", () => {
+            // Unchanged behaviour: malformed literals in disabled code still report, and a
+            // template now matches what an unterminated `"` there has always done.
+            const tmpl = parse("void f() {\n#if 0\n  y(`a${x});\n#endif\n}").parseDiagnostics.map(d => d.code).sort();
+            const str = parse('void f() {\n#if 0\n  y("abc);\n#endif\n}').parseDiagnostics.map(d => d.code).sort();
+            expect(tmpl).toEqual(str);
+        });
+    });
+
     describe("adjacency concatenation (FluffOS allows, JavaScript does not)", () => {
         function assertConcatenates(source: string) {
             const sf = parse(source);
