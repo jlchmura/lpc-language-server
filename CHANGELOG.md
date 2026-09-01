@@ -5,6 +5,7 @@
 - Fix: Hover provider - show a declaration's modifiers- #366
 - Fix: FluffOS keyword gating, \*p() narrowing predicates, and new(struct Foo)- #368
 - Update to TypeScript 7, switch ts-jest to @swc/jest
+- Fix: `throw()` now ends control flow, so a function whose body only throws no longer reports a missing return
 - Fix: FluffOS mapping dot-access and optional-chaining keys (`m.key`, `m?.a?.b`) were left unhighlighted
 
 ## 1.1.54
