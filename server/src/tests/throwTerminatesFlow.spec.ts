@@ -13,8 +13,7 @@ import { createTestLanguageService } from "./harness.js";
  *
  * Not async-specific -- but it is felt most there, since throw_error() documents a value
  * thrown inside an async body as becoming the rejection reason / acatch() result, making
- * "await, then throw" the driver's own idiom for rejecting. Those cases belong with the
- * async work; `async` is not a keyword here.
+ * "await, then throw" the driver's own idiom for rejecting.
  */
 
 function messages(source: string, driverType = lpc.LanguageVariant.FluffOS): string {
@@ -49,6 +48,19 @@ describe("throw() terminates control flow", () => {
 
         it("accepts a branch that throws beside one that returns", () => {
             expect(messages(`private int f(int x) { if(x) throw("no"); return 1; }`)).toBe("");
+        });
+
+        it("does not require a return from an async body that only throws", () => {
+            // The case the fix exists for: throw_error() documents a value thrown inside an
+            // async body as becoming the rejection reason, so a function that always rejects
+            // never returns one. Before, it needed a dummy `return` to stay quiet.
+            expect(messages(`private async int f() { throw("no"); }`)).toBe("");
+        });
+
+        it("does not require a return after an await that leads only to a throw", () => {
+            // "await, then throw" -- the driver's own idiom for rejecting.
+            const source = `async int work() { return 1; }\nprivate async int f() { await work(); throw("no"); }`;
+            expect(messages(source)).toBe("");
         });
     });
 
