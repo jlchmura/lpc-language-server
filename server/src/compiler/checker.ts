@@ -1,4 +1,4 @@
-import { setCommentRange as setCommentRangeWorker, isStatic, visitEachChild as visitEachChildWorker, setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, InternalNodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, TemplateExpression, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType, arrayIsEqualTo, isObjectLiteralMethod, isNonNullAccess, FlowSwitchClauseData, LiteralExpression, CaseClause, DefaultClause, findIndex, orderedRemoveItemAt, UnionTypeNode, ParenthesizedTypeNode, concatenateDiagnosticMessageChains, isDeclaration, InterfaceTypeWithDeclaredMembers, rangeEquals, InferenceFlags, minAndMax, last, IntersectionFlags, IntersectionType, flatten, createDiagnosticMessageChainFromDiagnostic, setTextRangePosEnd, createDiagnosticForNodeArrayFromMessageChain, createDiagnosticForNodeArray, isConstructorDeclaration, TypeComparer, InferencePriority, pathIsRelative, moduleSpecifiers, EmitResolver, isRestParameter, SpreadElement, ElementFlags, ModuleKind, ResolutionMode, ModuleResolutionKind, getResolutionDiagnostic, hasExtension, removeExtension, CloneObjectExpression, isCloneObjectExpression, PropertyAccessChain, OptionalChain, ExportDeclaration, getTextOfNode, InheritDeclaration, isCallLikeOrFunctionLikeExpression, isFunctionExpressionOrArrowFunction, CharacterCodes, Visitor, visitNodes, isGlobalSourceFile, isExternalModule, introducesArgumentsExoticObject, getCombinedLocalAndExportSymbolFlags, StructTypeNode, StructDeclaration, ClassLikeDeclaration, getEffectiveBaseTypeNode, ComputedPropertyName, TypeReferenceType, NodeWithTypeArguments, ClassDeclaration, ClassExpression, TypeLiteralNode, JSDocTypeLiteral, isJSDocTypeLiteral, isInJSDoc, isTypeDeclaration, JSDocTypeAssertion, AssertionExpression, isParenthesizedExpression, getJSDocTypeAssertionType, AccessFlags, NewStructExpression, isJSDocTypeAlias, isAssertionExpression, TypeAssertion, DeclarationName, isKnownSymbol, createEvaluator, EntityNameExpression, evaluatorResult, isStringLiteralLike, SyntheticExpression, ArrayBindingPattern, isTypeUsableAsPropertyName, isPropertyName, tryGetPropertyAccessOrIdentifierToString, IndexedAccessType, MappingLiteralExpression, isOmittedExpression, UnionOrIntersectionTypeNode, PropertySignature, isPropertySignature, LateBoundName, isClassExpression, LateBoundDeclaration, LateBoundBinaryExpressionDeclaration, ElementAccessChain, MappedSymbol, VariableLikeDeclaration, isComputedNonLiteralName, getElementOrPropertyAccessName, findLastIndex, hasAccessorModifier, emptyMap, BytesLiteral, BytesLiteralType, WhileStatement, hasType, getEnclosingContainer, isPropertyNameLiteral, getTextOfIdentifierOrLiteral, JSDocOverloadTag, JSDocCallbackTag, TypePredicate, isIdentifierTypePredicate, IdentifierTypePredicate, HasInitializer, resolvingEmptyArray, getClassLikeDeclarationOfSymbol, ExpressionWithTypeArguments, isNumericLiteral, isInfinityOrNaNString, getEffectiveConstraintOfTypeParameter, isTypeReferenceNode, JSDocParameterTag, canHaveModifiers, modifiersToFlags, JSDocPropertyTag, hasInferredType, isTypePredicateNode, isOptionalDeclaration, getModifiers, isJSDocTypeAssertion, getJSDocThisTag, FunctionTypeNode, createSyntacticTypeNodeBuilder, getJSDocHost, createPrinterWithRemoveCommentsOmitTrailingSemicolon, getTrailingSemicolonDeferringWriter, getThisContainer, JSDocTypeExpression, getEmitFlags, isJSDocTypeExpression, isModifier, visitNode, ConditionalTypeNode, isConditionalTypeNode, skipTypeParentheses, isThisTypeNode, isThisIdentifier, isJSDocAllType, isJSDocUnknownType, isJSDocVariadicType, isJSDocOptionalType, isExpressionWithTypeArguments, isJSDocIndexSignature, isJSDocFunctionType, hasDynamicName, HasIllegalModifiers, modifierToFlag, getJSDocTags, NamedDeclaration, MethodSignature, HasChildren, isInTypeQuery, getEnclosingLocalsContainer, BreakOrContinueStatement, isFunctionLikeOrClassStaticBlockDeclaration, LabeledStatement, JSDocFunctionType, JSDocTypeTag, CaseOrDefaultClause, IndexKind, getInvokedExpression, skipTypeChecking, getParameterSymbolFromJSDoc, isJSDocPropertyTag, TypePredicateNode, TypePredicateKind, createFlowNode, JSDocComment, isArray, isJSDocLinkLike, getJSDocTypeTag, JSDocReturnTag, InstantiableType, isDottedName, BinaryOperator, isLiteralLike, LiteralLikeNode, isJSDocNode, BindableStaticNameExpression, getEffectiveJSDocHost, isLeftHandSideExpression, TupleTypeReference, parseNodeFactory, NamedTupleMember, TupleType, isNewExpression, MappingEntryExpression, BindingElementGrandparent, hasJSDocNodes, thisObjectPragmaToStringLiteral, isSpreadElement, isFunctionDeclaration, createGetCanonicalFileName, getLibRootedFileName, isCommaExpression, RangeExpression, isInlineClosureExpression, isArrayTypeNode, LanguageVariant, VarianceFlags, firstOrUndefinedIterator, arrayOf, TypeVariable, StringMappingType, cartesianProduct, equateValues, replaceElement, JSDocTemplateTag, getTypeParameterFromJsDoc, getEffectiveTypeParameterDeclarations, DeclarationWithTypeParameterChildren, rangeOfNode, isJSDocTemplateTag, tryAddToSet, rangeOfTypeParameters, TypeAliasDeclaration, JSDocTypedefTag, JSDoc, getEffectiveContainerForJSDocTemplateTag, DynamicNamedDeclaration, ConditionalType, ConditionalRoot, TupleTypeNode, isJSDocPropertyLikeTag, JSDocPropertyLikeTag, getJSDocClassTag, InferTypeNode, JSDocThisTag, isValueSignatureDeclaration, getJSDocType, hasJSDocParameterTags, isJSDocThisTag, isSuperCall, getJSDocOverloadTags, DeclarationWithTypeParameters, getStrictOptionValue, isJSDocSatisfiesExpression, getJSDocSatisfiesExpressionType, walkUpParenthesizedExpressions, InterfaceDeclaration, walkUpParenthesizedTypesAndGetParentAndChild, isJSDocNameReference, isJSDocMemberName, isExportAssignment, isTypeReferenceType, isInterfaceDeclaration, isTypeAliasDeclaration, JSDocTypeReferencingNode, scanTokenAtPosition, isJSDocOptionalParameter, SuperAccessExpression, JSDocOptionalType, isSuperAccessExpression, JSDocVariableTag, tryGetJSDocSatisfiesTypeNode, IncludeDirective, isJSDocVariableTag, isIncludeDirective, getSourceFileOrIncludeOfNode, isInIncludeContext, getIncludeDirectiveFilename, isDefineDirective, DefineDirective, SourceFileBase, isThisObjectExpression, isObjectLiteralOrClassExpressionMethodOrAccessor, CatchStatement, IntersectionTypeNode, CatchExpression, TimeExpression, NamedObjectTypeNode, isByRefParameterDeclaration, ByRefElement, getDeprecatedModifierOrJSDocTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, isStructDeclaration, isStructTypeNode, isPropertyAccessEntityNameExpression, createPropertyNameNodeForIdentifierOrLiteral, getTextOfJSDocComment, setSyntheticLeadingComments, trimQuotes, JSDocVariadicType, isJSDocCallbackTag, isNewClassExpression, EvaluateExpression, isCatchStatement, LambdaIdentifierExpression, LambdaOperatorExpression } from "./_namespaces/lpc";
+import { ACatchExpression, AwaitExpression, PromiseTypeNode, isPromiseTypeNode, setCommentRange as setCommentRangeWorker, isStatic, visitEachChild as visitEachChildWorker, setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, InternalNodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, isArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, TemplateExpression, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType, arrayIsEqualTo, isObjectLiteralMethod, isNonNullAccess, FlowSwitchClauseData, LiteralExpression, CaseClause, DefaultClause, findIndex, orderedRemoveItemAt, UnionTypeNode, ParenthesizedTypeNode, concatenateDiagnosticMessageChains, isDeclaration, InterfaceTypeWithDeclaredMembers, rangeEquals, InferenceFlags, minAndMax, last, IntersectionFlags, IntersectionType, flatten, createDiagnosticMessageChainFromDiagnostic, setTextRangePosEnd, createDiagnosticForNodeArrayFromMessageChain, createDiagnosticForNodeArray, isConstructorDeclaration, TypeComparer, InferencePriority, pathIsRelative, moduleSpecifiers, EmitResolver, isRestParameter, SpreadElement, ElementFlags, ModuleKind, ResolutionMode, ModuleResolutionKind, getResolutionDiagnostic, hasExtension, removeExtension, CloneObjectExpression, isCloneObjectExpression, PropertyAccessChain, OptionalChain, ExportDeclaration, getTextOfNode, InheritDeclaration, isCallLikeOrFunctionLikeExpression, isFunctionExpressionOrArrowFunction, CharacterCodes, Visitor, visitNodes, isGlobalSourceFile, isExternalModule, introducesArgumentsExoticObject, getCombinedLocalAndExportSymbolFlags, StructTypeNode, StructDeclaration, ClassLikeDeclaration, getEffectiveBaseTypeNode, ComputedPropertyName, TypeReferenceType, NodeWithTypeArguments, ClassDeclaration, ClassExpression, TypeLiteralNode, JSDocTypeLiteral, isJSDocTypeLiteral, isInJSDoc, isTypeDeclaration, JSDocTypeAssertion, AssertionExpression, isParenthesizedExpression, getJSDocTypeAssertionType, AccessFlags, NewStructExpression, isJSDocTypeAlias, isAssertionExpression, TypeAssertion, DeclarationName, isKnownSymbol, createEvaluator, EntityNameExpression, evaluatorResult, isStringLiteralLike, SyntheticExpression, ArrayBindingPattern, isTypeUsableAsPropertyName, isPropertyName, tryGetPropertyAccessOrIdentifierToString, IndexedAccessType, MappingLiteralExpression, isOmittedExpression, UnionOrIntersectionTypeNode, PropertySignature, isPropertySignature, LateBoundName, isClassExpression, LateBoundDeclaration, LateBoundBinaryExpressionDeclaration, ElementAccessChain, MappedSymbol, VariableLikeDeclaration, isComputedNonLiteralName, getElementOrPropertyAccessName, findLastIndex, hasAccessorModifier, emptyMap, BytesLiteral, BytesLiteralType, WhileStatement, hasType, getEnclosingContainer, isPropertyNameLiteral, getTextOfIdentifierOrLiteral, JSDocOverloadTag, JSDocCallbackTag, TypePredicate, isIdentifierTypePredicate, IdentifierTypePredicate, HasInitializer, resolvingEmptyArray, getClassLikeDeclarationOfSymbol, ExpressionWithTypeArguments, isNumericLiteral, isInfinityOrNaNString, getEffectiveConstraintOfTypeParameter, isTypeReferenceNode, JSDocParameterTag, canHaveModifiers, modifiersToFlags, JSDocPropertyTag, hasInferredType, isTypePredicateNode, isOptionalDeclaration, getModifiers, isJSDocTypeAssertion, getJSDocThisTag, FunctionTypeNode, createSyntacticTypeNodeBuilder, getJSDocHost, createPrinterWithRemoveCommentsOmitTrailingSemicolon, getTrailingSemicolonDeferringWriter, getThisContainer, JSDocTypeExpression, getEmitFlags, isJSDocTypeExpression, isModifier, visitNode, ConditionalTypeNode, isConditionalTypeNode, skipTypeParentheses, isThisTypeNode, isThisIdentifier, isJSDocAllType, isJSDocUnknownType, isJSDocVariadicType, isJSDocOptionalType, isExpressionWithTypeArguments, isJSDocIndexSignature, isJSDocFunctionType, hasDynamicName, HasIllegalModifiers, modifierToFlag, getJSDocTags, NamedDeclaration, MethodSignature, HasChildren, isInTypeQuery, getEnclosingLocalsContainer, BreakOrContinueStatement, isFunctionLikeOrClassStaticBlockDeclaration, LabeledStatement, JSDocFunctionType, JSDocTypeTag, CaseOrDefaultClause, IndexKind, getInvokedExpression, skipTypeChecking, getParameterSymbolFromJSDoc, isJSDocPropertyTag, TypePredicateNode, TypePredicateKind, createFlowNode, JSDocComment, isArray, isJSDocLinkLike, getJSDocTypeTag, JSDocReturnTag, InstantiableType, isDottedName, BinaryOperator, isLiteralLike, LiteralLikeNode, isJSDocNode, BindableStaticNameExpression, getEffectiveJSDocHost, isLeftHandSideExpression, TupleTypeReference, parseNodeFactory, NamedTupleMember, TupleType, isNewExpression, MappingEntryExpression, BindingElementGrandparent, hasJSDocNodes, thisObjectPragmaToStringLiteral, isSpreadElement, isFunctionDeclaration, createGetCanonicalFileName, getLibRootedFileName, isCommaExpression, RangeExpression, isInlineClosureExpression, isArrayTypeNode, LanguageVariant, VarianceFlags, firstOrUndefinedIterator, arrayOf, TypeVariable, StringMappingType, cartesianProduct, equateValues, replaceElement, JSDocTemplateTag, getTypeParameterFromJsDoc, getEffectiveTypeParameterDeclarations, DeclarationWithTypeParameterChildren, rangeOfNode, isJSDocTemplateTag, tryAddToSet, rangeOfTypeParameters, TypeAliasDeclaration, JSDocTypedefTag, JSDoc, getEffectiveContainerForJSDocTemplateTag, DynamicNamedDeclaration, ConditionalType, ConditionalRoot, TupleTypeNode, isJSDocPropertyLikeTag, JSDocPropertyLikeTag, getJSDocClassTag, InferTypeNode, JSDocThisTag, isValueSignatureDeclaration, getJSDocType, hasJSDocParameterTags, isJSDocThisTag, isSuperCall, getJSDocOverloadTags, DeclarationWithTypeParameters, getStrictOptionValue, isJSDocSatisfiesExpression, getJSDocSatisfiesExpressionType, walkUpParenthesizedExpressions, InterfaceDeclaration, walkUpParenthesizedTypesAndGetParentAndChild, isJSDocNameReference, isJSDocMemberName, isExportAssignment, isTypeReferenceType, isInterfaceDeclaration, isTypeAliasDeclaration, JSDocTypeReferencingNode, scanTokenAtPosition, isJSDocOptionalParameter, SuperAccessExpression, JSDocOptionalType, isSuperAccessExpression, JSDocVariableTag, tryGetJSDocSatisfiesTypeNode, IncludeDirective, isJSDocVariableTag, isIncludeDirective, getSourceFileOrIncludeOfNode, isInIncludeContext, getIncludeDirectiveFilename, isDefineDirective, DefineDirective, SourceFileBase, isThisObjectExpression, isObjectLiteralOrClassExpressionMethodOrAccessor, CatchStatement, IntersectionTypeNode, CatchExpression, TimeExpression, NamedObjectTypeNode, isByRefParameterDeclaration, ByRefElement, getDeprecatedModifierOrJSDocTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, isStructDeclaration, isStructTypeNode, isPropertyAccessEntityNameExpression, createPropertyNameNodeForIdentifierOrLiteral, getTextOfJSDocComment, setSyntheticLeadingComments, trimQuotes, JSDocVariadicType, isJSDocCallbackTag, isNewClassExpression, EvaluateExpression, isCatchStatement, LambdaIdentifierExpression, LambdaOperatorExpression } from "./_namespaces/lpc";
 
 let nextSymbolId = 1;
 let nextNodeId = 1;
@@ -618,6 +618,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var globalFunctionType: ObjectType;
     var globalArrayType: GenericType;
     var globalMappingType: GenericType;    
+    /** FluffOS `promise<T>` (issue #1319); undefined under LDMud, which has no promises */
+    var globalPromiseType: GenericType | undefined;
     var globalReadonlyArrayType: GenericType;    
     var globalCallableFunctionType: ObjectType;
     var globalNewableFunctionType: ObjectType;
@@ -733,6 +735,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // Initialize special types                        
         globalArrayType = getGlobalType("__LS__Array" as string, /*arity*/ 0, /*reportErrors*/ true) as GenericType;        
         globalMappingType = getGlobalType("__LS__Mapping", 0, true) as GenericType;
+        // `promise` is a FluffOS type only, and the scanner demotes the keyword to an
+        // identifier under LDMud, so the backing global is declared only in the FluffOS efun
+        // headers and never looked up for the other driver.
+        globalPromiseType = languageVariant === LanguageVariant.FluffOS
+            ? getGlobalType("__LS__Promise", 0, /*reportErrors*/ true) as GenericType
+            : undefined;
         globalObjectType = getGlobalType("__LS__Object", 0, true) as GenericType;
         globalFunctionType = getGlobalType("__LS__Function" as string, /*arity*/ 0, /*reportErrors*/ true);
         globalCallableFunctionType = strictBindCallApply && getGlobalType("__LS__CallableFunction" as string, /*arity*/ 0, /*reportErrors*/ true) || globalFunctionType;
@@ -830,6 +838,45 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function createArrayType(elementType: Type, readonly?: boolean): ObjectType {        
         return createTypeFromGenericGlobalType(readonly ? globalReadonlyArrayType : globalArrayType, [elementType]);
+    }
+
+    /** `promise<payload>`; bare `promise` is `promise<mixed>`. */
+    function createPromiseType(payloadType: Type): Type {
+        return globalPromiseType ? createTypeFromGenericGlobalType(globalPromiseType, [payloadType]) : anyType;
+    }
+
+    /**
+     * Whether a value of this type might be a promise at runtime. `mixed` and friends might,
+     * so they are never reported; a union counts if any constituent does.
+     */
+    function typeCouldBeAPromise(type: Type): boolean {
+        if (type.flags & (TypeFlags.Any | TypeFlags.Unknown | TypeFlags.Never)) return true;
+        if (type.flags & TypeFlags.Union) return some((type as UnionType).types, typeCouldBeAPromise);
+        return isPromiseType(type);
+    }
+
+    function isPromiseType(type: Type): boolean {
+        return !!globalPromiseType && !!(getObjectFlags(type) & ObjectFlags.Reference) &&
+            (type as TypeReference).target === globalPromiseType;
+    }
+
+    /**
+     * The type `await expr` produces. A non-promise passes through unchanged -- awaiting a
+     * plain value is a no-op -- and so does an *array* of promises, which is not itself a
+     * promise. Mirrors the driver's promise_payload_type().
+     */
+    function getPromisePayloadType(type: Type): Type {
+        return isPromiseType(type) ? getTypeArguments(type as TypeReference)[0] ?? anyType : type;
+    }
+
+    /**
+     * The type a call to an `async` function produces: its declared return type wrapped in a
+     * promise. A declared return type that is already a promise is returned as-is -- the
+     * runtime adopts (flattens) a promise resolved with a promise, so an async function
+     * yields exactly one. Mirrors the driver's promise_of_type().
+     */
+    function getPromiseOfType(type: Type): Type {
+        return isPromiseType(type) ? type : createPromiseType(type);
     }
 
     function createMappingType(keyType: Type, elementType: Type, readonly?: boolean): ObjectType {
@@ -3171,7 +3218,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.TypeLiteral:                
                 return checkTypeLiteral(node as TypeLiteralNode);
             case SyntaxKind.ArrayType:
-                return checkArrayType(node as ArrayTypeNode);            
+                return checkArrayType(node as ArrayTypeNode);
+            case SyntaxKind.PromiseType:
+                return checkPromiseType(node as PromiseTypeNode);
             case SyntaxKind.UnionType:            
             case SyntaxKind.IntersectionType:
                 return checkUnionOrIntersectionType(node as UnionOrIntersectionTypeNode);
@@ -3728,6 +3777,23 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         getTypeFromTypeNode(node);
     }
     
+    /**
+     * `promise<T>` payload restrictions, mirroring rule_atomic_type_promise_of(): a promise
+     * value is never itself a promise (resolving one with a promise adopts it), and there is
+     * no such thing as a promise of nothing.
+     */
+    function checkPromiseType(node: PromiseTypeNode) {
+        if (node.typeArgument) {
+            checkSourceElement(node.typeArgument);
+            if (isPromiseTypeNode(node.typeArgument)) {
+                error(node.typeArgument, Diagnostics.A_promise_payload_type_may_not_itself_be_a_promise);
+            }
+            else if (node.typeArgument.kind === SyntaxKind.VoidKeyword) {
+                error(node.typeArgument, Diagnostics.Illegal_to_declare_a_promise_of_type_void);
+            }
+        }
+    }
+
     function checkArrayType(node: ArrayTypeNode) {
         checkSourceElement(node.elementType);
     }
@@ -5387,6 +5453,26 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return false;
     }
 
+    function getTypeFromPromiseTypeNode(node: PromiseTypeNode): Type {
+        // Bare `promise` is `promise<mixed>`: it accepts any payload, which is what
+        // promise_create() and the promise-form efuns return.
+        if (!node.typeArgument) {
+            return createPromiseType(anyType);
+        }
+        const payloadType = getTypeFromTypeNode(node.typeArgument);
+        // `promise<void>` is not a spellable type -- checkPromiseType reports it, mirroring
+        // the driver's rule_atomic_type_promise_of(), which errors and then coerces the
+        // payload away. Yield errorType rather than a usable `promise<void>` so that one
+        // real error is not trailed by complaints from every later check that would see a
+        // declared type which merely isn't void -- notably "A function whose declared type
+        // is not 'void' must return a value", which is the more prominent of the two and
+        // says nothing about the actual mistake.
+        if (payloadType.flags & TypeFlags.Void) {
+            return errorType;
+        }
+        return createPromiseType(payloadType);
+    }
+
     function getTypeFromTypeNodeWorker(node: TypeNode): Type {
         Debug.assertIsDefined(node);
         switch (node.kind) {
@@ -5408,6 +5494,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.BytesKeyword:
             case SyntaxKind.BufferKeyword:
                 return bytesType;
+            case SyntaxKind.PromiseType:
+                return getTypeFromPromiseTypeNode(node as PromiseTypeNode);
             // case SyntaxKind.BooleanKeyword:
             //     return booleanType;            
             case SyntaxKind.VoidKeyword:
@@ -5787,9 +5875,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return type;
     }
 
-    function unwrapReturnType(returnType: Type, functionFlags: FunctionFlags) {        
-        const isAsync = !!(functionFlags & FunctionFlags.Async);        
-        return isAsync ? getAwaitedTypeNoAlias(returnType) || errorType : returnType;
+    function unwrapReturnType(returnType: Type, functionFlags: FunctionFlags) {
+        // Nothing to unwrap in LPC: an `async` function's annotation is already the
+        // unwrapped type. The promise is manufactured at the call site (see
+        // checkCallExpression), so `return` statements check against the type as written.
+        return returnType;
     }
 
     function getAwaitedTypeNoAlias(type: Type, errorNode?: Node, diagnosticMessage?: DiagnosticMessage, ...args: DiagnosticArguments): Type | undefined {
@@ -12429,6 +12519,19 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     lastStatic = modifier;
                     break;
 
+                case SyntaxKind.AsyncKeyword:
+                    // FluffOS `async` (issue #1319): a function modifier only. The driver
+                    // rejects it on variables and in global modifier lists.
+                    if (flags & ModifierFlags.Async) {
+                        return grammarErrorOnNode(modifier, Diagnostics._0_modifier_already_seen, "async");
+                    }
+                    if (node.kind !== SyntaxKind.FunctionDeclaration) {
+                        return grammarErrorOnNode(modifier, Diagnostics.The_async_modifier_can_only_be_applied_to_function_declarations);
+                    }
+                    flags |= ModifierFlags.Async;
+                    lastAsync = modifier;
+                    break;
+
                 // case SyntaxKind.AsyncKeyword:
                 //     if (flags & ModifierFlags.Async) {
                 //         return grammarErrorOnNode(modifier, Diagnostics._0_modifier_already_seen, "async");
@@ -14912,6 +15015,128 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return getUnionType([falseType, stringType]);
     }
 
+    /**
+     * FluffOS `await`/`acatch` are only legal where the VM can actually park the frame:
+     * directly in an `async` function's own body -- not in a functional or anonymous
+     * function (those run in their own frames), and not under `catch`/`time_expression`,
+     * whose C++ recursion cannot be suspended. Mirrors rule_expr_await()/rule_acatch().
+     */
+    function checkAsyncSuspensionContext(node: ACatchExpression | AwaitExpression) {
+        const isAwait = node.kind === SyntaxKind.AwaitExpression;
+        const container = getContainingFunction(node);
+
+        if (!container || !isFunctionDeclaration(container) || !(getFunctionFlags(container) & FunctionFlags.Async)) {
+            error(
+                node,
+                isAwait
+                    ? Diagnostics.await_is_only_allowed_directly_inside_an_async_function_body
+                    : Diagnostics.acatch_is_only_allowed_directly_inside_an_async_function_body,
+            );
+            return;
+        }
+
+        // Walk to the containing function looking for a protected region we cannot suspend
+        // out of. `acatch` regions are fine -- being suspendable is the whole point of them.
+        const blocker = findAncestor(node.parent, n => {
+            if (n === container) return "quit";
+            switch (n.kind) {
+                case SyntaxKind.CatchExpression:
+                case SyntaxKind.CatchStatement:
+                case SyntaxKind.TimeExpression:
+                    return true;
+            }
+            return false;
+        });
+
+        if (blocker) {
+            error(
+                node,
+                isAwait
+                    ? Diagnostics.await_is_not_allowed_inside_catch_or_time_expression_use_acatch
+                    : Diagnostics.acatch_is_not_allowed_inside_catch_or_time_expression,
+            );
+        }
+    }
+
+    /**
+     * Two of the promise combinators have nothing useful to do with an empty array,
+     * and both say so at a point where the source still shows one.
+     *
+     * `promise_race(({ }))` is a driver error rather than a promise that never
+     * settles: an awaiting frame parked forever holds its object, its program and a
+     * `max suspended async functions` slot for the life of the driver, so the mistake
+     * is refused where it is made. `promise_any(({ }))` is legal but futile -- it can
+     * only ever reject -- so it is a warning, not an error.
+     *
+     * promise_all() and promise_all_settled() both define an empty array (each
+     * fulfills immediately with one) and are deliberately left alone.
+     *
+     * Only the literal spelling is visible here; an empty array arriving through a
+     * variable stays a runtime matter, which is why the driver checks it too.
+     */
+    function checkPromiseCombinatorArgument(node: CallExpression, signature: Signature) {
+        if (languageVariant !== LanguageVariant.FluffOS) return;
+
+        const arg = length(node.arguments) === 1 ? node.arguments![0] : undefined;
+        if (!arg || !isArrayLiteralExpression(arg) || arg.elements.length > 0) return;
+
+        // Resolve through the signature rather than the callee's spelling, so a mudlib
+        // function that happens to be named promise_race is left alone.
+        const decl = signature.declaration;
+        if (!decl || !getSourceFileOfNode(decl).isDefaultLib) return;
+
+        const name = getNameOfDeclaration(decl);
+        if (!name || !isIdentifier(name)) return;
+
+        switch (name.text) {
+            case "promise_race":
+                error(arg, Diagnostics.promise_race_requires_at_least_one_promise_an_empty_array_is_a_driver_error);
+                break;
+            case "promise_any":
+                error(arg, Diagnostics.promise_any_of_an_empty_array_always_rejects_there_is_nothing_that_could_ever_fulfill_it);
+                break;
+        }
+    }
+
+    function checkACatchExpression(node: ACatchExpression, checkMode?: CheckMode): Type {
+        checkAsyncSuspensionContext(node);
+
+        if (node.block && node.expression) {
+            error(node, Diagnostics.Catch_expression_cannot_also_have_a_block);
+        }
+
+        if (node.block) {
+            checkBlock(node.block);
+        } else if (node.expression) {
+            checkExpression(node.expression, checkMode);
+        }
+
+        // Same value convention as catch: 0 on success, the error value on failure.
+        return getUnionType([falseType, stringType]);
+    }
+
+    function checkAwaitExpression(node: AwaitExpression, checkMode?: CheckMode): Type {
+        checkAsyncSuspensionContext(node);
+        const operandType = checkExpression(node.expression, checkMode);
+
+        // Awaiting a non-promise is legal -- the driver passes the value straight through --
+        // but it is almost always a mistake: `await call_out("fn", 10)` awaits the int handle
+        // the classic form returns and suspends nothing. Only complain when the operand can
+        // never be a promise; `mixed` may well hold one at runtime.
+        if (!typeCouldBeAPromise(operandType)) {
+            error(
+                node,
+                Diagnostics.await_has_no_effect_here_0_is_not_a_promise_so_the_value_passes_through_unchanged,
+                // widened so an `await 42` reads "'int' is not a promise", not "'42'"
+                typeToString(getWidenedLiteralType(operandType)),
+            );
+        }
+
+        // `await p` yields p's payload type; awaiting a non-promise -- including an array of
+        // promises, which is not itself one -- passes the value, and its type, straight through.
+        return getPromisePayloadType(operandType);
+    }
+
     function checkTimeExpression(node: TimeExpression, checkMode?: CheckMode): Type {
         if (node.block && node.expression) {
             error(node, Diagnostics.Time_expression_cannot_also_have_a_block);
@@ -15345,6 +15570,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return checkSuperExpression(node as SuperAccessExpression);
             case SyntaxKind.CatchExpression:
                 return checkCatchExpression(node as CatchExpression);
+            case SyntaxKind.ACatchExpression:
+                return checkACatchExpression(node as ACatchExpression, checkMode);
+            case SyntaxKind.AwaitExpression:
+                return checkAwaitExpression(node as AwaitExpression, checkMode);
             case SyntaxKind.TimeExpression:
                 return checkTimeExpression(node as TimeExpression, checkMode);
             case SyntaxKind.PropertyAssignment:
@@ -15752,6 +15981,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return voidType;
             }
             
+            checkPromiseCombinatorArgument(node, signature);
+
             const fnName = getNameOfDeclaration(node.expression);                        
             const nameStr = fnName && isIdentifier(fnName) ? fnName.text : undefined;
             if (nameStr === "this_object") {
@@ -15814,7 +16045,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
         }
 
-        const returnType = getReturnTypeOfSignature(signature);
+        // Calling an `async` function yields a promise, not the declared return type -- the
+        // declared type is what `return` statements inside the body are checked against
+        // (FluffOS rule_function_call_name/rule_function_call_defined_name, issue #1319).
+        const returnType = getFunctionFlags(tryCast(signature.declaration, isFunctionLike)) & FunctionFlags.Async
+            ? getPromiseOfType(getReturnTypeOfSignature(signature))
+            : getReturnTypeOfSignature(signature);
         // Treat any call to the global 'Symbol' function that is part of a const variable or readonly property
         // as a fresh unique symbol literal type.
         // if (returnType.flags & TypeFlags.ESSymbolLike && isSymbolOrSymbolForCall(node)) {
@@ -20432,6 +20668,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (type.flags & TypeFlags.Float) {
                 context.approximateLength += 5;
                 return factory.createKeywordTypeNode(SyntaxKind.FloatKeyword);
+            }
+            if (isPromiseType(type)) {
+                const payload = getTypeArguments(type as TypeReference)[0];
+                context.approximateLength += 7;
+                // Always spell out the payload, including `promise<mixed>`. Rendering starts
+                // from the type, which cannot know whether the source said `promise` or
+                // `promise<mixed>` -- they are the same type -- so collapsing one of them
+                // would only make `promise<int>` and `promise<mixed>` look inconsistent.
+                return factory.createPromiseTypeNode(typeToTypeNodeHelper(payload ?? anyType, context));
             }
             if (type.flags & TypeFlags.Object && (type === globalClosureType || type.symbol?.name === "__LS__Closure")) {
                 context.approximateLength += 8;
@@ -27647,6 +27892,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 relation === comparableRelation && !(target.flags & TypeFlags.Never) && isSimpleTypeRelatedTo(target, source, relation) ||
                 isSimpleTypeRelatedTo(source, target, relation, reportErrors ? reportError : undefined)
             ) return Ternary.True;
+
+            // FluffOS `promise` is nominal -- compatible[TYPE_PROMISE] admits only `promise`
+            // and `mixed`. Its brand keeps it apart from the other fake globals, but not from
+            // the bare intrinsic object types (`object`/`lwobject`/`closure`), which carry no
+            // members to compare. (`mixed`, `0` and the identity case are accepted above.)
+            if (isPromiseType(source) !== isPromiseType(target)) {
+                if (reportErrors) {
+                    reportErrorResults(originalSource, originalTarget, source, target, headMessage);
+                }
+                return Ternary.False;
+            }
 
             if (source.flags & TypeFlags.StructuredOrInstantiable || target.flags & TypeFlags.StructuredOrInstantiable) {
                 const isPerformingExcessPropertyChecks = !(intersectionState & IntersectionState.Target) && (isObjectLiteralType(source) && getObjectFlags(source) & ObjectFlags.FreshLiteral);

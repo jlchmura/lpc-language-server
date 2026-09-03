@@ -11,6 +11,7 @@ object __LS__Int;
 object __LS__ReadonlyArray;
 object __LS__String;
 object __LS__Closure;
+object __LS__Promise;
 
 // Driver Provided Defines 
 // These are made available to each sourcefile
@@ -73,6 +74,7 @@ object __LS__Closure;
 #include "objects.h"
 #include "parsing.h"
 #include "pcre.h"
+#include "promises.h"
 #include "sockets.h"
 #include "strings.h"
 #include "system.h"

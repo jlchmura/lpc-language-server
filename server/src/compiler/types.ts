@@ -795,6 +795,8 @@ export const enum SyntaxKind {
     SwitchKeyword,
     WhileKeyword,
     AsyncKeyword,
+    AwaitKeyword,
+    ACatchKeyword,
     InheritKeyword,
     ContinueKeyword,
 
@@ -824,6 +826,7 @@ export const enum SyntaxKind {
     ObjectKeyword,      // can occur in a super expr i.e.  object::fn()
     RefKeyword,         // fluff only
     BufferKeyword,      // fluff only
+    PromiseKeyword,     // fluff only
     IsKeyword,          // use for type predicates only
     FunctionsKeyword,   // inherit modifier
     VirtualKeyword,     // inherit modifier
@@ -857,6 +860,7 @@ export const enum SyntaxKind {
     RestType,
     ArrayType,    
     MappingType,
+    PromiseType,
     TupleType,    
     TypeLiteral,
     TypeQuery,
@@ -992,6 +996,8 @@ export const enum SyntaxKind {
     // Expressions
     ConditionalExpression,
     CatchExpression,
+    ACatchExpression,
+    AwaitExpression,
     TimeExpression,
     BinaryExpression,
     FunctionExpression,
@@ -1296,10 +1302,12 @@ export const enum ModifierFlags {
     // Syntactic/JSDoc modifiers
     Public =             1 << 0,  // Property/Method
     Private =            1 << 1,  // Property/Method
-    Protected =          1 << 2,  // Property/Method    
+    Protected =          1 << 2,  // Property/Method
 
     // Syntactic-only modifiers
-    NoMask =             1 << 5,  // 
+    /** FluffOS `async` function modifier (issue #1319) -- the function returns a promise */
+    Async =              1 << 3,
+    NoMask =             1 << 5,  //
     NoShadow =           1 << 6,  // 
     NoSave =             1 << 7,  // 
     Static =             1 << 8,  // Property/Method
@@ -1322,7 +1330,7 @@ export const enum ModifierFlags {
     /** @internal */ JSDocOverride = 1 << 27,
 
     /** @internal */ SyntacticOrJSDocModifiers = Public | Private | Protected,
-    /** @internal */ SyntacticOnlyModifiers = Static | NoMask | NoSave | NoShadow | VarArgs | Visible,
+    /** @internal */ SyntacticOnlyModifiers = Static | NoMask | NoSave | NoShadow | VarArgs | Visible | Async,
     /** @internal */ SyntacticModifiers = SyntacticOrJSDocModifiers | SyntacticOnlyModifiers,
     /** @internal */ JSDocCacheOnlyModifiers = JSDocPublic | JSDocPrivate | JSDocProtected | JSDocReadonly | JSDocOverride,
     /** @internal */ JSDocOnlyModifiers = Deprecated,
@@ -1336,7 +1344,7 @@ export const enum ModifierFlags {
     ParameterPropertyModifier = AccessibilityModifier | NoMask | NoSave,
     NonPublicAccessibilityModifier = Private | Protected,
 
-    All = Public | Private | Protected | NoMask | NoShadow | NoSave | Static | VarArgs | Visible | Deprecated,    
+    All = Public | Private | Protected | NoMask | NoShadow | NoSave | Static | VarArgs | Visible | Deprecated | Async,
     Modifier = All// & ~Decorator,
 }
 
@@ -1415,7 +1423,8 @@ export type KeywordTypeSyntaxKind =
     | SyntaxKind.ClosureKeyword
     | SyntaxKind.SymbolKeyword
     | SyntaxKind.FunctionKeyword
-    | SyntaxKind.BufferKeyword    
+    | SyntaxKind.BufferKeyword
+    | SyntaxKind.PromiseKeyword
     | SyntaxKind.MixedKeyword
     | SyntaxKind.ObjectKeyword
     | SyntaxKind.StringKeyword       
@@ -1445,6 +1454,7 @@ export type TypeNodeSyntaxKind =
     | SyntaxKind.StructType
     | SyntaxKind.ArrayType
     | SyntaxKind.MappingType
+    | SyntaxKind.PromiseType
     | SyntaxKind.LiteralType
     | SyntaxKind.ThisType
     | SyntaxKind.TypePredicate
@@ -1635,6 +1645,9 @@ export interface NodeFactory {
     // Expressions
     createExpressionWithTypeArguments(expression: Expression, typeArguments: readonly TypeNode[] | undefined): ExpressionWithTypeArguments;
     createCatchExpression(expression: Expression, modifier?: Identifier, modifierExpression?: Expression, block?: Block): CatchExpression;
+    createPromiseTypeNode(typeArgument?: TypeNode): PromiseTypeNode;
+    createACatchExpression(expression: Expression | undefined, block?: Block): ACatchExpression;
+    createAwaitExpression(expression: UnaryExpression): AwaitExpression;
     createTimeExpression(expression: Expression | undefined, block?: Block): TimeExpression;
     createEvaluateExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): EvaluateExpression;
     createNewExpression(expression: Expression|TypeNode|undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly NewExpressionArgument[] | undefined): NewExpression;
@@ -2248,6 +2261,9 @@ export type HasChildren =
     | ByRefElement
     | EvaluateExpression
     | CatchExpression
+    | ACatchExpression
+    | AwaitExpression
+    | PromiseTypeNode
     | TimeExpression
     | SpreadElement
     | DefineDirective
@@ -2411,6 +2427,7 @@ export type KeywordSyntaxKind =
     | SyntaxKind.ClosureKeyword
     | SyntaxKind.SymbolKeyword
     | SyntaxKind.BufferKeyword
+    | SyntaxKind.PromiseKeyword
     | SyntaxKind.ClassKeyword   
     | SyntaxKind.CaseKeyword
     | SyntaxKind.ClosureKeyword
@@ -2434,6 +2451,8 @@ export type KeywordSyntaxKind =
     | SyntaxKind.SwitchKeyword
     | SyntaxKind.WhileKeyword
     | SyntaxKind.AsyncKeyword
+    | SyntaxKind.AwaitKeyword
+    | SyntaxKind.ACatchKeyword
     | SyntaxKind.IntrinsicKeyword
     | SyntaxKind.PrivateKeyword
     | SyntaxKind.ProtectedKeyword
@@ -2456,6 +2475,7 @@ export type KeywordSyntaxKind =
     ;
 
 export type ModifierSyntaxKind =
+    | SyntaxKind.AsyncKeyword
     | SyntaxKind.PrivateKeyword
     | SyntaxKind.ProtectedKeyword
     | SyntaxKind.PublicKeyword
@@ -2483,11 +2503,13 @@ export type StaticKeyword = ModifierToken<SyntaxKind.StaticKeyword>;
 export type VisibleKeyword = ModifierToken<SyntaxKind.VisibleKeyword>;
 export type NoSaveKeyword = ModifierToken<SyntaxKind.NoSaveKeyword>;
 export type NoShadowKeyword = ModifierToken<SyntaxKind.NoShadowKeyword>;
+export type AsyncKeyword = ModifierToken<SyntaxKind.AsyncKeyword>;
 export type NoMaskKeyword = ModifierToken<SyntaxKind.NoMaskKeyword>;
 export type VarArgsKeyword = ModifierToken<SyntaxKind.VarArgsKeyword>;
 export type DeprecatedKeyword = ModifierToken<SyntaxKind.DeprecatedKeyword>;
 
 export type Modifier =
+    | AsyncKeyword
     | PrivateKeyword
     | ProtectedKeyword
     | PublicKeyword
@@ -3699,6 +3721,34 @@ export interface CatchExpression extends PrimaryExpression {
     readonly modifier?: Identifier;
     readonly modifierExpression?: Expression;
     readonly block?: Block;
+}
+
+/**
+ * `acatch(expr)` or `acatch { stmts }` -- FluffOS's async-aware `catch` (issue #1319).
+ *
+ * Same value convention as `catch` (0 on success, the error value on failure), but it is
+ * compiled to a control-stack marker rather than a nested C++ interpreter call, so an
+ * `await` inside the protected region may suspend. It is only legal directly inside an
+ * `async` function body, and -- unlike LDMud's `catch` -- it has no `; modifier` clause.
+ */
+export interface ACatchExpression extends PrimaryExpression {
+    readonly kind: SyntaxKind.ACatchExpression;
+    readonly expression?: Expression;
+    readonly block?: Block;
+}
+
+/**
+ * `await expr` -- FluffOS's suspension point (issue #1319).
+ *
+ * A unary prefix expression at `!` precedence (`await a + b` is `(await a) + b`). A non-promise
+ * operand passes through unchanged -- awaiting a plain value is not a scheduling point. A
+ * promise always suspends the enclosing `async` function, even an already-settled one; it
+ * resumes from the microtask drain with the value, or with the rejection raised at the await
+ * point. The result carries no static type either way, so this is always `mixed`.
+ */
+export interface AwaitExpression extends UnaryExpression {
+    readonly kind: SyntaxKind.AwaitExpression;
+    readonly expression: UnaryExpression;
 }
 
 /**
@@ -7949,6 +7999,20 @@ export interface ConditionalType extends InstantiableType {
     mapper?: TypeMapper;
     /** @internal */
     combinedMapper?: TypeMapper;
+}
+
+/**
+ * `promise` or `promise<T>` -- FluffOS only (issue #1319).
+ *
+ * The payload type is a declaration, not a measurement: the driver tags the promise with
+ * it and never re-checks at settle time. Bare `promise` means `promise<mixed>`. A promise
+ * of a promise is not representable, matching the runtime, where resolving a promise with
+ * a promise adopts it rather than nesting.
+ */
+export interface PromiseTypeNode extends TypeNode {
+    readonly kind: SyntaxKind.PromiseType;
+    /** absent for bare `promise`, which is `promise<mixed>` */
+    readonly typeArgument?: TypeNode;
 }
 
 export interface MappingTypeNode extends TypeNode {

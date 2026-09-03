@@ -1,5 +1,8 @@
 import {
+    ACatchExpression,
+    PromiseTypeNode,
     AmpersandToken,
+    AwaitExpression,
     ArrayLiteralExpression,
     ArrayTypeNode,
     BaseNodeFactory,
@@ -379,6 +382,9 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
 
         // Expressions
         createCatchExpression,
+        createPromiseTypeNode,
+        createACatchExpression,
+        createAwaitExpression,
         createTimeExpression,
         createEvaluateExpression,
         createNewExpression,
@@ -879,6 +885,36 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.modifier = modifier;
         node.modifierExpression = modifierExpression;
         node.block = block;
+        return node;
+    }
+
+    // @api
+    function createPromiseTypeNode(typeArgument?: TypeNode): PromiseTypeNode {
+        const node = createBaseNode<PromiseTypeNode>(SyntaxKind.PromiseType);
+        node.typeArgument = typeArgument;
+        node.transformFlags = TransformFlags.None;
+        return node;
+    }
+
+    // @api
+    function createACatchExpression(expression: Expression | undefined, block?: Block): ACatchExpression {
+        const node = createBaseNode<ACatchExpression>(SyntaxKind.ACatchExpression);
+        node.expression = expression;
+        node.block = block;
+
+        node.transformFlags |= propagateChildFlags(node.expression) |
+            propagateChildFlags(node.block);
+
+        return node;
+    }
+
+    // @api
+    function createAwaitExpression(expression: UnaryExpression): AwaitExpression {
+        const node = createBaseNode<AwaitExpression>(SyntaxKind.AwaitExpression);
+        node.expression = expression;
+
+        node.transformFlags |= propagateChildFlags(node.expression);
+
         return node;
     }
 

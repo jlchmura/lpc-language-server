@@ -1,4 +1,4 @@
-import { ArrayBindingPattern, ArrayLiteralExpression, ArrayTypeNode, ArrowFunction, BinaryExpression, BindingElement, Block, CallExpression, CallSignatureDeclaration, CaseBlock, CaseClause, CaseKeyword, CatchExpression, CatchStatement, ClassDeclaration, ClassExpression, CloneObjectExpression, ComputedPropertyName, ConditionalTypeNode, DefaultClause, DefineDirective, ElementAccessExpression, EmptyStatement, ExpressionStatement, ExpressionWithTypeArguments, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, FunctionTypeNode, Identifier, IfStatement, IncludeDirective, IndexedAccessTypeNode, InheritDeclaration, InlineClosureExpression, InterfaceDeclaration, IntersectionTypeNode, IntLiteral, JSDoc, JSDocAllType, JSDocCallbackTag, JSDocClassTag, JSDocDeprecatedTag, JSDocFunctionType, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOptionalType, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSignature, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocUnknownType, JSDocVariableTag, JSDocVariadicType, LabeledStatement, LiteralTypeNode, MethodDeclaration, NamedObjectTypeNode, NewExpression, Node, NodeFlags, ObjectLiteralExpression, OmittedExpression, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PartiallyEmittedExpression, PrefixUnaryExpression, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, PropertySignature, QualifiedName, ShorthandPropertyAssignment, SourceFile, SpreadElement, StringLiteral, TemplateExpression, TemplateSpan, TimeExpression, StructDeclaration, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, SyntaxList, ThisTypeNode, TupleTypeNode, TypeAliasDeclaration, TypeLiteralNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
+import { ACatchExpression, PromiseTypeNode, AwaitExpression, ArrayBindingPattern, ArrayLiteralExpression, ArrayTypeNode, ArrowFunction, BinaryExpression, BindingElement, Block, CallExpression, CallSignatureDeclaration, CaseBlock, CaseClause, CaseKeyword, CatchExpression, CatchStatement, ClassDeclaration, ClassExpression, CloneObjectExpression, ComputedPropertyName, ConditionalTypeNode, DefaultClause, DefineDirective, ElementAccessExpression, EmptyStatement, ExpressionStatement, ExpressionWithTypeArguments, FloatLiteral, ForStatement, FunctionDeclaration, FunctionExpression, FunctionTypeNode, Identifier, IfStatement, IncludeDirective, IndexedAccessTypeNode, InheritDeclaration, InlineClosureExpression, InterfaceDeclaration, IntersectionTypeNode, IntLiteral, JSDoc, JSDocAllType, JSDocCallbackTag, JSDocClassTag, JSDocDeprecatedTag, JSDocFunctionType, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOptionalType, JSDocOverloadTag, JSDocParameterTag, JSDocPropertyTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSignature, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypedefTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocUnknownType, JSDocVariableTag, JSDocVariadicType, LabeledStatement, LiteralTypeNode, MethodDeclaration, NamedObjectTypeNode, NewExpression, Node, NodeFlags, ObjectLiteralExpression, OmittedExpression, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PartiallyEmittedExpression, PrefixUnaryExpression, PropertyAccessExpression, PropertyAssignment, PropertyDeclaration, PropertySignature, QualifiedName, ShorthandPropertyAssignment, SourceFile, SpreadElement, StringLiteral, TemplateExpression, TemplateSpan, TimeExpression, StructDeclaration, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, SyntaxList, ThisTypeNode, TupleTypeNode, TypeAliasDeclaration, TypeLiteralNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnionTypeNode, VariableDeclaration, VariableDeclarationList, VariableStatement } from "./_namespaces/lpc";
 
 export function isBinaryExpression(node: Node): node is BinaryExpression {
     return node.kind === SyntaxKind.BinaryExpression;
@@ -507,6 +507,18 @@ export function isTimeExpression(node: Node): node is TimeExpression {
 
 export function isCatchExpression(node: Node): node is CatchExpression {
     return node.kind === SyntaxKind.CatchExpression;
+}
+
+export function isPromiseTypeNode(node: Node): node is PromiseTypeNode {
+    return node.kind === SyntaxKind.PromiseType;
+}
+
+export function isACatchExpression(node: Node): node is ACatchExpression {
+    return node.kind === SyntaxKind.ACatchExpression;
+}
+
+export function isAwaitExpression(node: Node): node is AwaitExpression {
+    return node.kind === SyntaxKind.AwaitExpression;
 }
 
 export function isJSDocCallbackTag(node: Node): node is JSDocCallbackTag {
