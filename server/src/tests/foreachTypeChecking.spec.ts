@@ -137,4 +137,29 @@ void f() {
 `);
         expect(msgs.some(m => m.includes("is not compatible with type"))).toBe(true);
     });
+
+    // Once the iterated type resolved, checkForEachStatement returned early -- past its own
+    // remaining initializer checks, which was the intent, but also past the body. So every
+    // statement inside a loop whose variable was not declared in the header went unchecked.
+    it("checks the body of a loop whose variable is not declared in the header", () => {
+        const msgs = messagesFor(`
+void f() {
+  int i;
+  int *a = ({ 1, 2 });
+  foreach(i in a) { int x = "not an int"; }
+}
+`);
+        expect(msgs.some(m => m.includes("is not assignable to type 'int'"))).toBe(true);
+    });
+
+    it("checks the body of a mapping loop whose variables are not declared in the header", () => {
+        const msgs = messagesFor(`
+void f() {
+  string key;
+  mixed value;
+  foreach(key, value in ([ "a": "b" ])) { int x = "not an int"; }
+}
+`);
+        expect(msgs.some(m => m.includes("is not assignable to type 'int'"))).toBe(true);
+    });
 });

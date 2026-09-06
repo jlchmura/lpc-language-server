@@ -4265,21 +4265,27 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 } else {
                     checkTypeAssignableToAndOptionallyElaborate(iteratedType, leftType, varExpr, node.expression);
                 }
-                return;                
             }
-            else if (!isVariableDeclaration(varExpr) && !isCommaExpression(varExpr)) {
-                // run check only former check succeeded to avoid cascading errors
-                checkReferenceExpression(
-                    varExpr,
-                    Diagnostics.The_left_hand_side_of_a_for_in_statement_must_be_a_variable_or_a_property_access,
-                    Diagnostics.The_left_hand_side_of_a_for_in_statement_may_not_be_an_optional_property_access,
-                );
-            }
-            
-            // unknownType is returned i.e. if node.expression is identifier whose name cannot be resolved
-            // in this case error about missing name is already reported - do not report extra one
-            if (rightType === neverType || !isTypeAssignableToKind(rightType, TypeFlags.NonPrimitive | TypeFlags.InstantiableNonPrimitive | TypeFlags.String)) {
-                error(node.expression, Diagnostics.The_right_hand_side_of_a_for_in_statement_must_be_of_type_any_an_object_type_or_a_type_parameter_but_here_has_type_0, typeToString(rightType));
+            else {
+                // The initializer's remaining checks, reached only when the iterated type
+                // could not be determined. This used to `return` out of the whole function
+                // once the type WAS known, which also skipped the loop body below -- so
+                // nothing inside `foreach (x in a) { ... }` was ever checked, as long as
+                // the loop variable was not declared in the header.
+                if (!isVariableDeclaration(varExpr) && !isCommaExpression(varExpr)) {
+                    // run check only former check succeeded to avoid cascading errors
+                    checkReferenceExpression(
+                        varExpr,
+                        Diagnostics.The_left_hand_side_of_a_for_in_statement_must_be_a_variable_or_a_property_access,
+                        Diagnostics.The_left_hand_side_of_a_for_in_statement_may_not_be_an_optional_property_access,
+                    );
+                }
+
+                // unknownType is returned i.e. if node.expression is identifier whose name cannot be resolved
+                // in this case error about missing name is already reported - do not report extra one
+                if (rightType === neverType || !isTypeAssignableToKind(rightType, TypeFlags.NonPrimitive | TypeFlags.InstantiableNonPrimitive | TypeFlags.String)) {
+                    error(node.expression, Diagnostics.The_right_hand_side_of_a_for_in_statement_must_be_of_type_any_an_object_type_or_a_type_parameter_but_here_has_type_0, typeToString(rightType));
+                }
             }
         }
         
