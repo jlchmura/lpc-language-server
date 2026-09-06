@@ -15146,21 +15146,30 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     /**
      * The driver parks an `await` by copying the frame and rebuilding it at a new `fp`,
      * so anything left on the value stack that cannot be relocated refuses to suspend --
-     * coroutine_await_pending()'s scan across fp..sp.
+     * coroutine_await_pending()'s scan across fp..sp. It raises at the await point and
+     * `acatch` can catch it, so left unchecked the mistake sits in whatever branch nobody
+     * exercised until it is in production.
      *
-     * A `foreach` keeps an lvalue live for its loop variable across the whole body. For a
-     * LOCAL variable that lvalue addresses a slot inside the frame, which is exactly what
-     * parking copies, so it rides along as an offset and the loop resumes normally. Two
-     * shapes are still refused, and both are visible from the syntax:
+     * A plain T_LVALUE addressing a slot INSIDE the frame is relocated across the
+     * suspension (fluffos@77cad60e), which is what an ordinary `foreach` over a local
+     * loop variable leaves behind -- that shape parks fine. What still refuses, every
+     * shape confirmed against the driver rather than inferred from its message:
      *
-     *  - a GLOBAL loop variable -- its lvalue goes through the object's variable block, a
-     *    second relocation base with its own lifetime questions against
-     *    recompile_object(), which the driver refuses rather than guesses at.
-     *  - a by-reference iterated expression, `foreach (x in ref arr)` -- a T_REF owning
-     *    heap state whose unwind is tied to the C++ frame.
+     *  - a GLOBAL loop variable: its lvalue goes through the object's variable block, a
+     *    second relocation base the driver will not guess at.
+     *  - a by-reference LOOP VARIABLE, `foreach (int ref n in a)` -- a T_REF owning heap
+     *    state tied to the C++ frame. (`foreach (v in ref a)` is not a thing: the driver
+     *    rejects `ref` there outright with "ref illegal outside function argument list".)
+     *  - a by-reference PARAMETER on the function itself. The caller pushes the T_REF and
+     *    it becomes the parameter slot, sitting in the frame for the body's whole life, so
+     *    NO await anywhere in that body can park.
+     *  - a by-reference ARGUMENT earlier in the same call. Arguments evaluate left to
+     *    right, so `sink(ref y, await p)` refuses while `sink(await p, ref y)` is fine --
+     *    the ref is not on the stack yet. Confirmed both ways.
      *
-     * The driver raises at the await point and `acatch` can catch it, so left unchecked
-     * the mistake hides in whatever branch nobody exercised before deploying.
+     * Not refused, despite reading like it should be: `s[i] = await p` and
+     * `arr[i] += await p` both park and resume cleanly -- the right-hand side is
+     * evaluated before the target is pinned, so no lvalue is live across the await.
      *
      * Only `await` is checked. `acatch` never suspends on its own -- the await inside it
      * is what parks -- so the error belongs on that await.
@@ -15169,25 +15178,57 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const container = getContainingFunction(node);
         if (!container) return;
 
-        // The first refused loop between here and the body wins; an inner `foreach` that
-        // parks fine does not stop the walk, since an outer one may still refuse.
-        findAncestor(node.parent, n => {
-            if (n === container) return "quit";
-            if (!isForEachStatement(n)) return false;
+        // A `ref` parameter poisons the whole body, so it is answered before the walk.
+        const refParam = find(container.parameters, isByRefParameterDeclaration);
+        if (refParam) {
+            const paramName = getNameOfDeclaration(refParam);
+            error(
+                node,
+                Diagnostics.await_cannot_suspend_in_a_function_with_the_by_reference_parameter_0,
+                paramName && isIdentifier(paramName) ? idText(paramName) : "?",
+            );
+            return;
+        }
 
-            if (n.expression.kind === SyntaxKind.ByRefElement) {
-                error(node, Diagnostics.await_cannot_suspend_inside_a_foreach_over_a_by_reference_expression);
-                return true;
+        // Walked by hand rather than with findAncestor: the call-argument case needs to
+        // know WHICH argument this await came from, to tell a `ref` before it from one
+        // after. The first refused construct between here and the body wins; an inner
+        // `foreach` that parks fine does not stop the walk, since an outer one may refuse.
+        let child: Node = node;
+        let parent: Node | undefined = node.parent;
+
+        while (parent && parent !== container) {
+            if (isCallExpression(parent) && parent.arguments) {
+                const index = parent.arguments.indexOf(child as Expression);
+                const earlier = index > 0 ? parent.arguments.slice(0, index) : emptyArray;
+                if (some(earlier, arg => arg.kind === SyntaxKind.ByRefElement)) {
+                    error(node, Diagnostics.await_cannot_suspend_after_a_by_reference_argument_in_the_same_call);
+                    return;
+                }
             }
 
-            const global = getGlobalForEachLoopVariable(n);
-            if (global) {
-                error(node, Diagnostics.await_cannot_suspend_inside_a_foreach_over_the_global_variable_0, idText(global));
-                return true;
+            if (isForEachStatement(parent)) {
+                if (getRefForEachLoopVariable(parent)) {
+                    error(node, Diagnostics.await_cannot_suspend_inside_a_foreach_over_a_by_reference_loop_variable);
+                    return;
+                }
+
+                const global = getGlobalForEachLoopVariable(parent);
+                if (global) {
+                    error(node, Diagnostics.await_cannot_suspend_inside_a_foreach_over_the_global_variable_0, idText(global));
+                    return;
+                }
             }
 
-            return false;
-        });
+            child = parent;
+            parent = parent.parent;
+        }
+    }
+
+    /** A `foreach (int ref n in a)` loop variable -- `ref` (or `&`) binds each element by reference. */
+    function getRefForEachLoopVariable(node: ForEachStatement): VariableDeclaration | undefined {
+        if (node.initializer.kind !== SyntaxKind.VariableDeclarationList) return undefined;
+        return find((node.initializer as VariableDeclarationList).declarations, d => !!d.refToken);
     }
 
     /**

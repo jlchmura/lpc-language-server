@@ -267,17 +267,76 @@ async int outer() {
             .toContain("'await' cannot suspend inside a 'foreach' over the global variable 'val'");
     });
 
-    it("rejects await inside a foreach over a by-reference expression", () => {
+    it("rejects await inside a foreach over a by-reference loop variable", () => {
         const source = `
 promise fetch();
 async int outer() {
     int *a = ({ 1, 2 });
-    foreach (int v in ref a) { mixed r = await fetch(); }
+    foreach (int ref n in a) { n = await fetch(); }
     return 0;
 }
 `;
         expect(messages(source))
-            .toContain("'await' cannot suspend inside a 'foreach' over a by-reference expression");
+            .toContain("'await' cannot suspend inside a 'foreach' over a by-reference loop variable");
+    });
+
+    it("rejects every await in a function that takes a by-reference parameter", () => {
+        // The caller pushes the T_REF and it becomes the parameter slot, so it sits in the
+        // frame for the body's whole life -- no await anywhere in it can park.
+        const source = `
+promise fetch();
+async int outer(int ref x) {
+    mixed r = await fetch();
+    return 0;
+}
+`;
+        expect(messages(source))
+            .toContain("'await' cannot suspend in a function with the by-reference parameter 'x'");
+    });
+
+    it("rejects await after a by-reference argument in the same call", () => {
+        const source = `
+promise fetch();
+void sink(int ref a, mixed b);
+async int outer() {
+    int y;
+    sink(ref y, await fetch());
+    return 0;
+}
+`;
+        expect(messages(source))
+            .toContain("a by-reference argument earlier in this call is already on the stack");
+    });
+
+    it("accepts await BEFORE a by-reference argument in the same call", () => {
+        // Arguments evaluate left to right, so the ref is not on the stack yet when the
+        // await parks. Confirmed against the driver, which accepts exactly this.
+        const source = `
+promise fetch();
+void sink(mixed b, int ref a);
+async int outer() {
+    int y;
+    sink(await fetch(), ref y);
+    return 0;
+}
+`;
+        expect(messages(source)).toBe("");
+    });
+
+    it("accepts an indexed assignment whose right-hand side awaits", () => {
+        // Reads like a pinned lvalue, but the driver evaluates the right-hand side before
+        // pinning the target, so both of these park and resume cleanly.
+        const source = `
+promise fetch();
+async int outer() {
+    string s = "abc";
+    int *arr = ({ 1, 2, 3 });
+    s[1] = await fetch();
+    arr[1] += await fetch();
+    return 0;
+}
+`;
+        expect(messages(source)).toBe("");
     });
 
     it("finds an outer refused foreach from inside an inner one that parks fine", () => {
