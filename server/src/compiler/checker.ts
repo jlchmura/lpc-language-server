@@ -15144,6 +15144,84 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     /**
+     * The driver parks an `await` by copying the frame and rebuilding it at a new `fp`,
+     * so anything left on the value stack that cannot be relocated refuses to suspend --
+     * coroutine_await_pending()'s scan across fp..sp.
+     *
+     * A `foreach` keeps an lvalue live for its loop variable across the whole body. For a
+     * LOCAL variable that lvalue addresses a slot inside the frame, which is exactly what
+     * parking copies, so it rides along as an offset and the loop resumes normally. Two
+     * shapes are still refused, and both are visible from the syntax:
+     *
+     *  - a GLOBAL loop variable -- its lvalue goes through the object's variable block, a
+     *    second relocation base with its own lifetime questions against
+     *    recompile_object(), which the driver refuses rather than guesses at.
+     *  - a by-reference iterated expression, `foreach (x in ref arr)` -- a T_REF owning
+     *    heap state whose unwind is tied to the C++ frame.
+     *
+     * The driver raises at the await point and `acatch` can catch it, so left unchecked
+     * the mistake hides in whatever branch nobody exercised before deploying.
+     *
+     * Only `await` is checked. `acatch` never suspends on its own -- the await inside it
+     * is what parks -- so the error belongs on that await.
+     */
+    function checkAwaitCanSuspendHere(node: AwaitExpression) {
+        const container = getContainingFunction(node);
+        if (!container) return;
+
+        // The first refused loop between here and the body wins; an inner `foreach` that
+        // parks fine does not stop the walk, since an outer one may still refuse.
+        findAncestor(node.parent, n => {
+            if (n === container) return "quit";
+            if (!isForEachStatement(n)) return false;
+
+            if (n.expression.kind === SyntaxKind.ByRefElement) {
+                error(node, Diagnostics.await_cannot_suspend_inside_a_foreach_over_a_by_reference_expression);
+                return true;
+            }
+
+            const global = getGlobalForEachLoopVariable(n);
+            if (global) {
+                error(node, Diagnostics.await_cannot_suspend_inside_a_foreach_over_the_global_variable_0, idText(global));
+                return true;
+            }
+
+            return false;
+        });
+    }
+
+    /**
+     * The loop variable of a `foreach` that lives in the object's variable block rather
+     * than the frame. A typed initializer (`foreach (int v in a)`) always declares a
+     * local, so only the bare-expression form can name a global; the mapping form names
+     * two, and either one is enough to refuse the loop.
+     */
+    function getGlobalForEachLoopVariable(node: ForEachStatement): Identifier | undefined {
+        if (node.initializer.kind === SyntaxKind.VariableDeclarationList) return undefined;
+
+        const varExpr = node.initializer as Expression;
+        const candidates = isCommaExpression(varExpr) ? [varExpr.left, varExpr.right] : [varExpr];
+
+        for (const candidate of candidates) {
+            if (isObjectScopedVariableReference(candidate)) return candidate as Identifier;
+        }
+
+        return undefined;
+    }
+
+    function isObjectScopedVariableReference(node: Expression): boolean {
+        if (!isIdentifier(node)) return false;
+
+        // An object's variables are the top-level declarations of its program -- its own
+        // file, or one it inherits. Everything else (a local, a parameter, a `foreach`'s
+        // own declaration) is a frame slot, which parking relocates.
+        const decl = getResolvedSymbol(node)?.valueDeclaration;
+        return !!decl && isVariableDeclaration(decl)
+            && isVariableStatement(decl.parent.parent)
+            && isSourceFile(decl.parent.parent.parent);
+    }
+
+    /**
      * Two of the promise combinators have nothing useful to do with an empty array,
      * and both say so at a point where the source still shows one.
      *
@@ -15215,6 +15293,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // widened so an `await 42` reads "'int' is not a promise", not "'42'"
                 typeToString(getWidenedLiteralType(operandType)),
             );
+        }
+        else {
+            // Only a real promise parks. A pass-through `await` never reaches the driver's
+            // relocation scan, so the frame-shape rules below cannot apply to it -- and the
+            // warning above has already named the actual problem.
+            checkAwaitCanSuspendHere(node);
         }
 
         // `await p` yields p's payload type; awaiting a non-promise -- including an array of

@@ -202,6 +202,110 @@ async int outer() { mixed e = acatch(await fetch()); return 0; }
         expect(messages(source)).toBe("");
     });
 
+    // The driver relocates a `foreach`'s loop-variable lvalue across a suspension when it
+    // addresses a slot inside the frame, and refuses when it does not (fluffos@77cad60e,
+    // coroutine_await_pending). Both sides of that boundary are held here.
+
+    it("accepts await inside a foreach over a local loop variable", () => {
+        const source = `
+promise fetch();
+async int outer() {
+    int *a = ({ 1, 2 });
+    foreach (int v in a) { mixed r = await fetch(); }
+    return 0;
+}
+`;
+        expect(messages(source)).toBe("");
+    });
+
+    it("accepts await inside a foreach over a local declared outside the loop", () => {
+        // Still a frame slot, so still relocatable -- only the object's variable block is
+        // a second relocation base.
+        const source = `
+promise fetch();
+async int outer() {
+    int v;
+    int *a = ({ 1, 2 });
+    foreach (v in a) { mixed r = await fetch(); }
+    return 0;
+}
+`;
+        expect(messages(source)).toBe("");
+    });
+
+    it("rejects await inside a foreach over a global loop variable", () => {
+        const source = `
+promise fetch();
+nosave int cursor;
+async int outer() {
+    foreach (cursor in ({ 1, 2 })) { mixed r = await fetch(); }
+    return 0;
+}
+`;
+        expect(messages(source))
+            .toContain("'await' cannot suspend inside a 'foreach' over the global variable 'cursor'");
+    });
+
+    it("rejects await inside a foreach whose mapping value is a global", () => {
+        // Either name of the two-variable mapping form is enough to refuse the loop.
+        const source = `
+promise fetch();
+nosave mixed val;
+async int outer() {
+    mapping m = ([ ]);
+    mixed k;
+    foreach (k, val in m) { mixed r = await fetch(); }
+    return 0;
+}
+`;
+        expect(messages(source))
+            .toContain("'await' cannot suspend inside a 'foreach' over the global variable 'val'");
+    });
+
+    it("rejects await inside a foreach over a by-reference expression", () => {
+        const source = `
+promise fetch();
+async int outer() {
+    int *a = ({ 1, 2 });
+    foreach (int v in ref a) { mixed r = await fetch(); }
+    return 0;
+}
+`;
+        expect(messages(source))
+            .toContain("'await' cannot suspend inside a 'foreach' over a by-reference expression");
+    });
+
+    it("finds an outer refused foreach from inside an inner one that parks fine", () => {
+        const source = `
+promise fetch();
+nosave int cursor;
+async int outer() {
+    int *a = ({ 1, 2 });
+    foreach (cursor in a) {
+        foreach (int v in a) { mixed r = await fetch(); }
+    }
+    return 0;
+}
+`;
+        expect(messages(source))
+            .toContain("'await' cannot suspend inside a 'foreach' over the global variable 'cursor'");
+    });
+
+    it("does not report a frame-shape error for an await that never parks", () => {
+        // `await 1` passes the value straight through, so it never reaches the driver's
+        // relocation scan; the pass-through warning is the only thing to say about it.
+        const source = `
+nosave int cursor;
+async int outer() {
+    foreach (cursor in ({ 1, 2 })) { mixed r = await 1; }
+    return 0;
+}
+`;
+        const out = messages(source);
+        expect(out).toContain("'await' has no effect here");
+        expect(out).not.toContain("cannot suspend");
+    });
+
     it("accepts the acatch block form", () => {
         const source = `
 promise fetch();
