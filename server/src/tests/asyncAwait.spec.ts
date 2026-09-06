@@ -267,18 +267,21 @@ async int outer() {
             .toContain("'await' cannot suspend inside a 'foreach' over the global variable 'val'");
     });
 
-    it("rejects await inside a foreach over a by-reference loop variable", () => {
-        const source = `
+    it.each([["ref", "int ref n"], ["&", "int & n"]])(
+        "rejects await inside a foreach over a by-reference loop variable (%s)",
+        (_label, loopVar) => {
+            const source = `
 promise fetch();
 async int outer() {
     int *a = ({ 1, 2 });
-    foreach (int ref n in a) { n = await fetch(); }
+    foreach (${loopVar} in a) { n = await fetch(); }
     return 0;
 }
 `;
-        expect(messages(source))
-            .toContain("'await' cannot suspend inside a 'foreach' over a by-reference loop variable");
-    });
+            expect(messages(source))
+                .toContain("'await' cannot suspend inside a 'foreach' over a by-reference loop variable");
+        },
+    );
 
     it("rejects every await in a function that takes a by-reference parameter", () => {
         // The caller pushes the T_REF and it becomes the parameter slot, so it sits in the

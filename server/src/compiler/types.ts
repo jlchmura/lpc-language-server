@@ -1622,7 +1622,7 @@ export interface NodeFactory {
     createBlock(statements: readonly Statement[], multiLine?: boolean): Block;
     createVariableStatement(modifiers: readonly Modifier[] | undefined, type: TypeNode | undefined, declarationList: VariableDeclarationList | readonly VariableDeclaration[]): VariableStatement;
     createVariableDeclarationList(declarations: readonly VariableDeclaration[], flags?: NodeFlags): VariableDeclarationList;
-    createVariableDeclaration(name: string | BindingName, refToken?: RefToken, type?: TypeNode | undefined, initializer?: Expression | undefined): VariableDeclaration;    
+    createVariableDeclaration(name: string | BindingName, refToken?: RefToken | AmpersandToken, type?: TypeNode | undefined, initializer?: Expression | undefined): VariableDeclaration;    
     createFunctionDeclaration(modifiers: readonly Modifier[] | undefined, name: string | Identifier | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined, body: Block | undefined): FunctionDeclaration;
     createExpressionStatement(expression: Expression): ExpressionStatement;
     createReturnStatement(expression?: Expression): ReturnStatement;
@@ -3803,7 +3803,9 @@ export type BindingName = Identifier | BindingPattern;
 export interface VariableDeclaration extends NamedDeclaration, JSDocContainer, PrimaryExpression {
     readonly kind: SyntaxKind.VariableDeclaration;
     readonly parent: VariableDeclarationList;
-    readonly refToken?: RefToken;
+    // `ref` and `&` are the same marker; isRefElement() has always treated them as one,
+    // and ParameterDeclaration's ampToken is typed the same way.
+    readonly refToken?: RefToken | AmpersandToken;
     readonly name: BindingName;                    // Declared variable name    
     readonly type?: TypeNode;                      // Optional type annotation
     readonly equalsToken?: Token<SyntaxKind.EqualsToken>; // Optional initializer token

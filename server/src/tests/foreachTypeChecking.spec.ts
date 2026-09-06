@@ -138,6 +138,32 @@ void f() {
         expect(msgs.some(m => m.includes("is not compatible with type"))).toBe(true);
     });
 
+    // `&` is accepted anywhere `ref` is (docs/lpc/constructs/ref.md), and the driver takes
+    // both. Only parseVariableDeclaration was left out, so this exact line used to report
+    // "Identifier expected" plus two "Cannot find name 'n'" on correct code.
+    it.each([["ref", "int ref n"], ["&", "int & n"]])(
+        "accepts a by-reference loop variable spelled with %s",
+        (_label, loopVar) => {
+            expect(messagesFor(`
+void f() {
+  int *a = ({ 1, 2 });
+  foreach(${loopVar} in a) { n = 1; }
+}
+`)).toEqual([]);
+        },
+    );
+
+    it("still parses a binary & that follows a declaration", () => {
+        expect(messagesFor(`
+int f() {
+  int a, b;
+  a = 1;
+  b = 2;
+  return a & b;
+}
+`)).toEqual([]);
+    });
+
     // Once the iterated type resolved, checkForEachStatement returned early -- past its own
     // remaining initializer checks, which was the intent, but also past the body. So every
     // statement inside a loop whose variable was not declared in the header went unchecked.

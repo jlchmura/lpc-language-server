@@ -4363,10 +4363,16 @@ export namespace LpcParser {
             tempType = finishNode(factory.cloneNode(type.elementType), pos);            
         }  
 
+        // `int ref n` and `int & n` are the same declaration -- docs/lpc/constructs/ref.md
+        // says `&` is accepted anywhere `ref` is, and the driver agrees. Only this spot
+        // was left out, which made `foreach (int & n in a)` a parse error while the
+        // parameter and call-site paths (both routed through isRefElement) took it.
         const refPos = getPositionState();
-        let refToken: RefToken;
-        if (parseOptional(SyntaxKind.RefKeyword)) {
-            refToken = finishNode(factoryCreateToken(SyntaxKind.RefKeyword), refPos);
+        let refToken: RefToken | AmpersandToken;
+        if (isRefElement()) {
+            const refKind = token() as SyntaxKind.RefKeyword | SyntaxKind.AmpersandToken;
+            nextToken();
+            refToken = finishNode(factoryCreateToken(refKind), refPos);
         }
 
         const name = parseIdentifierOrPattern();                

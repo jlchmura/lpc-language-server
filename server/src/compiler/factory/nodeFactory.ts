@@ -1296,7 +1296,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     // @api
     function createVariableDeclaration(
         name: string | BindingName,
-        refToken: RefToken,
+        refToken: RefToken | AmpersandToken,
         type: TypeNode | undefined,        
         initializer?: Expression | undefined
     ): VariableDeclaration {
