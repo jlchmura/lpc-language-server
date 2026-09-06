@@ -10,10 +10,11 @@
  *
  * A promise is a first-class LPC value (`typeof` returns `"promise"`)
  * holding the eventual result of an asynchronous operation. It settles
- * exactly once, either fulfilled via promise_resolve() or rejected via
- * promise_reject(); reactions attached with promise_then() run from the
- * microtask drain after settlement -- never synchronously, but still
- * within the same gametick.
+ * exactly once -- fulfilled via promise_resolve(), rejected via
+ * promise_reject(), or CANCELLED, the fourth state an uncaught
+ * promise_cancel() leaves on an `async` function's own promise; reactions
+ * attached with promise_then() run from the microtask drain after
+ * settlement -- never synchronously, but still within the same gametick.
  *
  * Promises compare by identity (`p == q` is true only for the same
  * promise) and may be used as mapping keys. They are not saved by
@@ -138,20 +139,29 @@ promise promise_catch( promise p, function on_rejected );
  * 0   pending
  * 1   fulfilled
  * 2   rejected
+ * 3   cancelled
  * ```
  *
- * @see promise_result, promise_create
+ * Cancelled is a negative settlement -- `await`, promise_then() /
+ * promise_catch(), and the fail-fast combinators treat it like a rejection
+ * -- but it is not a fault. `acatch` still yields the reason string
+ * ("*async function cancelled"); use this CODE, not that string, to tell a
+ * cancellation from a rejection, since a mudlib can forge the string with
+ * throw().
+ *
+ * @see promise_result, promise_cancel, promise_create
  */
 int promise_status( promise p );
 
 /**
  * promise_result() - read a settled promise's value or rejection reason
  *
- * Returns the fulfillment value or rejection reason of the settled promise
- * 'p'. It is an error to call this on a pending promise (check
- * promise_status() first, or use promise_then() / `await` instead).
+ * Returns the fulfillment value, rejection reason, or cancellation reason
+ * of the settled promise 'p'. It is an error to call this on a pending
+ * promise (check promise_status() first, or use promise_then() / `await`
+ * instead).
  *
- * Reading a rejected promise's result counts as observing the rejection:
+ * Reading a rejected or cancelled promise's result counts as observing it:
  * the unhandled-rejection report is suppressed for it.
  *
  * @see promise_status, promise_then
@@ -197,6 +207,10 @@ int promisep( mixed arg );
  * reason and the remaining inputs are ignored -- they keep running, since
  * nothing here cancels anything. Only the FIRST rejection is reported; use
  * promise_all_settled() to see every outcome.
+ *
+ * If the input that decided it was CANCELLED rather than rejected, the
+ * returned promise is cancelled too -- promise_status() reports 3 -- so the
+ * distinction survives the combinator.
  *
  * An element that is not a promise counts as already fulfilled with
  * itself, which is why the parameter is `mixed *` rather than `promise *`:
@@ -250,9 +264,10 @@ promise promise_any( mixed *promises );
  * promise_race() - settle as the first input settles, either way
  *
  * Returns a promise that settles exactly as the FIRST INPUT TO SETTLE does
- * -- fulfilled with its value, or rejected with its reason. A rejection
- * wins a race; that is the difference from promise_any(), which ignores
- * rejections until every input has failed.
+ * -- fulfilled with its value, rejected with its reason, or cancelled with
+ * it if that input was cancelled. A rejection wins a race; that is the
+ * difference from promise_any(), which ignores rejections until every input
+ * has failed.
  *
  * The losing inputs are not cancelled. They keep running and their results
  * are discarded, so a race is a way to stop WAITING, not a way to stop
@@ -288,12 +303,14 @@ promise promise_race( mixed *promises );
  * ```
  * ([ "status": 1, "value":  v ])   fulfilled
  * ([ "status": 2, "reason": r ])   rejected
+ * ([ "status": 3, "reason": r ])   cancelled
  * ```
  *
  * The status codes are promise_status()'s, so one vocabulary covers both.
- * A fulfilled entry has no "reason" key and a rejected entry has no
- * "value" key, so undefinedp() distinguishes them as reliably as "status"
- * does.
+ * A fulfilled entry has no "reason" key, and a rejected or cancelled entry
+ * has no "value" key, so undefinedp() tells a success from a failure as
+ * reliably as "status" does -- though only "status" tells a cancellation
+ * from a fault.
  *
  * Use this instead of promise_all() when a partial failure is a result
  * rather than an error -- fanning work out over many objects and reporting
@@ -339,7 +356,17 @@ promise<mapping *> promise_all_settled( mixed *promises );
  *
  * The raise behaves like any other rejection arriving at that `await`: it
  * unwinds through enclosing `acatch` regions, runs defer() handlers in
- * order, and -- if nothing catches it -- rejects 'p' with the same reason.
+ * order, and -- if nothing catches it -- CANCELS 'p' with the same reason.
+ * That is a settlement of its own, not a rejection: promise_status() reports
+ * 3, while `acatch` still yields only the reason string, so the status code
+ * is the test that cannot be forged. A body that catches its cancellation
+ * and then fails on its own settles as REJECTED, not cancelled.
+ *
+ * Downstream links inherit the cancellation the same way: an `await` on 'p',
+ * a promise_then() pass-through, an adoption, and the fail-fast combinators
+ * promise_all() and promise_race() all carry it, and promise_all_settled()
+ * records the input as status 3.
+ *
  * A body parked on a promise that will never settle is still cancelled
  * promptly: it is detached from that promise and its rejection scheduled
  * directly, so cancellation is never hostage to the thing being awaited.
