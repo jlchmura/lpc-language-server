@@ -4,7 +4,12 @@ import * as path from "path";
 /**
  * FluffOS native coroutines (fluffos#1319): the `async` function modifier, the `await`
  * unary expression, the async-aware `acatch`, the declared `promise` type and the promise
- * efuns. All four keywords are FluffOS-only -- in LDMud they stay ordinary identifiers.
+ * efuns.
+ *
+ * `acatch` and `promise` are FluffOS-only. `async` and `await` are not -- LDMud reserves
+ * both -- but LDMud spells its coroutines differently enough that this scanner leaves them
+ * as identifiers there for now; see isKeywordInVariant() for why, and the two LDMud cases
+ * at the bottom of this file for what that does and does not assert.
  */
 
 function diagnosticsFor(source: string, driverType: lpc.LanguageVariant): lpc.Diagnostic[] {
@@ -554,9 +559,21 @@ void test() {
         expect(messages(source, lpc.LanguageVariant.LDMud)).toBe("");
     });
 
-    it("leaves async/await/acatch/promise as plain identifiers in LDMud", () => {
-        // FluffOS-only keywords: an LDMud mudlib may still use these words as names.
-        const source = `int test() { int async, await, acatch, promise; async = 1; return async; }`;
+    it("leaves acatch and promise as plain identifiers in LDMud, which has neither", () => {
+        // These two really are FluffOS-only, so an LDMud mudlib may use them as names.
+        const source = `int test() { int acatch, promise; acatch = 1; return acatch; }`;
+        expect(messages(source, lpc.LanguageVariant.LDMud)).toBe("");
+    });
+
+    it("leaves async and await as identifiers in LDMud, pending its coroutine grammar", () => {
+        // NOT because LDMud allows them as names -- it does not. LDMud reserves both in
+        // lex.c's reswords[]. This pins current behaviour, which is a gap in the scanner:
+        // LDMud's coroutines are `coroutine` VALUES with a call-shaped `await(cr, opt)`
+        // and `yield(...)`, sharing only the spelling with FluffOS's promise-based unary
+        // `await p`. Tokenizing them here without that grammar would mis-parse real LDMud
+        // code, so they are left alone until the grammar lands. When it does, this case
+        // should start reporting -- it is the tripwire, not the specification.
+        const source = `int test() { int async, await; async = 1; return async; }`;
         expect(messages(source, lpc.LanguageVariant.LDMud)).toBe("");
     });
 });

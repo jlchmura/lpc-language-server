@@ -1972,10 +1972,23 @@ export function createScanner(
     // FluffOS (LDMud uses `struct` for structures, `clone_object()` to construct, and `&`
     // for by-reference); `bytes`, `closure`, `lwobject`, `status` and `symbol` are types,
     // and `deprecated` and `virtual` are modifiers, only in LDMud; `time_expression`
-    // is a reserved word only in FluffOS, as are `async`, `await`, `acatch` and the
-    // `promise` type, the coroutine keywords (issue #1319). In the other driver each is an ordinary
-    // identifier (e.g. a variable or function name), so demote it to an Identifier token
-    // here rather than gating it per grammar position downstream.
+    // is a reserved word only in FluffOS. Each is an ordinary identifier in the other
+    // driver, so demote it to an Identifier token here rather than gating it per grammar
+    // position downstream.
+    //
+    // The coroutine keywords (fluffos#1319) need a word of their own, because `async` and
+    // `await` are NOT FluffOS-only: LDMud reserves both in lex.c's reswords[], with real
+    // productions in prolang.y. They are gated here anyway, and deliberately, because the
+    // two drivers share the spelling and nothing else. FluffOS builds on promises and
+    // spells the wait as a unary prefix operator, `await p`. LDMud builds on `coroutine`
+    // VALUES and spells it as a call, `await(cr, opt)` -- whose first argument must be an
+    // lpctype_coroutine -- alongside `yield(...)` in three arities and a `coroutine` type
+    // this scanner does not tokenize at all. Letting `await` through in LDMud would parse
+    // `await(cr, x)` as a unary await of a comma expression and then type-check a
+    // coroutine as a promise, which is worse than leaving the word alone. So they stay
+    // identifiers in LDMud until LDMud's own coroutine grammar is implemented -- a gap in
+    // this scanner, not a claim about the driver. `acatch` and the `promise` type really
+    // are FluffOS-only; LDMud has neither.
     function isKeywordInVariant(keyword: SyntaxKind, variant: LanguageVariant): boolean {
         switch (keyword) {
             case SyntaxKind.ACatchKeyword:
