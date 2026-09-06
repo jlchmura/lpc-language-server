@@ -381,6 +381,29 @@ async int outer() {
         expect(messages(source)).toBe("");
     });
 
+    // In LPC one type node heads the whole statement, so it hangs off the VariableStatement
+    // rather than each declarator. Nothing visited it, so these were accepted while the
+    // parameter form -- whose type IS on the declaration -- was correctly refused.
+    it("rejects promise<void> as a local variable", () => {
+        expect(messages(`void f() { promise<void> p; }`))
+            .toContain("Illegal to declare a promise of type void.");
+    });
+
+    it("rejects promise<void> as an object variable", () => {
+        expect(messages(`promise<void> p;`))
+            .toContain("Illegal to declare a promise of type void.");
+    });
+
+    it("reports a shared type node once, not once per declarator", () => {
+        const out = messages(`promise<void> a, b;`);
+        expect(out.split("Illegal to declare a promise of type void.").length - 1).toBe(1);
+    });
+
+    it("rejects a nested promise payload in a variable declaration", () => {
+        expect(messages(`void f() { promise<promise<int>> p; }`))
+            .toContain("A promise payload type may not itself be a promise.");
+    });
+
     it("accepts promise as a global, parameter, return type and array element type", () => {
         const source = `
 promise pending;

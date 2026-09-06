@@ -12468,6 +12468,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function checkVariableStatement(node: VariableStatement) {
         // Grammar checking
         if (!checkGrammarModifiers(node) && !checkGrammarVariableDeclarationList(node.declarationList)) checkGrammarForDisallowedBlockScopedVariableStatement(node);
+
+        // In LPC one type node heads the whole statement -- `promise<void> a, b;` -- so it
+        // hangs off the VariableStatement, not off each declarator. checkVariableLikeDeclaration
+        // reaches for the declarator's own `.type`, which is undefined here, so nothing ever
+        // visited the type node itself: `promise<void> p;` was accepted as a local AND as an
+        // object variable, while the parameter form (whose type IS on the declaration) was
+        // correctly refused. Checked once here rather than per declarator, so a two-name
+        // statement reports once.
+        checkSourceElement(node.type);
         checkVariableDeclarationList(node.declarationList);
     }
 
