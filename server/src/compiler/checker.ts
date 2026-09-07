@@ -2076,9 +2076,23 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             const includes = filter(sourceFile.statements, isIncludeDirective);
             forEach(includes, include => {
                 const includeSemanticDiags = diagnostics.getDiagnostics(include.fileName);
-                if (includeSemanticDiags.length) {                    
+
+                // PARSE errors from the include come via the parser rather than the
+                // checker's collection -- attachFileToDiagnostics() cannot put them on
+                // this file, since their positions index the included file's text. Without
+                // this the directive reported a header's TYPE errors but stayed silent on
+                // its SYNTAX errors, which is the worse half to lose: a header that fails
+                // to parse takes its declarations with it. Matched on the directive node
+                // itself, so an error from a nested include is attributed to the top-level
+                // `#include` that pulled it in.
+                const includeParseDiags = mapDefined(
+                    sourceFile.includeParseDiagnostics,
+                    entry => entry.include === include ? entry.diagnostic : undefined,
+                );
+
+                if (includeSemanticDiags.length || includeParseDiags.length) {
                     const d = createDiagnosticForNode(include, Diagnostics.Include_file_0_contains_one_or_more_errors, getIncludeDirectiveFilename(include));
-                    addRelatedInfo(d, ...includeSemanticDiags);
+                    addRelatedInfo(d, ...includeParseDiags, ...includeSemanticDiags);
                     semanticDiagnostics.push(d);
                 }
             });

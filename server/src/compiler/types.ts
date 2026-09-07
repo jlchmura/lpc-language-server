@@ -3126,6 +3126,14 @@ export interface SourceFile extends Declaration, LocalsContainer, HasHeritageCon
     // File-level diagnostics reported by the parser (includes diagnostics about /// references
     // as well as code diagnostics).
     /** @internal */ parseDiagnostics: DiagnosticWithLocation[];    
+    /**
+     * Parse errors raised inside an `#include`. They cannot live in `parseDiagnostics`:
+     * their positions index the INCLUDED file's text, not this one's, so
+     * attachFileToDiagnostics() drops them. Kept here paired with the top-level
+     * `#include` that pulled them in, so the checker can report them on that directive.
+     * @internal
+     */
+    includeParseDiagnostics?: { include: IncludeDirective; diagnostic: DiagnosticWithDetachedLocation }[];
 
     // // File-level diagnostics reported by the binder.
     /** @internal */ bindDiagnostics: DiagnosticWithLocation[];

@@ -63,6 +63,7 @@ export namespace LpcParser {
 
     // when parsing a chain of includes, this will always be the top-level include
     var currentTopLevelIncludeDirective: IncludeDirective | undefined;    
+    var includeParseDiagnostics: { include: IncludeDirective; diagnostic: DiagnosticWithDetachedLocation }[];
     // the current include directive being processed
     var currentIncludeDirective: IncludeDirective | undefined;
 
@@ -220,6 +221,7 @@ export namespace LpcParser {
         condFrames = [];
         currentMacro = undefined!;
                 
+        includeParseDiagnostics = [];
         includeFileCache = new Map<string, string>();
         includeFileCache.set(fileName, sourceText);
         includeGraph = new Map();
@@ -384,6 +386,7 @@ export namespace LpcParser {
         sourceFile.identifierCount = identifierCount;
         sourceFile.identifiers = identifiers;
         sourceFile.parseDiagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile);
+        sourceFile.includeParseDiagnostics = includeParseDiagnostics;
         if (jsDocDiagnostics) {
             sourceFile.jsDocDiagnostics = attachFileToDiagnostics(jsDocDiagnostics, sourceFile);
         }
@@ -1009,6 +1012,7 @@ export namespace LpcParser {
         sourceFile.identifiers = identifiers;
         sourceFile.heritageClauses = factory.createNodeArray(inherits);
         sourceFile.parseDiagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile);
+        sourceFile.includeParseDiagnostics = includeParseDiagnostics;
         sourceFile.inactiveCodeRanges = inactiveRanges;        
         sourceFile.importCandidates = importCandidates;
         sourceFile.jsDocParsingMode = jsDocParsingMode;
@@ -1078,6 +1082,13 @@ export namespace LpcParser {
         if (!lastError || start !== lastError.start) {            
             result = createDetachedDiagnostic(fileName, includeFileCache.get(fileName) ?? scanner.getText(), start, errLength, message, ...args);            
             parseDiagnostics.push(result);
+            // An error inside an #include is about to be filtered out of parseDiagnostics
+            // by attachFileToDiagnostics(), because its position indexes the INCLUDED
+            // file's text rather than this one's. Keep it, paired with the top-level
+            // directive that pulled the file in, so the checker can surface it there.
+            if (currentTopLevelIncludeDirective) {
+                includeParseDiagnostics.push({ include: currentTopLevelIncludeDirective, diagnostic: result });
+            }
         }
 
         // Mark that we've encountered an error.  We'll set an appropriate bit on the next
