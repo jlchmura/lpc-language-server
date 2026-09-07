@@ -60,18 +60,18 @@ function summarizeRelated(diags: readonly lpc.Diagnostic[]) {
 
 describe("a parse error inside an #include is reported on the directive", () => {
     it("reports the include line and carries the real error as related info", () => {
-        const diags = includeErrors(diagnosticsFor(`#include "badAsyncInclude.h"\nvoid f() { }\n`));
-        expect(summarize(diags)).toEqual(["Include file 'badAsyncInclude.h' contains one or more errors."]);
+        const diags = includeErrors(diagnosticsFor(`#include "badParseInclude.h"\nvoid f() { }\n`));
+        expect(summarize(diags)).toEqual(["Include file 'badParseInclude.h' contains one or more errors."]);
         expect(summarizeRelated(diags).length).toBeGreaterThan(0);
     }, 15000);
 
     // The whole point of the related info is to take you to the error. Without a `file`
     // it renders as inert text: the message and a filename you cannot click.
     it("points the related info at the header, so it can be navigated to", () => {
-        const related = summarizeRelated(includeErrors(diagnosticsFor(`#include "badAsyncInclude.h"\nvoid f() { }\n`)));
+        const related = summarizeRelated(includeErrors(diagnosticsFor(`#include "badParseInclude.h"\nvoid f() { }\n`)));
 
         expect(related.length).toBeGreaterThan(0);
-        expect(related.map(r => r.file)).toEqual(related.map(() => "badAsyncInclude.h"));
+        expect(related.map(r => r.file)).toEqual(related.map(() => "badParseInclude.h"));
         expect(related.map(r => r.inRange)).toEqual(related.map(() => true));
     }, 15000);
 
@@ -83,7 +83,7 @@ describe("a parse error inside an #include is reported on the directive", () => 
 
         const related = summarizeRelated(diags);
         expect(related.length).toBeGreaterThan(0);
-        expect(related.map(r => r.file)).toContain("badAsyncInclude.h");
+        expect(related.map(r => r.file)).toContain("badParseInclude.h");
     }, 15000);
 
     it("stays quiet when the include parses cleanly", () => {
