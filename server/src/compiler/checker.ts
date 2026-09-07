@@ -16569,7 +16569,18 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     /** Return properties of an object type or an empty array for other types */
     function getPropertiesOfObjectType(type: Type): Symbol[] {
         if (type.flags & TypeFlags.Object) {
-            return resolveStructuredTypeMembers(type as ObjectType).properties;
+            // `properties` is undefined while a type is still being resolved.
+            // resolveUnionTypeMembers() computes its signatures BEFORE calling
+            // setStructuredTypeMembers(), and comparing those signatures can recurse back
+            // into a type whose resolution is still in flight -- getUnionSignatures ->
+            // findMatchingSignature -> compareSignaturesIdentical -> ... ->
+            // propertiesIdenticalTo, which then read `.length` off undefined and took the
+            // whole file's diagnostics down with it. Seen on an INCREMENTAL re-check after
+            // an edit; a freshly created program does not reach it.
+            // Answering "no properties known yet" is conservative: an identity comparison
+            // taken mid-resolution reports not-identical, so a union keeps a signature it
+            // might otherwise have deduplicated. Never wrong, occasionally less tidy.
+            return resolveStructuredTypeMembers(type as ObjectType).properties ?? emptyArray;
         }
         return emptyArray;
     }
