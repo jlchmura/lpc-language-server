@@ -34,3 +34,4 @@ build*.mjs
 build*.js
 scripts/
 lib/
+work/
