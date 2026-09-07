@@ -3924,9 +3924,69 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function checkVariableDeclaration(node: VariableDeclaration) {
         tracing?.push(tracing.Phase.Check, "checkVariableDeclaration", { kind: node.kind, pos: node.pos, end: node.end, path: (node as TracingNode).tracingPath });
         checkGrammarVariableDeclaration(node);        
+        checkLocalDoesNotShadowEnclosingLocal(node);
         const type = checkVariableLikeDeclaration(node);
         tracing?.pop();
         return type;
+    }
+
+    /**
+     * FluffOS refuses to redeclare a local name that an ENCLOSING scope of the same
+     * function already declares. Every case below was run against the driver rather than
+     * inferred, because the boundaries are not where you would guess:
+     *
+     *   int a = 1; { int a = 2; }              refused
+     *   { int a = 1; { int a = 2; } }          refused -- deeper nesting too
+     *   void f(int p) { { { int p = 2; } } }   refused -- parameters count
+     *   int c = 1; foreach (int c in arr) {}   refused -- and the `for` header likewise
+     *
+     * What is NOT refused, and must not be reported here:
+     *
+     *   { int b = 1; } { int b = 2; }          FINE -- siblings; neither encloses the other
+     *   nosave int g; void f() { int g = 1; }  FINE -- a local may shadow an object variable
+     *   inherit "base"; ... int inherited_name FINE -- shadowing across inheritance is legal,
+     *                                          for a local AND for another object variable
+     *
+     * So blocks really do scope visibility -- a name is gone after its closing brace, and
+     * using it there is "Undefined variable" -- and what the driver refuses is shadowing
+     * something still live in an enclosing scope.
+     *
+     * LDMud is looser and is deliberately left alone: prolang.y's redeclare_local() says
+     * "If this happens on a deeper level, it is legal", refusing only the same depth and
+     * the function-body-to-first-block case. Its narrower rule would be a separate check.
+     */
+    function checkLocalDoesNotShadowEnclosingLocal(node: VariableDeclaration) {
+        if (languageVariant !== LanguageVariant.FluffOS) return;
+        if (!isIdentifier(node.name)) return;
+
+        // Object-level variables have no containing function and are not affected.
+        const containingFunction = getContainingFunction(node);
+        if (!containingFunction) return;
+
+        const ownScope = getEnclosingBlockScopeContainer(node);
+        if (!ownScope || ownScope === containingFunction) {
+            // Declared directly in the function body. A collision with a parameter or
+            // another top-level local is a same-scope duplicate, which is already
+            // reported; walking outward from here would only double it up.
+            return;
+        }
+
+        const name = idText(node.name);
+        // A declaration inside `catch { }` is hoisted to the function scope -- that is why
+        // `catch { int foo = 1; } return foo;` is legal -- so the SAME symbol is reachable
+        // from an enclosing scope. Finding yourself out there is not a redeclaration.
+        const ownSymbol = getSymbolOfDeclaration(node);
+        let scope: Node | undefined = getEnclosingBlockScopeContainer(ownScope);
+
+        while (scope) {
+            const symbol = canHaveLocals(scope) ? scope.locals?.get(name) : undefined;
+            if (symbol && symbol !== ownSymbol && symbol.flags & SymbolFlags.Variable) {
+                error(node.name, Diagnostics.Illegal_to_redeclare_local_name_0, name);
+                return;
+            }
+            if (scope === containingFunction) return;
+            scope = getEnclosingBlockScopeContainer(scope);
+        }
     }
 
     function checkBindingElement(node: BindingElement) {
