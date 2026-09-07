@@ -1172,7 +1172,27 @@ export namespace LpcParser {
 
         while (!isListTerminator(kind)) {
             if (isListElement(kind, /*inErrorRecovery*/ false)) {
+                const startPos = scanner.getTokenFullStart();
                 list.push(parseListElement(kind, parseElement));
+
+                // A list element that consumed NOTHING would spin here forever. That is
+                // always a parser bug -- isListElement() accepted a token the grammar has
+                // no production for -- but a hang is the worst way to surface one: the
+                // parse never returns, so `finishNode` piles nodes into `nodeFileMap`
+                // until the Map hits its ~16.7M cap and throws RangeError from whatever
+                // unrelated place happens to be on the stack. The project then fails to
+                // build and EVERY file silently loses diagnostics, with nothing pointing
+                // at the offending token.
+                //
+                // Seen with `async` on a build without FluffOS coroutine support: the
+                // scanner still produces AsyncKeyword, no declaration production accepts
+                // it, and one such line in an included header took down a whole project.
+                //
+                // Report it where it actually is and step over the token.
+                if (scanner.getTokenFullStart() === startPos) {
+                    parseErrorAtCurrentToken(Diagnostics.Unexpected_token);
+                    nextToken();
+                }
 
                 continue;
             }
