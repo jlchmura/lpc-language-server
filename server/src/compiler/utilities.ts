@@ -1839,6 +1839,16 @@ export function isExpressionNode(node: Node): boolean {
         // case SyntaxKind.FalseKeyword:
         // case SyntaxKind.RegularExpressionLiteral:
         case SyntaxKind.ArrayLiteralExpression:
+        // A mapping literal is an expression, and so is each `key : value` entry inside it.
+        // Leaving them out made isInExpressionContext() -- whose default arm asks
+        // isExpressionNode(parent) -- answer false for a key or value whose parent is an
+        // entry. getTypeOfNode() then skipped its getRegularTypeOfExpression() branch, so
+        // EVERY node inside a mapping literal reported `mixed`: the values, the keys, even
+        // a string-literal key, whose type is not in doubt under any reading. Checking was
+        // never affected -- errors inside a mapping literal are reported exactly as they
+        // are outside one -- which is why this only ever showed up in hover.
+        case SyntaxKind.MappingLiteralExpression:
+        case SyntaxKind.MappingEntryExpression:
         case SyntaxKind.SuperAccessExpression:
         case SyntaxKind.ObjectLiteralExpression:
         case SyntaxKind.PropertyAccessExpression:
