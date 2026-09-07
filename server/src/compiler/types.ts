@@ -3053,6 +3053,28 @@ export interface PragmaContext extends ReadonlyPragmaContext {
 }
 
 
+/**
+ * Where a parse error raised inside an `#include` came from.
+ * @internal
+ */
+export interface IncludeDiagnosticOrigin {
+    /** Top-level `#include` of the including file -- where the error gets reported. */
+    include: IncludeDirective;
+    /**
+     * The directive for the file the error's position actually indexes, which may be
+     * nested several includes deeper. It carries that file's text, so it serves as the
+     * error's SourceFileBase and makes the reported related info navigable. Undefined
+     * when the position could not be tied to a file (a JSDoc scan, for instance, reports
+     * against an empty file name).
+     */
+    file: IncludeDirective | undefined;
+}
+
+/** @internal */
+export interface IncludeParseDiagnostic extends IncludeDiagnosticOrigin {
+    diagnostic: DiagnosticWithDetachedLocation;
+}
+
 // Source files are declarations when they are external modules.
 export interface SourceFile extends Declaration, LocalsContainer, HasHeritageContainer, SourceFileBase {
     readonly kind: SyntaxKind.SourceFile;
@@ -3133,7 +3155,7 @@ export interface SourceFile extends Declaration, LocalsContainer, HasHeritageCon
      * `#include` that pulled them in, so the checker can report them on that directive.
      * @internal
      */
-    includeParseDiagnostics?: { include: IncludeDirective; diagnostic: DiagnosticWithDetachedLocation }[];
+    includeParseDiagnostics?: IncludeParseDiagnostic[];
 
     // // File-level diagnostics reported by the binder.
     /** @internal */ bindDiagnostics: DiagnosticWithLocation[];
