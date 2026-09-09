@@ -42,13 +42,15 @@ promise promise_create();
  *
  * If 'value' is itself a promise, 'p' adopts its eventual state instead of
  * fulfilling immediately (flattening): 'p' stays pending until 'value'
- * settles, then settles the same way.
+ * settles, then settles the same way. Resolving a promise with itself is
+ * an error.
  *
- * A promise cannot adopt itself. Calling promise_resolve(p, p) directly is
- * an error; when the cycle arrives indirectly instead -- a promise_then()
- * handler returning the very promise its result settles, or an `async` body
- * returning its own promise -- there is no call to fail, so 'p' REJECTS with
- * PROMISE_REASON_SELF_RESOLVED, the string "*promise resolved with itself".
+ * DRIVER NOTE (not in the FluffOS docs): that holds for a DIRECT
+ * promise_resolve(p, p), which errors. When the cycle arrives indirectly --
+ * a promise_then() handler returning the very promise its result settles,
+ * or an `async` body returning its own promise -- there is no call to fail,
+ * and 'p' rejects with PROMISE_REASON_SELF_RESOLVED, the string
+ * "*promise resolved with itself", instead.
  *
  * It is an error to settle a promise that is already settled -- including
  * one whose fate is already committed to a pending adoption: after
@@ -69,25 +71,25 @@ varargs void promise_resolve( promise p, void | mixed value );
 /**
  * promise_reject() - reject a pending promise
  *
- * Rejects the pending promise 'p' with 'reason'. Rejection handlers
- * attached with promise_then()/promise_catch() run from the microtask
- * drain -- never synchronously from this call, but still within the same
- * gametick; an `await` suspended on 'p' raises 'reason' as an error at the
- * await point (catchable with `acatch`).
+ * Rejects the pending promise 'p' with 'reason' (0 if omitted). Rejection
+ * handlers attached with promise_then()/promise_catch() run from the
+ * microtask drain -- never synchronously from this call, but still within
+ * the same gametick; an `await` suspended on 'p' raises 'reason' as an
+ * error at the await point (catchable with `acatch`).
  *
- * OMITTING 'reason' does not reject with 0 -- it rejects with
- * PROMISE_REASON_NO_REASON, the string "*promise rejected". A rejection
- * reason must be truthy by default: `acatch`, like `catch`, signals failure
- * by yielding the reason and success by yielding 0, so a falsy reason is
- * indistinguishable from success and `mixed err = acatch(await p); if (err)`
- * would take the success branch on a real rejection. An explicitly falsy
- * reason -- promise_reject(p, 0) -- is still the caller's choice, and still
- * ambiguous; promise_status() is the unambiguous test.
+ * DRIVER NOTE (not in the FluffOS docs): omitting 'reason' does NOT reject
+ * with 0. The driver substitutes PROMISE_REASON_NO_REASON, the string
+ * "*promise rejected", so a bare reject is never falsy -- `acatch`, like
+ * `catch`, signals failure by yielding the reason and success by yielding
+ * 0, so `mixed err = acatch(await p); if (err)` would take the SUCCESS
+ * branch on a real rejection. An explicitly falsy reason,
+ * promise_reject(p, 0), is still the caller's choice and still ambiguous;
+ * promise_status() is the unambiguous test. Rejecting a promise with
+ * ITSELF is likewise an error, which their docs do not mention either.
  *
  * It is an error to settle a promise that is already settled, or one whose
  * fate is already committed to a pending adoption, or the promise an
- * `async` function returned. Rejecting a promise with ITSELF is likewise an
- * error.
+ * `async` function returned.
  *
  * That last refusal covers `async` function promises ONLY. The ones the
  * driver hands out for a pending operation -- call_out(delay),
