@@ -114,6 +114,15 @@ varargs void promise_reject( promise p, void | mixed reason );
  * An error inside a handler rejects the chained promise with the error
  * text (reported like a caught error).
  *
+ * Attaching ERRORS when the microtask drain is already saturated -- more
+ * than "max pending promise deliveries" settlements queued and not yet
+ * delivered (100000 by default; 0 disables the ceiling). A handler that
+ * attaches reactions faster than the drain retires them would otherwise
+ * grow that queue without bound, and there is no LPC frame to blame or
+ * eval budget to exceed, since every delivery is armed with a fresh one.
+ * This is the promise counterpart of the "call_out(0) nest level" limit;
+ * async_info(1)["pending_deliveries"] is the queue depth it measures.
+ *
  * Like call_out(0) callbacks, handlers are governed by the "this_player
  * in call_out" driver option: with the option enabled (the default),
  * this_player() at attach time is restored during the handler; with it
@@ -140,6 +149,10 @@ varargs promise promise_then( promise p, void | function on_fulfilled, void | fu
  * spelled with promise_then() itself: its second argument must be a
  * function whenever a third is given, so promise_then(p, 0, f) is a
  * runtime error.
+ *
+ * It shares promise_then()'s body, and so its saturation ceiling too:
+ * attaching errors once more than "max pending promise deliveries"
+ * settlements are queued.
  *
  * @see promise_then, promise_reject
  */
@@ -515,6 +528,15 @@ mapping async_info( int stats );
  * promise_then(), or awaited from more than one place. Two calls made
  * before the loop next runs return two distinct promises that settle at the
  * same moment, sharing a single wake-up.
+ *
+ * Calling it ERRORS when more than "max pending promise deliveries"
+ * yields are already waiting for the loop -- the same ceiling
+ * promise_then() attaches under, and for the same reason. A pending yield
+ * is retained memory the caller can no longer see: unlike a
+ * promise_create() promise, DISCARDING the returned value does not free
+ * it, because the registry holds a reference until the loop runs. A
+ * synchronous loop calling async_yield() and dropping each result would
+ * otherwise grow that registry for as long as its eval budget lasts.
  *
  * async_yield() does not reset the evaluation budget. A delivery is armed
  * with a whole "maximum evaluation cost" when it starts, and a resumed
