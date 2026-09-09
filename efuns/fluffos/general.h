@@ -214,8 +214,7 @@ void parse_add_synonym(string, string, void|string);
  * 
  * 3.  it  is  a function (formal) parameter that corresponds to a missing
  * actual argument.
- * @template T
- * @param {T} arg - The variable to check
+ * @param {mixed} arg - The variable to check
  * @returns {arg is 0} - 1 if the variable is null, 0 otherwise
  */
 int nullp(mixed arg);

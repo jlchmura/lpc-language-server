@@ -15555,7 +15555,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return undefined;
         }
         const signatures = getSignaturesOfType(getTypeOfSymbol(calleeSymbol), SignatureKind.Call);
-        return signatures.length === 1 ? tryGetTypeAtPosition(signatures[0], argumentIndex) : undefined;
+        if (signatures.length !== 1) {
+            return undefined;
+        }
+        const type = tryGetTypeAtPosition(signatures[0], argumentIndex);
+        // The signature is read uninstantiated, so a generic parameter yields the bare type
+        // variable rather than anything about this argument. That says nothing about the
+        // closure's parameter, and adopting it makes every LATER use of `$N` check against an
+        // unconstrained type variable -- so skip it, the way an uninformative `mixed` is
+        // skipped, and let a more specific use elsewhere win.
+        return type && couldContainTypeVariables(type) ? undefined : type;
     }
 
     /**
