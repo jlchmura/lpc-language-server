@@ -1,4 +1,4 @@
-import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression, isBinaryLogicalOperator, isLogicalOrCoalescingAssignmentOperator, isParenthesizedExpression, isPrefixUnaryExpression, BinaryOperatorToken, isAssignmentTarget, ElementAccessExpression, isBinaryExpression, isDottedName, FlowCall, createBinaryExpressionTrampoline, CaseClause, CallChain, LeftHandSideExpression, skipParentheses, ParameterDeclaration, ExpressionStatement, FunctionDeclaration, removeFileExtension, hasEffectiveModifier, getCombinedModifierFlags, isExpression, isIdentifierName, identifierToKeywordKind, AccessExpression, BindingElement, TypeLiteralNode, JSDocTypeLiteral, EntityNameExpression, isVariableDeclaration, factory, isVariableDeclarationList, isVariableStatement, isBindingPattern, ArrayBindingElement, InheritDeclaration, ClassLikeDeclaration, symbolName, StructDeclaration, BindableStaticNameExpression, BindableStaticAccessExpression, tryCast, isSourceFile, canHaveSymbol, getElementOrPropertyAccessName, MappingLiteralExpression, isStringOrNumericLiteralLike, isEntityNameExpression, isOmittedExpression, PropertyDeclaration, PropertySignature, PropertyAccessChain, ElementAccessChain, JSDocCallbackTag, JSDocTypedefTag, setParentRecursive, hasJSDocNodes, isInJSFile, DefineDirective, isAssignmentExpression, isObjectLiteralOrClassExpressionMethodOrAccessor, hasDynamicName, getLibRootedFileName, emptyArray, JSDocFunctionType, isFunctionDeclaration, isCallExpression, TypeParameterDeclaration, isJSDocTemplateTag, getEffectiveContainerForJSDocTemplateTag, ConditionalTypeNode, findAncestor, isConditionalTypeNode, MappedTypeNode, SignatureDeclaration, JSDocSignature, JSDocParameterTag, JSDocPropertyLikeTag, JSDocOverloadTag, getEnclosingContainer, getEnclosingBlockScopeContainer, isPropertyAccessEntityNameExpression, JSDocClassTag, getHostSignatureFromJSDoc, isTypeAliasDeclaration, nodeIsMissing, isStatementButNotDeclaration, unreachableCodeIsError, getCombinedNodeFlags, isBlock, isStatement, sliceAfter, getRangesWhere, isEnumDeclaration, getTokenPosOfNode, TextRange, createFileDiagnostic, append, DiagnosticCategory, JSDocVariableTag, isJSDocTypeAssertion, isInIncludeContext, getSourceFileOrIncludeOfNode, SourceFileBase, isDefineDirective, MethodDeclaration, isCatchStatement, ByRefElement, LanguageVariant, isNewClassExpression, NewExpression, isCatchExpression } from "./_namespaces/lpc";
+import { CompilerOptions, Debug, FlowFlags, FlowLabel, FlowNode, HasLocals, IsBlockScopedContainer, IsContainer, Node, objectAllocator, SourceFile, SymbolFlags, Symbol, tracing, setParent, TracingNode, SyntaxKind, isFunctionLike, NodeArray, forEach, forEachChild, Mutable, HasContainerFlags, createSymbolTable, ModifierFlags, FunctionExpression, InlineClosureExpression, NodeFlags, FunctionLikeDeclaration, getImmediatelyInvokedFunctionExpression, nodeIsPresent, contains, isIdentifier, HasFlowNode, performance, VariableDeclaration, isBlockOrCatchScoped, Declaration, canHaveLocals, isPartOfParameterDeclaration, SymbolTable, hasSyntacticModifier, Diagnostics, isNamedDeclaration, length, DiagnosticRelatedInformation, getNameOfDeclaration, appendIfUnique, setValueDeclaration, addRelatedInfo, Identifier, StringLiteral, isPropertyNameLiteral, InternalSymbolName, getAssignmentDeclarationKind, BinaryExpression, AssignmentDeclarationKind, declarationNameToString, createDiagnosticForNodeInSourceFile, DiagnosticMessage, DiagnosticArguments, DiagnosticWithLocation, ReturnStatement, IfStatement, Expression, isTruthyLiteral, isFalsyLiteral, FlowCondition, PrefixUnaryExpression, isLogicalOrCoalescingAssignmentExpression, isLogicalOrCoalescingBinaryExpression, isForEachStatement, FlowAssignment, FlowArrayMutation, Block, ConditionalExpression, WhileStatement, Statement, DoWhileStatement, ForStatement, ForEachStatement, BreakOrContinueStatement, SwitchStatement, FlowSwitchClause, CaseBlock, CallExpression, isAssignmentOperator, PropertyAccessExpression, ParenthesizedExpression, isLeftHandSideExpression, PostfixUnaryExpression, ArrayLiteralExpression, ObjectLiteralExpression, isBinaryLogicalOperator, isLogicalOrCoalescingAssignmentOperator, isParenthesizedExpression, isPrefixUnaryExpression, BinaryOperatorToken, isAssignmentTarget, ElementAccessExpression, isBinaryExpression, isDottedName, FlowCall, createBinaryExpressionTrampoline, CaseClause, CallChain, LeftHandSideExpression, skipParentheses, ParameterDeclaration, ExpressionStatement, FunctionDeclaration, removeFileExtension, hasEffectiveModifier, getCombinedModifierFlags, isExpression, isIdentifierName, identifierToKeywordKind, AccessExpression, BindingElement, TypeLiteralNode, JSDocTypeLiteral, EntityNameExpression, isVariableDeclaration, factory, isVariableDeclarationList, isVariableStatement, isBindingPattern, ArrayBindingElement, InheritDeclaration, ClassLikeDeclaration, symbolName, StructDeclaration, BindableStaticNameExpression, BindableStaticAccessExpression, tryCast, isSourceFile, canHaveSymbol, getElementOrPropertyAccessName, MappingLiteralExpression, isStringOrNumericLiteralLike, isEntityNameExpression, isOmittedExpression, PropertyDeclaration, PropertySignature, PropertyAccessChain, ElementAccessChain, JSDocCallbackTag, JSDocTypedefTag, setParentRecursive, hasJSDocNodes, isInJSFile, DefineDirective, isAssignmentExpression, isObjectLiteralOrClassExpressionMethodOrAccessor, hasDynamicName, getLibRootedFileName, emptyArray, JSDocFunctionType, isFunctionDeclaration, isCallExpression, TypeParameterDeclaration, isJSDocTemplateTag, getEffectiveContainerForJSDocTemplateTag, ConditionalTypeNode, findAncestor, isConditionalTypeNode, MappedTypeNode, SignatureDeclaration, JSDocSignature, JSDocParameterTag, JSDocPropertyLikeTag, JSDocOverloadTag, getEnclosingContainer, getEnclosingBlockScopeContainer, isPropertyAccessEntityNameExpression, JSDocClassTag, getHostSignatureFromJSDoc, isTypeAliasDeclaration, nodeIsMissing, isStatementButNotDeclaration, unreachableCodeIsError, getCombinedNodeFlags, isBlock, isStatement, sliceAfter, getRangesWhere, isEnumDeclaration, getTokenPosOfNode, TextRange, createFileDiagnostic, append, DiagnosticCategory, JSDocVariableTag, isJSDocTypeAssertion, isInIncludeContext, isIncludeDirective, getSourceFileOrIncludeOfNode, SourceFileBase, isDefineDirective, MethodDeclaration, isCatchStatement, ByRefElement, LanguageVariant, isNewClassExpression, NewExpression, isCatchExpression } from "./_namespaces/lpc";
 
 const binder = /* @__PURE__ */ createBinder();
 
@@ -64,6 +64,9 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
 
     var symbolCount = 0;
 
+    /** Modifiers of the body-bearing declaration of each file-level function, by name. */
+    var definitionModifiers: Map<string, ModifierFlags>;
+
     var Symbol: new (flags: SymbolFlags, name: string) => Symbol;
     var classifiableNames: Set<string>;
 
@@ -95,6 +98,8 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
 
         if (!file.locals) {
             tracing?.push(tracing.Phase.Bind, "bindSourceFile", { path: file.path }, /*separateBeginAndEnd*/ true);
+            definitionModifiers = new Map();
+            collectDefinitionModifiers(file.statements);
             bind(file);
             tracing?.pop();
             file.symbolCount = symbolCount;
@@ -106,6 +111,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
 
         file = undefined!;
         options = undefined!;
+        definitionModifiers = undefined!;
         // languageVersion = undefined!;
         parent = undefined!;
         container = undefined!;
@@ -1464,12 +1470,52 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
     
     }
 
+    /**
+     * Records the modifiers of every file-level function DEFINITION, so a body-less
+     * prototype can be placed by them rather than by its own. Recurses into `#include`
+     * directives because the LPC idiom puts the prototype in a header and the definition
+     * in the .c, and both bind into this file's scope.
+     */
+    function collectDefinitionModifiers(statements: readonly Statement[]) {
+        for (const statement of statements) {
+            if (isFunctionDeclaration(statement)) {
+                if (!statement.body) continue;
+                const name = getDeclarationName(statement);
+                if (name !== undefined) definitionModifiers.set(name, getCombinedModifierFlags(statement));
+            }
+            else if (isIncludeDirective(statement) && statement.statements) {
+                // an include that did not resolve carries no statements
+                collectDefinitionModifiers(statement.statements);
+            }
+        }
+    }
+
+    /**
+     * Which modifiers decide where a source-file member is declared. For a function that
+     * is only a prototype, that is its DEFINITION's modifiers, not its own.
+     *
+     * FluffOS assigns the definition's flags over any prototype's wholesale
+     * (`newfunc->flags = flags` in define_new_function), so `void f(); private void f() {}`
+     * is a private function -- the prototype's access level is discarded. Placing the two
+     * declarations by their own modifiers put them in different symbol tables, which split
+     * one function into two symbols and left goto-def, hover and argument checking looking
+     * at whichever half won the lookup.
+     */
+    function getPlacementModifiers(node: Declaration): ModifierFlags {
+        if (isFunctionDeclaration(node) && !node.body) {
+            const name = getDeclarationName(node);
+            const fromDefinition = name !== undefined ? definitionModifiers?.get(name) : undefined;
+            if (fromDefinition !== undefined) return fromDefinition;
+        }
+        return getCombinedModifierFlags(node);
+    }
+
     function declareSourceFileMember(node: Declaration, symbolFlags: SymbolFlags, symbolExcludes: SymbolFlags) {        
         if (file.isDefaultLib) {
             // lib/sefun symbols also get declared as non-exports (Because they go on global)
             return declareSymbol(file.locals!, /*parent*/ undefined, node, symbolFlags, symbolExcludes)
         } 
-        else if (isDefineDirective(node) || isVariableDeclaration(node) || getCombinedModifierFlags(node) & (ModifierFlags.Private | ModifierFlags.Protected)) {        
+        else if (isDefineDirective(node) || isVariableDeclaration(node) || getPlacementModifiers(node) & (ModifierFlags.Private | ModifierFlags.Protected)) {        
             // private sourcefile members do not get exported
             // lib/sefun symbols also get declared as non-exports (Because they go on global)
             return declareSymbol(file.symbol.members!, /*parent*/ undefined, node, symbolFlags, symbolExcludes)
