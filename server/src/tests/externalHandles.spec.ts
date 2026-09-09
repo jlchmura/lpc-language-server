@@ -7,6 +7,9 @@ import * as path from "path";
  * that handle. external_start() keeps its classic callback form and gains a promise form
  * when the callbacks are omitted -- the same shape async_read()/call_out() already use.
  *
+ * Also include_list() (fluffos#1375), which is unrelated to any of the above but arrived in
+ * the same driver window.
+ *
  * These are all FluffOS-only: PACKAGE_EXTERNAL has no LDMud counterpart.
  */
 
@@ -92,6 +95,23 @@ void test() {
 }
 `;
         expect(messages(source)).toBe("");
+    });
+
+    it("declares include_list, defaulting to this_object()", () => {
+        const source = `
+void test(object ob) {
+    string *with_arg = include_list(ob);
+    string *defaulted = include_list();
+}
+`;
+        expect(messages(source)).toBe("");
+    });
+
+    it("types include_list as an array of filenames", () => {
+        const source = `
+void test(object ob) { int bad = include_list(ob); }
+`;
+        expect(messages(source)).toContain("Type 'string*' is not assignable to type 'int'");
     });
 
     it("leaves the external efuns undeclared under LDMud", () => {
