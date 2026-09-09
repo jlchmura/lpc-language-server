@@ -89,10 +89,28 @@ varargs void promise_resolve( promise p, void | mixed value );
  * `async` function returned. Rejecting a promise with ITSELF is likewise an
  * error.
  *
+ * That last refusal covers `async` function promises ONLY. The ones the
+ * driver hands out for a pending operation -- call_out(delay),
+ * async_read()/async_write()/async_getdir(), and the promise promise_then()
+ * returns -- stay settleable, which is what makes a consumer-side timeout
+ * possible. Settling one of those FIRST does mean the driver's own result
+ * is dropped when it arrives, SILENTLY: a pre-settled async_read() promise
+ * discards the file contents, and a pre-resolved one turns a read failure
+ * into an apparent success. Settle a promise you did not create only when
+ * you mean to stop caring about its result.
+ *
  * A rejected promise whose rejection is never observed (no handler
  * attached, result never read) is reported to the debug log when it is
- * deallocated. The report names where the promise was REJECTED, since
- * deallocation can be arbitrarily far from the rejection.
+ * deallocated:
+ *
+ * ```
+ * Unhandled promise rejection (rejected by /obj/thing at /obj/thing.lpc:42): reason
+ * ```
+ *
+ * The report names where the promise was REJECTED because deallocation can
+ * be arbitrarily far from the rejection, and the reason alone often will
+ * not identify it -- `(int) 0` is an ordinary rejection value for the
+ * promise forms of async_read() and friends.
  *
  * @see promise_resolve, promise_catch, promise_then
  */
@@ -102,7 +120,9 @@ varargs void promise_reject( promise p, void | mixed reason );
  * promise_then() - attach settlement handlers, chaining a new promise
  *
  * Attaches handlers to 'p' and returns a new promise for the handler's
- * result. When 'p' settles (or on the next gametick, if already settled):
+ * result. Handlers run from the microtask drain when 'p' settles -- or, if
+ * 'p' is ALREADY settled, from the drain later in the CURRENT gametick,
+ * never on the next one. Delivery is never synchronous with this call:
  *
  * - fulfilled: on_fulfilled(result) runs; its return value fulfills the
  * chained promise (a returned promise is adopted). If omitted, the
@@ -148,7 +168,7 @@ varargs promise promise_then( promise p, void | function on_fulfilled, void | fu
  * This is the rejection-only half of promise_then(), which cannot be
  * spelled with promise_then() itself: its second argument must be a
  * function whenever a third is given, so promise_then(p, 0, f) is a
- * runtime error.
+ * runtime error ("Bad argument 2 to promise_then()").
  *
  * It shares promise_then()'s body, and so its saturation ceiling too:
  * attaching errors once more than "max pending promise deliveries"
@@ -206,8 +226,8 @@ mixed promise_result( promise p );
  * `promise` type, equivalent to `typeof(arg) == "promise"`.
  *
  * The argument is `mixed` on purpose: the question is only interesting for
- * a value whose type is not known statically. A variable already declared
- * `promise` needs no test.
+ * a value whose type is not known statically. Under `strict_types` a
+ * variable already declared `promise` needs no test.
  *
  * ```c
  * mixed p = promise_create();
@@ -220,7 +240,9 @@ mixed promise_result( promise p );
  * A promise is never a valid FULFILLED value -- resolving a promise with a
  * promise adopts it -- so promisep() on the value an `await` yields, or on
  * promise_result() of a fulfilled promise, is always 0. A rejection reason
- * is not restricted that way: any value may be one, including a promise.
+ * is not restricted that way: any value may be one, including a promise --
+ * so promisep() on promise_result() of a REJECTED promise, or on what
+ * `acatch` yields, can be 1.
  *
  * @returns {arg is promise} 1 if 'arg' is a promise.
  * @see promise_create, promise_status, promise_result, typeof
@@ -537,6 +559,10 @@ mapping async_info( int stats );
  * it, because the registry holds a reference until the loop runs. A
  * synchronous loop calling async_yield() and dropping each result would
  * otherwise grow that registry for as long as its eval budget lasts.
+ *
+ * On the WebAssembly build the loop is the page's: the promise settles on
+ * the host's next call into the driver, which is the same guarantee -- the
+ * page has had its turn -- at whatever rate the host drives it.
  *
  * async_yield() does not reset the evaluation budget. A delivery is armed
  * with a whole "maximum evaluation cost" when it starts, and a resumed
