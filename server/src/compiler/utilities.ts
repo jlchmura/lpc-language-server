@@ -1839,6 +1839,16 @@ export function isExpressionNode(node: Node): boolean {
         // case SyntaxKind.FalseKeyword:
         // case SyntaxKind.RegularExpressionLiteral:
         case SyntaxKind.ArrayLiteralExpression:
+        // A mapping literal is an expression, and so is each `key : value` entry inside it.
+        // Leaving them out made isInExpressionContext() -- whose default arm asks
+        // isExpressionNode(parent) -- answer false for a key or value whose parent is an
+        // entry. getTypeOfNode() then skipped its getRegularTypeOfExpression() branch, so
+        // EVERY node inside a mapping literal reported `mixed`: the values, the keys, even
+        // a string-literal key, whose type is not in doubt under any reading. Checking was
+        // never affected -- errors inside a mapping literal are reported exactly as they
+        // are outside one -- which is why this only ever showed up in hover.
+        case SyntaxKind.MappingLiteralExpression:
+        case SyntaxKind.MappingEntryExpression:
         case SyntaxKind.SuperAccessExpression:
         case SyntaxKind.ObjectLiteralExpression:
         case SyntaxKind.PropertyAccessExpression:
@@ -2541,11 +2551,45 @@ export function getFunctionFlags(node: SignatureDeclaration | undefined) {
  *
  * @internal
  */
+/**
+ * The `@returns` type from another declaration of the same function -- its prototype when
+ * called on the definition, or its definition when called on the prototype. Returns the
+ * first one found; a function has at most one of each in practice.
+ */
+function getJSDocReturnTypeFromOtherDeclaration(node: SignatureDeclaration): TypeNode | undefined {
+    const declarations = (node as Declaration).symbol?.declarations;
+    if (!declarations) return undefined;
+
+    // Pair a prototype with its DEFINITION and nothing else. Two body-less declarations of
+    // the same name are genuine OVERLOADS -- separate signatures with separate docblocks --
+    // and one must never borrow another's `@returns`, which would hand an undocumented
+    // overload the return type of a documented sibling.
+    const nodeHasBody = !!(node as FunctionLikeDeclaration).body;
+    for (const declaration of declarations) {
+        if (declaration === node || !isFunctionLike(declaration)) continue;
+        if (!!(declaration as FunctionLikeDeclaration).body === nodeHasBody) continue;
+        const type = getJSDocReturnType(declaration);
+        if (type) return type;
+    }
+    return undefined;
+}
+
 export function getEffectiveReturnTypeNode(node: SignatureDeclaration | JSDocSignature): TypeNode | undefined {
     if (isJSDocSignature(node)) {
         return node.type && node.type.typeExpression && node.type.typeExpression.type;
     }
-    const docType = isInJSFile(node) ? getJSDocReturnType(node) : undefined;
+    let docType = isInJSFile(node) ? getJSDocReturnType(node) : undefined;
+
+    // A prototype and its definition are ONE function, and the docblock may sit on either
+    // -- LPC's idiom is a bare prototype in a header with the documentation on the
+    // definition, but plenty of code does the reverse. The signature itself always comes
+    // from the definition (see getSignaturesOfSymbol), so without this a header-documented
+    // function would silently lose its `@returns`, exactly as a definition-documented one
+    // used to. Look to the sibling declaration only when this one says nothing, so a
+    // docblock that IS present is never overridden by one somewhere else.
+    if (!docType && isInJSFile(node)) {
+        docType = getJSDocReturnTypeFromOtherDeclaration(node);
+    }
     // `@returns` narrows the element the same way `@param` and `@type` do, so a `*` on the
     // declared return type has to survive it -- `mixed *f()` with `@returns {T}` returns `T*`.
     // Without this the two halves of one signature disagreed: the parameter kept its array rank

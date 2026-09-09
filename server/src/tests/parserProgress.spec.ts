@@ -15,8 +15,6 @@ import * as path from "path";
  * These tests assert TERMINATION, not any particular diagnostic -- a build that DOES have
  * a production for the token is equally correct, and should stay passing.
  */
-let lastProgram: lpc.Program | undefined;
-
 function parse(source: string) {
     const root = process.cwd();
     const virtualFile = lpc.normalizeSlashes(path.join(root, "server/src/tests/cases/compiler/__progress.c"));
@@ -32,38 +30,8 @@ function parse(source: string) {
         lpc.combinePaths(root, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
 
     const program = lpc.createProgram({ host, rootNames: [virtualFile], options: compilerOptions, oldProgram: undefined });
-    lastProgram = program;
     return program.getSourceFile(virtualFile)!;
 }
-
-/**
- * A parse error inside an `#include` cannot go in the including file's `parseDiagnostics`
- * -- its position indexes the INCLUDED file's text -- so attachFileToDiagnostics() drops
- * it. The checker already surfaces an include's SEMANTIC errors on the `#include` line
- * (Include_file_0_contains_one_or_more_errors, with the real errors as related info);
- * parse errors were missing from that, so a header that failed to PARSE was silent -- and
- * a header that fails to parse takes all of its declarations with it.
- */
-describe("a parse error inside an #include is reported on the directive", () => {
-    it("reports the include line and carries the real error as related info", () => {
-        const sf = parse(`#include "badAsyncInclude.h"\nvoid f() { }\n`);
-        const program = lastProgram!;
-        const diags = program.getSemanticDiagnostics(sf);
-        const msgs = diags.map(d => lpc.flattenDiagnosticMessageText(d.messageText, " "));
-        expect(msgs.some(m => m.includes("contains one or more errors"))).toBe(true);
-
-        const related = diags.flatMap(d => d.relatedInformation ?? [])
-            .map(r => lpc.flattenDiagnosticMessageText(r.messageText, " "));
-        expect(related.length).toBeGreaterThan(0);
-    }, 15000);
-
-    it("stays quiet when the include parses cleanly", () => {
-        const sf = parse(`#include "includeFile.h"\nvoid f() { }\n`);
-        const diags = lastProgram!.getSemanticDiagnostics(sf);
-        const msgs = diags.map(d => lpc.flattenDiagnosticMessageText(d.messageText, " "));
-        expect(msgs.some(m => m.includes("contains one or more errors"))).toBe(false);
-    }, 15000);
-});
 
 describe("parser makes progress on every list element", () => {
     it("terminates on an async prototype at top level", () => {

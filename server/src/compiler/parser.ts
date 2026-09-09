@@ -1,4 +1,4 @@
-import { AmpersandToken, ArrayLiteralExpression, ArrayTypeNode, BaseNodeFactory, BinaryExpression, BinaryOperatorToken, BindingPattern, Block, BooleanLiteral, BreakOrContinueStatement, BreakStatement, ByRefElement, CallExpression, CaseBlock, CaseClause, CaseOrDefaultClause, CastExpression, CatchExpression, CatchStatement, TimeExpression, CharacterCodes, CloneObjectExpression, CommaListExpression, CommentRange, ConditionalExpression, ContinueStatement, Debug, DefaultClause, DefineDirective, Diagnostic, DiagnosticArguments, DiagnosticMessage, DiagnosticWithDetachedLocation, Diagnostics, DoWhileStatement, ElementAccessExpression, EndOfFileToken, EntityName, EvaluateExpression, Expression, ExpressionStatement, ExpressionWithTypeArguments, Extension, ForEachChildNodes, ForEachStatement, ForStatement, FunctionDeclaration, FunctionExpression, HasJSDoc, Identifier, IfStatement, ImpliedStringConcatExpression, ImportCandidateNode, IncludeDirective, InferTypeNode, InheritClauseNodeType, InheritDeclaration, InlineClosureExpression, IntersectionTypeNode, IterationStatement, JSDoc, JSDocAugmentsTag, JSDocAuthorTag, JSDocCallbackTag, JSDocClassTag, JSDocComment, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocOverrideTag, JSDocParameterTag, JSDocParsingMode, JSDocPrivateTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocProtectedTag, JSDocPublicTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocTypedefTag, JSDocUnknownTag, JSDocVariableTag, JSDocVariadicType, JsonMinusNumericLiteral, JsonObjectExpressionStatement, JsonSourceFile, KeywordSyntaxKind, LabeledStatement, LambdaExpression, LambdaIdentifierExpression, LambdaOperatorExpression, LambdaOperatorToken, LanguageVariant, LeftHandSideExpression, LiteralExpression, LiteralLikeNode, LiteralTypeNode, createMacroEnvironment, MacroEnvironment, MacroPositionSnapshot, evaluatePreprocessorCondition, PreprocessorToken, LpcFileHandler, LpcLoadImportResult, Macro, MacroParameter, MapLike, MappingEntryExpression, MappingLiteralExpression, MappingTypeNode, MemberExpression, MethodSignature, MissingDeclaration, Modifier, ModifierLike, Mutable, MutableNodeArray, NamedObjectTypeNode, NewExpression, NewExpressionArgument, NewStructExpression, Node, NodeArray, NodeFactory, NodeFactoryFlags, NodeFlags, NullLiteral, NumericLiteral, ObjectLiteralElementLike, ObjectLiteralExpression, OperatorPrecedence, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PositionState, PostfixUnaryExpression, PostfixUnaryOperator, PragmaContext, PragmaDefinition, PragmaDirective, PragmaKindFlags, PragmaMap, PragmaPseudoMap, PragmaPseudoMapEntry, PrefixUnaryExpression, PrefixUnaryOperator, PreprocessorDirective, PrimaryExpression, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAccessToken, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, QualifiedName, QuestionDotToken, RangeExpression, RefToken, ResolutionMode, ReturnStatement, ScriptKind, ScriptTarget, ShorthandPropertyAssignment, SourceFile, SpreadElement, Statement, StringLiteral, StructDeclaration, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, TemplateExpression, TemplateSpan, Ternary, TextChangeRange, TextRange, Token, TupleTypeNode, TypeAssertion, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnaryExpression, UndefDirective, UnionTypeNode, UpdateExpression, VariableDeclaration, VariableDeclarationList, VariableStatement, WhileStatement, addRange, addRelatedInfo, append, attachFileToDiagnostics, canHaveJSDoc, commentPragmas, concatenate, containsParseError, createDetachedDiagnostic, createNodeFactory, createScanner, emptyArray, emptyMap, fileExtensionIs, first, firstOrUndefined, flatten, forEach, forEachEntry, getAnyExtensionFromPath, getBaseFileName, getBinaryOperatorPrecedence, getDirectoryPath, getFullWidth, getJSDocCommentRanges, getLeadingCommentRanges, getSpellingSuggestion, idText, identity, isArray, isArrayTypeNode, isAssignmentOperator, isBinaryExpression, isIdentifier as isIdentifierNode, isIdentifierText, isJSDocReturnTag, isJSDocTypeTag, isKeyword, isKeywordOrPunctuation, isLeftHandSideExpression, isLiteralKind, isModifierKind, isNonReservedKeyword, isParenthesizedExpression, isStringLiteral, isStringOrNumericLiteralLike, isStructTypeNode, isTemplateExpression, isTypeReferenceNode, last, lastOrUndefined, map, mapDefined, nodeIsMissing, nodeIsPresent, objectAllocator, performance, setNodeFlags, setParent, setParentRecursive, setTextRangePos, setTextRangePosEnd, setTextRangePosWidth, skipTrivia, some, startsWith, supportedDeclarationExtensions, textToKeywordObj, toArray, tokenIsIdentifierOrKeyword, tokenToString, tracing } from "./_namespaces/lpc";
+import { AmpersandToken, ArrayLiteralExpression, ArrayTypeNode, BaseNodeFactory, BinaryExpression, BinaryOperatorToken, BindingPattern, Block, BooleanLiteral, BreakOrContinueStatement, BreakStatement, ByRefElement, CallExpression, CaseBlock, CaseClause, CaseOrDefaultClause, CastExpression, CatchExpression, CatchStatement, TimeExpression, CharacterCodes, CloneObjectExpression, CommaListExpression, CommentRange, ConditionalExpression, ContinueStatement, Debug, DefaultClause, DefineDirective, Diagnostic, DiagnosticArguments, DiagnosticMessage, DiagnosticWithDetachedLocation, Diagnostics, DoWhileStatement, ElementAccessExpression, EndOfFileToken, EntityName, EvaluateExpression, Expression, ExpressionStatement, ExpressionWithTypeArguments, Extension, ForEachChildNodes, ForEachStatement, ForStatement, FunctionDeclaration, FunctionExpression, HasJSDoc, Identifier, IfStatement, ImpliedStringConcatExpression, ImportCandidateNode, IncludeDirective, IncludeDiagnosticOrigin, IncludeParseDiagnostic, InferTypeNode, InheritClauseNodeType, InheritDeclaration, InlineClosureExpression, IntersectionTypeNode, IterationStatement, JSDoc, JSDocAugmentsTag, JSDocAuthorTag, JSDocCallbackTag, JSDocClassTag, JSDocComment, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocOverrideTag, JSDocParameterTag, JSDocParsingMode, JSDocPrivateTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocProtectedTag, JSDocPublicTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocTypedefTag, JSDocUnknownTag, JSDocVariableTag, JSDocVariadicType, JsonMinusNumericLiteral, JsonObjectExpressionStatement, JsonSourceFile, KeywordSyntaxKind, LabeledStatement, LambdaExpression, LambdaIdentifierExpression, LambdaOperatorExpression, LambdaOperatorToken, LanguageVariant, LeftHandSideExpression, LiteralExpression, LiteralLikeNode, LiteralTypeNode, createMacroEnvironment, MacroEnvironment, MacroPositionSnapshot, evaluatePreprocessorCondition, PreprocessorToken, LpcFileHandler, LpcLoadImportResult, Macro, MacroParameter, MapLike, MappingEntryExpression, MappingLiteralExpression, MappingTypeNode, MemberExpression, MethodSignature, MissingDeclaration, Modifier, ModifierLike, Mutable, MutableNodeArray, NamedObjectTypeNode, NewExpression, NewExpressionArgument, NewStructExpression, Node, NodeArray, NodeFactory, NodeFactoryFlags, NodeFlags, NullLiteral, NumericLiteral, ObjectLiteralElementLike, ObjectLiteralExpression, OperatorPrecedence, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PositionState, PostfixUnaryExpression, PostfixUnaryOperator, PragmaContext, PragmaDefinition, PragmaDirective, PragmaKindFlags, PragmaMap, PragmaPseudoMap, PragmaPseudoMapEntry, PrefixUnaryExpression, PrefixUnaryOperator, PreprocessorDirective, PrimaryExpression, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAccessToken, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, QualifiedName, QuestionDotToken, RangeExpression, RefToken, ResolutionMode, ReturnStatement, ScriptKind, ScriptTarget, ShorthandPropertyAssignment, SourceFile, SpreadElement, Statement, StringLiteral, StructDeclaration, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, TemplateExpression, TemplateSpan, Ternary, TextChangeRange, TextRange, Token, TupleTypeNode, TypeAssertion, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnaryExpression, UndefDirective, UnionTypeNode, UpdateExpression, VariableDeclaration, VariableDeclarationList, VariableStatement, WhileStatement, addRange, addRelatedInfo, append, attachFileToDiagnostics, canHaveJSDoc, commentPragmas, concatenate, containsParseError, createDetachedDiagnostic, createNodeFactory, createScanner, emptyArray, emptyMap, fileExtensionIs, first, firstOrUndefined, flatten, forEach, forEachEntry, getAnyExtensionFromPath, getBaseFileName, getBinaryOperatorPrecedence, getDirectoryPath, getFullWidth, getJSDocCommentRanges, getLeadingCommentRanges, getSpellingSuggestion, idText, identity, isArray, isArrayTypeNode, isAssignmentOperator, isBinaryExpression, isIdentifier as isIdentifierNode, isIdentifierText, isJSDocReturnTag, isJSDocTypeTag, isKeyword, isKeywordOrPunctuation, isLeftHandSideExpression, isLiteralKind, isModifierKind, isNonReservedKeyword, isParenthesizedExpression, isStringLiteral, isStringOrNumericLiteralLike, isStructTypeNode, isTemplateExpression, isTypeReferenceNode, last, lastOrUndefined, map, mapDefined, nodeIsMissing, nodeIsPresent, objectAllocator, performance, setNodeFlags, setParent, setParentRecursive, setTextRangePos, setTextRangePosEnd, setTextRangePosWidth, skipTrivia, some, startsWith, supportedDeclarationExtensions, textToKeywordObj, toArray, tokenIsIdentifierOrKeyword, tokenToString, tracing } from "./_namespaces/lpc";
 
 const enum SpeculationKind {
     TryParse,
@@ -63,7 +63,16 @@ export namespace LpcParser {
 
     // when parsing a chain of includes, this will always be the top-level include
     var currentTopLevelIncludeDirective: IncludeDirective | undefined;    
-    var includeParseDiagnostics: { include: IncludeDirective; diagnostic: DiagnosticWithDetachedLocation }[];
+    /**
+     * Origin of every parse diagnostic raised while reading an `#include`, keyed by the
+     * diagnostic itself: the top-level directive to report it on, and the directive whose
+     * file the position actually indexes (that node doubles as the file's SourceFileBase).
+     * Keyed rather than accumulated, so that a speculative parse which is rolled back --
+     * `parseDiagnostics` is truncated, any parallel array would not be -- cannot leave a
+     * phantom error behind. The bucket is built at the end from the diagnostics that
+     * actually survived.
+     */
+    var includeDiagnosticOrigins: Map<DiagnosticWithDetachedLocation, IncludeDiagnosticOrigin>;
     // the current include directive being processed
     var currentIncludeDirective: IncludeDirective | undefined;
 
@@ -221,7 +230,7 @@ export namespace LpcParser {
         condFrames = [];
         currentMacro = undefined!;
                 
-        includeParseDiagnostics = [];
+        includeDiagnosticOrigins = new Map();
         includeFileCache = new Map<string, string>();
         includeFileCache.set(fileName, sourceText);
         includeGraph = new Map();
@@ -274,6 +283,7 @@ export namespace LpcParser {
         topLevel = true;   
         suppressSemicolonInsertion = false;
         includeFileCache = undefined!;                
+        includeDiagnosticOrigins = undefined!;
         includeGraph.clear();
         includeGraph = undefined!;
         condFrames = undefined!;
@@ -386,7 +396,7 @@ export namespace LpcParser {
         sourceFile.identifierCount = identifierCount;
         sourceFile.identifiers = identifiers;
         sourceFile.parseDiagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile);
-        sourceFile.includeParseDiagnostics = includeParseDiagnostics;
+        sourceFile.includeParseDiagnostics = collectIncludeParseDiagnostics();
         if (jsDocDiagnostics) {
             sourceFile.jsDocDiagnostics = attachFileToDiagnostics(jsDocDiagnostics, sourceFile);
         }
@@ -1012,7 +1022,7 @@ export namespace LpcParser {
         sourceFile.identifiers = identifiers;
         sourceFile.heritageClauses = factory.createNodeArray(inherits);
         sourceFile.parseDiagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile);
-        sourceFile.includeParseDiagnostics = includeParseDiagnostics;
+        sourceFile.includeParseDiagnostics = collectIncludeParseDiagnostics();
         sourceFile.inactiveCodeRanges = inactiveRanges;        
         sourceFile.importCandidates = importCandidates;
         sourceFile.jsDocParsingMode = jsDocParsingMode;
@@ -1084,10 +1094,17 @@ export namespace LpcParser {
             parseDiagnostics.push(result);
             // An error inside an #include is about to be filtered out of parseDiagnostics
             // by attachFileToDiagnostics(), because its position indexes the INCLUDED
-            // file's text rather than this one's. Keep it, paired with the top-level
-            // directive that pulled the file in, so the checker can surface it there.
+            // file's text rather than this one's. Remember where it came from so the
+            // checker can surface it on the top-level directive that pulled the file in.
             if (currentTopLevelIncludeDirective) {
-                includeParseDiagnostics.push({ include: currentTopLevelIncludeDirective, diagnostic: result });
+                includeDiagnosticOrigins.set(result, {
+                    include: currentTopLevelIncludeDirective,
+                    // The innermost directive carries the text of the file the position
+                    // indexes, which makes it usable as that file's SourceFileBase -- and
+                    // that is what lets the editor navigate to the error instead of
+                    // printing it as inert text.
+                    file: currentIncludeDirective?.fileName === fileName ? currentIncludeDirective : undefined,
+                });
             }
         }
 
@@ -1103,6 +1120,27 @@ export namespace LpcParser {
 
     function parseErrorAtRange(range: TextRange, fileName: string, message: DiagnosticMessage, ...args: DiagnosticArguments): void {
         parseErrorAt(range.pos, range.end, fileName, message, ...args);
+    }
+
+    /**
+     * Rebuild the include-error bucket from the diagnostics that actually survived the
+     * parse. Reading it back out of `parseDiagnostics`/`jsDocDiagnostics` -- rather than
+     * appending to a list as errors are raised -- is what keeps a rolled-back speculative
+     * parse from leaving a phantom error on someone's `#include` line.
+     */
+    function collectIncludeParseDiagnostics(): IncludeParseDiagnostic[] | undefined {
+        if (!includeDiagnosticOrigins.size) return undefined;
+
+        let result: IncludeParseDiagnostic[] | undefined;
+        const collect = (diagnostic: DiagnosticWithDetachedLocation) => {
+            const origin = includeDiagnosticOrigins.get(diagnostic);
+            if (origin) {
+                result = append(result, { include: origin.include, file: origin.file, diagnostic });
+            }
+        };
+        forEach(parseDiagnostics, collect);
+        forEach(jsDocDiagnostics, collect);
+        return result;
     }
 
     function isPosition(pos: any): pos is Position {
@@ -2049,7 +2087,14 @@ export namespace LpcParser {
         return includeFile;
     }
 
-    function processIncludeDirective(includeDirective: IncludeDirective): boolean {                
+    /**
+     * @param advanceAfter when the include is consumed, advance past the directive's
+     * trailing newline so the INCLUDING file's parse resumes on a real token. Only the
+     * outermost call in a chain of global includes does this -- the siblings drained off
+     * `includeFileStack` all return with the same stream on the same boundary token, and
+     * advancing once per sibling would eat real tokens.
+     */
+    function processIncludeDirective(includeDirective: IncludeDirective, advanceAfter = true): boolean {                
         const currentFile = scanner.getFileName() ?? fileName;        
         const includeFile = resolveIncludeFilename(includeDirective);
         const resolvedFilename = internIdentifier(includeFile.filename);        
@@ -2141,11 +2186,17 @@ export namespace LpcParser {
         // if there are more include files in the stack, process the next one 
         const nextIncludeDirective = includeFileStack.shift();
         if (nextIncludeDirective) {
-            includeResult ||= processIncludeDirective(nextIncludeDirective);
+            includeResult ||= processIncludeDirective(nextIncludeDirective, /*advanceAfter*/ false);
         }
 
-        if (includeResult && !inContext(NodeFlags.IncludeContext)) {
-            // now prime the scanner for the next non-include token
+        if (includeResult && advanceAfter) {
+            // revertStream() put `currentToken` back on the newline that ended the
+            // `#include` line, so the including file's parse must step off it. This is
+            // needed at EVERY depth: an `#include` inside an included header used to skip
+            // this (it was gated on not being in IncludeContext, which a nested include
+            // always is), leaving parseList() looking at a newline it has no production
+            // for -- the header then aborted with a bogus "Declaration or statement
+            // expected" that its own standalone parse never produced.
             nextToken();
         }
 
