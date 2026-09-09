@@ -45,7 +45,8 @@ promise promise_create();
  * settles, then settles the same way. Resolving a promise with itself is
  * an error.
  *
- * DRIVER NOTE (not in the FluffOS docs): that holds for a DIRECT
+ * DRIVER NOTE (not in the FluffOS docs; reported as fluffos#1388):
+ * that holds for a DIRECT
  * promise_resolve(p, p), which errors. When the cycle arrives indirectly --
  * a promise_then() handler returning the very promise its result settles,
  * or an `async` body returning its own promise -- there is no call to fail,
@@ -77,7 +78,8 @@ varargs void promise_resolve( promise p, void | mixed value );
  * the same gametick; an `await` suspended on 'p' raises 'reason' as an
  * error at the await point (catchable with `acatch`).
  *
- * DRIVER NOTE (not in the FluffOS docs): omitting 'reason' does NOT reject
+ * DRIVER NOTE (not in the FluffOS docs; reported as fluffos#1387):
+ * omitting 'reason' does NOT reject
  * with 0. The driver substitutes PROMISE_REASON_NO_REASON, the string
  * "*promise rejected", so a bare reject is never falsy -- `acatch`, like
  * `catch`, signals failure by yielding the reason and success by yielding
