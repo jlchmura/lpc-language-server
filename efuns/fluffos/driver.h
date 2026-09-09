@@ -105,3 +105,59 @@
 #define EEBADDATA -32     /* sending data with too many nested levels */
 
 #define ERROR_STRINGS 33 /* sizeof (error_strings) */
+
+// src/include/promise.h
+/*
+ * The LPC-visible promise surface: promise_status() codes and the
+ * rejection reasons the driver itself produces.
+ *
+ * Every reason is a constant string with a leading "*", the driver's
+ * marker for a value it authored. None of them is an error(): they are
+ * delivered outcomes that arrive at an await or acatch like any other
+ * rejection, and none reaches the master's error_handler(). No trailing
+ * newline -- these are values handed to a rejection handler, not messages
+ * printed by error().
+ *
+ * They are matched by CONTENT, so a mudlib can forge one with throw().
+ * That is accepted: the authoritative test is promise_status(), since
+ * PROMISE_CANCELLED is a real settlement rather than a reserved string.
+ */
+#define PROMISE_PENDING   0
+#define PROMISE_FULFILLED 1
+#define PROMISE_REJECTED  2
+#define PROMISE_CANCELLED 3
+
+/* What a cancelled body's next await raises, and what its promise settles
+   with as PROMISE_CANCELLED if nothing catches it. */
+#define PROMISE_REASON_CANCELLED "*async function cancelled"
+
+/* The suspended body's owner went away underneath it, so the body can
+   never continue. */
+#define PROMISE_REASON_DESTRUCTED "*async function owner was destructed while suspended"
+#define PROMISE_REASON_RECOMPILED "*async function owner was recompiled while suspended"
+#define PROMISE_REASON_REPLACED_PROGRAM "*async function owner's program was replaced while suspended"
+
+/* No stack left to rebuild the frame on when the body was resumed. */
+#define PROMISE_REASON_STACK_OVERFLOW "*stack overflow while resuming async function"
+
+/* A promise lost its last reference before it settled, so whoever was
+   waiting can never be told. Which one you see says who was waiting: the
+   adoption source of a resolve-with-promise, a parked body, or a
+   combinator input. */
+#define PROMISE_REASON_ADOPTION_COLLECTED "*promise adoption source was collected before settling"
+#define PROMISE_REASON_AWAITED_COLLECTED "*awaited promise was collected before settling"
+#define PROMISE_REASON_COLLECTED "*promise was collected before settling"
+
+/* A promise cannot adopt itself. */
+#define PROMISE_REASON_SELF_RESOLVED "*promise resolved with itself"
+
+/* promise_any() over an empty array: nothing can ever fulfil it. */
+#define PROMISE_REASON_ANY_EMPTY "*promise_any: no promises to wait for"
+
+/* An async_yield() still queued when the driver shut down. */
+#define PROMISE_REASON_YIELD_SHUTDOWN "*async_yield never ran: the driver shut down"
+
+/* promise_reject(p) with no reason. Substituted so a bare reject is never
+   falsy -- acatch signals failure by yielding the reason, so a falsy
+   reason would read as success. */
+#define PROMISE_REASON_NO_REASON "*promise rejected"
