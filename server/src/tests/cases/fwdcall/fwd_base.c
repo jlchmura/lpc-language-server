@@ -1,0 +1,2 @@
+void from_base() {
+}

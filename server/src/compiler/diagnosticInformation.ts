@@ -38,6 +38,7 @@ export const Diagnostics = {
     Locale_0_is_not_supported: diag(9030, DiagnosticCategory.Error, "Locale_0_is_not_supported_9030", "Locale '{0}' is not supported."),
     No_errors: diag(9031, DiagnosticCategory.Message, "No_errors_9031", "No errors - That is some happy LPC."),
     Illegal_to_redeclare_local_name_0: diag(9052, DiagnosticCategory.Error, "Illegal_to_redeclare_local_name_0_9052", "Illegal to redeclare local name '{0}'."),
+    Undefined_function_0_it_is_not_declared_until_later_in_this_program: diag(9053, DiagnosticCategory.Error, "Undefined_function_0_it_is_not_declared_until_later_in_this_program_9053", "Undefined function '{0}': it is not declared until later in this program. Add a prototype above this call, or move the definition above it."),
     Catch_expression_cannot_also_have_a_block: diag(9032, DiagnosticCategory.Error, "Catch_expression_cannot_also_have_a_block_9032", "Catch expression cannot also have a block."),
     Operator_0_is_not_supported_in_LDMud: diag(9033, DiagnosticCategory.Error, "Operator_0_is_not_supported_in_LDMud_9033", "Operator '{0}' is not supported in LDMud."),
     Anonymous_function_expressions_are_only_supported_in_FluffOS: diag(9034, DiagnosticCategory.Error, "Anonymous_function_expressions_are_only_supported_in_FluffOS_9034", "Anonymous function expressions are only supported in FluffOS."),

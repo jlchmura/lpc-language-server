@@ -15806,10 +15806,132 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      * @param node The call/new expression to be checked.
      * @returns On success, the expression's signature's return type. On failure, anyType.
      */
+    /**
+     * Where `node` sits in the order the driver's one-pass compiler reaches it, as one
+     * offset per `#include` boundary between the outermost file and the node. Raw `pos` is
+     * an offset into whichever text the node came from, so a prototype in a header and a
+     * call in the .c that includes it are not comparable by `pos` alone; these paths are,
+     * lexicographically.
+     */
+    function getCompileOrderPath(node: Node): number[] {
+        const path: number[] = [];
+        let current: Node | undefined = node;
+        while (current) {
+            const owner = getSourceFileOrIncludeOfNode(current);
+            path.unshift(current.pos);
+            if (!owner || owner.kind === SyntaxKind.SourceFile) break;
+            current = owner as unknown as Node;
+        }
+        return path;
+    }
+
+    function comesBeforeInCompileOrder(node: Node, other: Node): boolean {
+        const nodePath = getCompileOrderPath(node);
+        const otherPath = getCompileOrderPath(other);
+        const shared = Math.min(nodePath.length, otherPath.length);
+        for (let i = 0; i < shared; i++) {
+            if (nodePath[i] !== otherPath[i]) return nodePath[i] < otherPath[i];
+        }
+        // one is an ancestor of the other -- the shallower one is reached first
+        return nodePath.length < otherPath.length;
+    }
+
+    /**
+     * Names the driver binds with no declaration in this program: efuns always, and
+     * simul_efuns everywhere except inside the simul_efun object itself.
+     *
+     * There the siblings are ordinary program-local functions of a single translation unit
+     * -- the simul_efun file is an include factory -- and the table the driver would search
+     * is only rebuilt after this program compiles (`get_simul_efuns` runs from
+     * `set_simul_efun`). A sibling call with no prototype therefore binds to the PREVIOUS
+     * generation's simul_efun on a reload and is a hard error on a cold boot, so it is
+     * checked like any other program-local call. Efuns still resolve, which is what lets an
+     * efun override call the efun it is replacing.
+     */
+    function driverBindsNameWithoutDeclaration(name: string, file: SourceFile): boolean {
+        if (compilerOptions.sefunFile && file === host.getSourceFile(compilerOptions.sefunFile)) {
+            const efuns = globals.get(InternalSymbolName.EfunNamespace);
+            return !!efuns?.members?.has(name);
+        }
+        return globals.has(name);
+    }
+
+    /**
+     * Whether an inherited program declares `name`. The driver processes every `inherit`
+     * before the body, so an inherited declaration -- a prototype the base picked up from a
+     * header included there is enough -- makes the name bindable at any call site here,
+     * wherever this program's own definition sits.
+     */
+    function isDeclaredByAnInherit(file: SourceFile, name: string): boolean {
+        const fileSymbol = getSymbolAtLocation(file, /*includeSourceFile*/ true);
+        if (!fileSymbol) return false;
+
+        const seen = new Set<string>();
+        const pending = [...getBaseTypes(getTypeOfSymbol(fileSymbol, CheckMode.TypeOnly) as InterfaceType) as InterfaceType[]];
+        while (pending.length) {
+            const current = pending.shift()!;
+            if (!current?.symbol || seen.has(current.symbol.name)) continue;
+            seen.add(current.symbol.name);
+            if (current.members?.has(name)) return true;
+            pending.push(...getBaseTypes(current) as InterfaceType[]);
+        }
+        return false;
+    }
+
+    /**
+     * The driver compiles in one pass, top to bottom, and can only bind a name it has
+     * already seen. Inside a function that declares a return type -- which is exactly what
+     * sets `exact_types`, in FluffOS (grammar_rules.cc) and LDMud (prolang.y) alike -- a
+     * call to a name this program does not declare until later is a compile error
+     * ("Undefined function") and the object fails to load.
+     *
+     * An untyped caller is deliberately not checked: there the driver quietly defines a
+     * forward stub and resolves it when the definition arrives, so the same source is legal.
+     * A call at file scope is not checked either, because it compiles into `__INIT`, which
+     * is untyped.
+     */
+    function checkCallTargetIsVisibleToTheDriver(node: CallExpression) {
+        const callee = node.expression;
+        if (!isIdentifier(callee)) return;
+
+        const containingFunction = getContainingFunction(node);
+        if (!containingFunction) return;
+
+        // An inline closure takes its checking from the function it is written in, so the
+        // question is always about the outermost declaration around the call.
+        let outermost: Node = containingFunction;
+        for (let parent = containingFunction.parent; parent; parent = parent.parent) {
+            if (isFunctionDeclaration(parent)) outermost = parent;
+        }
+        if (!isFunctionDeclaration(outermost) || !outermost.type) return;
+
+        const symbol = getResolvedSymbol(callee);
+        const declarations = symbol?.declarations;
+        // An unresolved name is already reported as such; nothing to add.
+        if (!symbol || symbol === unknownSymbol || !declarations?.length) return;
+
+        // Only a function of this program can be out of order. Anything else the name could
+        // resolve to is bound by a rule that does not depend on position.
+        const file = getSourceFileOfNode(node);
+        if (!declarations.every(declaration => isFunctionDeclaration(declaration) && getSourceFileOfNode(declaration) === file)) return;
+        if (declarations.some(declaration => comesBeforeInCompileOrder(declaration, callee))) return;
+
+        if (driverBindsNameWithoutDeclaration(callee.text, file)) return;
+        if (isDeclaredByAnInherit(file, callee.text)) return;
+
+        const diagnostic = error(callee, Diagnostics.Undefined_function_0_it_is_not_declared_until_later_in_this_program, callee.text);
+        addRelatedInfo(diagnostic, createDiagnosticForNode(declarations[0], Diagnostics._0_is_declared_here, callee.text));
+    }
+
     function checkCallExpression(node: CallExpression | NewExpression, checkMode?: CheckMode): Type {
         //checkGrammarTypeArguments(node, node.typeArguments);
 
         const signature = getResolvedSignature(node, /*candidatesOutArray*/ undefined, checkMode);
+
+        // After the signature, never before: resolving the callee here would cache a symbol
+        // picked with the wrong meaning and leave the call looking uncallable.
+        if (isCallExpression(node)) checkCallTargetIsVisibleToTheDriver(node);
+
         if (signature === resolvingSignature) {
             // CheckMode.SkipGenericFunctions is enabled and this is a call to a generic function that
             // returns a function type. We defer checking and return silentNeverType.

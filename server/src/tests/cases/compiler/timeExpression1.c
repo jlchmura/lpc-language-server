@@ -1,5 +1,10 @@
 // @driver: fluffos
 // time_expression uses the same body grammar as catch: `(expr)` or `{ block }`.
+
+int foo() {
+    return 1;
+}
+
 int testTimeExpression() {
     int elapsed = time_expression(foo());
     int blockElapsed;
@@ -13,8 +18,4 @@ int testTimeExpression() {
 
     // the result is the elapsed microsecond count, not the body's value
     return elapsed + blockElapsed;
-}
-
-int foo() {
-    return 1;
 }

@@ -691,7 +691,7 @@ exports[`Compiler compiler/new5.c Reports correct errors for compiler/new5.c: di
 
 exports[`Compiler compiler/new6.c Reports correct errors for compiler/new6.c: diags-compiler/new6.c 1`] = `
 "
-Found 1 error in server/src/tests/cases/compiler/new6.c[90m:11[0m
+Found 1 error in server/src/tests/cases/compiler/new6.c[90m:13[0m
 
 "
 `;
@@ -816,7 +816,7 @@ Found 1 error in server/src/tests/cases/compiler/timeExpression3.c[90m:9[0m
 
 exports[`Compiler compiler/timeExpression4.c Reports correct errors for compiler/timeExpression4.c: diags-compiler/timeExpression4.c 1`] = `
 "
-Found 1 error in server/src/tests/cases/compiler/timeExpression4.c[90m:6[0m
+Found 1 error in server/src/tests/cases/compiler/timeExpression4.c[90m:11[0m
 
 "
 `;

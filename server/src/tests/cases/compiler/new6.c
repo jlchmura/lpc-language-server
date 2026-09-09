@@ -3,6 +3,8 @@ class Foo {
     int num;
 }
 
+private string getNum(string type) { return 0; }
+
 private class Foo testFn(string type) {
 
     class Foo msg;
@@ -14,7 +16,6 @@ private class Foo testFn(string type) {
     return msg.type ? msg : 0;
 }
 
-private string getNum(string type) { return 0; }
     
    
 /**

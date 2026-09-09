@@ -5,12 +5,12 @@
 // so the efun gets a symbol, completion, and lpcdoc. The construct still parses normally.
 int time_expression( mixed expr );
 
+int foo() {
+    return 1;
+}
+
 int useConstruct() {
     return time_expression {
         foo();
     };
-}
-
-int foo() {
-    return 1;
 }
