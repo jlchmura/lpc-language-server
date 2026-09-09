@@ -42,8 +42,13 @@ promise promise_create();
  *
  * If 'value' is itself a promise, 'p' adopts its eventual state instead of
  * fulfilling immediately (flattening): 'p' stays pending until 'value'
- * settles, then settles the same way. Resolving a promise with itself is
- * an error.
+ * settles, then settles the same way.
+ *
+ * A promise cannot adopt itself. Calling promise_resolve(p, p) directly is
+ * an error; when the cycle arrives indirectly instead -- a promise_then()
+ * handler returning the very promise its result settles, or an `async` body
+ * returning its own promise -- there is no call to fail, so 'p' REJECTS with
+ * PROMISE_REASON_SELF_RESOLVED, the string "*promise resolved with itself".
  *
  * It is an error to settle a promise that is already settled -- including
  * one whose fate is already committed to a pending adoption: after
@@ -64,15 +69,25 @@ varargs void promise_resolve( promise p, void | mixed value );
 /**
  * promise_reject() - reject a pending promise
  *
- * Rejects the pending promise 'p' with 'reason' (0 if omitted). Rejection
- * handlers attached with promise_then()/promise_catch() run from the
- * microtask drain -- never synchronously from this call, but still within
- * the same gametick; an `await` suspended on 'p' raises 'reason' as an
- * error at the await point (catchable with `acatch`).
+ * Rejects the pending promise 'p' with 'reason'. Rejection handlers
+ * attached with promise_then()/promise_catch() run from the microtask
+ * drain -- never synchronously from this call, but still within the same
+ * gametick; an `await` suspended on 'p' raises 'reason' as an error at the
+ * await point (catchable with `acatch`).
+ *
+ * OMITTING 'reason' does not reject with 0 -- it rejects with
+ * PROMISE_REASON_NO_REASON, the string "*promise rejected". A rejection
+ * reason must be truthy by default: `acatch`, like `catch`, signals failure
+ * by yielding the reason and success by yielding 0, so a falsy reason is
+ * indistinguishable from success and `mixed err = acatch(await p); if (err)`
+ * would take the success branch on a real rejection. An explicitly falsy
+ * reason -- promise_reject(p, 0) -- is still the caller's choice, and still
+ * ambiguous; promise_status() is the unambiguous test.
  *
  * It is an error to settle a promise that is already settled, or one whose
  * fate is already committed to a pending adoption, or the promise an
- * `async` function returned.
+ * `async` function returned. Rejecting a promise with ITSELF is likewise an
+ * error.
  *
  * A rejected promise whose rejection is never observed (no handler
  * attached, result never read) is reported to the debug log when it is
@@ -136,16 +151,19 @@ promise promise_catch( promise p, function on_rejected );
  * Returns the current state of promise 'p':
  *
  * ```
- * 0   pending
- * 1   fulfilled
- * 2   rejected
- * 3   cancelled
+ * 0   PROMISE_PENDING
+ * 1   PROMISE_FULFILLED
+ * 2   PROMISE_REJECTED
+ * 3   PROMISE_CANCELLED
  * ```
+ *
+ * The names come from the driver's own <promise.h>, shared between driver
+ * and mudlib so the two cannot drift; prefer them to the bare numbers.
  *
  * Cancelled is a negative settlement -- `await`, promise_then() /
  * promise_catch(), and the fail-fast combinators treat it like a rejection
  * -- but it is not a fault. `acatch` still yields the reason string
- * ("*async function cancelled"); use this CODE, not that string, to tell a
+ * (PROMISE_REASON_CANCELLED); use this CODE, not that string, to tell a
  * cancellation from a rejection, since a mudlib can forge the string with
  * throw().
  *
@@ -209,8 +227,8 @@ int promisep( mixed arg );
  * promise_all_settled() to see every outcome.
  *
  * If the input that decided it was CANCELLED rather than rejected, the
- * returned promise is cancelled too -- promise_status() reports 3 -- so the
- * distinction survives the combinator.
+ * returned promise is cancelled too -- promise_status() reports
+ * PROMISE_CANCELLED -- so the distinction survives the combinator.
  *
  * An element that is not a promise counts as already fulfilled with
  * itself, which is why the parameter is `mixed *` rather than `promise *`:
@@ -301,9 +319,9 @@ promise promise_race( mixed *promises );
  * describing how that input ended:
  *
  * ```
- * ([ "status": 1, "value":  v ])   fulfilled
- * ([ "status": 2, "reason": r ])   rejected
- * ([ "status": 3, "reason": r ])   cancelled
+ * ([ "status": PROMISE_FULFILLED, "value":  v ])
+ * ([ "status": PROMISE_REJECTED,  "reason": r ])
+ * ([ "status": PROMISE_CANCELLED, "reason": r ])
  * ```
  *
  * The status codes are promise_status()'s, so one vocabulary covers both.
@@ -325,7 +343,7 @@ promise promise_race( mixed *promises );
  *     int i;
  *
  *     foreach (mapping r in results) {
- *         if (r["status"] == 2) {
+ *         if (r["status"] == PROMISE_REJECTED) {
  *             write("room " + i + " failed: " + r["reason"] + "\n");
  *         }
  *         i++;
@@ -342,7 +360,7 @@ promise<mapping *> promise_all_settled( mixed *promises );
  *
  * Requests cancellation of the `async` function body that owns 'p'. The
  * body's NEXT `await` raises a catchable error whose value is the string
- * "*async function cancelled".
+ * PROMISE_REASON_CANCELLED, the string "*async function cancelled".
  *
  * Returns 1 if a cancellation was armed, 0 if there was nothing left to
  * cancel -- the body already finished, or it returned a still-pending
@@ -365,7 +383,7 @@ promise<mapping *> promise_all_settled( mixed *promises );
  * Downstream links inherit the cancellation the same way: an `await` on 'p',
  * a promise_then() pass-through, an adoption, and the fail-fast combinators
  * promise_all() and promise_race() all carry it, and promise_all_settled()
- * records the input as status 3.
+ * records the input as PROMISE_CANCELLED.
  *
  * A body parked on a promise that will never settle is still cancelled
  * promptly: it is detached from that promise and its rejection scheduled
