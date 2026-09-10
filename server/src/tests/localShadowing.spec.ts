@@ -72,6 +72,27 @@ describe("FluffOS allows the shapes the driver allows", () => {
     it("accepts a new name in an inner block", () => {
         expect(redeclares(`void f() { int e = 1; { int e2 = 2; e2++; } e++; }`)).toBe(false);
     });
+
+    // The driver's rule is positional -- a name is refused only while it is a live local,
+    // and a block's locals are popped at its closing brace -- so a function-body
+    // declaration that comes AFTER an inner block is not something that block shadowed.
+    // Straight out of a mudlib: every "Illegal to redeclare local name" in a 1230-file
+    // project was this shape and every one of them was wrong.
+    it("accepts an inner block whose name is redeclared later in the function body", () => {
+        expect(redeclares(`void f(int err) { if(err) { mixed c = 1; c++; return; } mixed c = 2; c++; }`)).toBe(false);
+    });
+
+    it("accepts sibling blocks either side of a later function-body declaration", () => {
+        expect(redeclares(`void f() { { int b = 1; b++; } { int b = 2; b++; } int b = 3; b++; }`)).toBe(false);
+    });
+});
+
+describe("the enclosing declaration still has to be in scope to count", () => {
+    // The same two declarations the other way round: here the function-body one is live
+    // when the inner block declares over it, which is the case the driver refuses.
+    it("still rejects an inner block when the outer declaration comes first", () => {
+        expect(redeclares(`void f(int err) { mixed c = 2; if(err) { mixed c = 1; c++; return; } c++; }`)).toBe(true);
+    });
 });
 
 describe("LDMud is left alone", () => {

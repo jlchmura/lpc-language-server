@@ -3999,13 +3999,31 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         while (scope) {
             const symbol = canHaveLocals(scope) ? scope.locals?.get(name) : undefined;
-            if (symbol && symbol !== ownSymbol && symbol.flags & SymbolFlags.Variable) {
+            if (symbol && symbol !== ownSymbol && symbol.flags & SymbolFlags.Variable && isLiveAt(symbol, node)) {
                 error(node.name, Diagnostics.Illegal_to_redeclare_local_name_0, name);
                 return;
             }
             if (scope === containingFunction) return;
             scope = getEnclosingBlockScopeContainer(scope);
         }
+    }
+
+    /**
+     * Whether an enclosing scope's declaration of a name is in scope AT this declaration.
+     *
+     * The driver's rule is positional, not structural: rule_new_local_name_redefine()
+     * refuses a name only while it is a LIVE local -- `ihe->dn.local_num != -1` -- and
+     * pop_n_locals() resets that for every local it pops as a block closes. So an
+     * enclosing declaration that appears LATER in the function shadows nothing here:
+     *
+     *   if (err) { mixed cerr; ... }   mixed cerr;    // legal, and the driver accepts it
+     *
+     * which is the sibling case the caller already documents as legal -- `{ int b; } { int b; }`
+     * -- with the function body itself playing one of the siblings. Merely finding the name
+     * in an enclosing scope reported all four of these in one real mudlib and nothing else.
+     */
+    function isLiveAt(symbol: Symbol, node: Node): boolean {
+        return !!symbol.declarations?.some(d => d.pos < node.pos);
     }
 
     function checkBindingElement(node: BindingElement) {
