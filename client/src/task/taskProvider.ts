@@ -299,10 +299,18 @@ function createCheckTask(context: vscode.ExtensionContext, project: LpcConfig, l
 		'$lpc');
 	task.group = vscode.TaskGroup.Build;
 	task.isBackground = false;
+	// The terminal is a means, not the point: everything this produces lands in Problems,
+	// so showing it only leaves a panel to dismiss. `close` disposes it on exit instead of
+	// parking it for reuse. `Never` rather than `Silent` because Silent's reveal condition
+	// is subtle enough not to want to rely on it; the caller reports a failed run itself.
 	task.presentationOptions = {
-		reveal: vscode.TaskRevealKind.Always,
+		reveal: vscode.TaskRevealKind.Never,
+		echo: false,
+		focus: false,
 		panel: vscode.TaskPanelKind.Dedicated,
+		showReuseMessage: false,
 		clear: true,
+		close: true,
 	};
 
 	return task;
@@ -345,7 +353,28 @@ export async function checkProject(context: vscode.ExtensionContext): Promise<vo
 		project = picked.config;
 	}
 
-	await vscode.tasks.executeTask(createCheckTask(context, project, labelForConfig(project)));
+	const label = labelForConfig(project);
+	const task = createCheckTask(context, project, label);
+
+	// With the terminal hidden there would otherwise be nothing to say the check is
+	// running, and Problems stays as it was until the results land. A window-location
+	// progress item is the same spinner a visible task gets, without the panel.
+	// A failed run reports itself without help: VS Code raises its own notification, and
+	// `close` leaves the terminal open when the task exits non-zero, so the output is
+	// still there to read. Only a successful run is closed and forgotten.
+	await vscode.window.withProgress(
+		{ location: vscode.ProgressLocation.Window, title: vscode.l10n.t("Checking {0}", label) },
+		async () => {
+			const execution = await vscode.tasks.executeTask(task);
+			await new Promise<void>(resolve => {
+				const finished = vscode.tasks.onDidEndTask(event => {
+					if (event.execution === execution) {
+						finished.dispose();
+						resolve();
+					}
+				});
+			});
+		});
 }
 
 export function register(
