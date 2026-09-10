@@ -158,7 +158,7 @@ class LpcTaskProvider extends Disposable implements vscode.TaskProvider {
 			project.workspaceFolder || vscode.TaskScope.Workspace,
 			vscode.l10n.t("Build - {0}", label),
 			'lpc',
-			new vscode.ShellExecution("node", [command, ...args], { cwd: path.dirname(project.fsPath) }),
+			new vscode.ShellExecution("node", [command, ...args]),
 			'$lpc');
 		buildTask.group = vscode.TaskGroup.Build;
 		buildTask.isBackground = false;
@@ -281,9 +281,12 @@ function getCliModule(context: vscode.ExtensionContext): string {
  * closedDocuments` -- files the results under Problems for the files nobody has open,
  * leaving the language server's own diagnostics in charge of the ones you do.
  *
- * The CLI writes file paths relative to its working directory and the matcher resolves
- * them against `${cwd}`, so the two have to agree: run it from the directory holding
- * lpc-config.json, which is not necessarily the workspace root.
+ * Deliberately no `cwd`. The CLI writes file paths relative to its working directory and
+ * the matcher resolves them against `${cwd}`, which is the WORKSPACE FOLDER -- a task's
+ * ShellExecution cwd does not feed it. Pointing the CLI at the directory holding
+ * lpc-config.json therefore only lines the two up when that happens to be the workspace
+ * root; for a config in a subfolder every problem lands on a path that does not exist.
+ * Letting the shell default to the workspace folder keeps both sides on the same root.
  */
 function createCheckTask(context: vscode.ExtensionContext, project: LpcConfig, label: string): vscode.Task {
 	const definition: LpcTaskDefinition = { type: taskType, 'lpc-config': project.fsPath };
@@ -292,9 +295,7 @@ function createCheckTask(context: vscode.ExtensionContext, project: LpcConfig, l
 		project.workspaceFolder || vscode.TaskScope.Workspace,
 		vscode.l10n.t("Check Project - {0}", label),
 		'lpc',
-		new vscode.ShellExecution("node", [getCliModule(context), "--project", project.fsPath], {
-			cwd: path.dirname(project.fsPath),
-		}),
+		new vscode.ShellExecution("node", [getCliModule(context), "--project", project.fsPath]),
 		'$lpc');
 	task.group = vscode.TaskGroup.Build;
 	task.isBackground = false;
