@@ -16,8 +16,15 @@ enum AutoDetect {
 	watch = 'watch'
 }
 
+/**
+ * Must match the `type` of the task definition contributed in package.json, and the
+ * property name it lists under `required` -- VS Code matches a task to its contributed
+ * definition by both, so a task built with anything else is never resolved.
+ */
+const taskType = 'LPC';
+
 interface LpcTaskDefinition extends vscode.TaskDefinition {
-	lpcConfig: string;
+	'lpc-config': string;
 	option?: string;
 }
 
@@ -37,11 +44,7 @@ class LpcTaskProvider extends Disposable implements vscode.TaskProvider {
     }
 
     private static async getCommand(context: vscode.ExtensionContext, project: LpcConfig): Promise<string> {
-        const cliModule = context.asAbsolutePath(
-            path.join("out", "server", "src", "cli", "lpc.js")
-        );
-
-        return cliModule;
+        return getCliModule(context);
 
 		// if (project.workspaceFolder) {
 		// 	const localLpc = await LpcTaskProvider.getLocalLpcAtPath(path.dirname(project.fsPath));
@@ -89,13 +92,13 @@ class LpcTaskProvider extends Disposable implements vscode.TaskProvider {
 
     public async resolveTask(task: vscode.Task): Promise<vscode.Task | undefined> {
 		const definition = <LpcTaskDefinition>task.definition;
-		if (/\\lpc-config.*\.json/.test(definition.lpcConfig)) {
+		if (/\\lpc-config.*\.json/.test(definition['lpc-config'])) {
 			// Warn that the task has the wrong slash type
 			vscode.window.showWarningMessage(vscode.l10n.t("LPC Task in tasks.json contains \"\\\\\". LPC tasks lpc-cconfig must use \"/\""));
 			return undefined;
 		}
 
-		const tsconfigPath = definition.lpcConfig;
+		const tsconfigPath = definition['lpc-config'];
 		if (!tsconfigPath) {
 			return undefined;
 		}
@@ -122,8 +125,8 @@ class LpcTaskProvider extends Disposable implements vscode.TaskProvider {
 		let task: vscode.Task | undefined;
 
 		if (definition.option === undefined) {
-			task = this.getBuildTask(project.workspaceFolder, label, command, args, definition);
-		} 
+			task = this.getBuildTask(project, label, command, args, definition);
+		}
         // else if (definition.option === 'watch') {
 		// 	task = this.getWatchTask(project.workspaceFolder, label, command, args, definition);
 		// }
@@ -139,7 +142,7 @@ class LpcTaskProvider extends Disposable implements vscode.TaskProvider {
 		const tasks: vscode.Task[] = [];
 
 		if (this.autoDetect === AutoDetect.build || this.autoDetect === AutoDetect.on) {
-			tasks.push(this.getBuildTask(project.workspaceFolder, label, command, args, { type: 'typescript', lpcConfig: label }));
+			tasks.push(this.getBuildTask(project, label, command, args, { type: taskType, 'lpc-config': label }));
 		}
 
 		// if (this.autoDetect === AutoDetect.watch || this.autoDetect === AutoDetect.on) {
@@ -149,27 +152,22 @@ class LpcTaskProvider extends Disposable implements vscode.TaskProvider {
 		return tasks;
 	}
 
-    private getBuildTask(workspaceFolder: vscode.WorkspaceFolder | undefined, label: string, command: string, args: string[], buildTaskidentifier: LpcTaskDefinition): vscode.Task {
+    private getBuildTask(project: LpcConfig, label: string, command: string, args: string[], buildTaskidentifier: LpcTaskDefinition): vscode.Task {
 		const buildTask = new vscode.Task(
 			buildTaskidentifier,
-			workspaceFolder || vscode.TaskScope.Workspace,
+			project.workspaceFolder || vscode.TaskScope.Workspace,
 			vscode.l10n.t("Build - {0}", label),
 			'lpc',
-			new vscode.ShellExecution("node", [command, ...args]),
+			new vscode.ShellExecution("node", [command, ...args], { cwd: path.dirname(project.fsPath) }),
 			'$lpc');
 		buildTask.group = vscode.TaskGroup.Build;
 		buildTask.isBackground = false;
-				
+
 		return buildTask;
 	}
 
     private getLabelForTasks(project: LpcConfig): string {
-		if (project.workspaceFolder) {
-			const workspaceNormalizedUri = vscode.Uri.file(path.normalize(project.workspaceFolder.uri.fsPath)); // Make sure the drive letter is lowercase
-			return path.posix.relative(workspaceNormalizedUri.path, project.posixPath);
-		}
-
-		return project.posixPath;
+		return labelForConfig(project);
 	}
 
 
@@ -273,9 +271,85 @@ class LpcTaskProvider extends Disposable implements vscode.TaskProvider {
 	}
 }
 
+function getCliModule(context: vscode.ExtensionContext): string {
+	return context.asAbsolutePath(path.join("out", "server", "src", "cli", "lpc.js"));
+}
+
+/**
+ * The whole-project check, as a task rather than a bare child process: the terminal
+ * gives a slow run somewhere to report progress, and `$lpc` -- declared `applyTo:
+ * closedDocuments` -- files the results under Problems for the files nobody has open,
+ * leaving the language server's own diagnostics in charge of the ones you do.
+ *
+ * The CLI writes file paths relative to its working directory and the matcher resolves
+ * them against `${cwd}`, so the two have to agree: run it from the directory holding
+ * lpc-config.json, which is not necessarily the workspace root.
+ */
+function createCheckTask(context: vscode.ExtensionContext, project: LpcConfig, label: string): vscode.Task {
+	const definition: LpcTaskDefinition = { type: taskType, 'lpc-config': project.fsPath };
+	const task = new vscode.Task(
+		definition,
+		project.workspaceFolder || vscode.TaskScope.Workspace,
+		vscode.l10n.t("Check Project - {0}", label),
+		'lpc',
+		new vscode.ShellExecution("node", [getCliModule(context), "--project", project.fsPath], {
+			cwd: path.dirname(project.fsPath),
+		}),
+		'$lpc');
+	task.group = vscode.TaskGroup.Build;
+	task.isBackground = false;
+	task.presentationOptions = {
+		reveal: vscode.TaskRevealKind.Always,
+		panel: vscode.TaskPanelKind.Dedicated,
+		clear: true,
+	};
+
+	return task;
+}
+
+function labelForConfig(project: LpcConfig): string {
+	if (project.workspaceFolder) {
+		// Make sure the drive letter is lowercase
+		const folder = vscode.Uri.file(path.normalize(project.workspaceFolder.uri.fsPath));
+		return path.posix.relative(folder.path, project.posixPath);
+	}
+
+	return project.posixPath;
+}
+
+/** Backs the `lpc.checkProject` command: check every file in a project, not just the open ones. */
+export async function checkProject(context: vscode.ExtensionContext): Promise<void> {
+	const source = new vscode.CancellationTokenSource();
+	let configs: LpcConfig[];
+	try {
+		configs = Array.from(await new LpcConfigProvider().getConfigsForWorkspace(source.token));
+	} finally {
+		source.dispose();
+	}
+
+	if (!configs.length) {
+		vscode.window.showWarningMessage(
+			vscode.l10n.t("No lpc-config.json found in this workspace."));
+		return;
+	}
+
+	let project = configs[0];
+	if (configs.length > 1) {
+		const picked = await vscode.window.showQuickPick(
+			configs.map(config => ({ label: labelForConfig(config), config })),
+			{ placeHolder: vscode.l10n.t("Which project should be checked?") });
+		if (!picked) {
+			return;
+		}
+		project = picked.config;
+	}
+
+	await vscode.tasks.executeTask(createCheckTask(context, project, labelForConfig(project)));
+}
+
 export function register(
     context: vscode.ExtensionContext,
 	client: LanguageClient,
 ) {
-	return vscode.tasks.registerTaskProvider('typescript', new LpcTaskProvider(context, client));
+	return vscode.tasks.registerTaskProvider(taskType, new LpcTaskProvider(context, client));
 }

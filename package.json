@@ -103,6 +103,10 @@
             {
                 "command": "lpc.restartSyntaxServer",
                 "title": "LPC: Restart LPC Syntax Server"
+            },
+            {
+                "command": "lpc.checkProject",
+                "title": "LPC: Check Project for Problems"
             }
         ],
         "taskDefinitions": [

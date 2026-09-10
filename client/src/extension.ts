@@ -227,6 +227,13 @@ export async function activate(context: ExtensionContext) {
         commands.registerCommand("lpc.restartSyntaxServer", async () => {
             window.showInformationMessage("Restarting LPC Syntax Server...");
             await restartClient(syntaxClient);
+        }),
+        // Registered here rather than in registerProviders() so the command is live from
+        // activation: it drives the CLI in its own process and does not need the language
+        // server to have finished starting. The module itself stays lazily imported.
+        commands.registerCommand("lpc.checkProject", async () => {
+            const taskProvider = await import("./task/taskProvider");
+            await taskProvider.checkProject(context);
         })
     );
 
