@@ -1222,6 +1222,7 @@ export namespace LpcParser {
         while (!isListTerminator(kind)) {
             if (isListElement(kind, /*inErrorRecovery*/ false)) {
                 const startPos = scanner.getTokenFullStart();
+                const startStream = scanner.getStateId();
                 list.push(parseListElement(kind, parseElement));
 
                 // A list element that consumed NOTHING would spin here forever. That is
@@ -1238,7 +1239,15 @@ export namespace LpcParser {
                 // it, and one such line in an included header took down a whole project.
                 //
                 // Report it where it actually is and step over the token.
-                if (scanner.getTokenFullStart() === startPos) {
+                //
+                // The offset alone does not say that, though: a macro body is scanned as
+                // its own stream with its own offsets. An element whose last token expanded
+                // a macro leaves the scanner sitting inside that body, and the offset there
+                // can equal the one the element started at -- which it does whenever the
+                // *previous* element also began with that same macro. Compare the stream
+                // too, or a nested object-path macro loses its first token on every other
+                // use (`MOVE_D->f()` resolving to `daemons/movement`, not `/adm/daemons/movement`).
+                if (scanner.getTokenFullStart() === startPos && scanner.getStateId() === startStream) {
                     parseErrorAtCurrentToken(Diagnostics.Unexpected_token);
                     nextToken();
                 }
@@ -4399,6 +4408,7 @@ export namespace LpcParser {
         while (true) {
             if (isListElement(kind, /*inErrorRecovery*/ false)) {
                 const startPos = scanner.getTokenFullStart();
+                const startStream = scanner.getStateId();
                 const result = parseListElement(kind, () => parseElement(list.length));
                 if (!result) {
                     parsingContext = saveParsingContext;
@@ -4429,7 +4439,9 @@ export namespace LpcParser {
                 if (considerSemicolonAsDelimiter && token() === SyntaxKind.SemicolonToken && !scanner.hasPrecedingLineBreak()) {
                     nextToken();
                 }
-                if (startPos === scanner.getTokenFullStart()) {
+                // The stream has to match as well -- see the note in parseList: equal offsets
+                // in two different macro bodies are not the same position.
+                if (startPos === scanner.getTokenFullStart() && startStream === scanner.getStateId()) {
                     // What we're parsing isn't actually remotely recognizable as a element and we've consumed no tokens whatsoever
                     // Consume a token to advance the parser in some way and avoid an infinite loop
                     // This can happen when we're speculatively parsing parenthesized expressions which we think may be arrow functions,
@@ -4478,6 +4490,7 @@ export namespace LpcParser {
         while (true) {
             if (isListElement(kind, /*inErrorRecovery*/ false)) {
                 const startPos = scanner.getTokenFullStart();
+                const startStream = scanner.getStateId();
                 const result = parseListElement(kind, parseElement);
                 if (!result) {
                     parsingContext = saveParsingContext;
@@ -4500,7 +4513,9 @@ export namespace LpcParser {
                 // out a comma so we give a good error message.
                 parseExpected(delimiter);
                 
-                if (startPos === scanner.getTokenFullStart()) {
+                // The stream has to match as well -- see the note in parseList: equal offsets
+                // in two different macro bodies are not the same position.
+                if (startPos === scanner.getTokenFullStart() && startStream === scanner.getStateId()) {
                     // What we're parsing isn't actually remotely recognizable as a element and we've consumed no tokens whatsoever
                     // Consume a token to advance the parser in some way and avoid an infinite loop
                     // This can happen when we're speculatively parsing parenthesized expressions which we think may be arrow functions,
