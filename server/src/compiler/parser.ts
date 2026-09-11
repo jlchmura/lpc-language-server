@@ -3510,6 +3510,8 @@ export namespace LpcParser {
                 return parseTypeLiteral();            
             case SyntaxKind.OpenParenBracketToken: // mapping type node, i.e. ([ ... ])
                 return (inContext(NodeFlags.JSDoc)) ? parseMappingTypeNode() : undefined;
+            case SyntaxKind.OpenParenBraceToken: // array literal type node, i.e. ({ ... })
+                return (inContext(NodeFlags.JSDoc)) ? parseArrayLiteralTypeNode() : undefined;
             case SyntaxKind.OpenParenToken: {
                 const pos = getPositionState();
                 parseExpected(SyntaxKind.OpenParenToken);
@@ -5537,6 +5539,35 @@ export namespace LpcParser {
         parseExpectedMatchingBracketTokens(SyntaxKind.OpenParenBracketToken, [SyntaxKind.CloseBracketToken, SyntaxKind.CloseParenToken], openBracketParsed, openBracketPosition, openBracketFilename);
         
         return finishNode(factory.createMappingTypeNode(keyType, valueTypes), pos);
+    }
+
+    /**
+     * An array literal spelled as a type, i.e. `({ string })` or `({ int, int })`.
+     *
+     * The mudlib idiom writes an array of T the way the value is written, and pairs it
+     * with the mapping form `([ ... ])` that has always parsed here -- so the two look
+     * interchangeable in a doc comment and one of them silently was not. LPC has no tuple
+     * type to land on, so a multi-element spelling collapses to an array of the union of
+     * its elements: `({ int, int })` is `int*`, `({ string, object })` is `(string|object)*`.
+     * That loses the positional information, which LPC could not express in the first place,
+     * and keeps the element type the reader was reaching for.
+     */
+    function parseArrayLiteralTypeNode(): TypeNode {
+        const pos = getPositionState();
+        const openBracketPosition = scanner.getTokenStart();
+        const openBraceFilename = scanner.getFileName();
+        const openBracketParsed = parseExpected(SyntaxKind.OpenParenBraceToken);
+
+        const elementTypes = parseDelimitedList(ParsingContext.TypeArguments, parseType);
+
+        parseExpectedMatchingBracketTokens(SyntaxKind.OpenParenBraceToken, [SyntaxKind.CloseBraceToken, SyntaxKind.CloseParenToken], openBracketParsed, openBracketPosition, openBraceFilename);
+
+        // `({ })` is a well-formed empty array literal, so it is a well-formed type too.
+        const elementType = elementTypes.length === 0 ? finishNode(factory.createKeywordTypeNode(SyntaxKind.MixedKeyword), pos) :
+            elementTypes.length === 1 ? elementTypes[0] :
+            finishNode(factory.createUnionTypeNode(elementTypes), pos);
+
+        return finishNode(factory.createArrayTypeNode(elementType), pos);
     }
 
     function parseMappingLiteralElement(): MappingEntryExpression {
