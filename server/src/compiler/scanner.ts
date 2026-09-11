@@ -2964,7 +2964,10 @@ export function createScanner(
                 }
                 return token = SyntaxKind.WhitespaceTrivia;
             case CharacterCodes.at:
-                return token = SyntaxKind.AtToken;
+                // A tag is `@` followed by its name. An `@` before anything that cannot begin one --
+                // `@@` in prose about process_string, a lone `@`, `@(` -- is comment text, not a tag
+                // with a missing name.
+                return token = pos < end && isIdentifierStart(codePointUnchecked(pos), languageVersion) ? SyntaxKind.AtToken : SyntaxKind.Unknown;
             case CharacterCodes.carriageReturn:
                 if (charCodeUnchecked(pos) === CharacterCodes.lineFeed) {
                     pos++;
