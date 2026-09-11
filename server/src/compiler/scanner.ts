@@ -3225,7 +3225,10 @@ export function createScanner(
         const scanStateId = stateId;     
         isSpeculating = false;
 
-        fileName = "";
+        // Keep the file name the scan belongs to. Blanking it stamped every diagnostic raised
+        // during the scan with "", and attachFileToDiagnostics() keeps only the diagnostics
+        // whose file name matches their source file -- so a doc comment's parse errors were
+        // dropped from the file that owns it, and surfaced only through an #include roll-up.
 
         // initialize the state ending
         setStateEnding(stateId, createPosState(start, fileName));

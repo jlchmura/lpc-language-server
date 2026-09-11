@@ -6753,7 +6753,14 @@ export namespace LpcParser {
                 let isNameFirst = !typeExpression;
                 skipWhitespaceOrAsterisk();
 
-                const { name, isBracketed, isRef, expr } = parseBracketNameInPropertyAndParamTag();
+                // An @var with no name is the checker's to report, with a message that says what is
+                // missing (LPCDoc_var_tag_should_provide_a_variable_name). Raising the generic
+                // "Identifier expected" here as well reported one mistake twice.
+                const varNameMissing = target === PropertyLikeParse.Variable && !tokenIsIdentifierOrKeyword(token())
+                    && token() !== SyntaxKind.OpenBracketToken && token() !== SyntaxKind.BacktickToken && token() !== SyntaxKind.AmpersandToken;
+                const { name, isBracketed, isRef, expr } = varNameMissing
+                    ? { name: createMissingNode<Identifier>(SyntaxKind.Identifier, /*reportAtCurrentPosition*/ false), isBracketed: false, isRef: false, expr: undefined }
+                    : parseBracketNameInPropertyAndParamTag();
                 const indentText = skipWhitespaceOrAsterisk();
 
                 if (isNameFirst && !lookAhead(parseJSDocLinkPrefix)) {
