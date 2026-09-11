@@ -362,19 +362,29 @@ export async function checkProject(context: vscode.ExtensionContext): Promise<vo
 	// A failed run reports itself without help: VS Code raises its own notification, and
 	// `close` leaves the terminal open when the task exits non-zero, so the output is
 	// still there to read. Only a successful run is closed and forgotten.
-	await vscode.window.withProgress(
+	const exitCode = await vscode.window.withProgress(
 		{ location: vscode.ProgressLocation.Window, title: vscode.l10n.t("Checking {0}", label) },
 		async () => {
 			const execution = await vscode.tasks.executeTask(task);
-			await new Promise<void>(resolve => {
-				const finished = vscode.tasks.onDidEndTask(event => {
+			return new Promise<number | undefined>(resolve => {
+				const finished = vscode.tasks.onDidEndTaskProcess(event => {
 					if (event.execution === execution) {
 						finished.dispose();
-						resolve();
+						resolve(event.exitCode);
 					}
 				});
 			});
 		});
+
+	// A check that ran to the end has put everything it found in Problems, so go there unless
+	// told not to -- `!== false` because an unset setting means yes, read now so a change made
+	// mid-run applies. The CLI exits 0 whether or not it found problems; anything else (or
+	// undefined, when the task was stopped) means it failed, and its output is in the terminal
+	// `close` leaves open -- focusing Problems would bury it. Focus the view rather than run
+	// `workbench.actions.view.problems`, a toggle that closes the panel when Problems is showing.
+	if (exitCode === 0 && vscode.workspace.getConfiguration("LPC").get<boolean>("checkProject.openProblemsPanel") !== false) {
+		await vscode.commands.executeCommand("workbench.panel.markers.view.focus");
+	}
 }
 
 export function register(

@@ -235,6 +235,12 @@
                     ],
                     "markdownDescription": "Controls how much the LPC language server writes to its log. `verbose` surfaces file-watcher breadcrumbs (e.g. save files rewritten each heartbeat) that are otherwise suppressed. Changing this requires restarting the language server.",
                     "scope": "window"
+                },
+                "LPC.checkProject.openProblemsPanel": {
+                    "type": "boolean",
+                    "default": true,
+                    "scope": "window",
+                    "markdownDescription": "Open the Problems panel after diagnosis, when **LPC: Check Project for Problems** finishes."
                 }
             }
         }
