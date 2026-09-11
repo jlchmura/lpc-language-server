@@ -3778,6 +3778,30 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (getMembersOfSymbol(node.symbol).size === 0 && !aliasSymbol) {
                 links.resolvedType = emptyTypeLiteralType;
             }
+            else if (isJSDocTypeLiteral(node) && node.isMappingType) {
+                // `@typedef {mapping} Person` + `@property` names a mapping's shape, so it must
+                // BE a mapping -- an anonymous object would read its properties correctly and
+                // then diverge everywhere else, giving `mixed` for foreach and computed keys
+                // where an inline `([ "name": string ])` gives real types.
+                const shape = new Map<string, Type>();
+                forEach(node.jsDocPropertyTags, tag => {
+                    const name = isIdentifier(tag.name) ? tag.name.text : tag.name.right.text;
+                    shape.set(name, tag.typeExpression ? getTypeFromTypeNode(tag.typeExpression.type) : anyType);
+                });
+                const valueTypes = arrayFrom(shape.values());
+                let type: Type = createMappingType(
+                    valueTypes.length ? stringType : anyType,
+                    valueTypes.length ? getUnionType(valueTypes, UnionReduction.Subtype) : anyType);
+                if (shape.size) {
+                    (type as MappingShapedType).mappingShape = shape;
+                }
+                (type as Type).aliasSymbol = aliasSymbol;
+                (type as Type).aliasTypeArguments = getTypeArgumentsForAliasSymbol(aliasSymbol);
+                if (node.isArrayType) {
+                    type = createArrayType(type);
+                }
+                links.resolvedType = type;
+            }
             else {
                 let type = createObjectType(ObjectFlags.Anonymous, node.symbol);
                 type.aliasSymbol = aliasSymbol;
@@ -18943,6 +18967,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      */
     function getContainersOfSymbol(symbol: Symbol, enclosingDeclaration: Node | undefined, meaning: SymbolFlags): Symbol[] | undefined {
         const container = getParentOfSymbol(symbol);
+        // LPC has no modules, so a symbol's containing FILE is never a meaningful qualifier:
+        // qualifying by it produced names like `"/main".Person` for a typedef or a class, which
+        // name nothing a user could write. Everything else still qualifies normally.
+        if (container && container.declarations?.length && every(container.declarations, isSourceFile)) {
+            return undefined;
+        }
         // Type parameters end up in the `members` lists but are not externally visible
         if (container && !(symbol.flags & SymbolFlags.TypeParameter)) {
             return getWithAlternativeContainers(container);

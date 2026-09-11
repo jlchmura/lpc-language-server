@@ -1705,7 +1705,7 @@ export interface NodeFactory {
     createJSDocUnknownTag(tagName: Identifier, comment?: string | NodeArray<JSDocComment>): JSDocUnknownTag;
     createJSDocPropertyTag(tagName: Identifier | undefined, name: EntityName, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocPropertyTag;
     createJSDocVariableTag(tagName: Identifier | undefined, name: EntityName, isBracketed: boolean, typeExpression?: JSDocTypeExpression, isNameFirst?: boolean, comment?: string | NodeArray<JSDocComment>): JSDocVariableTag;
-    createJSDocTypeLiteral(propertyTags?: readonly JSDocPropertyLikeTag[], isArrayType?: boolean): JSDocTypeLiteral;
+    createJSDocTypeLiteral(propertyTags?: readonly JSDocPropertyLikeTag[], isArrayType?: boolean, isMappingType?: boolean): JSDocTypeLiteral;
     createJSDocSeeTag(tagName: Identifier | undefined, name: JSDocNameReference | undefined, comment?: string | NodeArray<JSDocComment>): JSDocSeeTag;
     createJSDocAuthorTag(tagName: Identifier | undefined, comment?: string | NodeArray<JSDocComment>): JSDocAuthorTag;
     createJSDocThrowsTag(tagName: Identifier, typeExpression: JSDocTypeExpression | undefined, comment?: string | NodeArray<JSDocComment>): JSDocThrowsTag;
@@ -3643,6 +3643,12 @@ export interface JSDocTypeLiteral extends JSDocType, Declaration {
     readonly jsDocPropertyTags?: readonly JSDocPropertyLikeTag[];
     /** If true, then this type literal represents an *array* of its type. */
     readonly isArrayType: boolean;
+    /**
+     * If true, the typedef declared `{mapping}`, so these properties are a MAPPING's shape
+     * rather than an object's. parseTypedefTag replaces the declared type expression with this
+     * literal, so without the flag the checker cannot tell which was written.
+     */
+    readonly isMappingType?: boolean;
 }
 
 export interface JSDocTag extends Node {
