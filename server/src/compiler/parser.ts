@@ -3418,6 +3418,13 @@ export namespace LpcParser {
             //     return !inStartOfParameter;
             case SyntaxKind.MinusToken:
                 return !inStartOfParameter && lookAhead(nextTokenIsNumericOrBigIntLiteral);
+            case SyntaxKind.OpenParenBracketToken:
+                // A mapping type, `([ ... ])`, is a type only inside a doc comment -- the same gate
+                // parseNonArrayType() applies. Without it a type list such as a mapping type's value
+                // types could not START with one, so `([ string: ([ string: int ]) ])` failed at the
+                // inner `([` while the same nesting in the key position, parsed by parseType() directly,
+                // was fine.
+                return inContext(NodeFlags.JSDoc);
             // case SyntaxKind.OpenParenToken:
             //     // Only consider '(' the start of a type if followed by ')', '...', an identifier, a modifier,
             //     // or something that starts a type. We don't want to consider things like '(1)' a type.
