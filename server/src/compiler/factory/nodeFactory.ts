@@ -149,7 +149,7 @@ import {
     LiteralTypeNode,
     MappingEntryExpression,
     MappingLiteralExpression,
-    MappingTypeNode,
+    MappingTypeNode, MappingTypeEntryNode,
     MemberName,
     memoize,
     memoizeOne,
@@ -332,6 +332,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         updateTypePredicateNode,
         createArrayTypeNode,
         createMappingTypeNode,
+        createMappingTypeEntryNode,
         createNamedObjectTypeNode,
         createUnionTypeNode,
         createIntersectionTypeNode,
@@ -1211,10 +1212,17 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createMappingTypeNode(keyType: TypeNode, valueTypes: NodeArray<TypeNode>): MappingTypeNode {
+    function createMappingTypeNode(entries: readonly MappingTypeEntryNode[]): MappingTypeNode {
         const node = createBaseNode<MappingTypeNode>(SyntaxKind.MappingType);
+        node.entries = createNodeArray(entries);
+        return node;
+    }
+
+    // @api
+    function createMappingTypeEntryNode(keyType: TypeNode, valueTypes: readonly TypeNode[]): MappingTypeEntryNode {
+        const node = createBaseNode<MappingTypeEntryNode>(SyntaxKind.MappingTypeEntry);
         node.keyType = keyType;
-        node.elements = asNodeArray(valueTypes);
+        node.elements = createNodeArray(valueTypes);
         return node;
     }
 

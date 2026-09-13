@@ -1036,6 +1036,9 @@ export const enum SyntaxKind {
     CaseClause,
     HeritageClause,
     DefaultClause,    
+    /** One `key: value` pair inside a mapping type. Deliberately past LastTypeNode: it is not
+     * itself a type, and inserting inside the type-node range would renumber every kind after it. */
+    MappingTypeEntry,
 
     // Enum value count
     Count,
@@ -1605,7 +1608,8 @@ export interface NodeFactory {
     createUnionTypeNode(types: readonly TypeNode[]): UnionTypeNode;
     createIntersectionTypeNode(types: readonly TypeNode[]): IntersectionTypeNode;
     createArrayTypeNode(elementType: TypeNode): ArrayTypeNode;
-    createMappingTypeNode(keyType: TypeNode, valueTypes: NodeArray<TypeNode>): MappingTypeNode;
+    createMappingTypeNode(entries: readonly MappingTypeEntryNode[]): MappingTypeNode;
+    createMappingTypeEntryNode(keyType: TypeNode, valueTypes: readonly TypeNode[]): MappingTypeEntryNode;
     createNamedObjectTypeNode(name: StringLiteral | BinaryExpression | ParenthesizedExpression, objectKeyword: TypeNode): NamedObjectTypeNode;
     createParenthesizedType(type: TypeNode): ParenthesizedTypeNode;
     createLiteralTypeNode(literal: LiteralTypeNode["literal"]): LiteralTypeNode;
@@ -2310,7 +2314,8 @@ export type HasChildren =
     // | OptionalTypeNode
     // | RestTypeNode
     | ArrayTypeNode
-    | MappingTypeNode    
+    | MappingTypeNode
+    | MappingTypeEntryNode    
     | UnionTypeNode
     | TypeAssertion
     | NamedObjectTypeNode
@@ -8063,10 +8068,17 @@ export interface PromiseTypeNode extends TypeNode {
     readonly typeArgument?: TypeNode;
 }
 
+export interface MappingTypeEntryNode extends Node {
+    readonly kind: SyntaxKind.MappingTypeEntry;
+    readonly keyType: TypeNode;
+    /** The entry's value type(s); more than one is LDMud's multi-value form. */
+    readonly elements: NodeArray<TypeNode>;
+}
+
 export interface MappingTypeNode extends TypeNode {
     readonly kind: SyntaxKind.MappingType;
-    readonly keyType: TypeNode;
-    readonly elements: NodeArray<TypeNode>;   
+    /** `([ k: v ])` has one entry; `([ "a": int, "b": string ])` has two. */
+    readonly entries: NodeArray<MappingTypeEntryNode>;
 }
 export interface TupleTypeNode extends TypeNode {
     readonly kind: SyntaxKind.TupleType;
