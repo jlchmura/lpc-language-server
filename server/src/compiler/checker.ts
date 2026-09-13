@@ -9758,6 +9758,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         checkMode: CheckMode,
     ): Type | undefined {        
         if (isVariableDeclaration(declaration) && declaration.parent.parent.kind === SyntaxKind.ForEachStatement) {
+            // An explicit `@type` on the loop variable wins, the same as it would on a plain
+            // declaration. Without this the element type below is returned unconditionally and
+            // the annotation is silently discarded -- `foreach(/** @type {"/a"} */ object ob in
+            // stuff())` left `ob` as a bare `object`, so every `ob->method()` failed to resolve.
+            // Only a real JSDoc type counts: the declarator's own `object`/`mixed` keyword must
+            // still lose to the element type, which is what narrows the loop variable at all.
+            if (getJSDocType(declaration)) {
+                const annotated = tryGetTypeFromEffectiveTypeNode(declaration);
+                if (annotated) return annotated;
+            }
+
             const forEach = declaration.parent.parent;
             const expressionType = getNonNullableTypeIfNeeded(checkExpression(forEach.expression, checkMode));
 
@@ -24691,11 +24702,31 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return isTypeAssertion(node) ? type : getWidenedLiteralLikeTypeForContextualType(type, instantiateContextualType(getContextualType(node, /*contextFlags*/ undefined), node, /*contextFlags*/ undefined));
     }
 
+    /**
+     * A synthetic union or intersection property with more than two constituents records them
+     * instead of combining them (see getUnionOrIntersectionProperty), since most such symbols
+     * are never asked for a type and normalizing eagerly can explode. Combine on first demand.
+     *
+     * Without this, any property access on a union of three or more object types reached the
+     * `Debug.fail` this replaces -- `/** @type {A | B | C} object ob; ob->shared_method();`
+     * crashed the whole check. Two constituents never did, because that path computes eagerly.
+     */
+    function getTypeOfSymbolWithDeferredType(symbol: Symbol): Type {
+        const links = getSymbolLinks(symbol);
+        if (!links.type) {
+            Debug.assertIsDefined(links.deferralParent);
+            Debug.assertIsDefined(links.deferralConstituents);
+            links.type = links.deferralParent.flags & TypeFlags.Union
+                ? getUnionType(links.deferralConstituents)
+                : getIntersectionType(links.deferralConstituents);
+        }
+        return links.type;
+    }
+
     function getTypeOfSymbol(symbol: Symbol, checkMode?: CheckMode): Type {        
         const checkFlags = getCheckFlags(symbol);
         if (checkFlags & CheckFlags.DeferredType) {
-            Debug.fail("TODO - getTypeOfSymbol");
-            // return getTypeOfSymbolWithDeferredType(symbol);
+            return getTypeOfSymbolWithDeferredType(symbol);
         }
         if (checkFlags & CheckFlags.Instantiated) {
             return getTypeOfInstantiatedSymbol(symbol);
