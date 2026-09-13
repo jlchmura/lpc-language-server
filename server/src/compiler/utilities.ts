@@ -3416,6 +3416,11 @@ function shouldJsDocTypeOverrideTypeNode(type: TypeNode): boolean {
     return isObjectOrMixedType(type) || 
         type.kind === SyntaxKind.FunctionKeyword ||
         type.kind === SyntaxKind.ClosureKeyword ||
+        // A declared `mapping` says nothing about its keys or values, so `@type {([ K: V ])}`
+        // refines it the same way `@type {"/std/room.c"}` refines a declared `object` -- the
+        // doc adds the type arguments the declaration has no syntax for. Without this the
+        // declared keyword wins and the annotation is dropped on the floor.
+        type.kind === SyntaxKind.MappingKeyword ||
         (type && isArrayTypeNode(type) && isObjectOrMixedType(type.elementType));        
 }
 

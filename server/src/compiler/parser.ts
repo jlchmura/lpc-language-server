@@ -7694,6 +7694,9 @@ const forEachChildTable: ForEachChildTable = {
     [SyntaxKind.ArrayType]: function forEachChildInArrayType<T>(node: ArrayTypeNode, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.elementType);
     },
+    [SyntaxKind.MappingType]: function forEachChildInMappingType<T>(node: MappingTypeNode, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNode(cbNode, node.keyType) || visitNodes(cbNode, cbNodes, node.elements);
+    },
     [SyntaxKind.ParenthesizedType]: function forEachChildInParenthesizedType<T>(node: ParenthesizedTypeNode, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.type);
     },

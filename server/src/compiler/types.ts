@@ -2296,7 +2296,8 @@ export type HasChildren =
     // | TupleTypeNode
     // | OptionalTypeNode
     // | RestTypeNode
-    | ArrayTypeNode    
+    | ArrayTypeNode
+    | MappingTypeNode    
     | UnionTypeNode
     | TypeAssertion
     | NamedObjectTypeNode

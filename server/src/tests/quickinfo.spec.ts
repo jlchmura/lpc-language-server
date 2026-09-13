@@ -115,7 +115,9 @@ void f() {
         const { ls, fileName } = createLanguageService(source);
         const pos = source.indexOf("info;");
         const display = getDisplayString(ls.getQuickInfoAtPosition(fileName, pos)!);
-        expect(display).toContain("mapping");
+        // The nested mapping now hovers as its shape rather than a bare `mapping`; what #319
+        // is about is that it is not `mixed*`.
+        expect(display).toContain("([ string: int ])");
         expect(display).not.toContain("mixed*");
 
         // key variable should still infer as string
