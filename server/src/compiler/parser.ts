@@ -6890,6 +6890,11 @@ export namespace LpcParser {
                 switch (node.kind) {
                     case SyntaxKind.ObjectKeyword:
                         return true;
+                    // `@typedef {mapping} Person` + `@property` names a mapping's shape, the way
+                    // `{Object}` does in JS. Without this the property tags are parsed and then
+                    // dropped, and the typedef resolves to a bare `mapping`.
+                    case SyntaxKind.MappingKeyword:
+                        return true;
                     case SyntaxKind.ArrayType:
                         return isObjectOrObjectArrayTypeReference((node as ArrayTypeNode).elementType);
                     default:
@@ -7107,7 +7112,11 @@ export namespace LpcParser {
                     }
                     if (hasChildren) {
                         const isArrayType = typeExpression && typeExpression.type.kind === SyntaxKind.ArrayType;
-                        const jsdocTypeLiteral = factory.createJSDocTypeLiteral(jsDocPropertyTags, isArrayType);
+                        // Remember that `{mapping}` was written: the literal replaces the type
+                        // expression below, and the checker needs to know these properties
+                        // describe a mapping's keys rather than an object's members.
+                        const isMappingType = !!typeExpression && typeExpression.type?.kind === SyntaxKind.MappingKeyword;
+                        const jsdocTypeLiteral = factory.createJSDocTypeLiteral(jsDocPropertyTags, isArrayType, isMappingType);
                         typeExpression = childTypeTag && childTypeTag.typeExpression && !isObjectOrObjectArrayTypeReference(childTypeTag.typeExpression.type) ?
                             childTypeTag.typeExpression :
                             finishNode(jsdocTypeLiteral, start);
