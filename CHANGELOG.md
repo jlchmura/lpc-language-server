@@ -1,5 +1,19 @@
 # LPC Language Services Changelog
 
+## 1.1.56
+
+- New: FluffOS - `async`/`await`, `acatch`, and the `promise` type - #363
+- New: FluffOS - the external handle API, and `include_list()` - #379
+- New: diagnose a call to a function the driver cannot bind yet - #381
+- Fix: a macro's first token was dropped on every other expansion - #383
+- Fix: a prototype is now placed by its definition's access level - #380
+- Fix: a type variable leaked into an inline closure's `$N` - #382
+- Fix: a local is only reported as shadowed by a declaration that is actually in scope - #385
+- Fix: an array marker on a named object type was parsed as a multiply - #386
+- Fix: a mapping type nested in an LPCDoc mapping type's value did not parse - #388
+- Fix: `@@` in an LPCDoc comment's prose was read as a tag - #389
+- Fix: a doc comment's parse errors are now reported in the file that owns it - #390
+
 ## 1.1.55
 
 - Fix: Hover provider - show a declaration's modifiers- #366
