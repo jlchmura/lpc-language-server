@@ -1,4 +1,5 @@
-import { BuildOptions, BuilderProgram, CompilerHost, CompilerOptions, CreateProgramOptions, Debug, Diagnostic, DiagnosticReporter, DiagnosticWithLocation, Diagnostics, DriverTypeMap, ExitStatus, Extension, ForegroundColorEscapeSequences, ParsedCommandLine, Program, SourceFile, System, WatchOptions, combinePaths, createCompilerHost, createDiagnosticReporter, createGetCanonicalFileName, createProgram, fileExtensionIs, fileExtensionIsOneOf, findArgument, findConfigFile, forEach, forEachProgramBatch, formatColorAndReset, getBaseFileName, getDefaultLibFileName, getDefaultLibFolder, getDiagnosticText, getDirectoryPath, getErrorSummaryText, getFilesInErrorForSummary, getLineStarts, isDiskPathRoot, noop, normalizePath, parseJsonText, parseLpcSourceFileConfigFileContent, performance, reduceLeftIterator, sortAndDeduplicateDiagnostics, startsWith, supportedTSExtensionsFlat, sys, version } from "./_namespaces/lpc";
+import {
+    DiagnosticCategory, BuildOptions, BuilderProgram, CompilerHost, CompilerOptions, CreateProgramOptions, Debug, Diagnostic, DiagnosticReporter, DiagnosticWithLocation, Diagnostics, DriverTypeMap, ExitStatus, Extension, ForegroundColorEscapeSequences, ParsedCommandLine, Program, SourceFile, System, WatchOptions, combinePaths, createCompilerHost, createDiagnosticReporter, createGetCanonicalFileName, createProgram, fileExtensionIs, fileExtensionIsOneOf, findArgument, findConfigFile, forEach, forEachProgramBatch, formatColorAndReset, getBaseFileName, getDefaultLibFileName, getDefaultLibFolder, getDiagnosticText, getDirectoryPath, getErrorSummaryText, getFilesInErrorForSummary, getLineStarts, isDiskPathRoot, noop, normalizePath, parseJsonText, parseLpcSourceFileConfigFileContent, performance, reduceLeftIterator, sortAndDeduplicateDiagnostics, startsWith, supportedTSExtensionsFlat, sys, version } from "./_namespaces/lpc";
 
 
 export enum ExecuteCommandMsgType {
@@ -105,6 +106,10 @@ export function executeCommandLine(
     // count survive between batches.
     const filesInErrorSummary: ReturnType<typeof getFilesInErrorForSummary> = [];
     let reportedDiagnosticCount = 0;
+    // Counted apart from the total: the summary says "Found N errors", so a suggestion must not
+    // be counted as one, and a project whose only findings are suggestions must not report as
+    // failing. (The CLI itself exits 0 either way; the msgType is what callers read.)
+    let errorCount = 0;
     let lastProgram: Program | undefined;
 
     forEachProgramBatch(
@@ -117,6 +122,18 @@ export function executeCommandLine(
                     diags.push(...program.getSyntacticDiagnostics(sourceFile));
                     if (compilerOptions.diagnostics) {
                         diags.push(...program.getSemanticDiagnostics(sourceFile));
+                        // The editor publishes three streams -- syntactic, semantic and
+                        // suggestion -- and only the first two were collected here, so a
+                        // whole-project check could never report what the editor shows as
+                        // an info.
+                        diags.push(...program.getSuggestionDiagnostics(sourceFile));
+                        // Unreachable code is produced by the binder, into a collection of its
+                        // own that getSuggestionDiagnostics does not cover -- the editor picks
+                        // it up separately in computeSuggestionDiagnostics. Without this a
+                        // project check still misses the one suggestion it does not own.
+                        if (sourceFile.bindSuggestionDiagnostics) {
+                            diags.push(...sourceFile.bindSuggestionDiagnostics);
+                        }
                     }
                 } catch (e) {
                     system.write(`Error processing file: ${f}\n`);
@@ -128,7 +145,9 @@ export function executeCommandLine(
                 const sorted = sortAndDeduplicateDiagnostics(diags);
                 sorted.forEach(reportDiagnostic);
                 reportedDiagnosticCount += sorted.length;
-                filesInErrorSummary.push(...getFilesInErrorForSummary(sorted));
+                const errors = sorted.filter(d => d.category === DiagnosticCategory.Error);
+                errorCount += errors.length;
+                filesInErrorSummary.push(...getFilesInErrorForSummary(errors));
             }
 
             // Only retained under --perf, where end-of-run statistics need a program to inspect.
@@ -136,11 +155,22 @@ export function executeCommandLine(
         },
     );
 
-    if (reportedDiagnosticCount) {
+    if (errorCount) {
         system.write("\n");
         if (msgCallback) {
-            const diagTxt = getErrorSummaryText(reportedDiagnosticCount, filesInErrorSummary, "\n", compilerHost);
+            let diagTxt = getErrorSummaryText(errorCount, filesInErrorSummary, "\n", compilerHost);
+            const others = reportedDiagnosticCount - errorCount;
+            if (others) diagTxt += `${others} other diagnostic${others === 1 ? "" : "s"}.\n`;
             msgCallback(diagTxt, ExecuteCommandMsgType.Failure);
+        }
+    } else if (reportedDiagnosticCount) {
+        // Nothing is wrong, but there is something to say -- and saying it must not read as,
+        // or exit like, a failure.
+        system.write("\n");
+        if (msgCallback) {
+            msgCallback(
+                `Found ${reportedDiagnosticCount} diagnostic${reportedDiagnosticCount === 1 ? "" : "s"}, no errors.\n`,
+                ExecuteCommandMsgType.Success);
         }
     } else if (rootFiles.length) {
         const messages = [

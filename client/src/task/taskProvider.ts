@@ -296,7 +296,10 @@ function createCheckTask(context: vscode.ExtensionContext, project: LpcConfig, l
 		vscode.l10n.t("Check Project - {0}", label),
 		'lpc',
 		new vscode.ShellExecution("node", [getCliModule(context), "--project", project.fsPath]),
-		'$lpc');
+		// Not `$lpc`: that one is `applyTo: closedDocuments`, which is right for a compile of
+		// the active file but silently drops every finding for a file the user has open -- so
+		// a whole-project check reported nothing for exactly the files being worked on.
+		'$lpcCheck');
 	task.group = vscode.TaskGroup.Build;
 	task.isBackground = false;
 	// The terminal is a means, not the point: everything this produces lands in Problems,

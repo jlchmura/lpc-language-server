@@ -1849,6 +1849,19 @@ export function diagnosticCategoryName(d: { category: DiagnosticCategory; }, low
     return lowerCase ? name.toLowerCase() : name;
 }
 
+/**
+ * The severity word for textual output. A problem matcher understands error, warning and info
+ * and has no name for Suggestion or Message, so both report as `info` rather than as a word
+ * that would silently fall back to the matcher's default severity.
+ *
+ * @internal
+ */
+export function diagnosticSeverityName(d: { category: DiagnosticCategory; }): string {
+    return d.category === DiagnosticCategory.Suggestion || d.category === DiagnosticCategory.Message
+        ? "info"
+        : diagnosticCategoryName(d);
+}
+
 /** @internal */
 export type DiagnosticArguments = (string | number)[];
 

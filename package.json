@@ -151,6 +151,18 @@
                     "${cwd}"
                 ],
                 "pattern": "$lpc"
+            },
+            {
+                "name": "lpcCheck",
+                "label": "LPC Project Check",
+                "owner": "lpc",
+                "source": "LPC",
+                "applyTo": "allDocuments",
+                "fileLocation": [
+                    "relative",
+                    "${cwd}"
+                ],
+                "pattern": "$lpc"
             }
         ],
         "jsonValidation": [
