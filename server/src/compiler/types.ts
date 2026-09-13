@@ -4982,6 +4982,7 @@ export interface NodeLinks {
     parameterInitializerContainsUndefined?: boolean; // True if this is a parameter declaration whose type annotation contains "undefined".
     fakeScopeForSignatureDeclaration?: "params" | "typeParams"; // If present, this is a fake scope injected into an enclosing declaration chain.
     assertionExpressionType?: Type;     // Cached type of the expression of a type assertion
+    calledOnArray?: boolean;            // FluffOS: `->` whose base was an array, so the call yields an array of returns
     potentialThisCollisions?: Node[];
     potentialNewTargetCollisions?: Node[];
     potentialWeakMapSetCollisions?: Node[];

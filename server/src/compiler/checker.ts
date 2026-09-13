@@ -16480,6 +16480,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         //     }
         // }
 
+        // `arr->func()` yields one return per element, so lift the signature's return type
+        // into an array. Skipped for mixed/void/error returns: mixed already accepts an
+        // array, and neither driver produces a `void*`.
+        if (
+            isCallExpression(node) &&
+            isPropertyAccessExpression(node.expression) && getNodeLinks(node.expression).calledOnArray &&
+            !(returnType.flags & (TypeFlags.Any | TypeFlags.Void | TypeFlags.Never)) && !isErrorType(returnType)
+        ) {
+            return createArrayType(returnType);
+        }
+
         return returnType;
     }
     
@@ -25767,9 +25778,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function checkPropertyAccessExpressionOrQualifiedName(node: PropertyAccessExpression | QualifiedName, left: Expression | QualifiedName, leftType: Type, right: Identifier | ParenthesizedExpression, checkMode: CheckMode | undefined, writeOnly?: boolean) {
         const parentSymbol = getNodeLinks(left).resolvedSymbol;
         const assignmentKind = getAssignmentTargetKind(node);
-        // if left is an array, then use its element type in fluffos
-        const origLeftType = leftType;        
-        leftType = languageVariant===LanguageVariant.FluffOS && isArrayType(leftType) ? getElementTypeOfArrayType(leftType) : leftType;
+        // `arr->func()` calls func on every element and hands back an array of the returns.
+        // Both drivers do this -- FluffOS documents it under call_other() (calls.h), LDMud
+        // under call_other(E) -- so record it for either, and checkCallExpression wraps the
+        // call's result back up. Without the mark a call types as a bare element return.
+        const calledOnArray = isArrayType(leftType);
+        getNodeLinks(node).calledOnArray = calledOnArray;
+        // Resolving the member against the element type is FluffOS-only, and only affects
+        // which type the lookup and its errors are phrased against: getPropertyOfType peels
+        // an object array itself, which is how the LDMud path finds the member regardless.
+        leftType = calledOnArray && languageVariant === LanguageVariant.FluffOS ? getElementTypeOfArrayType(leftType) : leftType;
         const apparentType = getApparentType(assignmentKind !== AssignmentKind.None || isMethodAccessForCall(node) ? getWidenedType(leftType) : leftType);
         const isAnyLike = isTypeAny(apparentType) || apparentType === silentNeverType;
         let prop: Symbol | undefined;       
