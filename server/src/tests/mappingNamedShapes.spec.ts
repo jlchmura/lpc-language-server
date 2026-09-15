@@ -70,6 +70,28 @@ describe("a named mapping shape", () => {
         expect(hoverOf(PERSON + `void f() {}\n`, "Person")).toBe(`struct Person ([ "name": string, "hp": int ])`);
     });
 
+    it("is assignable both ways with the equivalent inline shape", () => {
+        const src = PERSON + `/**\n * @type {([ "name": string, "hp": int ])}\n */\nmapping inline;\n`
+            + `/**\n * @type {Person}\n */\nmapping named;\n`
+            + `void f() { named = inline; inline = named; named = ([ "name": "x", "hp": 1 ]); }\n`;
+        const { ls, abs } = createTestLanguageService({ "lib/main.c": src }, {
+            driverType: lpc.LanguageVariant.FluffOS,
+            diagnostics: true,
+            rootDir: lpc.normalizePath(path.join(cwd, "lib")),
+        });
+        const f = abs("lib/main.c");
+        expect([...ls.getSyntacticDiagnostics(f), ...ls.getSemanticDiagnostics(f)]
+            .map(d => lpc.flattenDiagnosticMessageText(d.messageText, " "))).toEqual([]);
+    });
+
+    it("keeps two typedefs over the same types apart", () => {
+        const ITEM = `/**\n * @typedef {mapping} Item\n * @property {string} title\n * @property {int} weight\n */\n`;
+        const src = PERSON + ITEM + `/**\n * @type {Person}\n */\nmapping p;\n`
+            + `/**\n * @type {Item}\n */\nmapping it;\nvoid f() { mixed v = p["name"]; v; p; }\n`;
+        expect(hoverOf(src, "p; }")).toBe("var Person p");
+        expect(hoverOf(src, "v; p")).toBe("(local var) string v");
+    });
+
     it("does not qualify a class by its file either", () => {
         const src = `class Thing { string name; }\nvoid f() { class Thing c; c; }\n`;
         expect(hoverOf(src, "c; }")).toBe("(local var) Thing c");
