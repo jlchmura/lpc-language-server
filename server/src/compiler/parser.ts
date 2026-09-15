@@ -3508,6 +3508,10 @@ export namespace LpcParser {
                 // inner `([` while the same nesting in the key position, parsed by parseType() directly,
                 // was fine.
                 return inContext(NodeFlags.JSDoc);
+            case SyntaxKind.OpenParenToken:
+                // Likewise a parenthesized type, so a mapping value can be `(STD_ITEM | STD_NPC)*`.
+                // Doc-only, since outside one `(` starts a cast or a call.
+                return inContext(NodeFlags.JSDoc);
             // case SyntaxKind.OpenParenToken:
             //     // Only consider '(' the start of a type if followed by ')', '...', an identifier, a modifier,
             //     // or something that starts a type. We don't want to consider things like '(1)' a type.
