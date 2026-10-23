@@ -77,10 +77,64 @@ describe("a mapping shape", () => {
         expect(diagnosticsOf(src)).toEqual([]);
     });
 
+    it("resolves a path to an object however deep it sits in the type", () => {
+        const decl = (t: string) => `#define STD_USER "/std/user.c"\n\n/**\n * @type {${t}}\n */\nmapping m;\nvoid f() { m; }\n`;
+        const cases: [string, string][] = [
+            [`([ string: STD_USER ])`, `([ string: object "/std/user" ])`],
+            [`([ string: STD_USER* ])`, `([ string: object "/std/user"* ])`],
+            [`([ string: int | STD_USER ])`, `([ string: int | object "/std/user" ])`],
+            [`([ string: STD_USER | STD_USER* ])`, `([ string: object "/std/user" | object "/std/user"* ])`],
+            [`([ string: ([ STD_USER: int ]) ])`, `([ string: ([ object "/std/user": int ]) ])`],
+            [`([ STD_USER*: int ])`, `([ object "/std/user"*: int ])`],
+            [`([ string: (int | STD_USER)* ])`, `([ string: (int | object "/std/user")* ])`],
+        ];
+        for (const [written, shown] of cases) {
+            expect(hoverOf(decl(written), "m; }")).toBe(`var ${shown} m`);
+        }
+    });
+
     it("takes several type-keyed entries", () => {
         const src = `/**\n * @type {([ string: int, int: string ])}\n */\nmapping m;\nvoid f() { mixed v = m["a"]; v; }\n`;
         expect(diagnosticsOf(src)).toEqual([]);
         expect(hoverOf(src, "v; }")).toBe("(local var) string | int v");
+    });
+
+    it("gives an unlisted int key mixed", () => {
+        const src = `/**\n * @type {([ 5: string ])}\n */\nmapping m;\nvoid f() { mixed v = m[6]; v; m; }\n`;
+        expect(hoverOf(src, "v; m")).toBe("(local var) mixed v");
+        expect(hoverOf(src, "m; }")).toBe("var ([ 5: string ]) m");
+    });
+
+    it("accepts a literal, a string-keyed value and an argument", () => {
+        const src = shape(`/**\n * @type {([ string: int ])}\n */\nmapping si;\n`
+            + `void g(mixed x) {}\n`
+            + `/**\n * @param {([ "hp": int ])} x - x.\n */\nvoid h(mapping x) { g(x); }\n`
+            + `void f() {\n`
+            + `    /** @type {([ "hp": int ])} */\n    mapping a = ([ "hp": 100 ]);\n`
+            + `    /** @type {([ "hp": int ])} */\n    mapping b = si;\n`
+            + `    h(([ "hp": 1 ]));\n    m = ([ "name": "x", "hp": 1 ]);\n    g(a); g(b);\n}\n`);
+        expect(diagnosticsOf(src)).toEqual([]);
+    });
+
+    it("accepts an int-keyed literal", () => {
+        const src = `/**\n * @type {([ 5: string ])}\n */\nmapping m = ([ 5: "x" ]);\nvoid f() { m; }\n`;
+        expect(diagnosticsOf(src)).toEqual([]);
+    });
+
+    it("still rejects a mismatched key or value", () => {
+        const src = `/**\n * @type {([ "hp": int ])}\n */\nmapping m;\nvoid f() { m = ([ "hp": "x" ]); m = ([ 1: 2 ]); }\n`;
+        expect(diagnosticsOf(src)).toEqual([
+            "Type '([ string: string ])' is not assignable to type '([ \"hp\": int ])'.   Type 'string' is not assignable to type 'int'.",
+            "Type '([ int: int ])' is not assignable to type '([ \"hp\": int ])'.   Type 'int' is not assignable to type 'string'.",
+        ]);
+    });
+
+    it("keeps two shapes over the same types apart", () => {
+        const src = `/**\n * @type {([ "a": int ])}\n */\nmapping x;\n/**\n * @type {([ "b": int ])}\n */\nmapping y;\n`
+            + `/**\n * @type {([ string: int ])}\n */\nmapping z;\nvoid f() { x; y; z; }\n`;
+        expect(hoverOf(src, "x; y")).toBe(`var ([ "a": int ]) x`);
+        expect(hoverOf(src, "y; z")).toBe(`var ([ "b": int ]) y`);
+        expect(hoverOf(src, "z; }")).toBe("var ([ string: int ]) z");
     });
 
     it("leaves LDMud's semicolon-separated value columns alone", () => {

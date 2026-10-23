@@ -3783,18 +3783,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // BE a mapping -- an anonymous object would read its properties correctly and
                 // then diverge everywhere else, giving `mixed` for foreach and computed keys
                 // where an inline `([ "name": string ])` gives real types.
-                const shape = new Map<string, Type>();
+                const shape: MappingShape = new Map();
                 forEach(node.jsDocPropertyTags, tag => {
                     const name = isIdentifier(tag.name) ? tag.name.text : tag.name.right.text;
                     shape.set(name, tag.typeExpression ? getTypeFromTypeNode(tag.typeExpression.type) : anyType);
                 });
                 const valueTypes = arrayFrom(shape.values());
-                let type: Type = createMappingType(
+                let type: Type = createShapedMappingType(
                     valueTypes.length ? stringType : anyType,
-                    valueTypes.length ? getUnionType(valueTypes, UnionReduction.Subtype) : anyType);
-                if (shape.size) {
-                    (type as MappingShapedType).mappingShape = shape;
-                }
+                    valueTypes.length ? getUnionType(valueTypes, UnionReduction.Subtype) : anyType,
+                    shape);
                 (type as Type).aliasSymbol = aliasSymbol;
                 (type as Type).aliasTypeArguments = getTypeArgumentsForAliasSymbol(aliasSymbol);
                 if (node.isArrayType) {
@@ -5187,12 +5185,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return links.resolvedType;
 
         function hasJsDocAncestor(node: Node) {
-            // the jsdoc parent can be up to three levels up, in the case 
-            // of a string literal type in an array type in a union type
-            return isJSDocTypeExpression(node) || 
-                (node.parent && isJSDocTypeExpression(node.parent)) || 
-                (node.parent.parent && isJSDocTypeExpression(node.parent.parent)) ||
-                (node.parent.parent.parent && isJSDocTypeExpression(node.parent.parent.parent));
+            // Walk up through the enclosing type, however deep: a fixed number of levels
+            // missed `([ string: "/std/x"* ])` and `([ string: "/std/x" | int ])`, whose
+            // literal sits one level further from the doc than a bare mapping value's.
+            // Starts above the literal: `LiteralType` lies outside the type-node kind range.
+            return !!findAncestor(node.parent, n =>
+                isJSDocTypeExpression(n) ||
+                ((isTypeNode(n) || n.kind === SyntaxKind.MappingTypeEntry) ? false : "quit"));
         }
     }
     
@@ -5507,7 +5506,23 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      * to the bare mapping type instead.
      */
     /** A mapping type whose literal-keyed entries are known by name. */
-    type MappingShapedType = Type & { mappingShape?: Map<string, Type> };
+    type MappingShape = Map<string | number, Type>;
+    type MappingShapedType = Type & { mappingShape?: MappingShape };
+
+    /**
+     * Mapping references are cached by their type arguments, so `([ "a": int ])` and
+     * `([ "b": int ])` -- both `([ string: int ])` underneath -- would otherwise be one object,
+     * and whichever shape was stamped last would answer for both. A shape gets its own clone.
+     */
+    function createShapedMappingType(keyType: Type, valueType: Type, shape: MappingShape): Type {
+        const type = createMappingType(keyType, valueType);
+        if (!shape.size || !(getObjectFlags(type) & ObjectFlags.Reference)) {
+            return type;
+        }
+        const shaped = cloneTypeReference(type as TypeReference);
+        (shaped as MappingShapedType).mappingShape = shape;
+        return shaped;
+    }
 
     function getTypeFromMappingTypeNode(node: MappingTypeNode): Type {
         const links = getNodeLinks(node);
@@ -5525,23 +5540,24 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             else {
                 const keyTypes = entries.map(e => getTypeFromTypeNode(e.keyType));
                 const valueTypes = entries.map(e => getTypeFromTypeNode(e.elements[0]));
-                const mappingType = createMappingType(
-                    getUnionType(keyTypes, UnionReduction.Subtype),
-                    getUnionType(valueTypes, UnionReduction.Subtype));
                 // A literal key names one entry, so `m["a"]` is that entry's value rather than
                 // the union across all of them. Kept beside the type instead of as members:
                 // the type is a reference to the fake `__LS__Mapping` global, whose own
                 // declaration has none, and the read path consults this directly.
-                const shape = new Map<string, Type>();
+                const shape: MappingShape = new Map();
                 entries.forEach((e, i) => {
                     const keyType = keyTypes[i];
-                    if (keyType.flags & TypeFlags.StringLiteral) {
-                        shape.set((keyType as StringLiteralType).value, valueTypes[i]);
+                    if (keyType.flags & (TypeFlags.StringLiteral | TypeFlags.IntLiteral)) {
+                        shape.set((keyType as StringLiteralType | IntLiteralType).value, valueTypes[i]);
                     }
                 });
-                if (shape.size) {
-                    (mappingType as MappingShapedType).mappingShape = shape;
-                }
+                // The shape holds the literal keys, so the key type widens to `string` / `int`,
+                // as the `@typedef {mapping}` spelling does. Left literal, it rejected every
+                // mapping whose key is known only as `string` -- `([ "a": 1 ])` included.
+                const mappingType = createShapedMappingType(
+                    getUnionType(keyTypes.map(k => shape.size ? getBaseTypeOfLiteralType(k) : k), UnionReduction.Subtype),
+                    getUnionType(valueTypes, UnionReduction.Subtype),
+                    shape);
                 links.resolvedType = mappingType;
             }
         }
@@ -7783,12 +7799,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // A shape names its entries, so a literal key resolves to that entry's own value
             // type; anything else falls back to the union across entries.
             const shape = (objectType as MappingShapedType).mappingShape;
-            if (shape && indexType.flags & TypeFlags.StringLiteral) {
+            if (shape && indexType.flags & (TypeFlags.StringLiteral | TypeFlags.IntLiteral)) {
                 // A shape is open: it says what the keys it lists hold, not that no others
                 // exist. So a listed key gives its own type, and an unlisted one is `mixed`
                 // rather than the union across entries -- whatever is under an unnamed key is
                 // exactly what the shape does not claim to know.
-                return shape.get((indexType as StringLiteralType).value) ?? anyType;
+                return shape.get((indexType as StringLiteralType | IntLiteralType).value) ?? anyType;
             }
             const mappingArgs = getTypeArguments(objectType);
             if (mappingArgs.length > 1) {
@@ -21825,7 +21841,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                         const shape = (type as MappingShapedType).mappingShape;
                         const entries = shape
                             ? Array.from(shape, ([key, value]) => factory.createMappingTypeEntryNode(
-                                factory.createLiteralTypeNode(factory.createStringLiteral(key)),
+                                factory.createLiteralTypeNode(typeof key === "number" ? factory.createIntLiteral(key) : factory.createStringLiteral(key)),
                                 [typeToTypeNodeHelper(value, context)]))
                             : [factory.createMappingTypeEntryNode(
                                 typeToTypeNodeHelper(typeArguments[0], context),
