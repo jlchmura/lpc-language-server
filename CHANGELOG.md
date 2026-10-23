@@ -1,5 +1,18 @@
 # LPC Language Services Changelog
 
+## 1.1.57
+
+- New: a `LPC: Check Project for Problems` command, to check the whole project rather than just the open files - #384
+- New: `([ key: value ])` type annotations now give a mapping its key and value types - #391
+- New: mapping shapes - `([ "name": string, "hp": int ])`, and named shapes via `@typedef {mapping}` + `@property` - #392, #393
+- New: a `@type` annotation is now applied to a `foreach` loop variable - #396
+- Fix: `filter()` returns the source's own type instead of a union - #394
+- Fix: a call-other on an array of objects returns an array - #395
+- Fix: `LPC: Check Project for Problems` now reports findings for open files, and reports suggestion diagnostics - #397
+- Fix: syntax highlighting - keyword-led calls (`await foo()`) and the logical operators `&&`, `||`, `&&=`, `||=`, `!=` - #398
+- Fix: a mapping shape accepts its own values, and a path resolves anywhere in a mapping type - #399
+- Fix: an inherited `private` function or variable no longer resolves in the child - #400
+
 ## 1.1.56
 
 - New: FluffOS - `async`/`await`, `acatch`, and the `promise` type - #363
