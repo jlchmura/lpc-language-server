@@ -1173,6 +1173,18 @@ function messageTextEqualityComparer(m1: string | DiagnosticMessageChain, m2: st
     return compareStringsCaseSensitive(t1, t2) === Comparison.EqualTo;
 }
 
+/**
+ * True when a symbol declared at file scope is `private`, and so is visible only inside the
+ * file that declares it -- not to a program that inherits it. The binder places a private
+ * declaration in its file's `members` table rather than its `exports`, so this only has to
+ * separate the private entries from the variables and defines that share that table.
+ *
+ * @internal
+ */
+export function isPrivateToDeclaringFile(symbol: Symbol): boolean {
+    return some(symbol.declarations, d => !!(getCombinedModifierFlags(d) & ModifierFlags.Private));
+}
+
 /** @internal */
 export function createNameResolver({
     compilerOptions,
@@ -1336,8 +1348,18 @@ export function createNameResolver({
 
                         const importSymbolTable = importType?.symbol?.exports ?? emptySymbols;
                         result = lookup(importSymbolTable, name, meaning);
-                        // also check inherited members
-                        if (!result) result = lookup(importType?.symbol?.members ?? emptySymbols, name, meaning);
+                        // Also check inherited members -- a file's members table holds its
+                        // file-scope variables and defines as well as its private declarations
+                        // (see declareSourceFileMember in the binder), so it has to be searched
+                        // even though only some of it is inherited. Neither driver inherits a
+                        // `private` name: it stays out of the child's name space, and a call to
+                        // it from an inheriting program is an undefined function.
+                        if (!result) {
+                            const inheritedMember = lookup(importType?.symbol?.members ?? emptySymbols, name, meaning);
+                            if (inheritedMember && !isPrivateToDeclaringFile(inheritedMember)) {
+                                result = inheritedMember;
+                            }
+                        }
                         if (result) {
                             break loop;
                         }
