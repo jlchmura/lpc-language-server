@@ -155,7 +155,7 @@
             }
         },
         {
-            "begin": "(?x)\n                 ^\\s*\\#\\s*(define)\\s+           # define\n                 ((?<id>[a-zA-Z_][a-zA-Z0-9_]*))    # macro name\n                 (?:                                # and optionally:\n                   (\\()                            # an open parenthesis\n                     (\n                       \\s* \\g<id> \\s*            # first argument\n                       ((,) \\s* \\g<id> \\s*)*     # additional arguments\n                       (?:\\.\\.\\.)?               # varargs ellipsis?\n                     )\n                   (\\))                             # a close parenthesis\n                 )?",
+            "begin": "(?x)\n                 ^\\s*\\#\\s*(define)\\s+           # define\n                 ((?<id>[a-zA-Z_][a-zA-Z0-9_]*))    # macro name\n                 (?:                                # and optionally:\n                   (\\()                            # an open parenthesis\n                     (\n                       \\s* \\g<id> \\s*            # first argument\n                       ((,) \\s* \\g<id> \\s*)*     # additional arguments\n                       (?:\\.\\.\\.)?               # varargs ellipsis?\n                     )\n                   (\\))                             # a close parenthesis\n                 )?\n                 [ \\t]*                           # body leading whitespace: lets fncall win over meta.function",
             "beginCaptures": {
                 "1": {
                     "name": "keyword.control.import.define.lpc"
@@ -176,7 +176,7 @@
                     "name": "punctuation.definition.parameters.lpc"
                 }
             },
-            "end": "(?=(?://|/\\*))|$|\\n",
+            "end": "(?=(?://|/\\*))|(?<!\\\\)(?=\\n)",
             "name": "meta.preprocessor.lpc",
             "patterns": [
                 {
@@ -195,7 +195,7 @@
                     "name": "keyword.control.import.include.lpc"
                 }
             },
-            "end": "(?=(?://|/\\*))|$",
+            "end": "(?=(?://|/\\*))|(?<!\\\\)(?=\\n)",
             "name": "meta.preprocessor.include.lpc",
             "patterns": [
                 {
@@ -241,7 +241,7 @@
                     "name": "keyword.control.import.lpc"
                 }
             },
-            "end": "(?=(?://|/\\*))|$",
+            "end": "(?=(?://|/\\*))|(?<!\\\\)(?=\\n)",
             "name": "meta.preprocessor.lpc",
             "patterns": [
                 {
