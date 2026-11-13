@@ -97,6 +97,12 @@ export namespace LpcParser {
     var macroEnv: MacroEnvironment;
     var currentMacro: Macro;
     var allowMacroProcessing: boolean = true;    
+    /**
+     * Macro calls whose text the scanner has entered without the parser consuming any of
+     * its tokens yet. Until it does, the calling stream counts as consumed only up to the
+     * macro name; consuming a token moves it past the whole call (see processMacroSubstitution).
+     */
+    var pendingMacroCallEnds: readonly { stateId: number; end: number; }[] | undefined;
 
     var condFrames: CondFrame[];
     var isCodeExecutable: Ternary = Ternary.Unknown;
@@ -229,6 +235,7 @@ export namespace LpcParser {
 
         condFrames = [];
         currentMacro = undefined!;
+        pendingMacroCallEnds = undefined;
                 
         includeDiagnosticOrigins = new Map();
         includeFileCache = new Map<string, string>();
@@ -299,6 +306,7 @@ export namespace LpcParser {
         nodeMacroMap = undefined!;
         macroEnv = undefined!;
         currentMacro = undefined!;        
+        pendingMacroCallEnds = undefined;
         allowMacroProcessing = true;
     }
 
@@ -726,6 +734,13 @@ export namespace LpcParser {
     }
     
     function nextTokenWithoutCheck() {
+        // The current token is being consumed. If it is the first one taken from a macro's
+        // text, anything that ends from here on covers the whole macro call.
+        if (pendingMacroCallEnds) {
+            for (const { stateId, end } of pendingMacroCallEnds) scanner.setStateEnd(stateId, end);
+            pendingMacroCallEnds = undefined;
+        }
+
         let incomingToken = scanner.scan();
 
         // Drive preprocessor conditionals and skip over disabled regions. A conditional
@@ -831,6 +846,8 @@ export namespace LpcParser {
         macro.endInOrigin = scanner.getTokenFullStart() + tokenValue.length + 1;
         macro.pos = getPositionState();
         macro.end = macro.pos.tokenStart + tokenValue.length;
+        const callStateId = scanner.getStateId();
+        const callStart = scanner.getTokenFullStart();
         
         const { range, arguments: macroArgsDef } = macro;  
        
@@ -867,6 +884,16 @@ export namespace LpcParser {
             macro.argsIn = argValsByName;
         }
         
+        // Scanning the arguments moved the calling stream's consumed position past the `)`,
+        // though the parser has consumed nothing of the call yet. Put it back to where the
+        // call starts, so a node finished now (one ending just before the call) does not
+        // take in the call's name and arguments; consuming a token of the macro's text
+        // moves it past the call again (see nextTokenWithoutCheck).
+        const callEnd = scanner.getTokenEnd();
+        const isWholeCallInStream = scanner.getStateId() === callStateId &&
+            (!(macroArgsDef?.length > 0) || token() === SyntaxKind.CloseParenToken);
+        if (isWholeCallInStream) scanner.setStateEnd(callStateId, callStart);
+
         // create a scanner for this macro                                              
         const saveCurrentMacro = currentMacro;                
         
@@ -890,7 +917,11 @@ export namespace LpcParser {
         currentMacro = macro;                
                                       
         // scan again using the new scanner
-        return nextTokenWithoutCheck();
+        const firstToken = nextTokenWithoutCheck();
+        if (isWholeCallInStream) {
+            pendingMacroCallEnds = [...(pendingMacroCallEnds ?? []), { stateId: callStateId, end: callEnd }];
+        }
+        return firstToken;
     }
 
     function nextTokenAnd<T>(func: () => T): T {
@@ -3065,6 +3096,7 @@ export namespace LpcParser {
         const saveParseDiagnosticsLength = parseDiagnostics.length;
         const saveParseErrorBeforeNextFinishedNode = parseErrorBeforeNextFinishedNode;        
         const saveCurrentMaco = currentMacro;
+        const savePendingMacroCallEnds = pendingMacroCallEnds;
         const saveTopInclude = currentTopLevelIncludeDirective;        
         const saveInclude = currentIncludeDirective;
 
@@ -3094,6 +3126,7 @@ export namespace LpcParser {
             }
             parseErrorBeforeNextFinishedNode = saveParseErrorBeforeNextFinishedNode;            
             currentMacro = saveCurrentMaco;
+            pendingMacroCallEnds = savePendingMacroCallEnds;
             currentTopLevelIncludeDirective = saveTopInclude;            
             currentIncludeDirective = saveInclude;
         }
@@ -4676,12 +4709,8 @@ export namespace LpcParser {
         if (openBraceParsed || ignoreMissingOpenBrace) {
             const multiLine = scanner.hasPrecedingLineBreak();
             const statements = parseList(ParsingContext.BlockStatements, parseStatement);
-            const closeBraceEnd = openBraceParsed && token() === SyntaxKind.CloseBraceToken &&
-                !currentMacro && scanner.getFileName() === pos.fileName ? scanner.getTokenEnd() : undefined;
             if (openBraceParsed) parseExpectedMatchingBrackets(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken, openBraceParsed, openBracePosition, openBraceFilename);
-            // Consuming } may already enter the next macro expansion.
-            const end = currentMacro ? closeBraceEnd : undefined;
-            const result = withJSDoc(finishNode(factoryCreateBlock(statements, multiLine), pos, end), hasJSDoc);
+            const result = withJSDoc(finishNode(factoryCreateBlock(statements, multiLine), pos), hasJSDoc);
             if (token() === SyntaxKind.EqualsToken) {
                 parseErrorAtCurrentToken(Diagnostics.Declaration_or_statement_expected_This_follows_a_block_of_statements_so_if_you_intended_to_write_a_destructuring_assignment_you_might_need_to_wrap_the_whole_assignment_in_parentheses);
                 nextToken();

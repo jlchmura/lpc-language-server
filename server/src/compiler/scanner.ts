@@ -59,6 +59,8 @@ export interface Scanner {
     getTokenValue(): string;
     getStateId(): number;
     getState(id: number): SavedStatePos | undefined;
+    /** Sets where a scanner state's stream was last consumed up to (undone with speculation). */
+    setStateEnd(id: number, end: number): void;
     getStateEndings(): SavedStatePos[];
     releaseState(): void;
     resetSavedStates(): void;
@@ -1080,6 +1082,7 @@ export function createScanner(
         getTokenValue: () => tokenValue,
         getStateId: () => stateId,
         getState,
+        setStateEnd,
         releaseState: ()=> { Debug.assertIsDefined(nextState); nextState?.(); },
         resetSavedStates: () => { nextState = undefined; nextStateId = 2; stateId = 1; stateEndings = [] },
         hasUnicodeEscape: () => (tokenFlags & TokenFlags.UnicodeEscape) !== 0,
@@ -2129,8 +2132,12 @@ export function createScanner(
             }
             // if we're in a state that doesn't need to rescan, just return the token
             if (dontRescan) return token;
-            // stream switched, so we need to rescan            
-            if (streamSwitched) continue;
+            // stream switched, so we need to rescan; the token's leading trivia now starts
+            // in the stream we switched to, not where this scan began in the previous one
+            if (streamSwitched) {
+                fullStartPos = pos;
+                continue;
+            }
 
             if (pos >= end) {
                 return token = SyntaxKind.EndOfFileToken;
@@ -3229,6 +3236,11 @@ export function createScanner(
     function getState(id: number): SavedStatePos {
         return stateEndings[id];        
     };
+
+    function setStateEnd(id: number, end: number): void {
+        const state = stateEndings[id];
+        if (state) setStateEnding(id, createPosState(end, state.fileName, state.isSpeculative));
+    }
 
     function scanRange<T>(start: number, length: number, callback: () => T): T {
         // save state, do a scan, then restore state
