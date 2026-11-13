@@ -3064,13 +3064,8 @@ export function createScanner(
         const release = captureState(isSpeculating);
         
         const capturedStateId = stateId = nextStateId++;
-        // delete stateEndings[stateId];
-
-        // return release;
-        return () => {            
-            // Debug.assertEqual(stateId, capturedStateId, "State id mismatch");            
-            // Debug.assert(stateId >= capturedStateId, "State id mismatch");
-            if (stateId >= capturedStateId) {
+        return (restoreSnapshot = false) => {
+            if (restoreSnapshot || stateId >= capturedStateId) {
                 release();
             }
 
@@ -3094,15 +3089,7 @@ export function createScanner(
         const saveText = text;
         const saveRevertOnEOF = revertOnEOF;
 
-        let stateDisposed = false;
-        
         return () => {
-            // console.debug(`Released ${fileName} (${stateId}->${saveStateId})`);
-
-            Debug.assert(!stateDisposed, "State has already been released");
-            // if (stateDisposed) return;
-            stateDisposed = true;        
-
             isSpeculating = saveSpeculating;
             fileName = saveFileName;            
             pos = savePos;
@@ -3194,7 +3181,10 @@ export function createScanner(
                 nextState();
             }
 
-            releaseSpeculationState();
+            // Peeking can step out of the current macro stream, consuming the
+            // speculation frame on the way. Restore the original token and stream
+            // even if that frame was already released while scanning ahead.
+            speculationState(true);
 
             // Undo the slot writes made while speculating (newest first).
             speculationDepth--;
