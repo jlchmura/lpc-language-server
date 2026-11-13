@@ -19,3 +19,23 @@ void ordinary() {}
         ["ordinary", 0],
     ]);
 });
+
+it("finds a definition from the body of a macro-generated function before another expansion", () => {
+    const text = `#define TEST(suite, name) void name(object test)
+private void helper() {}
+
+TEST(Party, First) {
+    helper();
+}
+
+TEST(Party, Second) {}
+`;
+    const { ls, fileName } = createTestLanguageService({ "test.c": text }, {
+        driverType: lpc.LanguageVariant.LDMud,
+    });
+
+    const definitions = ls.getDefinitionAtPosition(fileName, text.lastIndexOf("helper"));
+    expect(definitions?.map(({ fileName, textSpan }) => [fileName, textSpan.start])).toEqual([
+        [fileName, text.indexOf("helper")],
+    ]);
+});
