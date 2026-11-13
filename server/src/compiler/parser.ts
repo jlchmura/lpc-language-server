@@ -4191,7 +4191,7 @@ export namespace LpcParser {
         const body = parseFunctionBlockOrSemicolon(SignatureFlags.None);
 
         const node = factory.createFunctionDeclaration(modifiers, name, parameters, type, body);
-        return setDeprecated(withJSDoc(finishNode(node, pos), hasJSDoc), modifiers);
+        return setDeprecated(withJSDoc(finishNode(node, pos, pos.macro ? body?.end : undefined), hasJSDoc), modifiers);
     }
 
     function parseFunctionBlockOrSemicolon(flags: SignatureFlags, diagnosticMessage?: DiagnosticMessage): Block | undefined {
@@ -4676,8 +4676,12 @@ export namespace LpcParser {
         if (openBraceParsed || ignoreMissingOpenBrace) {
             const multiLine = scanner.hasPrecedingLineBreak();
             const statements = parseList(ParsingContext.BlockStatements, parseStatement);
+            const closeBraceEnd = openBraceParsed && token() === SyntaxKind.CloseBraceToken &&
+                !currentMacro && scanner.getFileName() === pos.fileName ? scanner.getTokenEnd() : undefined;
             if (openBraceParsed) parseExpectedMatchingBrackets(SyntaxKind.OpenBraceToken, SyntaxKind.CloseBraceToken, openBraceParsed, openBracePosition, openBraceFilename);
-            const result = withJSDoc(finishNode(factoryCreateBlock(statements, multiLine), pos), hasJSDoc);
+            // Consuming } may already enter the next macro expansion.
+            const end = currentMacro ? closeBraceEnd : undefined;
+            const result = withJSDoc(finishNode(factoryCreateBlock(statements, multiLine), pos, end), hasJSDoc);
             if (token() === SyntaxKind.EqualsToken) {
                 parseErrorAtCurrentToken(Diagnostics.Declaration_or_statement_expected_This_follows_a_block_of_statements_so_if_you_intended_to_write_a_destructuring_assignment_you_might_need_to_wrap_the_whole_assignment_in_parentheses);
                 nextToken();
