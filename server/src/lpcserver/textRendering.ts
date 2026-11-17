@@ -224,6 +224,10 @@ function getTagBodyText(
 		}
 		case 'default':
 			return makeCodeblock(text);
+		case 'history':
+			// One entry per line. A single newline is a soft break in markdown and
+			// would run the entries together, so make each one a hard break.
+			return processInlineTags(text).replace(/[ \t]*\r?\n/g, '  \n');
 	}
 
 	return processInlineTags(text);
