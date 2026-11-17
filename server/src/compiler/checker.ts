@@ -2751,11 +2751,6 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return type;
     }
 
-    function reportTypeNotIterableError(errorNode: Node, type: Type, allowAsyncIterables: boolean): Diagnostic {
-        const message = undefined;
-        return errorAndMaybeSuggestAwait(errorNode, false, message, typeToString(type));
-    }
-
 
     /**
      * When consuming an iterable type in a for..of, spread, or iterator destructuring assignment
@@ -2764,10 +2759,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      */
     function getIteratedTypeOrElementType(use: IterationUse, inputType: Type, sentType: Type, errorNode: Node | undefined, checkAssignability: boolean): Type | undefined {
         const allowAsyncIterables = (use & IterationUse.AllowsAsyncIterablesFlag) !== 0;
+        // A `foreach` over `never` is unreachable, or a narrowing went wrong upstream; neither
+        // is the author's mistake. TypeScript reports it, but the port left the report a stub
+        // with no message, which threw and took the whole check down with it.
         if (inputType === neverType) {
-            if (errorNode) {
-                reportTypeNotIterableError(errorNode, inputType, allowAsyncIterables);
-            }
             return undefined;
         }
 
@@ -14360,7 +14355,6 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function resolveDeclaredMembers(type: InterfaceType): InterfaceTypeWithDeclaredMembers {
         if (!(type as InterfaceTypeWithDeclaredMembers).declaredProperties) {
-            resolveAnonymousTypeMembers(type);
             
             const symbol = type.symbol;
             const members = getMembersOfSymbol(symbol);            
