@@ -5081,10 +5081,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
         }        
         if (typeNode) {
-            // LPC - in this special case, don't use regular boolean. the true type should be 
-            // the function's declared return type
+            // LPC - a type predicate says nothing about what the function returns, only what a
+            // truthy result proves about the argument. The return type is the declared one.
             if (isTypePredicateNode(typeNode) && declaration.type) {
-                return getUnionType([falseType, getTypeFromTypeNode(declaration.type as TypeNode)]);
+                return getTypeFromTypeNode(declaration.type as TypeNode);
             }            
             return getTypeFromTypeNode(typeNode);
         }        
