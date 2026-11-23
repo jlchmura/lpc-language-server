@@ -91,6 +91,7 @@ export namespace LpcParser {
     var sourceText: string;    
 
     var languageVersion: ScriptTarget;
+    var languageVariant: LanguageVariant;
     var scriptKind: ScriptKind;
     var languageVariant: LanguageVariant;
 
@@ -263,6 +264,7 @@ export namespace LpcParser {
         scanner.setFileName(fileName);
         scanner.setOnError(scanError);
         scanner.setScriptTarget(languageVersion);
+        languageVariant = _languageVariant;
         scanner.setLanguageVariant(_languageVariant);
         scanner.setScriptKind(scriptKind);
         scanner.setJSDocParsingMode(_jsDocParsingMode);        
@@ -1795,6 +1797,11 @@ export namespace LpcParser {
         // If we can consume a semicolon (either explicitly, or with ASI), then consider us done
         // with parsing the list of variable declarators.
         if (canParseSemicolon()) {
+            return true;
+        }
+
+        // An LDMud inline closure's context declarations end at the body's '{'.
+        if (inInlineClosureContext && token() === SyntaxKind.OpenBraceToken) {
             return true;
         }
 
@@ -6175,16 +6182,54 @@ export namespace LpcParser {
         // otherwise `parseType()` would try to read the `(` param list as a type.
         // Parse this permissively for every driver so the AST stays well-formed;
         // the checker reports the FluffOS-only grammar restriction (see below).
-        const type = token() === SyntaxKind.OpenParenToken ? undefined : parseType();
-        const name = isIdentifier() ? parseIdentifier() : undefined;
+        //
+        // LDMud inline closures (doc/LPC/inline-closures) are
+        //      function [<type>] [(<arguments>)] [: <context>] { <code> }
+        // where the type, the parameters and the context are all optional.
+        const isLDMud = languageVariant === LanguageVariant.LDMud;
+        const type = token() === SyntaxKind.OpenParenToken || isLDMud && (token() === SyntaxKind.OpenBraceToken || token() === SyntaxKind.ColonToken)
+            ? undefined
+            : parseType();
+        const name = !isLDMud && isIdentifier() ? parseIdentifier() : undefined;
 
         // const typeParameters = parseTypeParameters();
-        const parameters = parseParameters();
+        const parameters = isLDMud && token() !== SyntaxKind.OpenParenToken ? createNodeArray<ParameterDeclaration>([], getPositionState()) : parseParameters();
         // const type = parseReturnType(SyntaxKind.ColonToken, /*isType*/ false);
+        const context = isLDMud && parseOptional(SyntaxKind.ColonToken) ? parseInlineClosureContext() : undefined;
         const body = parseFunctionBlock(SignatureFlags.None);
+        if (context?.length && body) {
+            // Context variables are declared at the start of the body, so they get the body's scope
+            // and their declared types, as in the driver.
+            (body as Mutable<Block>).statements = createNodeArray([...context, ...body.statements], context[0].pos, body.statements.end);
+        }
         
         const node = factory.createFunctionExpression(modifiers, name, parameters, type, body);
         return withJSDoc(finishNode(node, pos), hasJSDoc);
+    }
+
+    var inInlineClosureContext = false;
+
+    /**
+     * An LDMud inline closure context: groups of `<type> name [= expr], name [= expr]`
+     * separated by `;` and ended by the body's `{`.
+     */
+    function parseInlineClosureContext(): VariableStatement[] {
+        const statements: VariableStatement[] = [];
+        const savedInContext = inInlineClosureContext;
+        inInlineClosureContext = true;
+        try {
+            while (token() !== SyntaxKind.OpenBraceToken && token() !== SyntaxKind.EndOfFileToken) {
+                const pos = getPositionState();
+                const type = parseType();
+                const declarationList = parseVariableDeclarationList(/*inForStatementInitializer*/ false, type);
+                statements.push(finishNode(factoryCreateVariableStatement(/*modifiers*/ undefined, type, declarationList), pos));
+                if (!parseOptional(SyntaxKind.SemicolonToken)) break;
+            }
+        }
+        finally {
+            inInlineClosureContext = savedInContext;
+        }
+        return statements;
     }
 
     function parseLiteralNode(): LiteralExpression {
