@@ -5170,10 +5170,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 const specifier = node.literal;
                 const moduleSymbol = resolveExternalModuleName(node, specifier, undefined);
                 const objectSymbol = resolveExternalObjectSymbol(moduleSymbol, specifier, /*dontResolveAlias*/ true);
-                if (objectSymbol && isSourceFile(objectSymbol.valueDeclaration)) {                
+                if (objectSymbol && isSourceFile(objectSymbol.valueDeclaration)) {
                     const objectType = getTypeOfSymbol(objectSymbol);
                     links.resolvedType = objectType;
-                } 
+                } else if (isTypePredicateNode(node.parent)) {
+                    // `ob is "/missing.c"` names an object that isn't there (e.g. a configured player
+                    // file the mudlib doesn't have). The path is already reported; don't narrow the
+                    // argument to the string literal type.
+                    links.resolvedType = errorType;
+                }
             }
 
             if (!links.resolvedType) {
@@ -31866,6 +31871,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         function narrowTypeByTypePredicate(type: Type, predicate: TypePredicate, callExpression: CallExpression, assumeTrue: boolean): Type {
             // Don't narrow from 'any' if the predicate type is exactly 'Object' or 'Function'
+            // A predicate whose type didn't resolve (an unknown name, or an object path that doesn't
+            // exist) says nothing about the argument. Narrowing by it would leave nothing in the
+            // false branch, since every type is assignable to the error type.
+            if (predicate.type && isErrorType(predicate.type)) {
+                return type;
+            }
             if (predicate.type && !(isTypeAny(type) && (predicate.type === globalObjectType || predicate.type === globalFunctionType))) {
                 const predicateArgument = getTypePredicateArgument(predicate, callExpression);
                 if (predicateArgument) {
