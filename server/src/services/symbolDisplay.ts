@@ -81,6 +81,8 @@ import {
     TypeChecker,
     TypeFormatFlags,    
     typeToDisplayParts,    
+    isJSDocSignature,
+    isFunctionDeclaration,
 } from "./_namespaces/lpc.js";
 
 const symbolDisplayNodeBuilderFlags =
@@ -1428,8 +1430,9 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
     }
 
     function addSignatureDisplayPartsHelper(signature: Signature, allSignatures: readonly Signature[], flags = TypeFormatFlags.None) {
-        // only display overload indicator for efuns        
-        if (allSignatures.length > 1 && signature.declaration && getSourceFileOfNode(signature.declaration)?.isDefaultLib) {
+        // Only efuns and @overload shapes are overloads. A user function's prototype and
+        // definition are one function, so they never earn the indicator.
+        if (allSignatures.length > 1 && signature.declaration && (getSourceFileOfNode(signature.declaration)?.isDefaultLib || isJSDocSignature(signature.declaration))) {
             displayParts.push(spacePart());
             displayParts.push(punctuationPart(SyntaxKind.OpenParenToken));
             displayParts.push(operatorPart(SyntaxKind.PlusToken));
@@ -1441,7 +1444,14 @@ function getSymbolDisplayPartsDocumentationAndSymbolKindWorker(typeChecker: Type
         documentation = signature.getDocumentationComment(typeChecker);
         tags = signature.getJsDocTags();
 
-        if (allSignatures.length > 1 && documentation.length === 0 && tags.length === 0) {
+        if (allSignatures.length > 1 && documentation.length === 0 && tags.length === 0 && signature.declaration && isFunctionDeclaration(signature.declaration) && !signature.declaration.body && allSignatures[0].declaration && isJSDocSignature(allSignatures[0].declaration)) {
+            // A prototype of a function whose definition describes its @overload shapes:
+            // show the definition's doc whole, as hovering the definition does, rather than
+            // borrowing the first shape's.
+            documentation = symbol.getDocumentationComment(typeChecker);
+            tags = symbol.getJsDocTags(typeChecker);
+        }
+        else if (allSignatures.length > 1 && documentation.length === 0 && tags.length === 0) {
             documentation = allSignatures[0].getDocumentationComment(typeChecker);
             tags = allSignatures[0].getJsDocTags().filter(tag => tag.name !== "deprecated"); // should only include @deprecated JSDoc tag on the first overload (#49368)
         }

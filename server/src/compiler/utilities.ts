@@ -2136,10 +2136,39 @@ export function getJSDocCommentsAndTags(hostNode: Node, noCache?: boolean): read
     return result || emptyArray;
 }
 
+const fileOverviewTagNames = new Set(["file", "fileoverview", "overview"]);
+
+/**
+ * Whether a doc block describes the file or a type rather than the declaration it
+ * happens to precede: a `@file` header, or a `@typedef`/`@callback` block. The parser
+ * still hangs it on the next declaration (that is how the typedef gets bound), but it
+ * is never that declaration's own doc. A typedef block that also carries `@param` or
+ * `@returns` is treated as the declaration's doc, as TypeScript does.
+ *
+ * @internal
+ */
+export function isStandaloneJSDoc(jsDoc: JSDoc): boolean {
+    const tags = jsDoc.tags;
+    if (!tags) return false;
+    if (tags.some(tag => fileOverviewTagNames.has(tag.tagName.text))) return true;
+    return tags.some(isJSDocTypeAlias) && !tags.some(tag => isJSDocParameterTag(tag) || isJSDocReturnTag(tag));
+}
+
+/**
+ * The doc block a node owns: the last one above it, unless that one is standalone.
+ *
+ * @internal
+ */
+export function getOwnJSDoc(node: Node): JSDoc | undefined {
+    if (!hasJSDocNodes(node)) return undefined;
+    const jsDoc = last(node.jsDoc!);
+    return isStandaloneJSDoc(jsDoc) ? undefined : jsDoc;
+}
+
 function filterOwnedJSDocTags(hostNode: Node, comments: JSDocArray) {
     const lastJsDoc = last(comments);
     return flatMap<JSDoc, JSDoc | JSDocTag>(comments, jsDoc => {
-        if (jsDoc === lastJsDoc) {
+        if (jsDoc === lastJsDoc && !isStandaloneJSDoc(jsDoc)) {
             const ownedTags = filter(jsDoc.tags, tag => ownsJSDocTag(hostNode, tag));
             return jsDoc.tags === ownedTags ? [jsDoc] : ownedTags;
         }

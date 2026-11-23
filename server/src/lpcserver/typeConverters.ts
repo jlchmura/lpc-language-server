@@ -212,10 +212,15 @@ export namespace SignatureHelp {
 	export function convertSignature(item: Proto.SignatureHelpItem, baseUri: URI) {
 		const converter = getFileResourceConverter();
 
-		const signature = vscode.SignatureInformation.create(
-			asPlainTextWithLinks(item.prefixDisplayParts, converter),
-			documentationToMarkdown(item.documentation, item.tags.filter(x => x.name !== 'param'), converter, baseUri)
-		);
+		// The documentation is markdown and has to be sent as such: a plain string is shown
+		// verbatim, so emphasis and code spans came through as literal `*` and backticks and
+		// the comment's own line breaks were kept.
+		const signature = vscode.SignatureInformation.create(asPlainTextWithLinks(item.prefixDisplayParts, converter));
+		signature.documentation = {
+			kind: vscode.MarkupKind.Markdown,
+			// @param tags are left out: the parameter under the cursor gets its own line at the top.
+			value: documentationToMarkdown(item.documentation, item.tags.filter(x => x.name !== 'param'), converter, baseUri),
+		};
 
 		let textIndex = signature.label.length;
 		const separatorLabel = asPlainTextWithLinks(item.separatorDisplayParts, converter);
@@ -223,10 +228,14 @@ export namespace SignatureHelp {
 			const parameter = item.parameters[i];
 			const label = asPlainTextWithLinks(parameter.displayParts, converter);
 
-			signature.parameters.push(
-				vscode.ParameterInformation.create(
-					[textIndex, textIndex + label.length],
-					documentationToMarkdown(parameter.documentation, [], converter, baseUri)));
+			// `@param {T} name - text` keeps the `-` separator in the parameter's text; hover
+			// drops it when rendering the tag, so drop it here too.
+			const parameterInformation = vscode.ParameterInformation.create([textIndex, textIndex + label.length]);
+			parameterInformation.documentation = {
+				kind: vscode.MarkupKind.Markdown,
+				value: documentationToMarkdown(parameter.documentation, [], converter, baseUri).replace(/^\s*-\s+/, ''),
+			};
+			signature.parameters.push(parameterInformation);
 
 			textIndex += label.length;
 			signature.label += label;
