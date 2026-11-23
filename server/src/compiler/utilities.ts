@@ -3389,7 +3389,7 @@ function isQuoteOrBacktick(charCode: number) {
  *
  * @internal
  */
-export function getEffectiveTypeAnnotationNode(node: Node, originatingFile?: SourceFile): TypeNode | undefined {
+export function getEffectiveTypeAnnotationNode(node: Node): TypeNode | undefined {
     if (!isInJSFile(node) && isFunctionDeclaration(node)) return undefined;
     if (isTypeAliasDeclaration(node)) return undefined; // has a .type, is not a type annotation
     let type = (node as HasType).type;    
@@ -3412,25 +3412,6 @@ export function getEffectiveTypeAnnotationNode(node: Node, originatingFile?: Sou
         // rank by wrapping the JSDoc type in an array. Without this, the `*` is dropped and
         // `mobs` is treated as a single object instead of an array (see #317).
         possibleType = preserveDeclaredArrayRank(type, possibleType);
-        if (isVariableDeclaration(node) && isIdentifier(node.name) && shouldJsDocTypeOverrideTypeNode(possibleType)) {
-            // for a variable with a jsdoc overridable type, look to see if there is a @var tag            
-            // we can't use the node's file, because that may be different. the @var tag will be in the file
-            // that originated the type check
-            if (originatingFile) {                            
-                const varTagsSymbolTbl = originatingFile.locals.get(InternalSymbolName.VarDocTags)?.members;
-                let varTagSymbol: Symbol;
-
-                if (varTagsSymbolTbl && (varTagSymbol = varTagsSymbolTbl.get(node.name.text)) && varTagSymbol.declarations) {
-                    const varTag = first(varTagSymbol.declarations) as JSDocVariableTag;
-                    const varTagType = varTag.typeExpression?.type;
-                    if (varTagType) {
-                        possibleType = varTagType;
-                    }                
-                }
-            } else {
-                console.warn("originatingFile should be provided for variable declarations");
-            }
-        }
         return possibleType;
     } else if (type || !isInJSFile(node)) {
         return type;
@@ -3461,6 +3442,26 @@ function preserveDeclaredArrayRank(declaredType: TypeNode, docType: TypeNode): T
     setTextRangePosEnd(wrapped, declaredType.pos, declaredType.end);
     overrideHost.jsDocArrayTypeOverride = wrapped;
     return wrapped;
+}
+
+/**
+ * The type an `@var` tag in `file` gives the inherited variable `declaration`, if any.
+ *
+ * The tag retypes the variable for the tagged file only. The declaration belongs to the
+ * inherited program and its declared type is shared by every file that inherits it, so the
+ * tag must be applied where `file` reads the variable, never folded into that declared type.
+ * @internal
+ */
+export function getJSDocVariableTagTypeNode(declaration: Declaration, file: SourceFile): TypeNode | undefined {
+    if (!isVariableDeclaration(declaration) || !isIdentifier(declaration.name)) return undefined;
+    // A tag naming a variable declared in its own file is an error (checkJSDocVariableTag), not a retype.
+    if (getSourceFileOfNode(declaration) === file) return undefined;
+    const varTagSymbol = file.locals?.get(InternalSymbolName.VarDocTags)?.members?.get(declaration.name.text);
+    if (!varTagSymbol?.declarations) return undefined;
+    const varTag = first(varTagSymbol.declarations) as JSDocVariableTag;
+    const declaredType = getEffectiveTypeAnnotationNode(declaration);
+    // Like any other doc type, @var refines a weak declared type and leaves a strong one alone.
+    return declaredType && shouldJsDocTypeOverrideTypeNode(declaredType) ? varTag.typeExpression?.type : undefined;
 }
 
 function shouldJsDocTypeOverrideTypeNode(type: TypeNode): boolean {
