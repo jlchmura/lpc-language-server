@@ -1,5 +1,5 @@
 import * as vm from "node:vm";
-import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, SourceFileLike, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression, createTextSpan, CaseOrDefaultClause, createTextSpanFromBounds, ReturnStatement, createScanner, isQualifiedName, EntityNameOrEntityNameExpression, isCallOrNewExpression, CallLikeExpression, EmitTextWriter, computeLineStarts, last, isWhiteSpaceLike, ScriptTarget, isIdentifierStart, isFunctionDeclaration, HasType, Block, Statement, NodeArray, ClassElement, TypeElement, ObjectLiteralElement, ObjectTypeDeclaration, ObjectLiteralExpression, noop, NewExpression, CommaListExpression, ConditionalExpression, ElementAccessExpression, PartiallyEmittedExpression, InternalEmitFlags, EmitFlags, getLineStarts, getLinesBetweenPositions, HasExpressionInitializer, isStringLiteral, isIntLiteral, StringLiteral, IntLiteral, VariableLikeDeclaration, isBindingElement, BindingElementOfBareOrAccessedRequire, QualifiedName, TypeParameterDeclaration, JSDocTypedefTag, EqualityComparer, equateValues, TypeReferenceNode, isTypeReferenceNode, LateVisibilityPaintedStatement, IndexInfo, PrintHandlers, StringLiteralType, IntLiteralType, flatten, LanguageVariant, combinePaths, map, isRootedDiskPath, getStringComparer, containsPath, every, indexOfAnyCharCode, hasExtension, getDirectoryPath, createGetCanonicalFileName, sort, fileExtensionIsOneOf, findIndex, ReadonlyCollection, equalOwnProperties, FileExtensionInfo, mapDefined, EmitHost, filter, getNormalizedAbsolutePath, getCommonSourceDirectory, comparePaths, GetCanonicalFileName, SourceFileMayBeEmittedHost, forEachChildRecursively, CommandLineOption, InheritDeclaration, emptyMap, LiteralLikeElementAccessExpression, VariableDeclaration, VariableDeclarationList, isComputedPropertyName, isJSDocParameterTag, BindableStaticNameExpression, getNameOfDeclaration, isVariableStatement, isExpressionStatement, getLeadingCommentRanges, SuperContainer, SuperContainerOrFunctions, CharacterCodes, StringLiteralLike, AnyValidImportOrReExport, tryCast, CloneObjectExpression, TriviaSyntaxKind, concatenate, getTrailingCommentRanges, computeLineOfPosition, AnyImportSyntax, PrologueDirective, startsWith, stringToToken, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, ClassLikeDeclaration, JSDocCallbackTag, TypeAliasDeclaration, isJSDocTypeAlias, isTypeAliasDeclaration, EvaluationResolver, EvaluatorResult, FloatLiteral, isPropertyName, isPrefixUnaryExpression, tokenToString, isJSDocPropertyLikeTag, getJSDocType, ContainerFlags, MethodDeclaration, getContainerFlags, TypePredicate, IdentifierTypePredicate, TypePredicateKind, first, isClassLike, IncludeDirective, hasInitializer, addRange, getJSDocParameterTagsNoCache, getJSDocParameterTags, getJSDocTypeParameterTags, getJSDocTypeParameterTagsNoCache, JSDocArray, isJSDocOverloadTag, isJSDocTypeTag, isJSDocSatisfiesTag, isParenthesizedExpression, HasInferredType, assertType, PropertySignature, JSDocTypeAssertion, getJSDocTypeTag, PrimitiveLiteral, isNumericLiteral, isFunctionExpression, isArrowFunction, ArrowFunction, isJSDocTag, isJSDocTypeLiteral, isTypeElement, TypeLiteralNode, UnionOrIntersectionTypeNode, ArrayLiteralExpression, ObjectLiteralExpressionBase, CaseBlock, isClassElement, MethodSignature, CallSignatureDeclaration, IndexSignatureDeclaration, ComputedPropertyName, getSnippetElement, SnippetKind, VariableStatement, singleElementArray, ExpressionWithTypeArguments, getJSDocImplementsTags, isPropertySignature, isParenthesizedTypeNode, DynamicNamedDeclaration, DynamicNamedBinaryExpression, CommentRange, isWhiteSpaceSingleLine, LineAndCharacter, computeLineAndCharacterOfPosition, TokenFlags, emitNodeAsJsText, createVmHelperContext, HasLocals, ProjectReference, LpcConfigSourceFile, isObjectLiteralExpression, isPropertyAssignment, JSDocParameterTag, getJSDocReturnType, isArray, factory, ThisObjectPragmas, isArrayLiteralExpression, moduleResolutionOptionDeclarations, ResolvedModuleWithFailedLookupLocations, optionsAffectingProgramStructure, ConciseBody, isArrayTypeNode, ArrayTypeNode, getSymbolId, ClassDeclaration, DeclarationWithTypeParameters, getJSDocTags, SuperCall, JSDocOverloadTag, getAllJSDocTags, JSDocSatisfiesExpression, getJSDocSatisfiesTag, ParenthesizedTypeNode, isJSDocReturnTag, isSuperAccessExpression, JSDocVariableTag, SourceFileBase, getDefaultLibFolder, getUILocale, getDefaultLibFileName, sys, isJSDocTypeExpression, CommentDirective, CommentDirectivesMap, getLineAndCharacterOfPosition, arrayFrom, CommentDirectiveType, isJSDocLinkLike, isJSDocNameReference, isJSDocMemberName, isIdentifierText, JSDocMemberName, isNewExpression, isStructTypeNode, TemplateSpan, isForEachStatement } from "./_namespaces/lpc.js";
+import { Signature, Type, Debug, DiagnosticArguments, DiagnosticMessage, DiagnosticRelatedInformation, DiagnosticWithDetachedLocation, DiagnosticWithLocation, Identifier, MapLike, ModifierFlags, Node, NodeFlags, ReadonlyTextRange, some, SourceFile, Symbol, SymbolFlags, SyntaxKind, TextRange, Token, TransformFlags, TypeChecker, TypeFlags, tracing, SignatureFlags, canHaveModifiers, Modifier, skipTrivia, SymbolTable, CallExpression, Declaration, getCombinedNodeFlags, BinaryExpression, AssignmentDeclarationKind, isCallExpression, isBinaryExpression, isIdentifier, Diagnostic, emptyArray, PropertyNameLiteral, DeclarationName, LiteralLikeNode, AssignmentExpression, LogicalOrCoalescingAssignmentOperator, LogicalOperator, Expression, OuterExpressionKinds, OuterExpression, WrappedExpression, PrefixUnaryExpression, PostfixUnaryExpression, ForEachStatement, ShorthandPropertyAssignment, PropertyAssignment, PropertyAccessExpression, ParenthesizedExpression, BinaryOperatorToken, AssertionLevel, SortedArray, binarySearch, identity, Comparison, DiagnosticMessageChain, compareStringsCaseSensitive, compareValues, insertSorted, flatMapToMutable, DiagnosticCollection, isJSDocTemplateTag, HasJSDoc, lastOrUndefined, JSDoc, isJSDoc, find, ParameterDeclaration, FunctionDeclaration, InlineClosureExpression, FunctionExpression, forEachChild, returnUndefined, returnFalse, CompilerOptions, FunctionLikeDeclaration, canHaveLocals, isFunctionLike, isParameter, PropertyDeclaration, BindingElement, isString, InternalSymbolName, isSourceFile, StructDeclaration, isStructDeclaration, JSDocTemplateTag, TypeNodeSyntaxKind, isTypeNode, isFunctionLikeDeclaration, SignatureDeclaration, AccessExpression, isInlineClosureExpression, PropertyAccessEntityNameExpression, isPropertyAccessExpression, EntityNameExpression, isVariableDeclaration, VariableDeclarationInitializedTo, CanonicalDiagnostic, HasInitializer, ExpressionStatement, ForStatement, isShorthandPropertyAssignment, JSDocTag, EqualsToken, AssignmentOperatorToken, isLeftHandSideExpression, isFunctionLikeKind, AdditiveOperator, AdditiveOperatorOrHigher, AssignmentOperatorOrHigher, BinaryOperator, BitwiseOperator, BitwiseOperatorOrHigher, EqualityOperator, EqualityOperatorOrHigher, ExponentiationOperator, LogicalOperatorOrHigher, MultiplicativeOperator, MultiplicativeOperatorOrHigher, RelationalOperator, RelationalOperatorOrHigher, ShiftOperator, ShiftOperatorOrHigher, HasFlowNode, ObjectFlags, ObjectFlagsType, isDeclaration, isBindingPattern, isJSDocSignature, JSDocSignature, TypeNode, findAncestor, Extension, fileExtensionIs, NamedDeclaration, KeywordSyntaxKind, SourceFileLike, firstOrUndefined, getNodeChildren, JSDocContainer, PropertyName, idText, forEach, PrinterOptions, NewLineKind, flatMap, getNormalizedPathComponents, removeTrailingDirectorySeparator, directorySeparator, normalizePath, FileWatcher, PackageId, ScriptKind, TextSpan, CheckFlags, TransientSymbol, getCombinedModifierFlags, isElementAccessExpression, createTextSpan, CaseOrDefaultClause, createTextSpanFromBounds, ReturnStatement, createScanner, isQualifiedName, EntityNameOrEntityNameExpression, isCallOrNewExpression, CallLikeExpression, EmitTextWriter, computeLineStarts, last, isWhiteSpaceLike, ScriptTarget, isIdentifierStart, isFunctionDeclaration, HasType, Block, Statement, NodeArray, ClassElement, TypeElement, ObjectLiteralElement, ObjectTypeDeclaration, ObjectLiteralExpression, noop, NewExpression, CommaListExpression, ConditionalExpression, ElementAccessExpression, PartiallyEmittedExpression, InternalEmitFlags, EmitFlags, getLineStarts, getLinesBetweenPositions, HasExpressionInitializer, isStringLiteral, isIntLiteral, StringLiteral, IntLiteral, VariableLikeDeclaration, isBindingElement, BindingElementOfBareOrAccessedRequire, QualifiedName, TypeParameterDeclaration, JSDocTypedefTag, EqualityComparer, equateValues, TypeReferenceNode, isTypeReferenceNode, LateVisibilityPaintedStatement, IndexInfo, PrintHandlers, StringLiteralType, IntLiteralType, flatten, LanguageVariant, combinePaths, map, isRootedDiskPath, getStringComparer, containsPath, every, indexOfAnyCharCode, hasExtension, getDirectoryPath, createGetCanonicalFileName, sort, fileExtensionIsOneOf, findIndex, ReadonlyCollection, equalOwnProperties, FileExtensionInfo, mapDefined, EmitHost, filter, getNormalizedAbsolutePath, getCommonSourceDirectory, comparePaths, GetCanonicalFileName, SourceFileMayBeEmittedHost, forEachChildRecursively, CommandLineOption, InheritDeclaration, emptyMap, LiteralLikeElementAccessExpression, VariableDeclaration, VariableDeclarationList, isComputedPropertyName, isJSDocParameterTag, BindableStaticNameExpression, getNameOfDeclaration, isVariableStatement, isExpressionStatement, getLeadingCommentRanges, SuperContainer, SuperContainerOrFunctions, CharacterCodes, StringLiteralLike, AnyValidImportOrReExport, tryCast, CloneObjectExpression, TriviaSyntaxKind, concatenate, getTrailingCommentRanges, computeLineOfPosition, AnyImportSyntax, PrologueDirective, startsWith, stringToToken, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, ClassLikeDeclaration, JSDocCallbackTag, TypeAliasDeclaration, isJSDocTypeAlias, isTypeAliasDeclaration, EvaluationResolver, EvaluatorResult, FloatLiteral, isPropertyName, isPrefixUnaryExpression, tokenToString, isJSDocPropertyLikeTag, getJSDocType, ContainerFlags, MethodDeclaration, getContainerFlags, TypePredicate, IdentifierTypePredicate, TypePredicateKind, first, isClassLike, IncludeDirective, hasInitializer, addRange, getJSDocParameterTagsNoCache, getJSDocParameterTags, getJSDocTypeParameterTags, getJSDocTypeParameterTagsNoCache, JSDocArray, isJSDocOverloadTag, isJSDocTypeTag, isJSDocSatisfiesTag, isParenthesizedExpression, HasInferredType, assertType, PropertySignature, JSDocTypeAssertion, getJSDocTypeTag, PrimitiveLiteral, isNumericLiteral, isFunctionExpression, isArrowFunction, ArrowFunction, isJSDocTag, isJSDocTypeLiteral, isTypeElement, TypeLiteralNode, UnionOrIntersectionTypeNode, ArrayLiteralExpression, ObjectLiteralExpressionBase, CaseBlock, isClassElement, MethodSignature, CallSignatureDeclaration, IndexSignatureDeclaration, ComputedPropertyName, getSnippetElement, SnippetKind, VariableStatement, singleElementArray, ExpressionWithTypeArguments, getJSDocImplementsTags, isPropertySignature, isParenthesizedTypeNode, DynamicNamedDeclaration, DynamicNamedBinaryExpression, CommentRange, isWhiteSpaceSingleLine, LineAndCharacter, computeLineAndCharacterOfPosition, TokenFlags, emitNodeAsJsText, createVmHelperContext, HasLocals, ProjectReference, LpcConfigSourceFile, isObjectLiteralExpression, isPropertyAssignment, JSDocParameterTag, getJSDocReturnType, isArray, factory, ThisObjectPragmas, isArrayLiteralExpression, moduleResolutionOptionDeclarations, ResolvedModuleWithFailedLookupLocations, optionsAffectingProgramStructure, ConciseBody, isArrayTypeNode, ArrayTypeNode, getSymbolId, ClassDeclaration, DeclarationWithTypeParameters, getJSDocTags, SuperCall, JSDocOverloadTag, getAllJSDocTags, JSDocSatisfiesExpression, getJSDocSatisfiesTag, ParenthesizedTypeNode, isJSDocReturnTag, isSuperAccessExpression, JSDocVariableTag, SourceFileBase, getDefaultLibFolder, getUILocale, getDefaultLibFileName, sys, isJSDocTypeExpression, CommentDirective, CommentDirectivesMap, getLineAndCharacterOfPosition, arrayFrom, CommentDirectiveType, isJSDocLinkLike, isJSDocNameReference, isJSDocMemberName, isIdentifierText, JSDocMemberName, isNewExpression, isStructTypeNode, TemplateSpan, isForEachStatement, isLineBreak } from "./_namespaces/lpc.js";
 
 /** @internal */
 export const resolvingEmptyArray: never[] = [];
@@ -2136,10 +2136,39 @@ export function getJSDocCommentsAndTags(hostNode: Node, noCache?: boolean): read
     return result || emptyArray;
 }
 
+const fileOverviewTagNames = new Set(["file", "fileoverview", "overview"]);
+
+/**
+ * Whether a doc block describes the file or a type rather than the declaration it
+ * happens to precede: a `@file` header, or a `@typedef`/`@callback` block. The parser
+ * still hangs it on the next declaration (that is how the typedef gets bound), but it
+ * is never that declaration's own doc. A typedef block that also carries `@param` or
+ * `@returns` is treated as the declaration's doc, as TypeScript does.
+ *
+ * @internal
+ */
+export function isStandaloneJSDoc(jsDoc: JSDoc): boolean {
+    const tags = jsDoc.tags;
+    if (!tags) return false;
+    if (tags.some(tag => fileOverviewTagNames.has(tag.tagName.text))) return true;
+    return tags.some(isJSDocTypeAlias) && !tags.some(tag => isJSDocParameterTag(tag) || isJSDocReturnTag(tag));
+}
+
+/**
+ * The doc block a node owns: the last one above it, unless that one is standalone.
+ *
+ * @internal
+ */
+export function getOwnJSDoc(node: Node): JSDoc | undefined {
+    if (!hasJSDocNodes(node)) return undefined;
+    const jsDoc = last(node.jsDoc!);
+    return isStandaloneJSDoc(jsDoc) ? undefined : jsDoc;
+}
+
 function filterOwnedJSDocTags(hostNode: Node, comments: JSDocArray) {
     const lastJsDoc = last(comments);
     return flatMap<JSDoc, JSDoc | JSDocTag>(comments, jsDoc => {
-        if (jsDoc === lastJsDoc) {
+        if (jsDoc === lastJsDoc && !isStandaloneJSDoc(jsDoc)) {
             const ownedTags = filter(jsDoc.tags, tag => ownsJSDocTag(hostNode, tag));
             return jsDoc.tags === ownedTags ? [jsDoc] : ownedTags;
         }
@@ -3360,7 +3389,7 @@ function isQuoteOrBacktick(charCode: number) {
  *
  * @internal
  */
-export function getEffectiveTypeAnnotationNode(node: Node, originatingFile?: SourceFile): TypeNode | undefined {
+export function getEffectiveTypeAnnotationNode(node: Node): TypeNode | undefined {
     if (!isInJSFile(node) && isFunctionDeclaration(node)) return undefined;
     if (isTypeAliasDeclaration(node)) return undefined; // has a .type, is not a type annotation
     let type = (node as HasType).type;    
@@ -3383,25 +3412,6 @@ export function getEffectiveTypeAnnotationNode(node: Node, originatingFile?: Sou
         // rank by wrapping the JSDoc type in an array. Without this, the `*` is dropped and
         // `mobs` is treated as a single object instead of an array (see #317).
         possibleType = preserveDeclaredArrayRank(type, possibleType);
-        if (isVariableDeclaration(node) && isIdentifier(node.name) && shouldJsDocTypeOverrideTypeNode(possibleType)) {
-            // for a variable with a jsdoc overridable type, look to see if there is a @var tag            
-            // we can't use the node's file, because that may be different. the @var tag will be in the file
-            // that originated the type check
-            if (originatingFile) {                            
-                const varTagsSymbolTbl = originatingFile.locals.get(InternalSymbolName.VarDocTags)?.members;
-                let varTagSymbol: Symbol;
-
-                if (varTagsSymbolTbl && (varTagSymbol = varTagsSymbolTbl.get(node.name.text)) && varTagSymbol.declarations) {
-                    const varTag = first(varTagSymbol.declarations) as JSDocVariableTag;
-                    const varTagType = varTag.typeExpression?.type;
-                    if (varTagType) {
-                        possibleType = varTagType;
-                    }                
-                }
-            } else {
-                console.warn("originatingFile should be provided for variable declarations");
-            }
-        }
         return possibleType;
     } else if (type || !isInJSFile(node)) {
         return type;
@@ -3432,6 +3442,26 @@ function preserveDeclaredArrayRank(declaredType: TypeNode, docType: TypeNode): T
     setTextRangePosEnd(wrapped, declaredType.pos, declaredType.end);
     overrideHost.jsDocArrayTypeOverride = wrapped;
     return wrapped;
+}
+
+/**
+ * The type an `@var` tag in `file` gives the inherited variable `declaration`, if any.
+ *
+ * The tag retypes the variable for the tagged file only. The declaration belongs to the
+ * inherited program and its declared type is shared by every file that inherits it, so the
+ * tag must be applied where `file` reads the variable, never folded into that declared type.
+ * @internal
+ */
+export function getJSDocVariableTagTypeNode(declaration: Declaration, file: SourceFile): TypeNode | undefined {
+    if (!isVariableDeclaration(declaration) || !isIdentifier(declaration.name)) return undefined;
+    // A tag naming a variable declared in its own file is an error (checkJSDocVariableTag), not a retype.
+    if (getSourceFileOfNode(declaration) === file) return undefined;
+    const varTagSymbol = file.locals?.get(InternalSymbolName.VarDocTags)?.members?.get(declaration.name.text);
+    if (!varTagSymbol?.declarations) return undefined;
+    const varTag = first(varTagSymbol.declarations) as JSDocVariableTag;
+    const declaredType = getEffectiveTypeAnnotationNode(declaration);
+    // Like any other doc type, @var refines a weak declared type and leaves a strong one alone.
+    return declaredType && shouldJsDocTypeOverrideTypeNode(declaredType) ? varTag.typeExpression?.type : undefined;
 }
 
 function shouldJsDocTypeOverrideTypeNode(type: TypeNode): boolean {
@@ -5782,6 +5812,11 @@ export function getJSDocCommentRanges(node: Node, text: string) {
             node.kind === SyntaxKind.InheritDeclaration ||
             node.kind === SyntaxKind.ExportSpecifier) ?
         concatenate(getTrailingCommentRanges(text, node.pos), getLeadingCommentRanges(text, node.pos)) :
+        node.kind === SyntaxKind.VariableStatement ?
+        // A local's doc comment can share a line with the `{` or statement before it, as in
+        // `{ /** @type {X} */ object x = ...`. Take such a comment only when the declaration
+        // starts on that same line; one followed by a line break trails the previous code.
+        concatenate(filter(getTrailingCommentRanges(text, node.pos), comment => !hasLineBreakBetween(text, comment.end, skipTrivia(text, node.pos))), getLeadingCommentRanges(text, node.pos)) :
         getLeadingCommentRanges(text, node.pos);
     // True if the comment starts with '/**' but not if it is '/**/'
     return filter(commentRanges, comment =>
@@ -5789,6 +5824,13 @@ export function getJSDocCommentRanges(node: Node, text: string) {
         text.charCodeAt(comment.pos + 1) === CharacterCodes.asterisk &&
         text.charCodeAt(comment.pos + 2) === CharacterCodes.asterisk &&
         text.charCodeAt(comment.pos + 3) !== CharacterCodes.slash);
+}
+
+function hasLineBreakBetween(text: string, start: number, end: number) {
+    for (let i = start; i < end; i++) {
+        if (isLineBreak(text.charCodeAt(i))) return true;
+    }
+    return false;
 }
 
 /** @internal */

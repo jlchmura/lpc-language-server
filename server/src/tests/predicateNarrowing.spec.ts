@@ -126,3 +126,27 @@ describe("*p() guard narrowing", () => {
         });
     });
 });
+
+describe("a user function with a type predicate", () => {
+    const fluffos = lpc.LanguageVariant.FluffOS;
+    const queryUser = `
+/**
+ * @param {object} ob - Some object.
+ * @returns {ob is "object.c"} The object if it is a user, or 0.
+ */
+object query_user(object ob) { return ob; }
+`;
+
+    it("keeps its declared return type", () => {
+        // The predicate used to be folded in as `false | object`, which reached callers as `mixed*`.
+        expect(messages(`${queryUser}
+void test(object o) { object r = query_user(o); string s = r; }`, fluffos))
+            .toBe("Type 'object' is not assignable to type 'string'.");
+    });
+
+    it("still narrows its argument when the result is truthy", () => {
+        expect(messages(`${queryUser}
+void test(object o) { if (query_user(o)) { string s = o; } }`, fluffos))
+            .toMatch(/^Type 'object ".*\/cases\/compiler\/object"' is not assignable to type 'string'\.$/);
+    });
+});

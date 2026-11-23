@@ -209,6 +209,8 @@ import {
     tryGetTextOfPropertyName,
     getSourceFileOrIncludeOfNode,
     SourceFileBase,
+    isFunctionDeclaration,
+    getOwnJSDoc,
 } from "./_namespaces/lpc.js";
 import * as classifier2020 from "./classifier2020.js";
 import { computeSuggestionDiagnostics } from "./suggestionDiagnostics.js";
@@ -1181,6 +1183,7 @@ function hasJSDocInheritDocTag(node: Node) {
 
 function getJsDocTagsOfDeclarations(declarations: Declaration[] | undefined, checker: TypeChecker | undefined): JSDocTagInfo[] {
     if (!declarations) return emptyArray;
+    declarations = selectDocumentedDeclarations(declarations) as Declaration[];
 
     let tags = JsDoc.getJsDocTagsFromDeclarations(declarations, checker);
     if (checker && (tags.length === 0 || declarations.some(hasJSDocInheritDocTag))) {
@@ -2614,8 +2617,24 @@ export function findNextToken(previousToken: Node, parent: Node, sourceFile: Sou
     }
 }
 
+/**
+ * A prototype and its definition are one function -- neither driver overloads a user
+ * function, and both reject a second body -- so the pair gets one doc rather than both
+ * stacked: the definition's, else the first documented prototype's. Declarations with
+ * no body at all (the efun stubs' overloads) are left alone and keep a doc apiece.
+ */
+function selectDocumentedDeclarations(declarations: readonly Declaration[]): readonly Declaration[] {
+    const functions = declarations.filter(isFunctionDeclaration);
+    if (!functions.some(declaration => declaration.body)) return declarations;
+    const chosen = functions.find(declaration => declaration.body && getOwnJSDoc(declaration))
+        ?? functions.find(declaration => getOwnJSDoc(declaration));
+    if (!chosen) return declarations;
+    return declarations.filter(declaration => !isFunctionDeclaration(declaration) || declaration === chosen);
+}
+
 function getDocumentationComment(declarations: readonly Declaration[] | undefined, checker: TypeChecker | undefined): SymbolDisplayPart[] {
     if (!declarations) return emptyArray;
+    declarations = selectDocumentedDeclarations(declarations);
 
     let doc = JsDoc.getJsDocCommentsFromDeclarations(declarations, checker);
     if (checker && (doc.length === 0 || declarations.some(hasJSDocInheritDocTag))) {
