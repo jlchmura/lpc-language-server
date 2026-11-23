@@ -2749,7 +2749,9 @@ export function createScanner(
                         pos--;
                     }
 
-                    if (isIdentifierStart(charAfterHash, languageVersion)) {
+                    // LDMud has no # stringify (or ## paste) operator: '#' outside a directive or `#'` is an
+                    // illegal character ("Illegal character (hex 23) '#'").
+                    if (languageVariant !== LanguageVariant.LDMud && isIdentifierStart(charAfterHash, languageVersion)) {
                         pos++;
                         // We're relying on scanIdentifier's behavior and adjusting the token kind after the fact.
                         // Notably absent from this block is the fact that calling a function named "scanIdentifier",

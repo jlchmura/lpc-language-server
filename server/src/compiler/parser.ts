@@ -72,6 +72,10 @@ export namespace LpcParser {
      * phantom error behind. The bucket is built at the end from the diagnostics that
      * actually survived.
      */
+    /** True while the line of a #define is scanned. */
+    var inDefineDirective = false;
+    /** Texts of macro literals rescanned after parameter substitution (LDMud). */
+    var macroLiteralTexts: Set<string>;
     var includeDiagnosticOrigins: Map<DiagnosticWithDetachedLocation, IncludeDiagnosticOrigin>;
     // the current include directive being processed
     var currentIncludeDirective: IncludeDirective | undefined;
@@ -241,6 +245,7 @@ export namespace LpcParser {
         pendingMacroCallEnds = undefined;
                 
         includeDiagnosticOrigins = new Map();
+        macroLiteralTexts = new Set();
         includeFileCache = new Map<string, string>();
         includeFileCache.set(fileName, sourceText);
         includeGraph = new Map();
@@ -316,6 +321,20 @@ export namespace LpcParser {
     }
 
     function scanError(message: DiagnosticMessage, length: number, arg0?: any): void {
+        // LDMud keeps a macro body as text: an illegal character in it ('#name', 'a##b') is reported only where the
+        // macro is used, at the outermost macro use (the driver's line), and never for an unused macro or in an inactive
+        // #if branch.
+        if (languageVariant === LanguageVariant.LDMud && message === Diagnostics.Invalid_character) {
+            if (inDefineDirective || isCodeExecutable === Ternary.False) return;
+            if (currentMacro) {
+                const rootMacro = getRootMacro(currentMacro);
+                if (rootMacro.pos?.fileName) {
+                    const start = rootMacro.pos.tokenStart ?? rootMacro.pos.pos;
+                    parseErrorAtPosition(start, Math.max(1, (rootMacro.end ?? start) - start), rootMacro.pos.fileName, message, arg0);
+                    return;
+                }
+            }
+        }
         parseErrorAtPosition(scanner.getTokenEnd(), length, scanner.getFileName(), message, arg0);
     }
 
@@ -818,6 +837,27 @@ export namespace LpcParser {
         }
 
         switch (incomingToken) {
+            case SyntaxKind.StringLiteral:
+            case SyntaxKind.CharLiteral:
+                // LDMud substitutes function-like macro parameters inside string and character literals of the macro
+                // body (whole [A-Za-z0-9_] words only: "name" -> "x", "xname"/"name9" stay). The literal is replaced
+                // by the substituted text and rescanned, so `#define M(name) (["name":name])` with M("x") gives
+                // `""x""` as in the driver. Only tokens read from the body text itself qualify, not argument text or
+                // a previous substitution.
+                if (allowMacroProcessing && languageVariant === LanguageVariant.LDMud && currentMacro?.argsIn && currentMacro.range &&
+                    scanner.getText() === currentMacro.getText() &&
+                    scanner.getTokenStart() >= currentMacro.range.pos && scanner.getTokenEnd() <= currentMacro.range.end) {
+                    const literalArgs = currentMacro.argsIn;
+                    const literalText = scanner.getTokenText();
+                    const substituted = literalText.replace(/[A-Za-z0-9_]+/g, word =>
+                        Object.prototype.hasOwnProperty.call(literalArgs, word) ? literalArgs[word].text.substring(literalArgs[word].pos, literalArgs[word].end) : word);
+                    if (substituted !== literalText) {
+                        macroLiteralTexts.add(substituted);
+                        scanner.switchStream("", substituted, 0, substituted.length, /*revertOnEOF*/ true, () => false);
+                        return nextTokenWithoutCheck();
+                    }
+                }
+                break;
             default:
                 // Inside a JSDoc comment, keywords are LPCDoc type vocabulary (`undefined`,
                 // `object`, `function`, ...) and must win over same-named macros (e.g. a
@@ -874,7 +914,8 @@ export namespace LpcParser {
        
         // check if this macro has argumnets                
         const argValsByName: MapLike<MacroParameter> = {};
-        if (macroArgsDef?.length > 0) {                                        
+        // a function-like macro, also one without parameters (`#define f() ...`), consumes its arguments
+        if (macroArgsDef !== undefined) {
             // scan the next token, which should be an open paren.. parseArg wil check it.
             currentToken = nextTokenWithoutCheck();
             
@@ -1138,6 +1179,16 @@ export namespace LpcParser {
     }
 
     function parseErrorAtPosition(start: number, errLength: number, fileName: string, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation | undefined {
+        // An error inside a rescanned macro literal (stream "" whose positions index no file) is reported at the
+        // outermost macro use instead of being dropped.
+        if (fileName === "" && currentMacro && macroLiteralTexts.has(scanner.getText())) {
+            const rootMacro = getRootMacro(currentMacro);
+            if (rootMacro.pos?.fileName) {
+                fileName = rootMacro.pos.fileName;
+                start = rootMacro.pos.tokenStart ?? rootMacro.pos.pos;
+                errLength = Math.max(1, (rootMacro.end ?? start) - start);
+            }
+        }
         // Don't report another error if it would just be at the same position as the last error.
         const lastError = lastOrUndefined(parseDiagnostics);
         let result: DiagnosticWithDetachedLocation | undefined;
@@ -2362,6 +2413,18 @@ export namespace LpcParser {
     }
     
     function parseDefineDirective(): PreprocessorDirective {
+        // The whole directive line is scanned with inDefineDirective set (its first body token is scanned while the
+        // name or parameter list is consumed); the token after the line is scanned by the caller.
+        const saved = inDefineDirective;
+        inDefineDirective = true;
+        try {
+            return parseDefineDirectiveWorker();
+        } finally {
+            inDefineDirective = saved;
+        }
+    }
+
+    function parseDefineDirectiveWorker(): PreprocessorDirective {
         const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
 
@@ -2401,6 +2464,9 @@ export namespace LpcParser {
             // create a fake node to store the range so that v8 doesn't deoptimize the Node object
             const tempNode = setTextRangePosEnd(factory.createBlock([], /*multiLine*/ false), contentStart, endPos);
             range = tempNode;
+        } else {
+            // an empty body (`#define debug(x)`, `#define FOO`) expands to nothing
+            range = setTextRangePosEnd(factory.createBlock([], /*multiLine*/ false), contentStart, contentStart);
         }
 
         // Add to macro table here
