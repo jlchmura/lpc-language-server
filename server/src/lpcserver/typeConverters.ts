@@ -218,9 +218,8 @@ export namespace SignatureHelp {
 		const signature = vscode.SignatureInformation.create(asPlainTextWithLinks(item.prefixDisplayParts, converter));
 		signature.documentation = {
 			kind: vscode.MarkupKind.Markdown,
-			// Every tag, @param included: the parameter under the cursor gets its own line at the
-			// top, but the full list -- with each parameter's type -- belongs with the rest.
-			value: documentationToMarkdown(item.documentation, item.tags, converter, baseUri),
+			// @param tags are left out: the parameter under the cursor gets its own line at the top.
+			value: documentationToMarkdown(item.documentation, item.tags.filter(x => x.name !== 'param'), converter, baseUri),
 		};
 
 		let textIndex = signature.label.length;

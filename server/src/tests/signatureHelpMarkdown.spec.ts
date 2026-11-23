@@ -38,8 +38,8 @@ describe("signature help documentation", () => {
         expect((documentation as { value: string }).value).toContain("*@public*");
     });
 
-    it("lists the @param tags with the rest", () => {
-        expect((converted().documentation as { value: string }).value).toContain("*@param* `{string}` `msg` \u2014 The message");
+    it("leaves the @param tags to the active parameter's line", () => {
+        expect((converted().documentation as { value: string }).value).not.toContain("*@param*");
     });
 
     it("sends a parameter's doc as markdown without the @param separator", () => {
