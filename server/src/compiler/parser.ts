@@ -6917,7 +6917,11 @@ export namespace LpcParser {
                         expr = parseExpression();
                     }
 
-                    parseExpected(SyntaxKind.CloseBracketToken);
+                    // Scan past the `]` in JSDoc mode. The ordinary scanner skips the newline after it,
+                    // so when `[name]` ends the comment it runs off the end of the comment's text, and
+                    // the stream switch there released the speculation that @overload/@callback wrap
+                    // each parameter in ("Debug Failure. False expression.", #418).
+                    parseExpectedTokenJSDoc(SyntaxKind.CloseBracketToken);
                 }
 
                 return { name, isBracketed, isRef, expr };
