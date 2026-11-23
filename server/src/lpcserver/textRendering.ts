@@ -48,7 +48,7 @@ function getTagDocumentation(
             const text = getTagBodyText(tag, filePathConverter);
             const typed = text?.match(/^(\{[^{}]*\})[ \t]*/);
             if (text && typed) {
-                const rest = text.slice(typed[0].length);
+                const rest = text.slice(typed[0].length).replace(separatorPattern, '');
                 const label = `*@${tag.name}* \`${typed[1]}\``;
                 if (!rest) {
                     return label;
@@ -76,13 +76,20 @@ function getTagBody(tag: Proto.JSDocTagInfo, filePathConverter: IFilePathToResou
         const parts = tag.text;
         if (parts && typeof (parts) !== 'string') {
             const params = parts.filter(p => p.kind === 'typeParameterName').map(p => p.text).join(', ');
-            const docs = parts.filter(p => p.kind === 'text').map(p => convertLinkTags(p.text.replace(/^\s*-?\s*/, ''), filePathConverter)).join(' ');
+            const docs = parts.filter(p => p.kind === 'text').map(p => convertLinkTags(p.text.replace(/^\s*/, '').replace(separatorPattern, ''), filePathConverter)).join(' ');
             return params ? ['', undefined!, params, docs] : undefined;
         }
     }
     // Optional leading `{type}` (as emitted for property-like tags), then the name.
-    return (convertLinkTags(tag.text, filePathConverter)).split(/^(?:(\{[^{}]*\})[ \t]+)?(\S+)\s*-?\s*/);
+    return (convertLinkTags(tag.text, filePathConverter)).split(/^(?:(\{[^{}]*\})[ \t]+)?(\S+)\s*(?:-(?:\s+|$))?/);
 }
+
+/**
+ * The `-` an author puts between a tag's name (or type) and its text. Only a hyphen
+ * followed by whitespace (or nothing) is a separator, so text that starts with a
+ * negative number such as `-1` keeps its sign.
+ */
+const separatorPattern = /^-(?:\s+|$)/;
 
 /**
  * Convert `@link` inline tags to markdown links
