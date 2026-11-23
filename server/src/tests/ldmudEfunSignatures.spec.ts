@@ -1,0 +1,84 @@
+import * as lpc from "./_namespaces/lpc.js";
+import { createTestLanguageService } from "./harness.js";
+
+/**
+ * LDMud efun declarations checked against the driver's func_spec (LDMud 3.6.8).
+ *
+ * Each snippet compiles in the driver. Before these efun.h fixes the checker reported
+ * an error for each one.
+ */
+function errors(body: string): string[] {
+    const { ls, abs } = createTestLanguageService({ "test.c": body }, {
+        driverType: lpc.LanguageVariant.LDMud,
+        diagnostics: true,
+    });
+    return ls.getSemanticDiagnostics(abs("test.c"))
+        .map(d => `${d.code}: ${lpc.flattenDiagnosticMessageText(d.messageText, " ")}`);
+}
+
+describe("LDMud efun signatures", () => {
+    it("snoop() returns int (func_spec: int snoop(object, void|object))", () => {
+        expect(errors(`int f(object a, object b) { int r = snoop(a, b); return r + snoop(a); }`)).toEqual([]);
+    });
+
+    it("regmatch() with options returns mixed: a string, or an array with RE_MATCH_SUBS", () => {
+        expect(errors(`
+            string *subs(string s) { return regmatch(s, "(a)(b)", 8); }
+            string whole(string s) { return regmatch(s, "a+", 0, 1); }
+        `)).toEqual([]);
+    });
+
+    it("to_bytes()/to_text() take an int array (the parameter name 'bytes' typed it as bytes)", () => {
+        expect(errors(`
+            bytes b(int *codes) { return to_bytes(codes); }
+            string t(int *codes) { return to_text(codes, "UTF-8"); }
+        `)).toEqual([]);
+    });
+
+    it("set_driver_hook() accepts a mapping (H_MODIFY_COMMAND)", () => {
+        expect(errors(`void f() { set_driver_hook(9, ([ "e": "east" ])); }`)).toEqual([]);
+    });
+
+    it("functionlist() and get_error_file() flags are optional", () => {
+        expect(errors(`
+            mixed *a(object o) { return functionlist(o); }
+            mixed *b(string n) { return get_error_file(n); }
+        `)).toEqual([]);
+    });
+
+    it("map()/filter() with only a function name call it in this_object()", () => {
+        expect(errors(`
+            int valid(object o) { return 1; }
+            object *pick(object *obs) { return filter(obs, "valid"); }
+            mixed *all(object *obs) { return map(obs, "valid"); }
+        `)).toEqual([]);
+    });
+
+    it("map()/filter() with a function name take extra arguments for this_object()", () => {
+        expect(errors(`
+            void add(object o, int n) {}
+            int keep(string k, int v, int n) { return v > n; }
+            void f(object *u, int amount) {
+                mapping m;
+                map(u, "add", amount);
+                filter(u, "add", amount);
+                m = filter(([ "a": 1, "b": 2 ]), "keep", 1);
+            }
+        `)).toEqual([]);
+    });
+
+    it("map() on a mapping returns a mapping (mapping overloads before the struct ones)", () => {
+        expect(errors(`mapping f(mapping m) { return map(m, (: $2 + 1 :)); }`)).toEqual([]);
+    });
+
+    it("living() is not a type predicate (NPCs are living)", () => {
+        // With the old `{ob is player}` predicate the false branch narrowed `object` to nothing.
+        const source = `int ask(object room) {\n    if (living(room)) return 0;\n    return objectp(room);\n}\n`;
+        const { ls, abs } = createTestLanguageService({ "test.c": source }, {
+            driverType: lpc.LanguageVariant.LDMud,
+            diagnostics: true,
+        });
+        const info = ls.getQuickInfoAtPosition(abs("test.c"), source.lastIndexOf("room"));
+        expect(lpc.displayPartsToString(info?.displayParts)).toMatch(/\bobject room$/);
+    });
+});
