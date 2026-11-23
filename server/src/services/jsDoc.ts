@@ -45,6 +45,7 @@ import {
     isIdentifier,    
     isJSDoc,
     isJSDocOverloadTag,
+    isJSDocSignature,
     isJSDocParameterTag,
     isJSDocPropertyLikeTag,
     isJSDocText,
@@ -252,6 +253,25 @@ export function getJsDocTagsFromDeclarations(declarations?: Declaration[], check
     // Only collect doc comments from duplicate declarations once.
     const infos: JSDocTagInfo[] = [];
     forEachUnique(declarations, declaration => {
+        // An @overload shape's tags are the block's shared ones plus its own @param and
+        // @returns -- not every shape's, which would describe all of them at once.
+        if (isJSDocSignature(declaration) && isJSDocOverloadTag(declaration.parent)) {
+            const shape = declaration.parent;
+            for (const tag of shape.parent.tags ?? emptyArray) {
+                if (!isJSDocOverloadTag(tag)) {
+                    infos.push({ name: tag.tagName.text, text: getCommentDisplayParts(tag, checker) });
+                }
+                else if (tag === shape) {
+                    for (const paramTag of shape.typeExpression.parameters) {
+                        infos.push({ name: paramTag.tagName.text, text: getCommentDisplayParts(paramTag, checker) });
+                    }
+                    if (shape.typeExpression.type) {
+                        infos.push({ name: shape.typeExpression.type.tagName.text, text: getCommentDisplayParts(shape.typeExpression.type, checker) });
+                    }
+                }
+            }
+            return;
+        }
         const tags = getJSDocTags(declaration);
         // skip comments containing @typedefs since they're not associated with particular declarations
         // Exceptions:
