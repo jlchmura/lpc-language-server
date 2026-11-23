@@ -254,6 +254,10 @@ export function isKeywordInLanguageVariant(keyword: SyntaxKind, variant: Languag
         case SyntaxKind.VirtualKeyword:
         case SyntaxKind.YieldKeyword:
             return variant === LanguageVariant.LDMud;
+        case SyntaxKind.AnyKeyword:
+        case SyntaxKind.UnknownKeyword:
+            // Not LDMud keywords: `int any`, `mapping unknown` are names there.
+            return variant !== LanguageVariant.LDMud;
         default:
             return true;
     }

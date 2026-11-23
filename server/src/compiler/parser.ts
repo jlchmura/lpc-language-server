@@ -533,7 +533,8 @@ export namespace LpcParser {
     }
 
     function firstConditionName(tokens: readonly PreprocessorToken[]): PreprocessorToken | undefined {
-        return firstOrUndefined(tokens.filter(t => t.kind === SyntaxKind.Identifier || isKeyword(t.kind)));
+        // Any word is a macro name to LDMud's preprocessor (`#ifdef private`); `#ifdef 0` names nothing defined.
+        return firstOrUndefined(tokens.filter(t => tokenIsIdentifierOrKeyword(t.kind) || t.kind === SyntaxKind.NumericLiteral || t.kind === SyntaxKind.IntLiteral));
     }
 
     /**
@@ -1676,6 +1677,7 @@ export namespace LpcParser {
                 case SyntaxKind.NoSaveKeyword:
                 case SyntaxKind.VarArgsKeyword:
                 case SyntaxKind.NoShadowKeyword:
+                case SyntaxKind.VirtualKeyword: // LDMud `virtual inherit "x";`
                 case SyntaxKind.BytesKeyword:                
                 case SyntaxKind.LwObjectKeyword:
                 case SyntaxKind.CoroutineKeyword:
@@ -1744,7 +1746,8 @@ export namespace LpcParser {
             case ParsingContext.ImportAttributes:
                 return token() === SyntaxKind.CloseBraceToken || token() === SyntaxKind.ColonCloseParenToken || token() === SyntaxKind.NewLineTrivia || token() === SyntaxKind.ColonToken;
             case ParsingContext.InlineClosure:
-                return token() === SyntaxKind.ColonToken;
+                // `(: expr; expr :)`: ';' separates expressions too
+                return token() === SyntaxKind.ColonToken || token() === SyntaxKind.SemicolonToken;
             case ParsingContext.ObjectLiteralMembers:
                 return token() === SyntaxKind.CloseBraceToken;
             case ParsingContext.PragmaArguments:
@@ -2062,6 +2065,7 @@ export namespace LpcParser {
             case SyntaxKind.NoSaveKeyword:
             case SyntaxKind.NoShadowKeyword:                         
             case SyntaxKind.VarArgsKeyword:
+            case SyntaxKind.VirtualKeyword: // LDMud `virtual inherit "x";`
             // primitive types               
             case SyntaxKind.FunctionKeyword: 
             case SyntaxKind.BytesKeyword:
@@ -2447,7 +2451,7 @@ export namespace LpcParser {
 
         parseExpected(SyntaxKind.UndefDirective);
         
-        const identifier = parseIdentifier();
+        const identifier = parseIdentifierName();
         
         macroEnv.undef(identifier.text);
         return withJSDoc(finishNode(factory.createUndefDirective(identifier), pos), hasJSDoc);
@@ -3133,6 +3137,11 @@ export namespace LpcParser {
             return true;
         }
 
+        // Inside an inline closure the last statement may end at ':)' ('(: f(); return 0 :)').
+        if (token() === SyntaxKind.ColonToken && inInlineClosureBody) {
+            return true;
+        }
+
         // Inside a `time_expression` block the driver requires a real semicolon, so don't
         // let a following `}` / EOF / line break stand in for one.
         if (suppressSemicolonInsertion) {
@@ -3378,6 +3387,7 @@ export namespace LpcParser {
             case SyntaxKind.FloatLiteral:
             case SyntaxKind.StringLiteral:
             case SyntaxKind.StringArrayLiteral:
+            case SyntaxKind.BytesLiteral:
             case SyntaxKind.NoSubstitutionTemplateLiteral:
             case SyntaxKind.TemplateHead:
             case SyntaxKind.OpenParenToken:
@@ -4082,7 +4092,8 @@ export namespace LpcParser {
         const modifiers = parseModifiers(/*allowDecorators*/ true);
         
         if (token() == SyntaxKind.InheritKeyword) {
-            return parseInheritStatementWorker(pos, hasJSDoc, modifiers);
+            // Register the import as parseInheritStatement does, so `private inherit` / `virtual inherit` resolve.
+            return addImportCandidate(parseInheritStatementWorker(pos, hasJSDoc, modifiers));
         }
         // if (isStructOrClassKeyword() && isStartOfStructDeclaration()) {            
         //     return parseStructDeclaration(pos, hasJSDoc, modifiers);                
@@ -4944,7 +4955,13 @@ export namespace LpcParser {
             }
             
             const tokenNode = impliedStringConcat ? finishNode(factoryCreateToken(SyntaxKind.PlusToken), getPositionState()) : parseTokenNode<BinaryOperatorToken>();
-            leftOperand = makeBinaryExpression(leftOperand, tokenNode, parseBinaryExpressionOrHigher(newPrecedence), pos);
+            const rightPos = getPositionState();
+            let rightOperand = parseBinaryExpressionOrHigher(newPrecedence);
+            // LDMud's grammar takes an assignment as the right operand of && and || ('a && b += c' is a && (b += c)).
+            if (languageVariant === LanguageVariant.LDMud && (tokenNode.kind === SyntaxKind.AmpersandAmpersandToken || tokenNode.kind === SyntaxKind.BarBarToken) && isAssignmentOperator(token()) && isLeftHandSideExpression(rightOperand)) {
+                rightOperand = makeBinaryExpression(rightOperand, parseTokenNode<BinaryOperatorToken>(), parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ false), rightPos);
+            }
+            leftOperand = makeBinaryExpression(leftOperand, tokenNode, rightOperand, pos);
         }
 
         return leftOperand;
@@ -5505,6 +5522,15 @@ export namespace LpcParser {
             || token() === SyntaxKind.TemplateHead;
     }
 
+    // LDMud '[>n]', '[>a..>b]': '>' (count from the start, negatives allowed) prefixes a whole index bound, as '<'
+    // does (count from the end). Parsed as a prefix unary over the bound.
+    function parseIndexBound(parseBound: () => Expression): Expression {
+        if (languageVariant !== LanguageVariant.LDMud || token() !== SyntaxKind.GreaterThanToken) return parseBound();
+        const pos = getPositionState();
+        nextToken();
+        return finishNode(factory.createPrefixUnaryExpression(SyntaxKind.GreaterThanToken as PrefixUnaryOperator, parseBound()), pos);
+    }
+
     function parseMaybeRangeExpression(rangeTerminatorToken:PunctuationSyntaxKind): RangeExpression | Expression {        
         const pos = getPositionState();
         let left: Expression, right: Expression;
@@ -5546,15 +5572,15 @@ export namespace LpcParser {
             if (parseOptional(SyntaxKind.DotDotToken)) {
                 sawDotDot = true;
                 // rightOp = parseOptionalToken(SyntaxKind.LessThanToken);
-                right = allowCommaInAnd(parseExpression);
+                right = parseIndexBound(() => allowCommaInAnd(parseExpression));
             } else {
                 // leftOp = parseOptionalToken(SyntaxKind.LessThanToken);
-                left = allowCommaInAnd(parseExpression);
+                left = parseIndexBound(() => allowCommaInAnd(parseExpression));
                 if (parseOptional(SyntaxKind.DotDotToken)) {
                     sawDotDot = true;
                     if (token() !== SyntaxKind.CloseBracketToken) {
                         // leftOp = parseOptionalToken(SyntaxKind.LessThanToken);
-                        right = allowCommaInAnd(parseExpression);
+                        right = parseIndexBound(() => allowCommaInAnd(parseExpression));
                     }
                 }
             }
@@ -5864,6 +5890,16 @@ export namespace LpcParser {
             isStartOfExpression();
     }
 
+    function doInInlineClosureBody<T>(func: () => T): T {
+        const saved = inInlineClosureBody;
+        inInlineClosureBody = true;
+        try {
+            return func();
+        } finally {
+            inInlineClosureBody = saved;
+        }
+    }
+
     function parseInlineClosureExpressionBody(allowReturnTypeInArrowFunction: boolean): Block | Expression | NodeArray<Expression> {
         if (token() === SyntaxKind.OpenBraceToken) {
             return parseFunctionBlock(SignatureFlags.None);
@@ -5894,13 +5930,47 @@ export namespace LpcParser {
             return funcBlock;
         }
 
+        // An LDMud inline closure is a statement block; one that starts with a declaration ('(: int i = $1; ...')
+        // is parsed as a block.
+        if (languageVariant === LanguageVariant.LDMud && isStartOfDeclaration()) {
+            return doInInlineClosureBody(() => parseFunctionBlock(SignatureFlags.IgnoreMissingOpenBrace | SignatureFlags.None));
+        }
+
         const savedTopLevel = topLevel;
         topLevel = false;
         
         // in this situation, we may have a single expression - or a comma separated list of expressions.
         // the second form being a call_other shortcut
 
-        const node = parseDelimitedList(ParsingContext.InlineClosure, parseArgumentExpression);
+        const listPos = getPositionState();
+        let node = parseDelimitedList(ParsingContext.InlineClosure, parseArgumentExpression);
+
+        // LDMud `(: expr; expr :)`: ';' separates expressions like ',' (evaluated in order, the value is the last
+        // one's). A ';' just before ':)' is allowed. A statement after a ';' (`(: f(); return 0; :)`) turns the body
+        // into a block: the expressions so far become expression statements.
+        if (languageVariant === LanguageVariant.LDMud && token() === SyntaxKind.SemicolonToken) {
+            const segments: [PositionState, Expression[]][] = [[listPos, [...node]]];
+            let block: Block | undefined;
+            while (parseOptional(SyntaxKind.SemicolonToken)) {
+                if (token() === SyntaxKind.ColonToken || token() === SyntaxKind.ColonCloseParenToken) break;
+                if (isStartOfDeclaration() || (isStartOfStatement() && !isStartOfExpressionStatement())) {
+                    const statements: Statement[] = [];
+                    for (const [segmentPos, expressions] of segments) {
+                        for (const e of expressions) statements.push(finishNode(factory.createExpressionStatement(e), segmentPos, e.end));
+                    }
+                    statements.push(...doInInlineClosureBody(() => parseList(ParsingContext.BlockStatements, parseStatement)));
+                    block = finishNode(factoryCreateBlock(createNodeArray(statements, listPos), /*multiLine*/ true), listPos);
+                    break;
+                }
+                const segmentPos = getPositionState();
+                segments.push([segmentPos, [...parseDelimitedList(ParsingContext.InlineClosure, parseArgumentExpression)]]);
+            }
+            if (block) {
+                topLevel = savedTopLevel;
+                return block;
+            }
+            node = createNodeArray(segments.flatMap(segment => segment[1]), listPos);
+        }
 
         // const node = isAsync
         //     ? doInAwaitContext(() => parseAssignmentExpressionOrHigher(allowReturnTypeInArrowFunction))
@@ -6207,6 +6277,8 @@ export namespace LpcParser {
         return withJSDoc(finishNode(node, pos), hasJSDoc);
     }
 
+    /** True while parsing the statements of an LDMud `(: ... :)` body, where ':)' ends the last statement. */
+    var inInlineClosureBody = false;
     var inInlineClosureContext = false;
 
     /**
