@@ -499,20 +499,35 @@ export namespace LpcParser {
      * here -- the `#if` evaluator does its own expansion). Leaves the scanner on the
      * terminating newline/EOF, which is returned as `terminator`.
      */
-    function collectConditionTokens(): { tokens: PreprocessorToken[]; terminator: SyntaxKind } {
-        const tokens: PreprocessorToken[] = [];
-        let t = scanner.scan();
-        while (t !== SyntaxKind.NewLineTrivia && t !== SyntaxKind.EndOfFileToken) {
-            // The scanner always emits a bare `>` (to keep nested generics like `>>`
-            // splittable); recombine it into the real operator (`>=`, `>>`, `>>>`, ...)
-            // so `#if` relational/shift expressions evaluate correctly.
-            if (t === SyntaxKind.GreaterThanToken) {
-                t = scanner.reScanGreaterToken();
-            }
-            tokens.push({ kind: t, value: scanner.getTokenValue() });
-            t = scanner.scan();
+    /**
+     * @param nameOnly The line is an `#ifdef`/`#ifndef` name. The driver takes any word there
+     * (`#ifdef 3K` is simply not defined), so the scanner's "identifier cannot immediately follow
+     * a numeric literal" error is dropped.
+     */
+    function collectConditionTokens(nameOnly = false): { tokens: PreprocessorToken[]; terminator: SyntaxKind } {
+        if (nameOnly) {
+            scanner.setOnError((message, length, arg0) => {
+                if (message !== Diagnostics.An_identifier_or_keyword_cannot_immediately_follow_a_numeric_literal) scanError(message, length, arg0);
+            });
         }
-        return { tokens, terminator: t };
+        try {
+            const tokens: PreprocessorToken[] = [];
+            let t = scanner.scan();
+            while (t !== SyntaxKind.NewLineTrivia && t !== SyntaxKind.EndOfFileToken) {
+                // The scanner always emits a bare `>` (to keep nested generics like `>>`
+                // splittable); recombine it into the real operator (`>=`, `>>`, `>>>`, ...)
+                // so `#if` relational/shift expressions evaluate correctly.
+                if (t === SyntaxKind.GreaterThanToken) {
+                    t = scanner.reScanGreaterToken();
+                }
+                tokens.push({ kind: t, value: scanner.getTokenValue() });
+                t = scanner.scan();
+            }
+            return { tokens, terminator: t };
+        }
+        finally {
+            if (nameOnly) scanner.setOnError(scanError);
+        }
     }
 
     function firstConditionName(tokens: readonly PreprocessorToken[]): PreprocessorToken | undefined {
@@ -536,7 +551,7 @@ export namespace LpcParser {
             case SyntaxKind.IfDefDirective:
             case SyntaxKind.IfNDefDirective: {
                 const parentActive = conditionalParentActive();
-                const collected = collectConditionTokens();
+                const collected = collectConditionTokens(/*nameOnly*/ directive !== SyntaxKind.IfDirective);
                 terminator = collected.terminator;
 
                 let condition = false;
