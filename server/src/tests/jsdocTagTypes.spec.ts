@@ -125,3 +125,40 @@ mixed call_it(mixed cb) {
         expect(markdown).toContain("*@returns* — Result of the call");
     });
 });
+
+// The renderer dropped any leading `-` after a tag's name, so `@param {int} b -1 is the
+// default` lost its sign, and it kept the separator after a `@returns` type
+// (`@returns {int} - Count` rendered as `— - Count`). Only a hyphen followed by
+// whitespace is the separator.
+describe("the - separator in tag text", () => {
+    const source = `/**
+ * @param {int} b -1 is the default
+ * @param {string} msg - The message
+ * @param last -
+ * @returns {int} - The number of objects messaged
+ */
+int f(int b, string msg, mixed last) { return 0; }
+`;
+
+    function markdown() {
+        const { ls, fileName } = createTestLanguageService({ "test.c": source });
+        const quickInfo = ls.getQuickInfoAtPosition(fileName, source.indexOf("f(int"));
+        return tagsToMarkdown(toProtocolTags(quickInfo) as any, converter);
+    }
+
+    it("keeps the sign of a doc that starts with a negative number", () => {
+        expect(markdown()).toContain("*@param* `{int}` `b` — -1 is the default");
+    });
+
+    it("drops the separator after a param name", () => {
+        expect(markdown()).toContain("*@param* `{string}` `msg` — The message");
+    });
+
+    it("drops a trailing separator with no text after it", () => {
+        expect(markdown()).toMatch(/\*@param\* `last`(?! — -)/);
+    });
+
+    it("drops the separator after a @returns type", () => {
+        expect(markdown()).toContain("*@returns* `{int}` — The number of objects messaged");
+    });
+});
