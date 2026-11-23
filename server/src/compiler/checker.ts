@@ -34694,7 +34694,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function getSpreadArgumentType(args: readonly Expression[], index: number, argCount: number, restType: Type, context: InferenceContext | undefined, checkMode: CheckMode) {
         const inConstContext = false;//isConstTypeVariable(restType);
         
-        if (index >= argCount - 1) {
+        // argCount is 0 when an LDMud `varargs T *args` parameter is called with no arguments; args[-1] doesn't exist.
+        if (index >= argCount - 1 && argCount > 0) {
             const arg = args[argCount - 1];            
             if (isSpreadArgument(arg)) {
                 // We are inferring from a spread expression in the last argument position, i.e. both the parameter
