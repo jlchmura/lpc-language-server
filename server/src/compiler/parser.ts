@@ -3567,6 +3567,10 @@ export namespace LpcParser {
             if (parseOptional(SyntaxKind.AsteriskToken)) {
                 return finishNode(factory.createArrayTypeNode(type), pos);
             }
+            if (parseOptional(SyntaxKind.AsteriskAsteriskToken)) {
+                // `<object|lwobject>** unique_array(...)`: an array of arrays
+                return finishNode(factory.createArrayTypeNode(finishNode(factory.createArrayTypeNode(type), pos)), pos);
+            }
 
             return type;
         }

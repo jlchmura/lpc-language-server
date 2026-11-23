@@ -96,3 +96,11 @@ describe("other LDMud expressions", () => {
         expect(one(`int f(bytes txt) { return strstr(txt, b"\\n"); }`)).toEqual([]);
     });
 });
+
+describe("LDMud types", () => {
+    it("reads '**' after a bracketed union as an array of arrays", () => {
+        expect(one(`<int|string>** pairs() { return ({ ({ 1, "a" }) }); }
+mixed *groups(object *obs) { return unique_array(obs, "query_short", 0); }
+int f() { <int|string>** p = pairs(); return sizeof(p[0]); }`)).toEqual([]);
+    });
+});
