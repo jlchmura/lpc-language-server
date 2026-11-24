@@ -1,4 +1,4 @@
-import { ACatchExpression, AwaitExpression, PromiseTypeNode, AmpersandToken, ArrayLiteralExpression, ArrayTypeNode, BaseNodeFactory, BinaryExpression, BinaryOperatorToken, BindingPattern, Block, BooleanLiteral, BreakOrContinueStatement, BreakStatement, ByRefElement, CallExpression, CaseBlock, CaseClause, CaseOrDefaultClause, CastExpression, CatchExpression, CatchStatement, TimeExpression, CharacterCodes, CloneObjectExpression, CommaListExpression, CommentRange, ConditionalExpression, ContinueStatement, Debug, DefaultClause, DefineDirective, Diagnostic, DiagnosticArguments, DiagnosticMessage, DiagnosticWithDetachedLocation, Diagnostics, DoWhileStatement, ElementAccessExpression, EndOfFileToken, EntityName, EvaluateExpression, Expression, ExpressionStatement, ExpressionWithTypeArguments, Extension, ForEachChildNodes, ForEachStatement, ForStatement, FunctionDeclaration, FunctionExpression, HasJSDoc, Identifier, IfStatement, ImpliedStringConcatExpression, ImportCandidateNode, IncludeDirective, IncludeDiagnosticOrigin, IncludeParseDiagnostic, InferTypeNode, InheritClauseNodeType, InheritDeclaration, InlineClosureExpression, IntersectionTypeNode, IterationStatement, JSDoc, JSDocAugmentsTag, JSDocAuthorTag, JSDocCallbackTag, JSDocClassTag, JSDocComment, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocOverrideTag, JSDocParameterTag, JSDocParsingMode, JSDocPrivateTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocProtectedTag, JSDocPublicTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocTypedefTag, JSDocUnknownTag, JSDocVariableTag, JSDocVariadicType, JsonMinusNumericLiteral, JsonObjectExpressionStatement, JsonSourceFile, KeywordSyntaxKind, LabeledStatement, LambdaExpression, LambdaIdentifierExpression, LambdaOperatorExpression, LambdaOperatorToken, LanguageVariant, LeftHandSideExpression, LiteralExpression, LiteralLikeNode, LiteralTypeNode, createMacroEnvironment, MacroEnvironment, MacroPositionSnapshot, evaluatePreprocessorCondition, PreprocessorToken, LpcFileHandler, LpcLoadImportResult, Macro, MacroParameter, MapLike, MappingEntryExpression, MappingLiteralExpression, MappingTypeNode, MappingTypeEntryNode, MemberExpression, MethodSignature, MissingDeclaration, Modifier, ModifierLike, Mutable, MutableNodeArray, NamedObjectTypeNode, NewExpression, NewExpressionArgument, NewStructExpression, Node, NodeArray, NodeFactory, NodeFactoryFlags, NodeFlags, NullLiteral, NumericLiteral, ObjectLiteralElementLike, ObjectLiteralExpression, OperatorPrecedence, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PositionState, PostfixUnaryExpression, PostfixUnaryOperator, PragmaContext, PragmaDefinition, PragmaDirective, PragmaKindFlags, PragmaMap, PragmaPseudoMap, PragmaPseudoMapEntry, PrefixUnaryExpression, PrefixUnaryOperator, PreprocessorDirective, PrimaryExpression, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAccessToken, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, QualifiedName, QuestionDotToken, RangeExpression, RefToken, ResolutionMode, ReturnStatement, ScriptKind, ScriptTarget, ShorthandPropertyAssignment, SourceFile, SpreadElement, Statement, StringLiteral, StructDeclaration, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, TemplateExpression, TemplateSpan, Ternary, TextChangeRange, TextRange, Token, TupleTypeNode, TypeAssertion, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnaryExpression, UndefDirective, UnionTypeNode, UpdateExpression, VariableDeclaration, VariableDeclarationList, VariableStatement, WhileStatement, addRange, addRelatedInfo, append, attachFileToDiagnostics, canHaveJSDoc, commentPragmas, concatenate, containsParseError, createDetachedDiagnostic, createNodeFactory, createScanner, emptyArray, emptyMap, fileExtensionIs, first, firstOrUndefined, flatten, forEach, forEachEntry, getAnyExtensionFromPath, getBaseFileName, getBinaryOperatorPrecedence, getDirectoryPath, getFullWidth, getJSDocCommentRanges, getLeadingCommentRanges, getSpellingSuggestion, idText, identity, isArray, isArrayTypeNode, isAssignmentOperator, isBinaryExpression, isIdentifier as isIdentifierNode, isIdentifierText, isJSDocReturnTag, isJSDocTypeTag, isKeyword, isKeywordOrPunctuation, isLeftHandSideExpression, isLiteralKind, isModifierKind, isNonReservedKeyword, isParenthesizedExpression, isStringLiteral, isStringOrNumericLiteralLike, isStructTypeNode, isTemplateExpression, isTypeReferenceNode, last, lastOrUndefined, map, mapDefined, nodeIsMissing, nodeIsPresent, objectAllocator, performance, setNodeFlags, setParent, setParentRecursive, setTextRangePos, setTextRangePosEnd, setTextRangePosWidth, skipTrivia, some, startsWith, supportedDeclarationExtensions, textToKeywordObj, toArray, tokenIsIdentifierOrKeyword, tokenToString, tracing } from "./_namespaces/lpc";
+import { ACatchExpression, AwaitExpression, CoroutineCallExpression, CoroutineInstruction, PromiseTypeNode, AmpersandToken, ArrayLiteralExpression, ArrayTypeNode, BaseNodeFactory, BinaryExpression, BinaryOperatorToken, BindingPattern, Block, BooleanLiteral, BreakOrContinueStatement, BreakStatement, ByRefElement, CallExpression, CaseBlock, CaseClause, CaseOrDefaultClause, CastExpression, CatchExpression, CatchStatement, TimeExpression, CharacterCodes, CloneObjectExpression, CommaListExpression, CommentRange, ConditionalExpression, ContinueStatement, Debug, DefaultClause, DefineDirective, Diagnostic, DiagnosticArguments, DiagnosticMessage, DiagnosticWithDetachedLocation, Diagnostics, DoWhileStatement, ElementAccessExpression, EndOfFileToken, EntityName, EvaluateExpression, Expression, ExpressionStatement, ExpressionWithTypeArguments, Extension, ForEachChildNodes, ForEachStatement, ForStatement, FunctionDeclaration, FunctionExpression, HasJSDoc, Identifier, IfStatement, ImpliedStringConcatExpression, ImportCandidateNode, IncludeDirective, IncludeDiagnosticOrigin, IncludeParseDiagnostic, InferTypeNode, InheritClauseNodeType, InheritDeclaration, InlineClosureExpression, IntersectionTypeNode, IterationStatement, JSDoc, JSDocAugmentsTag, JSDocAuthorTag, JSDocCallbackTag, JSDocClassTag, JSDocComment, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocOverrideTag, JSDocParameterTag, JSDocParsingMode, JSDocPrivateTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocProtectedTag, JSDocPublicTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocTypedefTag, JSDocUnknownTag, JSDocVariableTag, JSDocVariadicType, JsonMinusNumericLiteral, JsonObjectExpressionStatement, JsonSourceFile, KeywordSyntaxKind, LabeledStatement, LambdaExpression, LambdaIdentifierExpression, LambdaOperatorExpression, LambdaOperatorToken, LanguageVariant, LeftHandSideExpression, LiteralExpression, LiteralLikeNode, LiteralTypeNode, createMacroEnvironment, MacroEnvironment, MacroPositionSnapshot, evaluatePreprocessorCondition, PreprocessorToken, LpcFileHandler, LpcLoadImportResult, Macro, MacroParameter, MapLike, MappingEntryExpression, MappingLiteralExpression, MappingTypeNode, MappingTypeEntryNode, MemberExpression, MethodSignature, MissingDeclaration, Modifier, ModifierLike, Mutable, MutableNodeArray, NamedObjectTypeNode, NewExpression, NewExpressionArgument, NewStructExpression, Node, NodeArray, NodeFactory, NodeFactoryFlags, NodeFlags, NullLiteral, NumericLiteral, ObjectLiteralElementLike, ObjectLiteralExpression, OperatorPrecedence, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PositionState, PostfixUnaryExpression, PostfixUnaryOperator, PragmaContext, PragmaDefinition, PragmaDirective, PragmaKindFlags, PragmaMap, PragmaPseudoMap, PragmaPseudoMapEntry, PrefixUnaryExpression, PrefixUnaryOperator, PreprocessorDirective, PrimaryExpression, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAccessToken, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, QualifiedName, QuestionDotToken, RangeExpression, RefToken, ResolutionMode, ReturnStatement, ScriptKind, ScriptTarget, ShorthandPropertyAssignment, SourceFile, SpreadElement, Statement, StringLiteral, StructDeclaration, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, TemplateExpression, TemplateSpan, Ternary, TextChangeRange, TextRange, Token, TupleTypeNode, TypeAssertion, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnaryExpression, UndefDirective, UnionTypeNode, UpdateExpression, VariableDeclaration, VariableDeclarationList, VariableStatement, WhileStatement, addRange, addRelatedInfo, append, attachFileToDiagnostics, canHaveJSDoc, commentPragmas, concatenate, containsParseError, createDetachedDiagnostic, createNodeFactory, createScanner, emptyArray, emptyMap, fileExtensionIs, first, firstOrUndefined, flatten, forEach, forEachEntry, getAnyExtensionFromPath, getBaseFileName, getBinaryOperatorPrecedence, getDirectoryPath, getFullWidth, getJSDocCommentRanges, getLeadingCommentRanges, getSpellingSuggestion, idText, identity, isArray, isArrayTypeNode, isAssignmentOperator, isBinaryExpression, isIdentifier as isIdentifierNode, isIdentifierText, isJSDocReturnTag, isJSDocTypeTag, isKeyword, isKeywordOrPunctuation, isLeftHandSideExpression, isLiteralKind, isModifierKind, isNonReservedKeyword, isParenthesizedExpression, isStringLiteral, isStringOrNumericLiteralLike, isStructTypeNode, isTemplateExpression, isTypeReferenceNode, last, lastOrUndefined, map, mapDefined, nodeIsMissing, nodeIsPresent, objectAllocator, performance, setNodeFlags, setParent, setParentRecursive, setTextRangePos, setTextRangePosEnd, setTextRangePosWidth, skipTrivia, some, startsWith, supportedDeclarationExtensions, textToKeywordObj, toArray, tokenIsIdentifierOrKeyword, tokenToString, tracing } from "./_namespaces/lpc";
 
 const enum SpeculationKind {
     TryParse,
@@ -92,6 +92,7 @@ export namespace LpcParser {
 
     var languageVersion: ScriptTarget;
     var scriptKind: ScriptKind;
+    var languageVariant: LanguageVariant;
 
     var includeFileStack: IncludeDirective[] = [];
     var macroEnv: MacroEnvironment;
@@ -209,6 +210,7 @@ export namespace LpcParser {
         languageVersion = _languageVersion;
         syntaxCursor = _syntaxCursor;
         scriptKind = _scriptKind;
+        languageVariant = _languageVariant;
 
         let fileDir = getDirectoryPath(fileName);
         if (!fileDir.endsWith("/")) fileDir = fileDir + "/";
@@ -281,6 +283,7 @@ export namespace LpcParser {
         languageVersion = undefined!;
         syntaxCursor = undefined;
         scriptKind = undefined!;
+        languageVariant = undefined!;
         sourceFlags = 0;
         parseDiagnostics = undefined!;
         jsDocDiagnostics = undefined!;
@@ -1605,6 +1608,7 @@ export namespace LpcParser {
             case SyntaxKind.BytesKeyword:  
             case SyntaxKind.StatusKeyword:
             case SyntaxKind.LwObjectKeyword:   
+            case SyntaxKind.CoroutineKeyword:
             case SyntaxKind.SymbolKeyword:
             case SyntaxKind.BufferKeyword:            
             case SyntaxKind.PromiseKeyword:
@@ -1657,6 +1661,7 @@ export namespace LpcParser {
                 case SyntaxKind.NoShadowKeyword:
                 case SyntaxKind.BytesKeyword:                
                 case SyntaxKind.LwObjectKeyword:
+                case SyntaxKind.CoroutineKeyword:
                 // case SyntaxKind.ClosureKeyword:                                
                 case SyntaxKind.IntKeyword:
                 case SyntaxKind.FloatKeyword:
@@ -2040,6 +2045,7 @@ export namespace LpcParser {
             case SyntaxKind.BytesKeyword:
             case SyntaxKind.StatusKeyword:
             case SyntaxKind.LwObjectKeyword:
+            case SyntaxKind.CoroutineKeyword:
             case SyntaxKind.ClosureKeyword:
             case SyntaxKind.SymbolKeyword:
             case SyntaxKind.BufferKeyword:
@@ -2590,6 +2596,33 @@ export namespace LpcParser {
         const expression = parseSimpleUnaryExpression();
 
         return finishNode(factory.createAwaitExpression(expression), pos);
+    }
+
+    /**
+     * LDMud grammar (prolang.y, 3.6.5):
+     *      coroutine_call: L_AWAIT '(' expr0 opt_expr ')'
+     *                    | L_YIELD '(' expr0 ',' expr0 ')'
+     *                    | L_YIELD '(' expr0 ')'
+     *                    | L_YIELD '(' ')'
+     *
+     * An alternative of `function_call`, so it takes postfix operators like any call. The
+     * arguments are parsed as a list whatever their number; the checker reports an arity
+     * the grammar does not have.
+     */
+    function parseCoroutineCallExpression(): CoroutineCallExpression {
+        const pos = getPositionState();
+        const instruction = token() as CoroutineInstruction;
+        nextToken();
+
+        parseExpected(SyntaxKind.OpenParenToken);
+        const argumentList = parseDelimitedList(ParsingContext.ArgumentExpressions, parseArgumentExpression);
+        parseExpected(SyntaxKind.CloseParenToken);
+
+        return finishNode(factory.createCoroutineCallExpression(instruction, argumentList), pos);
+    }
+
+    function nextTokenIsFunctionKeyword() {
+        return nextToken() === SyntaxKind.FunctionKeyword;
     }
 
     /**
@@ -3336,6 +3369,7 @@ export namespace LpcParser {
             case SyntaxKind.NewKeyword:
             case SyntaxKind.CatchKeyword:
             case SyntaxKind.ACatchKeyword:
+            case SyntaxKind.YieldKeyword: // LDMud only, like the call-shaped `await(cr)`
             case SyntaxKind.TimeExpressionKeyword:
             case SyntaxKind.SlashToken:
             case SyntaxKind.SlashEqualsToken:
@@ -3347,6 +3381,9 @@ export namespace LpcParser {
             case SyntaxKind.ClassKeyword:
                 // The scanner only yields ClassKeyword in FluffOS (LDMud uses `struct`).
                 return true;
+            case SyntaxKind.AsyncKeyword:
+                // LDMud's inline coroutine, `async function <type>() { ... }`
+                return lookAhead(nextTokenIsFunctionKeyword);
             case SyntaxKind.NullKeyword:
                 if (scriptKind === ScriptKind.JSON) {
                     return true;
@@ -3501,6 +3538,7 @@ export namespace LpcParser {
             case SyntaxKind.BytesKeyword:
             case SyntaxKind.StatusKeyword:
             case SyntaxKind.LwObjectKeyword:
+            case SyntaxKind.CoroutineKeyword:
             case SyntaxKind.ClosureKeyword:
             case SyntaxKind.SymbolKeyword:            
             case SyntaxKind.IntKeyword:
@@ -3579,6 +3617,7 @@ export namespace LpcParser {
             case SyntaxKind.StringKeyword:
             case SyntaxKind.BytesKeyword:
             case SyntaxKind.LwObjectKeyword:
+            case SyntaxKind.CoroutineKeyword:
             case SyntaxKind.ClosureKeyword:
             case SyntaxKind.IntKeyword:
             case SyntaxKind.FloatKeyword:
@@ -3946,6 +3985,7 @@ export namespace LpcParser {
         switch (token()) {
             case SyntaxKind.BytesKeyword:            
             case SyntaxKind.LwObjectKeyword:
+            case SyntaxKind.CoroutineKeyword:
             case SyntaxKind.ClosureKeyword:                        
             case SyntaxKind.TrueKeyword:
             case SyntaxKind.FalseKeyword:
@@ -4962,8 +5002,12 @@ export namespace LpcParser {
             //     return parseVoidExpression();
             case SyntaxKind.AwaitKeyword:
                 // FluffOS: `L_AWAIT expr %prec '!'` -- unary-prefix precedence, so
-                // `await a + b` is `(await a) + b`.
-                return parseAwaitExpression();
+                // `await a + b` is `(await a) + b`. LDMud's `await(cr)` is call-shaped and
+                // parses as a primary expression (parseCoroutineCallExpression).
+                if (languageVariant !== LanguageVariant.LDMud) {
+                    return parseAwaitExpression();
+                }
+                return parseUpdateExpression();
             case SyntaxKind.TimeExpressionKeyword:
                 // FluffOS lists `time_expression` under `expr`, not `primary_expr`, so it
                 // parses here rather than in parsePrimaryExpression (where `catch` lives)
@@ -5120,9 +5164,11 @@ export namespace LpcParser {
             case SyntaxKind.VoidKeyword:            
             case SyntaxKind.LessThanToken:
             case SyntaxKind.OpenParenBraceToken: // ambiguous, so let simple unary try first
-            case SyntaxKind.AwaitKeyword: // a UnaryExpression, not an LHS expression
             case SyntaxKind.TimeExpressionKeyword: // a UnaryExpression, not an LHS expression
                 return false;
+            case SyntaxKind.AwaitKeyword:
+                // a UnaryExpression in FluffOS; LDMud's call-shaped `await(cr)` is a primary
+                return languageVariant === LanguageVariant.LDMud;
             case SyntaxKind.OpenParenToken:
                 return lookAhead(()=>(nextToken() === SyntaxKind.LessThanToken));
             default:
@@ -5977,6 +6023,19 @@ export namespace LpcParser {
             //     return parseClassExpression();
             case SyntaxKind.FunctionKeyword:
                 return parseFunctionExpression();
+            case SyntaxKind.AsyncKeyword:
+                // `async function <type>() { ... }` -- an LDMud inline coroutine. The modifier
+                // is parsed as part of the function expression; anything else after `async`
+                // is not an expression.
+                if (lookAhead(nextTokenIsFunctionKeyword)) {
+                    return parseFunctionExpression();
+                }
+                break;
+            case SyntaxKind.AwaitKeyword:
+            case SyntaxKind.YieldKeyword:
+                // Only LDMud reaches here: FluffOS's unary `await` is parsed in
+                // parseSimpleUnaryExpression, and `yield` is not a FluffOS keyword.
+                return parseCoroutineCallExpression();
             case SyntaxKind.CatchKeyword:
                 return parseCatchExpression();
             case SyntaxKind.ACatchKeyword:
@@ -7672,6 +7731,9 @@ const forEachChildTable: ForEachChildTable = {
     },
     [SyntaxKind.AwaitExpression]: function forEachChildInAwaitExpression<T>(node: AwaitExpression, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.expression);
+    },
+    [SyntaxKind.CoroutineCallExpression]: function forEachChildInCoroutineCallExpression<T>(node: CoroutineCallExpression, cbNode: (node: Node) => T | undefined, cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
+        return visitNodes(cbNode, cbNodes, node.arguments);
     },
     [SyntaxKind.TimeExpression]: function forEachChildInTimeExpression<T>(node: TimeExpression, cbNode: (node: Node) => T | undefined, _cbNodes?: (nodes: NodeArray<Node>) => T | undefined): T | undefined {
         return visitNode(cbNode, node.expression) ||

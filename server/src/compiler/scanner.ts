@@ -173,6 +173,7 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     class: SyntaxKind.ClassKeyword,
     closure: SyntaxKind.ClosureKeyword,
     continue: SyntaxKind.ContinueKeyword,                
+    coroutine: SyntaxKind.CoroutineKeyword,
     default: SyntaxKind.DefaultKeyword,
     deprecated: SyntaxKind.DeprecatedKeyword,
     do: SyntaxKind.DoKeyword,
@@ -219,9 +220,44 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     while: SyntaxKind.WhileKeyword,
     async: SyntaxKind.AsyncKeyword,
     await: SyntaxKind.AwaitKeyword,
+    yield: SyntaxKind.YieldKeyword,
 };
 
 const textToKeyword = new Map(Object.entries(textToKeywordObj));
+
+// Both drivers have coroutines, and both reserve `async` and `await`, but they share
+// only the spelling. FluffOS (fluffos#1319) builds on promises: `await p` is a unary
+// prefix operator, and `acatch` and the `promise` type are FluffOS-only. LDMud (3.6.5,
+// lex.c reswords[]) builds on `coroutine` values: `await(cr[, value])` and
+// `yield([value[, cr]])` are call-shaped instructions, and `coroutine` is a type. So
+// `async` and `await` are keywords in both, and the parser picks the grammar by driver;
+// `yield` and `coroutine` are LDMud-only.
+/** @internal */
+export function isKeywordInLanguageVariant(keyword: SyntaxKind, variant: LanguageVariant): boolean {
+    switch (keyword) {
+        case SyntaxKind.ACatchKeyword:
+        case SyntaxKind.BufferKeyword:
+        case SyntaxKind.ClassKeyword:
+        case SyntaxKind.NewKeyword:
+        case SyntaxKind.PromiseKeyword:
+        case SyntaxKind.RefKeyword:
+        case SyntaxKind.TimeExpressionKeyword:
+            return variant === LanguageVariant.FluffOS;
+        case SyntaxKind.BytesKeyword:
+        case SyntaxKind.ClosureKeyword:
+        case SyntaxKind.CoroutineKeyword:
+        case SyntaxKind.DeprecatedKeyword:
+        case SyntaxKind.LwObjectKeyword:
+        case SyntaxKind.StatusKeyword:
+        case SyntaxKind.SymbolKeyword:
+        case SyntaxKind.VirtualKeyword:
+        case SyntaxKind.YieldKeyword:
+            return variant === LanguageVariant.LDMud;
+        default:
+            return true;
+    }
+}
+
 
 const textToToken = new Map(Object.entries({
     ...textToKeywordObj,
@@ -1979,42 +2015,8 @@ export function createScanner(
     // driver, so demote it to an Identifier token here rather than gating it per grammar
     // position downstream.
     //
-    // The coroutine keywords (fluffos#1319) need a word of their own, because `async` and
-    // `await` are NOT FluffOS-only: LDMud reserves both in lex.c's reswords[], with real
-    // productions in prolang.y. They are gated here anyway, and deliberately, because the
-    // two drivers share the spelling and nothing else. FluffOS builds on promises and
-    // spells the wait as a unary prefix operator, `await p`. LDMud builds on `coroutine`
-    // VALUES and spells it as a call, `await(cr, opt)` -- whose first argument must be an
-    // lpctype_coroutine -- alongside `yield(...)` in three arities and a `coroutine` type
-    // this scanner does not tokenize at all. Letting `await` through in LDMud would parse
-    // `await(cr, x)` as a unary await of a comma expression and then type-check a
-    // coroutine as a promise, which is worse than leaving the word alone. So they stay
-    // identifiers in LDMud until LDMud's own coroutine grammar is implemented -- a gap in
-    // this scanner, not a claim about the driver. `acatch` and the `promise` type really
-    // are FluffOS-only; LDMud has neither.
     function isKeywordInVariant(keyword: SyntaxKind, variant: LanguageVariant): boolean {
-        switch (keyword) {
-            case SyntaxKind.ACatchKeyword:
-            case SyntaxKind.AsyncKeyword:
-            case SyntaxKind.AwaitKeyword:
-            case SyntaxKind.BufferKeyword:
-            case SyntaxKind.ClassKeyword:
-            case SyntaxKind.NewKeyword:
-            case SyntaxKind.PromiseKeyword:
-            case SyntaxKind.RefKeyword:
-            case SyntaxKind.TimeExpressionKeyword:
-                return variant === LanguageVariant.FluffOS;
-            case SyntaxKind.BytesKeyword:
-            case SyntaxKind.ClosureKeyword:
-            case SyntaxKind.DeprecatedKeyword:
-            case SyntaxKind.LwObjectKeyword:
-            case SyntaxKind.StatusKeyword:
-            case SyntaxKind.SymbolKeyword:
-            case SyntaxKind.VirtualKeyword:
-                return variant === LanguageVariant.LDMud;
-            default:
-                return true;
-        }
+        return isKeywordInLanguageVariant(keyword, variant);
     }
 
     function getDirectiveToken(firstNonWhitespaceOffset: number): DirectiveSyntaxKind | SyntaxKind.Identifier {
