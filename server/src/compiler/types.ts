@@ -736,6 +736,8 @@ export const enum SyntaxKind {
     OpenParenAsteriskToken, // (*fn) shortcut for evaluate()
     ColonColonToken,
     LambdaToken,    
+    ClosureOperatorToken, // LDMud operator closure after `#'`, e.g. `?!` or `[..<]`
+    QuoteToken,           // LDMud quotes before a quoted array, `'({ })`
     DotDotToken,
 
     // Assignments
@@ -1019,6 +1021,7 @@ export const enum SyntaxKind {
     InlineClosureExpression,
     LambdaIdentifierExpression,
     LambdaOperatorExpression,
+    QuotedArrayExpression,
     PropertyAccessExpression,
     SuperAccessExpression,
     PostfixUnaryExpression,
@@ -1682,6 +1685,7 @@ export interface NodeFactory {
     convertToAssignmentExpression(node: Mutable<VariableDeclaration>): BinaryExpression;
     createLambdaOperatorExpression(op: LambdaOperatorToken): LambdaOperatorExpression;
     createLambdaIdentifierExpression(name: Expression): LambdaIdentifierExpression;
+    createQuotedArrayExpression(quotes: number, expression: ArrayLiteralExpression): QuotedArrayExpression;
     createCastExpression(expression: Expression, type: TypeNode): Expression;
     createCloneObjectExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CloneObjectExpression;
     createTypeAssertion(type: TypeNode, expression: Expression): TypeAssertion;
@@ -2305,6 +2309,7 @@ export type HasChildren =
     | StructDeclaration
     | LambdaIdentifierExpression
     | LambdaOperatorExpression    
+    | QuotedArrayExpression
     | PropertySignature
     | PropertyDeclaration
     | MethodSignature
@@ -2558,6 +2563,8 @@ export type PunctuationSyntaxKind =
     | SyntaxKind.OpenParenBracketToken
     | SyntaxKind.OpenParenAsteriskToken
     | SyntaxKind.LambdaToken
+    | SyntaxKind.ClosureOperatorToken
+    | SyntaxKind.QuoteToken
     | SyntaxKind.OpenParenBraceToken
     | SyntaxKind.OpenBraceToken    
     | SyntaxKind.CloseBraceToken
@@ -4069,6 +4076,13 @@ export interface LambdaIdentifierExpression extends LambdaExpression {
 export interface LambdaOperatorExpression extends LambdaExpression {
     readonly kind: SyntaxKind.LambdaOperatorExpression;
     readonly operator: LambdaOperatorToken;
+}
+
+/** LDMud's quoted array, `'({ ... })`, which may carry more than one quote. */
+export interface QuotedArrayExpression extends PrimaryExpression {
+    readonly kind: SyntaxKind.QuotedArrayExpression;
+    readonly quotes: number;
+    readonly expression: ArrayLiteralExpression;
 }
 
 export interface ExpressionStatement extends Statement, FlowContainer {
