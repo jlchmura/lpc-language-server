@@ -793,7 +793,12 @@ exports[`Compiler > compiler/switch1.c > Reports correct errors for compiler/swi
 
 exports[`Compiler > compiler/switch2.c > Reports correct errors for compiler/switch2.c > diags-compiler/switch2.c 1`] = `""`;
 
-exports[`Compiler > compiler/switch3.c > Reports correct errors for compiler/switch3.c > diags-compiler/switch3.c 1`] = `""`;
+exports[`Compiler > compiler/switch3.c > Reports correct errors for compiler/switch3.c > diags-compiler/switch3.c 1`] = `
+"
+Found 1 error in server/src/tests/cases/compiler/switch3.c[90m:8[0m
+
+"
+`;
 
 exports[`Compiler > compiler/templateLiterals.c > Reports correct errors for compiler/templateLiterals.c > diags-compiler/templateLiterals.c 1`] = `""`;
 

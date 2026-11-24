@@ -2137,8 +2137,10 @@ export type HasLocals =
     | Block
     | CallSignatureDeclaration
     | CaseBlock
+    | CaseClause
     | CatchStatement        
     | ConditionalTypeNode    
+    | DefaultClause
     | ForStatement
     | ForEachStatement    
     | FunctionDeclaration
@@ -4156,7 +4158,7 @@ export interface CaseBlock extends Node, LocalsContainer {
     readonly clauses: NodeArray<CaseOrDefaultClause>;
 }
 
-export interface CaseClause extends Node, JSDocContainer {
+export interface CaseClause extends Node, JSDocContainer, LocalsContainer {
     readonly kind: SyntaxKind.CaseClause;
     readonly parent: CaseBlock;
     readonly expression: Expression;
@@ -4164,7 +4166,7 @@ export interface CaseClause extends Node, JSDocContainer {
     /** @internal */ fallthroughFlowNode?: FlowNode;
 }
 
-export interface DefaultClause extends Node {
+export interface DefaultClause extends Node, LocalsContainer {
     readonly kind: SyntaxKind.DefaultClause;
     readonly parent: CaseBlock;
     readonly statements: NodeArray<Statement>;

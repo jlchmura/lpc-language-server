@@ -2227,6 +2227,36 @@ export function isFunctionLikeOrClassStaticBlockDeclaration(node: Node | undefin
     return !!node && (isFunctionLikeKind(node.kind));
 }
 
+/**
+ * True for a `case` or `default` clause that is a scope of its own. In LDMud every label's
+ * statements are a block (prolang.y: `switch_statements: switch_label statements_block`,
+ * and `statements_block` enters and leaves a block scope), so `case 1: int x; case 2: int x;`
+ * declares two variables and neither is visible under the other label. FluffOS shares one
+ * scope across the switch: it only allows declarations before the first `case`.
+ * @internal
+ */
+export function isCaseClauseScope(node: Node): node is CaseOrDefaultClause {
+    return (node.kind === SyntaxKind.CaseClause || node.kind === SyntaxKind.DefaultClause)
+        && getSourceFileOfNode(node).languageVariant === LanguageVariant.LDMud;
+}
+
+/**
+ * True for a variable declared directly under a `case` or `default` label in FluffOS. The
+ * parser reports it (checkSwitchClauseDeclarations), since FluffOS's grammar has no
+ * declarations there, so the binder and checker skip their redeclaration errors for it:
+ * they would be a second error for the same mistake.
+ * @internal
+ */
+export function isFluffOSDeclarationUnderCaseLabel(node: Node): boolean {
+    if (!isVariableDeclaration(node)) {
+        return false;
+    }
+    const statement = node.parent?.parent;
+    return statement?.kind === SyntaxKind.VariableStatement
+        && (statement.parent?.kind === SyntaxKind.CaseClause || statement.parent?.kind === SyntaxKind.DefaultClause)
+        && getSourceFileOfNode(node).languageVariant === LanguageVariant.FluffOS;
+}
+
 /** @internal */
 export function isBlockScope(node: Node, parentNode: Node | undefined): boolean {
     switch (node.kind) {
@@ -2241,6 +2271,10 @@ export function isBlockScope(node: Node, parentNode: Node | undefined): boolean 
         case SyntaxKind.InlineClosureExpression:
         case SyntaxKind.PropertyDeclaration:        
             return true;
+
+        case SyntaxKind.CaseClause:
+        case SyntaxKind.DefaultClause:
+            return isCaseClauseScope(node);
 
         case SyntaxKind.Block:
             // function block is not considered block-scope container
