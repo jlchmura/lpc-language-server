@@ -2407,6 +2407,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     
+    /**
+     * The literal `0`, which LPC accepts as a value of every type. Its fresh form is the
+     * intrinsic `falseType`, which carries no `value`; only the regular form does.
+     */
+    function isZeroLiteralType(type: Type): boolean {
+        return type === falseType || type === regularFalseType
+            || !!(type.flags & TypeFlags.IntLiteral) && (type as IntLiteralType).value === 0;
+    }
+
     function filterType(type: Type, f: (t: Type) => boolean): Type {
         if (type.flags & TypeFlags.Union) {
             const types = (type as UnionType).types;
@@ -32294,7 +32303,20 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                         // stopped being an error.
                         return declaresElementType ? declaredType : getEvolvingArrayType(neverType);
                     }
-                    const assignedType = getWidenedArrayElementType(getWidenedLiteralType(getInitialOrAssignedType(flow)));
+                    let assigned = getInitialOrAssignedType(flow);
+                    // `0` is a member of every LPC type -- the null of a string, object, mapping or
+                    // array as well as an int -- so it says nothing about what the variable now
+                    // holds. Widened, it became `int`: `mixed b = 0; return b;` failed in a string
+                    // function, and an `object` or `mapping` assigned 0 fell out of its declared
+                    // type altogether. An untyped (auto) declaration still takes it, since it has
+                    // no declared type to fall back on.
+                    if (declaredType !== autoType && declaredType !== autoArrayType) {
+                        assigned = filterType(assigned, t => !isZeroLiteralType(t));
+                        if (assigned.flags & TypeFlags.Never) {
+                            return declaredType;
+                        }
+                    }
+                    const assignedType = getWidenedArrayElementType(getWidenedLiteralType(assigned));
                     // Narrowing may only make a type more specific. An efun returning `mixed*`
                     // passes the assignability check below -- `mixed` is `any` -- but adopting it
                     // would widen the reference past its own declaration, so `int *r = sort_array(...)`
