@@ -108,8 +108,7 @@ describe("Compiler", () => {
                 // If the error count doesn't match the expected count, fail early
                 // so we don't write/update a snapshot for a mismatched run.
                 if (diags.length !== expectedErrorCount) {
-                    fail("Mismatch in expected error count - snapshot check skipped.");                    
-                    return;
+                    expect.unreachable("Mismatch in expected error count - snapshot check skipped.");
                 }
 
                 expect(diagsText).toMatchSnapshot(`diags-${testCaseName}`);

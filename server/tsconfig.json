@@ -10,7 +10,7 @@
         "target": "es2020",
         "module": "ESNext",
         "moduleResolution": "bundler",
-        "types": ["node", "jest"],
+        "types": ["node", "vitest/globals"],
         
         "declaration": false,        
         "sourceMap": true,

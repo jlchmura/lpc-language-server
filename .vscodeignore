@@ -24,7 +24,7 @@ efuns/
 !out/client/src/extension.js.map
 !out/server/src/efuns/**/*
 !out/lib/**/*
-jest.config.ts
+vitest.config.mts
 tests/
 coverage/
 lpc-config.json
