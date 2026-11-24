@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, message } from "./harness.js";
 
 /**
  * A doc comment types a local when it sits right before the declaration. Inherited from
@@ -19,8 +19,7 @@ function diagnosticsFor(source: string): string[] {
         driverType: lpc.LanguageVariant.FluffOS,
         diagnostics: true,
     });
-    return ls.getSemanticDiagnostics(abs("test.c"))
-        .map(d => lpc.flattenDiagnosticMessageText(d.messageText, " "));
+    return ls.getSemanticDiagnostics(abs("test.c")).map(message);
 }
 
 const typed = (prop: string) => expect.stringMatching(new RegExp(`^Property '${prop}' does not exist on type 'object ".*/a"'\\.$`));

@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, codeAndMessage, DRIVERS, checkAllFiles } from "./harness.js";
 
 /**
  * A global variable and a function may share a name (#415, item 4):
@@ -20,24 +20,13 @@ import { createTestLanguageService } from "./harness.js";
  * before the inherited variable.
  */
 
-const variants = [
-    ["FluffOS", lpc.LanguageVariant.FluffOS],
-    ["LDMud", lpc.LanguageVariant.LDMud],
-] as const;
-
 function service(driverType: lpc.LanguageVariant, files: Record<string, string>) {
-    const svc = createTestLanguageService(files, { driverType, diagnostics: true });
-    // check every file, so an inherited file is bound before the child looks into it
-    const program = svc.ls.getProgram()!;
-    for (const rel of Object.keys(files)) {
-        program.getTypeChecker().getDiagnostics(program.getSourceFile(svc.abs(rel)));
-    }
-    return svc;
+    return checkAllFiles(createTestLanguageService(files, { driverType, diagnostics: true }), files);
 }
 
 function diagnostics(driverType: lpc.LanguageVariant, files: Record<string, string>): string[] {
     const { ls, abs } = service(driverType, files);
-    return ls.getSemanticDiagnostics(abs("test.c")).map(d => `${d.code}: ${lpc.flattenDiagnosticMessageText(d.messageText, " ")}`);
+    return ls.getSemanticDiagnostics(abs("test.c")).map(codeAndMessage);
 }
 
 /** Uses `hostile` both ways. The variable is a string and the function returns int, so the last two lines are wrong. */
@@ -59,7 +48,7 @@ const USE_ERRORS = [
 const VAR = `string hostile;\n`;
 const FUNC = (modifier = "") => `${modifier}int hostile(int flag) { return flag; }\n`;
 
-describe.each(variants)("a global variable and a function with the same name (%s)", (_name, driverType) => {
+describe.each(DRIVERS)("a global variable and a function with the same name (%s)", (_name, driverType) => {
     it.each([
         ["variable first", VAR + FUNC()],
         ["function first", FUNC() + VAR],

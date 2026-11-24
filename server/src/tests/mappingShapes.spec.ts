@@ -1,6 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, LIB_ROOT, allDiagnostics, hoverText, message } from "./harness.js";
 
 /**
  * A mapping type's entries are separated by commas: `([ "name": string, "hp": int ])` is two
@@ -16,25 +15,22 @@ import { createTestLanguageService } from "./harness.js";
  * is how this is already written in the wild. Such a path has to reach the dependency graph from
  * inside the mapping type, or it resolves to nothing.
  */
-const cwd = lpc.normalizePath(process.cwd());
 
 function service(src: string) {
     return createTestLanguageService(
         { "lib/std/user.c": "int is_user() { return 1; }\n", "lib/main.c": src },
-        { driverType: lpc.LanguageVariant.FluffOS, diagnostics: true, rootDir: lpc.normalizePath(path.join(cwd, "lib")) });
+        { driverType: lpc.LanguageVariant.FluffOS, diagnostics: true, rootDir: LIB_ROOT });
 }
 
 function hoverOf(src: string, marker: string): string | undefined {
     const { ls, abs } = service(src);
-    return ls.getQuickInfoAtPosition(abs("lib/main.c"), src.indexOf(marker))
-        ?.displayParts?.map(p => p.text).join("").replace(/\s+/g, " ");
+    return hoverText(ls, abs("lib/main.c"), src.indexOf(marker), { collapse: true });
 }
 
 function diagnosticsOf(src: string): string[] {
     const { ls, abs } = service(src);
     const f = abs("lib/main.c");
-    return [...ls.getSyntacticDiagnostics(f), ...ls.getSemanticDiagnostics(f)]
-        .map(d => lpc.flattenDiagnosticMessageText(d.messageText, " "));
+    return allDiagnostics(ls, f).map(message);
 }
 
 const shape = (body: string) => `/**\n * @type {([ "name": string, "hp": int ])}\n */\nmapping m;\n` + body;

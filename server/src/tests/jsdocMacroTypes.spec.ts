@@ -1,13 +1,8 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, tagText } from "./harness.js";
 
 function getDisplayString(quickInfo: lpc.QuickInfo | undefined): string {
     return quickInfo?.displayParts?.map(p => p.text).join("") ?? "";
-}
-
-function getTag(quickInfo: lpc.QuickInfo | undefined, name: string): string | undefined {
-    const tag = quickInfo?.tags?.find(t => t.name === name);
-    return tag?.text?.map(p => p.text).join("");
 }
 
 describe("JSDoc types vs preprocessor macros", () => {
@@ -34,9 +29,9 @@ mixed call_back(mixed *cb) {
         const pos = source.indexOf("call_back(mixed");
         const quickInfo = ls.getQuickInfoAtPosition(fileName, pos);
 
-        expect(getTag(quickInfo, "returns")).toBe("{mixed|undefined} Result from callback execution");
+        expect(tagText(quickInfo, "returns")).toBe("{mixed|undefined} Result from callback execution");
         // the derailed parse used to consume the rest of the comment too
-        expect(getTag(quickInfo, "see")).toContain("valid_function");
+        expect(tagText(quickInfo, "see")).toContain("valid_function");
     });
 
     it("keyword macro collision is inert in leading type position too", () => {
@@ -55,7 +50,7 @@ string maybe() {
         const pos = source.indexOf("maybe()");
         const quickInfo = ls.getQuickInfoAtPosition(fileName, pos);
 
-        expect(getTag(quickInfo, "returns")).toBe("{undefined|string} Something or nothing");
+        expect(tagText(quickInfo, "returns")).toBe("{undefined|string} Something or nothing");
     });
 
     it("macros in code still expand when a doc comment is attached", () => {
@@ -73,7 +68,7 @@ mixed maybe() {
         const quickInfo = ls.getQuickInfoAtPosition(fileName, pos);
 
         // doc tag survives...
-        expect(getTag(quickInfo, "returns")).toBe("{mixed|undefined} Something or nothing");
+        expect(tagText(quickInfo, "returns")).toBe("{mixed|undefined} Something or nothing");
         // ...and the body still parses: `undefined` expanded to `([])[0]`, so the
         // return expression is an element access, not a bare unresolved name
         const syntactic = ls.getSyntacticDiagnostics(fileName);

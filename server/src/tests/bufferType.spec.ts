@@ -1,5 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
+import { messageLines } from "./harness.js";
 
 /**
  * The byte-buffer intrinsic is one type with two driver-specific spellings:
@@ -29,7 +30,7 @@ function diagnosticsFor(source: string, driverType: lpc.LanguageVariant): lpc.Di
 }
 
 function messages(diags: lpc.Diagnostic[]): string {
-    return diags.map(d => lpc.flattenDiagnosticMessageText(d.messageText, "\n")).join("\n");
+    return diags.map(messageLines).join("\n");
 }
 
 describe("buffer/bytes type naming (#311)", () => {

@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, codeAndMessage, hoverText } from "./harness.js";
 
 /**
  * `string *items = ({});` used to lose its declared element type.
@@ -23,14 +23,13 @@ function build(source: string) {
 
 function diagnosticsFor(source: string): string[] {
     const { ls, file } = build(source);
-    return ls.getSemanticDiagnostics(file).map(d => `${d.code}: ${lpc.flattenDiagnosticMessageText(d.messageText, " ")}`);
+    return ls.getSemanticDiagnostics(file).map(codeAndMessage);
 }
 
 function hoverAt(source: string, marker: string): string | undefined {
     const { ls, file } = build(source);
     // The kind prefix emits its own padding; collapse it so these read as what the editor shows.
-    return ls.getQuickInfoAtPosition(file, source.indexOf(marker))
-        ?.displayParts?.map(p => p.text).join("").replace(/\s+/g, " ").trim();
+    return hoverText(ls, file, source.indexOf(marker), { collapse: true });
 }
 
 describe("an array declared with an empty array initializer", () => {

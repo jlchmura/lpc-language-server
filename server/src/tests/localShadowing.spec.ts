@@ -1,5 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
+import { message } from "./harness.js";
 
 /**
  * FluffOS refuses to redeclare a local name that an ENCLOSING scope of the same function
@@ -25,7 +26,7 @@ function messages(source: string, driverType = lpc.LanguageVariant.FluffOS): str
 
     const program = lpc.createProgram({ host, rootNames: [virtualFile], options: compilerOptions, oldProgram: undefined });
     const file = program.getSourceFile(virtualFile)!;
-    return program.getSemanticDiagnostics(file).map(d => lpc.flattenDiagnosticMessageText(d.messageText, " "));
+    return program.getSemanticDiagnostics(file).map(message);
 }
 
 const redeclares = (src: string) => messages(src).some(m => m.includes("Illegal to redeclare local name"));

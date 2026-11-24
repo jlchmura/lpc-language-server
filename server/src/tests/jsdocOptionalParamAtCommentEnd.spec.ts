@@ -1,5 +1,4 @@
-import { flattenDiagnosticMessageText } from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, allDiagnostics, message } from "./harness.js";
 
 /**
  * An optional `[name]` as the last thing in an @overload or @callback block (#418).
@@ -12,8 +11,7 @@ import { createTestLanguageService } from "./harness.js";
 function check(doc: string, calls: string) {
     const source = `${doc}\nvoid q(mixed a, mixed b) {}\nvoid t() { ${calls} }\n`;
     const { ls, fileName } = createTestLanguageService({ "a.c": source });
-    const diagnostics = [...ls.getSyntacticDiagnostics(fileName), ...ls.getSemanticDiagnostics(fileName)]
-        .map(d => flattenDiagnosticMessageText(d.messageText, " "));
+    const diagnostics = allDiagnostics(ls, fileName).map(message);
     const help = ls.getSignatureHelpItems(fileName, source.lastIndexOf("q(") + 2, undefined);
     const shapes = (help?.items ?? []).map(item =>
         item.parameters.map(p => p.displayParts.map(d => d.text).join("")).join(", "));

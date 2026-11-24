@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, allDiagnostics, message } from "./harness.js";
 
 /**
  * LDMud preprocessor behaviour, each case checked against the LDMud 3.6.8 driver:
@@ -14,10 +14,10 @@ function diagnosticsFor(source: string, driverType = lpc.LanguageVariant.LDMud):
         driverType,
         diagnostics: true,
     });
-    return [...ls.getSyntacticDiagnostics(abs("test.c")), ...ls.getSemanticDiagnostics(abs("test.c"))]
+    return allDiagnostics(ls, abs("test.c"))
         .map(d => ({
             code: d.code,
-            text: lpc.flattenDiagnosticMessageText(d.messageText, " "),
+            text: message(d),
             at: source.substring(d.start ?? 0, (d.start ?? 0) + (d.length ?? 0)),
             line: source.substring(0, d.start ?? 0).split("\n").length - 1,
         }));

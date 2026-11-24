@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, allDiagnostics, codeAndMessage } from "./harness.js";
 
 /**
  * LDMud inline closures (doc/LPC/inline-closures):
@@ -15,8 +15,7 @@ function diagnosticsFor(source: string, driverType = lpc.LanguageVariant.LDMud):
         driverType,
         diagnostics: true,
     });
-    return [...ls.getSyntacticDiagnostics(abs("test.c")), ...ls.getSemanticDiagnostics(abs("test.c"))]
-        .map(d => `${d.code}: ${lpc.flattenDiagnosticMessageText(d.messageText, " ")}`);
+    return allDiagnostics(ls, abs("test.c")).map(codeAndMessage);
 }
 
 describe("LDMud inline closures", () => {

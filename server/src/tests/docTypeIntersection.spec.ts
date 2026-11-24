@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, hoverText } from "./harness.js";
 
 /**
  * An intersection doc type (`{int & mixed}`) printed as nothing in the hover signature:
@@ -11,8 +11,7 @@ function hover(docTags: string, signature: string): string | undefined {
     const source = `#define STD_ROOM "/std/" "room"\n\n/**\n${docTags}\n */\n${signature} {}\n`;
     const { ls, fileName } = createTestLanguageService({ "test.c": source });
     const name = signature.match(/(\w+)\(/)![1];
-    const quickInfo = ls.getQuickInfoAtPosition(fileName, source.indexOf(`${name}(`));
-    return quickInfo?.displayParts?.map(p => p.text).join("").replace(/\s+/g, " ");
+    return hoverText(ls, fileName, source.indexOf(`${name}(`), { collapse: true });
 }
 
 describe("intersection doc types in a hover signature", () => {

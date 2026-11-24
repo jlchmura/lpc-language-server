@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, allDiagnostics } from "./harness.js";
 
 /**
  * LDMud reads the rest of an `#ifdef`/`#ifndef` line as a macro name, whatever it looks like:
@@ -12,7 +12,7 @@ function diagnosticsFor(source: string): string[] {
         driverType: lpc.LanguageVariant.LDMud,
         diagnostics: true,
     });
-    return [...ls.getSyntacticDiagnostics(abs("test.c")), ...ls.getSemanticDiagnostics(abs("test.c"))]
+    return allDiagnostics(ls, abs("test.c"))
         .map(d => d.code + "");
 }
 

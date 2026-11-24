@@ -1,6 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, LIB_ROOT, hoverText } from "./harness.js";
 
 /**
  * A doc type built from path macros (`{STD_LIVING | STD_ROOM}`) rendered in the hover
@@ -10,7 +9,6 @@ import { createTestLanguageService } from "./harness.js";
  * element) kept their source spans -- the macro names -- and an implied `"/std/" "room"`
  * concatenation printed with `+`.
  */
-const cwd = lpc.normalizePath(process.cwd());
 
 const mudlib =
     `#define DIR_STD "/std/"\n` +
@@ -26,10 +24,9 @@ function hover(params: string, decl: string, withObjects = true): string | undef
     }
     const { ls, abs } = createTestLanguageService(files, {
         driverType: lpc.LanguageVariant.FluffOS,
-        rootDir: lpc.normalizePath(path.join(cwd, "lib")),
+        rootDir: LIB_ROOT,
     });
-    const quickInfo = ls.getQuickInfoAtPosition(abs("lib/main.c"), main.indexOf("stamp("));
-    return quickInfo?.displayParts?.map(p => p.text).join("").replace(/\s+/g, " ");
+    return hoverText(ls, abs("lib/main.c"), main.indexOf("stamp("), { collapse: true });
 }
 
 describe("macro-built doc types in a hover signature", () => {

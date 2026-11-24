@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, codeAndMessage, hoverText } from "./harness.js";
 
 /**
  * An array variable kept whatever array type was assigned into it, even when that type was
@@ -43,13 +43,12 @@ function build(source: string, extraFiles: Record<string, string> = {}) {
 
 function hoverAt(source: string, marker: string): string | undefined {
     const { ls, file } = build(source);
-    return ls.getQuickInfoAtPosition(file, source.indexOf(marker))
-        ?.displayParts?.map(p => p.text).join("").replace(/\s+/g, " ").trim();
+    return hoverText(ls, file, source.indexOf(marker), { collapse: true });
 }
 
 function diagnosticsFor(source: string, extraFiles?: Record<string, string>): string[] {
     const { ls, file } = build(source, extraFiles);
-    return ls.getSemanticDiagnostics(file).map(d => `${d.code}: ${lpc.flattenDiagnosticMessageText(d.messageText, " ")}`);
+    return ls.getSemanticDiagnostics(file).map(codeAndMessage);
 }
 
 describe("an array variable assigned a wider array type", () => {

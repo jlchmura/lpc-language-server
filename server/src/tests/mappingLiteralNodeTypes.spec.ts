@@ -1,5 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
+import { message } from "./harness.js";
 
 /**
  * Every node inside a mapping literal used to report `mixed` -- values, keys, even a
@@ -50,7 +51,7 @@ function diagnostics(source: string): string[] {
         lpc.combinePaths(root, lpc.getDefaultLibFolder(opts), lpc.getDefaultLibFileName(opts));
     const program = lpc.createProgram({ host, rootNames: [vf], options: opts, oldProgram: undefined });
     const sf = program.getSourceFile(vf)!;
-    return program.getSemanticDiagnostics(sf).map(d => lpc.flattenDiagnosticMessageText(d.messageText, " "));
+    return program.getSemanticDiagnostics(sf).map(message);
 }
 
 describe("nodes inside a mapping literal report their own type", () => {

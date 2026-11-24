@@ -1,6 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, LIB_ROOT, hoverText } from "./harness.js";
 
 /**
  * `([ key: value ])` parsed, but the checker had no case for it: the node fell to the
@@ -15,16 +14,14 @@ import { createTestLanguageService } from "./harness.js";
  * whatever it was built with (`([])` has none at all), so checking writes against it would
  * reject perfectly good code on a dynamic mapping.
  */
-const cwd = lpc.normalizePath(process.cwd());
 
 function hoverOf(src: string, marker: string): string | undefined {
     const { ls, abs } = createTestLanguageService({ "lib/main.c": src }, {
         driverType: lpc.LanguageVariant.FluffOS,
         diagnostics: true,
-        rootDir: lpc.normalizePath(path.join(cwd, "lib")),
+        rootDir: LIB_ROOT,
     });
-    return ls.getQuickInfoAtPosition(abs("lib/main.c"), src.indexOf(marker))
-        ?.displayParts?.map(p => p.text).join("").replace(/\s+/g, " ");
+    return hoverText(ls, abs("lib/main.c"), src.indexOf(marker), { collapse: true });
 }
 
 const declared = (type: string) => `/**\n * @type {${type}}\n */\nmapping m;\n`;

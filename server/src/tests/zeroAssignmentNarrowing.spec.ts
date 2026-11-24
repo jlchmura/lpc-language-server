@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { codeAndMessage, createTestLanguageService, DRIVERS, hoverText } from "./harness.js";
 
 /**
  * Assigning to a variable declared `mixed`, `object` or `mapping` narrows it to what was
@@ -17,21 +17,16 @@ import { createTestLanguageService } from "./harness.js";
  * `mixed b = 5; return b;` in a string function is still reported.
  */
 
-const variants = [
-    ["FluffOS", lpc.LanguageVariant.FluffOS],
-    ["LDMud", lpc.LanguageVariant.LDMud],
-] as const;
-
 /** Diagnostics for `source`, and the hover text at the last occurrence of `marker` (offset into it by `offset`). */
 function check(driverType: lpc.LanguageVariant, source: string, marker: string, offset = 0) {
     const { ls, abs } = createTestLanguageService({ "test.c": source }, { driverType, diagnostics: true });
     const file = abs("test.c");
-    const diagnostics = ls.getSemanticDiagnostics(file).map(d => `${d.code}: ${lpc.flattenDiagnosticMessageText(d.messageText, " ")}`);
-    const hover = lpc.displayPartsToString(ls.getQuickInfoAtPosition(file, source.lastIndexOf(marker) + offset)?.displayParts);
+    const diagnostics = ls.getSemanticDiagnostics(file).map(codeAndMessage);
+    const hover = hoverText(ls, file, source.lastIndexOf(marker) + offset) ?? "";
     return { diagnostics, hover };
 }
 
-describe.each(variants)("assigning 0 to a narrowed variable (%s)", (_name, driverType) => {
+describe.each(DRIVERS)("assigning 0 to a narrowed variable (%s)", (_name, driverType) => {
     it("narrows `x ? \"y\" : 0` to string, so it can be returned from a string function", () => {
         const assigned = check(driverType, `string f(int x) { mixed b; b = x ? "y" : 0; return b; }\n`, "return b", 7);
         expect(assigned).toEqual({ diagnostics: [], hover: "(local var)  string b" });

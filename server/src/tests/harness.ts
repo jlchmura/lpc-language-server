@@ -110,3 +110,64 @@ export function createTestLanguageService(
         fileName: scriptFiles[0],
     };
 }
+
+/** Both drivers, as `[name, variant]` rows for `describe.each` / `it.each`. */
+export const DRIVERS = [
+    ["FluffOS", lpc.LanguageVariant.FluffOS],
+    ["LDMud", lpc.LanguageVariant.LDMud],
+] as const;
+
+/** The lib root many specs use as `rootDir`, so files under `lib/` resolve as `/std/...`. */
+export const LIB_ROOT = testFilePath("lib");
+
+// Diagnostic formatters. Each takes only the diagnostic, so it can be passed straight to `.map`.
+
+/** The message, with a chained message flattened onto one line. */
+export function message(d: lpc.Diagnostic | lpc.DiagnosticRelatedInformation): string {
+    return lpc.flattenDiagnosticMessageText(d.messageText, " ");
+}
+
+/** The message, with each link of a chained message on its own line. */
+export function messageLines(d: lpc.Diagnostic | lpc.DiagnosticRelatedInformation): string {
+    return lpc.flattenDiagnosticMessageText(d.messageText, "\n");
+}
+
+/** `code: message`, the message flattened onto one line. */
+export function codeAndMessage(d: lpc.Diagnostic): string {
+    return `${d.code}: ${message(d)}`;
+}
+
+/** The syntactic diagnostics of a file, then its semantic ones. */
+export function allDiagnostics(ls: lpc.LanguageService, fileName: string): lpc.Diagnostic[] {
+    return [...ls.getSyntacticDiagnostics(fileName), ...ls.getSemanticDiagnostics(fileName)];
+}
+
+/**
+ * The hover's display text at `position`, or undefined when there is no hover. With `collapse`,
+ * runs of whitespace (the padding after a `(local var)` kind prefix, line breaks in a long type)
+ * become one space and the ends are trimmed.
+ */
+export function hoverText(ls: lpc.LanguageService, fileName: string, position: number, options?: { collapse?: boolean }): string | undefined {
+    const parts = ls.getQuickInfoAtPosition(fileName, position)?.displayParts;
+    if (!parts) return undefined;
+    const text = lpc.displayPartsToString(parts);
+    return options?.collapse ? text.replace(/\s+/g, " ").trim() : text;
+}
+
+/** The text of the first `@name` tag on a hover, or undefined when it has none. */
+export function tagText(quickInfo: lpc.QuickInfo | undefined, name: string): string | undefined {
+    return quickInfo?.tags?.find(t => t.name === name)?.text?.map(p => p.text).join("");
+}
+
+/**
+ * Type-check every file in the set. A child looks into an inherited file's symbols, and those
+ * are only bound once that file has been checked, so a spec that inherits and asks about the
+ * child should call this first.
+ */
+export function checkAllFiles(svc: TestLanguageService, files: Record<string, string>): TestLanguageService {
+    const program = svc.ls.getProgram()!;
+    for (const rel of Object.keys(files)) {
+        program.getTypeChecker().getDiagnostics(program.getSourceFile(svc.abs(rel)));
+    }
+    return svc;
+}

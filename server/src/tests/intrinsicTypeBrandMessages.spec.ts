@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, codeAndMessage, DRIVERS } from "./harness.js";
 
 /**
  * LPC's builtin types are branded by the `__LS__` globals in efuns.*.h: an array type's one
@@ -12,12 +12,10 @@ import { createTestLanguageService } from "./harness.js";
  */
 function errors(source: string, driverType: lpc.LanguageVariant): string[] {
     const { ls, abs } = createTestLanguageService({ "test.c": source }, { driverType });
-    return ls.getSemanticDiagnostics(abs("test.c")).map(d => `${d.code}: ${lpc.flattenDiagnosticMessageText(d.messageText, " ")}`);
+    return ls.getSemanticDiagnostics(abs("test.c")).map(codeAndMessage);
 }
 
-const drivers = [["FluffOS", lpc.LanguageVariant.FluffOS], ["LDMud", lpc.LanguageVariant.LDMud]] as const;
-
-describe.each(drivers)("type errors between builtin types (%s)", (_name, driverType) => {
+describe.each(DRIVERS)("type errors between builtin types (%s)", (_name, driverType) => {
     it("names the types, not the brand: filter() on a mapping into an array", () => {
         // lib/std/living/body.c: filter() on a mapping returns a mapping.
         expect(errors(`mapping limbs;\nint f() {\n    string *attach;\n    attach = filter(limbs, (: 1 :));\n    return sizeof(attach);\n}\n`, driverType))

@@ -1,5 +1,4 @@
-import { flattenDiagnosticMessageText } from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, messageLines } from "./harness.js";
 
 /**
  * A user function describes the shapes it accepts with `@overload` blocks on its definition.
@@ -110,7 +109,7 @@ describe("a call no @overload shape fits", () => {
     it("is reported as matching no overload, naming the shape that came closest", () => {
         const source = `${DEFINITION}\nvoid c() { int n; tell("x", n); }\n`;
         const { ls, fileName } = service(source);
-        const messages = ls.getSemanticDiagnostics(fileName).map(d => flattenDiagnosticMessageText(d.messageText, "\n"));
+        const messages = ls.getSemanticDiagnostics(fileName).map(messageLines);
         expect(messages).toHaveLength(1);
         expect(messages[0]).toMatch(/^No overload matches this call\.\n\s*Overload \d of 2, '\(string msg, .*\)', gave the following error\.\n\s*Argument of type 'int'/);
     });

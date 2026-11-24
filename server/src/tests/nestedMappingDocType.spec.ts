@@ -1,6 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, LIB_ROOT, allDiagnostics, message } from "./harness.js";
 
 /**
  * A mapping type nested in the VALUE position of a doc mapping type did not parse:
@@ -14,7 +13,6 @@ import { createTestLanguageService } from "./harness.js";
  * A doc comment's own parse errors are not reported in the file that owns it, so the error is
  * observed where it does surface: the roll-up on an `#include` of that file.
  */
-const cwd = lpc.normalizePath(process.cwd());
 
 function errorsThroughInclude(docType: string): string[] {
     const { ls, abs } = createTestLanguageService({
@@ -23,12 +21,12 @@ function errorsThroughInclude(docType: string): string[] {
     }, {
         driverType: lpc.LanguageVariant.FluffOS,
         diagnostics: true,
-        rootDir: lpc.normalizePath(path.join(cwd, "lib")),
+        rootDir: LIB_ROOT,
     });
     const fileName = abs("lib/main.c");
-    return [...ls.getSyntacticDiagnostics(fileName), ...ls.getSemanticDiagnostics(fileName)].flatMap(d => [
-        lpc.flattenDiagnosticMessageText(d.messageText, " "),
-        ...(d.relatedInformation ?? []).map(r => "  " + lpc.flattenDiagnosticMessageText(r.messageText, " ")),
+    return allDiagnostics(ls, fileName).flatMap(d => [
+        message(d),
+        ...(d.relatedInformation ?? []).map(r => "  " + message(r)),
     ]);
 }
 

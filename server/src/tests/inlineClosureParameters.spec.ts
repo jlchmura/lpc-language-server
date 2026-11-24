@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, hoverText } from "./harness.js";
 
 /**
  * An LPC inline closure has no parameter list -- the driver binds `$1`..`$9` positionally to
@@ -42,7 +42,7 @@ function parametersOf(source: string, closureIndex = 0): string[] {
 
 function typeAt(source: string, marker: string): string | undefined {
     const { ls, file } = build(source);
-    return ls.getQuickInfoAtPosition(file, source.indexOf(marker))?.displayParts?.map(p => p.text).join("");
+    return hoverText(ls, file, source.indexOf(marker));
 }
 
 describe("inline closure implicit parameters", () => {

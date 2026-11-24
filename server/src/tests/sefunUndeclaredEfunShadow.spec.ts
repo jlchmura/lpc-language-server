@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService, testFilePath } from "./harness.js";
+import { createTestLanguageService, testFilePath, messageLines } from "./harness.js";
 
 /**
  * End-to-end regression for the "phantom simul_efun shadows a real efun" bug.
@@ -54,7 +54,7 @@ describe("simul_efun with an inline function does not shadow the error() efun", 
         const diags = [
             ...ls.getSemanticDiagnostics(abs("consumer.c")),
             ...ls.getSemanticDiagnostics(abs("string_impl.c")),
-        ].map(d => lpc.flattenDiagnosticMessageText(d.messageText, "\n"));
+        ].map(messageLines);
 
         expect(diags.filter(m => m.includes("is not assignable"))).toEqual([]);
     });

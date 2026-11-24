@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, allDiagnostics, codeAndMessage } from "./harness.js";
 
 /**
  * A doc comment on a node at position 0 (the start of the file, or after nothing but
@@ -21,8 +21,7 @@ const files = (test: string) => ({
 function load(source: string) {
     const { ls, abs } = createTestLanguageService(files(source), { driverType: lpc.LanguageVariant.FluffOS });
     const fileName = abs("test.c");
-    const errors = [...ls.getSyntacticDiagnostics(fileName), ...ls.getSemanticDiagnostics(fileName)]
-        .map(d => `${d.code}: ${lpc.flattenDiagnosticMessageText(d.messageText, " ")}`);
+    const errors = allDiagnostics(ls, fileName).map(codeAndMessage);
     return { ls, fileName, errors, sourceFile: ls.getProgram()!.getSourceFile(fileName)! };
 }
 

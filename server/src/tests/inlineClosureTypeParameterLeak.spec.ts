@@ -1,5 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
+import { message } from "./harness.js";
 
 /**
  * LPCDoc is canonical: `@param {T}` overrides the syntactic parameter type. `nullp` is
@@ -34,8 +35,7 @@ function check(source: string): string[] {
 
     const program = lpc.createProgram({ host, rootNames: [virtualFile], options });
     return program
-        .getSemanticDiagnostics(program.getSourceFile(virtualFile)!)
-        .map(d => lpc.flattenDiagnosticMessageText(d.messageText, " "));
+        .getSemanticDiagnostics(program.getSourceFile(virtualFile)!).map(message);
 }
 
 describe("a type variable does not leak into an inline closure's $N", () => {

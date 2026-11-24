@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, codeAndMessage, hoverText } from "./harness.js";
 
 /**
  * Calling a closure-valued variable by bare name -- `f(x)` -- used to be entirely unchecked.
@@ -23,8 +23,7 @@ function diagnosticsFor(source: string): string[] {
         driverType: lpc.LanguageVariant.FluffOS,
         diagnostics: true,
     });
-    return ls.getSemanticDiagnostics(abs("test.c"))
-        .map(d => `${d.code}: ${lpc.flattenDiagnosticMessageText(d.messageText, " ")}`);
+    return ls.getSemanticDiagnostics(abs("test.c")).map(codeAndMessage);
 }
 
 function hoverAt(source: string, marker: string): string | undefined {
@@ -32,8 +31,7 @@ function hoverAt(source: string, marker: string): string | undefined {
         driverType: lpc.LanguageVariant.FluffOS,
         diagnostics: true,
     });
-    return ls.getQuickInfoAtPosition(abs("test.c"), source.indexOf(marker))
-        ?.displayParts?.map(p => p.text).join("");
+    return hoverText(ls, abs("test.c"), source.indexOf(marker));
 }
 
 describe("argument count for a call to a closure-valued variable", () => {

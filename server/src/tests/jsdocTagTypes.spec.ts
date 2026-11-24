@@ -1,12 +1,7 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, tagText } from "./harness.js";
 import { tagsToMarkdown, IFilePathToResourceConverter } from "../lpcserver/textRendering.js";
 import { URI } from "vscode-uri";
-
-function getTag(quickInfo: lpc.QuickInfo | undefined, name: string): string | undefined {
-    const tag = quickInfo?.tags?.find(t => t.name === name);
-    return tag?.text?.map(p => p.text).join("");
-}
 
 const converter: IFilePathToResourceConverter = { toResource: filepath => URI.file(filepath) };
 
@@ -44,8 +39,8 @@ varargs mixed call_back(mixed *cb, mixed new_arg...) {
 
     it("tag text carries the authored type", () => {
         const quickInfo = hover();
-        expect(getTag(quickInfo, "returns")).toBe("{mixed|undefined} Result from callback execution");
-        expect(getTag(quickInfo, "throws")).toBe("{string} If the callback is malformed");
+        expect(tagText(quickInfo, "returns")).toBe("{mixed|undefined} Result from callback execution");
+        expect(tagText(quickInfo, "throws")).toBe("{string} If the callback is malformed");
 
         const params = (quickInfo?.tags ?? [])
             .filter(t => t.name === "param")
