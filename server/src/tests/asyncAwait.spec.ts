@@ -7,9 +7,8 @@ import * as path from "path";
  * efuns.
  *
  * `acatch` and `promise` are FluffOS-only. `async` and `await` are not -- LDMud reserves
- * both -- but LDMud spells its coroutines differently enough that this scanner leaves them
- * as identifiers there for now; see isKeywordInVariant() for why, and the two LDMud cases
- * at the bottom of this file for what that does and does not assert.
+ * both -- but LDMud spells its coroutines differently; see isKeywordInVariant() and
+ * ldmudCoroutines.spec.ts.
  */
 
 function diagnosticsFor(source: string, driverType: lpc.LanguageVariant): lpc.Diagnostic[] {
@@ -650,15 +649,11 @@ void test() {
         expect(messages(source, lpc.LanguageVariant.LDMud)).toBe("");
     });
 
-    it("leaves async and await as identifiers in LDMud, pending its coroutine grammar", () => {
-        // NOT because LDMud allows them as names -- it does not. LDMud reserves both in
-        // lex.c's reswords[]. This pins current behaviour, which is a gap in the scanner:
-        // LDMud's coroutines are `coroutine` VALUES with a call-shaped `await(cr, opt)`
-        // and `yield(...)`, sharing only the spelling with FluffOS's promise-based unary
-        // `await p`. Tokenizing them here without that grammar would mis-parse real LDMud
-        // code, so they are left alone until the grammar lands. When it does, this case
-        // should start reporting -- it is the tripwire, not the specification.
+    it("reserves async and await in LDMud too, for its own coroutine grammar", () => {
+        // LDMud reserves both in lex.c's reswords[], but spells its coroutines differently:
+        // `await(cr)` is call-shaped and works on `coroutine` values, not promises. That
+        // grammar is covered by ldmudCoroutines.spec.ts; here, only that the words are taken.
         const source = `int test() { int async, await; async = 1; return async; }`;
-        expect(messages(source, lpc.LanguageVariant.LDMud)).toBe("");
+        expect(messages(source, lpc.LanguageVariant.LDMud)).not.toBe("");
     });
 });

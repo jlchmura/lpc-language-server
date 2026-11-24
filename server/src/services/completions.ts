@@ -5086,6 +5086,7 @@ function isClassMemberCompletionKeyword(kind: SyntaxKind) {
 function isFunctionLikeBodyKeyword(kind: SyntaxKind) {
     return kind === SyntaxKind.AsyncKeyword
         || kind === SyntaxKind.AwaitKeyword
+        || kind === SyntaxKind.YieldKeyword
         || kind === SyntaxKind.ACatchKeyword
         || kind === SyntaxKind.InheritKeyword
         || kind === SyntaxKind.DefineDirective
