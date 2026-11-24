@@ -2798,6 +2798,7 @@ export namespace LpcParser {
         parseExpected(SyntaxKind.ColonToken);
 
         const statements = parseList(ParsingContext.SwitchClauseStatements, parseStatement);
+        checkSwitchClauseDeclarations(statements);
         return withJSDoc(finishNode(factory.createCaseClause(expression, statements), pos), hasJSDoc);
     }
 
@@ -2806,7 +2807,51 @@ export namespace LpcParser {
         parseExpected(SyntaxKind.DefaultKeyword);
         parseExpected(SyntaxKind.ColonToken);
         const statements = parseList(ParsingContext.SwitchClauseStatements, parseStatement);
+        checkSwitchClauseDeclarations(statements);
         return finishNode(factory.createDefaultClause(statements), pos);
+    }
+
+    /**
+     * FluffOS has no declarations after a case label: its `switch_block` interleaves labels
+     * with `statement`, which does not include a local declaration (grammar.y). LDMud gives
+     * each label a block of its own, so a declaration there is fine (see isCaseClauseScope).
+     */
+    function checkSwitchClauseDeclarations(statements: NodeArray<Statement>) {
+        if (languageVariant !== LanguageVariant.FluffOS) {
+            return;
+        }
+        for (const statement of statements) {
+            if (statement.kind === SyntaxKind.VariableStatement) {
+                parseErrorAtStatement(statement, Diagnostics.FluffOS_requires_a_switch_s_local_variables_to_be_declared_before_the_first_case_or_inside_a_block);
+            }
+        }
+    }
+
+    /**
+     * What may come between a switch's `{` and its first label. LDMud allows nothing: the body
+     * must start with a label (prolang.y: `'{' switch_block '}'`, where every `switch_block`
+     * begins with `switch_label`). FluffOS allows local declarations and nothing else
+     * (grammar.y: `switch_header '{' local_declarations case switch_block '}'`).
+     */
+    function checkSwitchPreBlock(preBlock: NodeArray<Statement>) {
+        if (languageVariant === LanguageVariant.LDMud) {
+            if (preBlock.length) {
+                parseErrorAtStatement(preBlock[0], Diagnostics.case_or_default_expected);
+            }
+            return;
+        }
+        for (const statement of preBlock) {
+            if (statement.kind !== SyntaxKind.VariableStatement) {
+                parseErrorAtStatement(statement, Diagnostics.FluffOS_only_allows_local_variable_declarations_before_the_first_case);
+            }
+        }
+    }
+
+    /** Reports on a statement from its first token, not from the trivia in front of it. */
+    function parseErrorAtStatement(statement: Statement, message: DiagnosticMessage) {
+        const fileName = getNodeOriginFileName(statement);
+        const text = includeFileCache.get(fileName) ?? scanner.getText();
+        parseErrorAt(skipTrivia(text, statement.pos), statement.end, fileName, message);
     }
 
     function parseCaseOrDefaultClause(): CaseOrDefaultClause {
@@ -2832,6 +2877,7 @@ export namespace LpcParser {
 
         parseExpected(SyntaxKind.OpenBraceToken);
         const preBlock = parseList(ParsingContext.SwitchPreBlock, parseStatement);
+        checkSwitchPreBlock(preBlock);
         const caseBlock = parseCaseBlock();
         parseExpected(SyntaxKind.CloseBraceToken);
 
