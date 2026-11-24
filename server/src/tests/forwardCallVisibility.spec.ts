@@ -52,6 +52,16 @@ describe("a call the driver could not bind yet", () => {
         expect(undefinedFunctions(`public void a() { b(); }\nprivate void b() { }\n`)).toHaveLength(1);
     });
 
+    it("still reports a forward call to this program's own function when it inherits", () => {
+        // A program that inherits lists its own type among its base types; that must not
+        // count as the name being inherited. The call to from_base() stays accepted.
+        for (const driverType of [lpc.LanguageVariant.FluffOS, lpc.LanguageVariant.LDMud]) {
+            const diagnostics = fixture("fwd_derived_own_later.c", { driverType });
+            expect(diagnostics).toHaveLength(1);
+            expect(diagnostics[0]).toContain("'own_later'");
+        }
+    });
+
     it("reports a call that precedes the #include declaring it", () => {
         expect(fixture("fwd_include_after.c")).toHaveLength(1);
     });
