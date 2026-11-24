@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, allDiagnostics, codeAndMessage, DRIVERS } from "./harness.js";
 
 /**
  * LDMud syntax forms the parser rejected, found by running the server over a whole LDMud 3.6
@@ -11,8 +11,7 @@ function diagnosticsFor(files: Record<string, string>, main = "test.c", driverTy
         driverType,
         diagnostics: true,
     });
-    return [...ls.getSyntacticDiagnostics(abs(main)), ...ls.getSemanticDiagnostics(abs(main))]
-        .map(d => `${d.code}: ${lpc.flattenDiagnosticMessageText(d.messageText, " ")}`);
+    return allDiagnostics(ls, abs(main)).map(codeAndMessage);
 }
 
 const one = (source: string) => diagnosticsFor({ "test.c": source });
@@ -114,8 +113,6 @@ describe("LDMud preprocessor names", () => {
     });
 });
 
-const bothDrivers = [["LDMud", lpc.LanguageVariant.LDMud], ["FluffOS", lpc.LanguageVariant.FluffOS]] as const;
-
 /** The expression statement in `void f() { int a, b, c; <statement> }`, with each binary expression parenthesized. */
 function grouping(statement: string, driverType: lpc.LanguageVariant): string {
     const source = `void f() { int a, b, c; ${statement} }`;
@@ -134,7 +131,7 @@ function grouping(statement: string, driverType: lpc.LanguageVariant): string {
     return found!;
 }
 
-describe.each(bothDrivers)("expressions in both drivers (%s)", (_name, driverType) => {
+describe.each(DRIVERS)("expressions in both drivers (%s)", (_name, driverType) => {
     it("accepts any and unknown as names (neither driver reserves them)", () => {
         expect(diagnosticsFor({ "test.c": `int f(int any) { mapping unknown = ([]); return any + sizeof(unknown); }` }, "test.c", driverType)).toEqual([]);
     });

@@ -1,6 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, LIB_ROOT, allDiagnostics, hoverText, message } from "./harness.js";
 
 /**
  * `@@` in a doc comment's prose was read as a tag. A comment describing process_string syntax --
@@ -11,14 +10,13 @@ import { createTestLanguageService } from "./harness.js";
  * A doc comment's own parse errors are not reported in the file that owns it, so errors are
  * observed through the roll-up on an `#include` of that file.
  */
-const cwd = lpc.normalizePath(process.cwd());
 
 function service(docLines: string[], declaration: string) {
     const doc = `/**\n${docLines.map(l => ` * ${l}`).join("\n")}\n */\n${declaration}\n`;
     const result = createTestLanguageService({ "lib/inc/a.c": doc, "lib/main.c": `#include "/inc/a.c"\n` }, {
         driverType: lpc.LanguageVariant.FluffOS,
         diagnostics: true,
-        rootDir: lpc.normalizePath(path.join(cwd, "lib")),
+        rootDir: LIB_ROOT,
     });
     return { ...result, doc };
 }
@@ -26,9 +24,9 @@ function service(docLines: string[], declaration: string) {
 function errorsThroughInclude(docLines: string[]): string[] {
     const { ls, abs } = service(docLines, "void f(string id) {}");
     const fileName = abs("lib/main.c");
-    return [...ls.getSyntacticDiagnostics(fileName), ...ls.getSemanticDiagnostics(fileName)].flatMap(d => [
-        lpc.flattenDiagnosticMessageText(d.messageText, " "),
-        ...(d.relatedInformation ?? []).map(r => "  " + lpc.flattenDiagnosticMessageText(r.messageText, " ")),
+    return allDiagnostics(ls, fileName).flatMap(d => [
+        message(d),
+        ...(d.relatedInformation ?? []).map(r => "  " + message(r)),
     ]);
 }
 
@@ -47,7 +45,7 @@ describe("`@@` in doc comment prose", () => {
 
     it("does not stop a later tag from applying", () => {
         const { ls, abs, doc } = service(["Prose with @@ in it.", "@returns {string*} names"], "mixed f() { return ({}); }");
-        const hover = ls.getQuickInfoAtPosition(abs("lib/inc/a.c"), doc.indexOf("f()"))?.displayParts?.map(p => p.text).join("");
+        const hover = hoverText(ls, abs("lib/inc/a.c"), doc.indexOf("f()"));
         expect(hover).toBe("function string* f()");
     });
 });

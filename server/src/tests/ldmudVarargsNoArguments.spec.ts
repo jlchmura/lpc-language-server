@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, messageLines } from "./harness.js";
 
 /**
  * An LDMud `varargs <type> args` parameter called with no arguments at all.
@@ -18,8 +18,7 @@ function messages(): string[] {
         driverType: lpc.LanguageVariant.LDMud,
         diagnostics: true,
     });
-    return ls.getSemanticDiagnostics(abs("test.c"))
-        .map(d => lpc.flattenDiagnosticMessageText(d.messageText, "\n"));
+    return ls.getSemanticDiagnostics(abs("test.c")).map(messageLines);
 }
 
 describe("an LDMud varargs parameter called with no arguments", () => {

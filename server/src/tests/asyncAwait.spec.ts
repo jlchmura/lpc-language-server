@@ -1,5 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
+import { messageLines } from "./harness.js";
 
 /**
  * FluffOS native coroutines (fluffos#1319): the `async` function modifier, the `await`
@@ -31,7 +32,7 @@ function diagnosticsFor(source: string, driverType: lpc.LanguageVariant): lpc.Di
 }
 
 function messages(source: string, driverType = lpc.LanguageVariant.FluffOS): string {
-    return diagnosticsFor(source, driverType).map(d => lpc.flattenDiagnosticMessageText(d.messageText, "\n")).join("\n");
+    return diagnosticsFor(source, driverType).map(messageLines).join("\n");
 }
 
 describe("FluffOS async/await (fluffos#1319)", () => {

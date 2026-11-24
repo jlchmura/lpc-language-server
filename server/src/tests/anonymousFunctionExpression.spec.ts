@@ -1,5 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
+import { messageLines } from "./harness.js";
 
 /**
  * FluffOS anonymous function expressions put their parameter list directly
@@ -24,7 +25,7 @@ function syntacticDiags(source: string): string[] {
     host.fileExists = (n?: string) => (n ? (lpc.normalizePath(n) === fileName ? true : lpc.sys.fileExists(n)) : false);
     const program = lpc.createProgram({ host, rootNames: [fileName], options, oldProgram: undefined });
     const file = program.getSourceFile(fileName)!;
-    return program.getSyntacticDiagnostics(file).map(d => lpc.flattenDiagnosticMessageText(d.messageText, "\n"));
+    return program.getSyntacticDiagnostics(file).map(messageLines);
 }
 
 describe("anonymous function expressions (FluffOS)", () => {

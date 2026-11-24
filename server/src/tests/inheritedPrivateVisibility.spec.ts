@@ -1,5 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
+import { message } from "./harness.js";
 
 /**
  * `private` is the one modifier an inheriting program cannot see through. FluffOS documents
@@ -28,7 +29,7 @@ function programFor(rootName: string, driverType: lpc.LanguageVariant) {
 function diagnosticsIn(rootName: string, fileName: string, driverType = lpc.LanguageVariant.FluffOS): string[] {
     const program = programFor(fixture(rootName), driverType);
     const sourceFile = program.getSourceFile(fixture(fileName))!;
-    return program.getSemanticDiagnostics(sourceFile).map(d => lpc.flattenDiagnosticMessageText(d.messageText, " "));
+    return program.getSemanticDiagnostics(sourceFile).map(message);
 }
 
 const diagnostics = (name: string, driverType?: lpc.LanguageVariant) => diagnosticsIn(name, name, driverType);

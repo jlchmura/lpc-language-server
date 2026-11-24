@@ -1,6 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, LIB_ROOT, hoverText } from "./harness.js";
 
 /**
  * A type-guard overload (`filter<T,S>(T*, (T) => e is S): S*`) has to be rejected when the
@@ -17,7 +16,6 @@ import { createTestLanguageService } from "./harness.js";
  * missing type predicate makes guard overloads impossible to discriminate, which is what blocked
  * giving `filter` its guard overload: every ordinary `filter` call would degrade to `mixed*`.
  */
-const cwd = lpc.normalizePath(process.cwd());
 
 const callbacks = `/**
  * @template T
@@ -74,13 +72,12 @@ function resultTypeOf(declarations: string, call: string): string | undefined {
         driverType: lpc.LanguageVariant.FluffOS,
         diagnostics: true,
         // `getLibRootedFileName` compares an already-normalized file name against `rootDir`
-        // verbatim, so the separators have to match. `path.join` yields backslashes on Windows,
-        // which made the comparison fail there and the named object type render as an absolute
-        // path. Real configs go through `normalizePath` for the same reason.
-        rootDir: lpc.normalizePath(path.join(cwd, "lib")),
+        // verbatim, so the separators have to match. A bare `path.join` yields backslashes on
+        // Windows, which made the comparison fail there and the named object type render as an
+        // absolute path. LIB_ROOT is normalized, as real configs are, for that reason.
+        rootDir: LIB_ROOT,
     });
-    const quickInfo = ls.getQuickInfoAtPosition(abs("lib/test.c"), test.indexOf("r;\n"));
-    return quickInfo?.displayParts?.map(p => p.text).join("").replace(/\s+/g, " ");
+    return hoverText(ls, abs("lib/test.c"), test.indexOf("r;\n"), { collapse: true });
 }
 
 describe("overload resolution with a type-guard callback", () => {

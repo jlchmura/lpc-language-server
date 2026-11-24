@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, messageLines } from "./harness.js";
 
 /**
  * Assigning to an undeclared variable.
@@ -17,8 +17,7 @@ const source = `void f() {\n    foo = 1;\n}\n`;
 
 function messagesFor(options: lpc.CompilerOptions): string[] {
     const { ls, abs } = createLanguageService(options, { "test.c": source });
-    return ls.getSemanticDiagnostics(abs("test.c"))
-        .map(d => lpc.flattenDiagnosticMessageText(d.messageText, "\n"));
+    return ls.getSemanticDiagnostics(abs("test.c")).map(messageLines);
 }
 
 describe("assignment to an undeclared variable", () => {

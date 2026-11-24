@@ -1,6 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, LIB_ROOT, allDiagnostics, hoverText, message } from "./harness.js";
 
 /**
  * `@typedef {mapping} Person` + `@property` names a mapping's shape, the way `{Object}` does in
@@ -18,7 +17,6 @@ import { createTestLanguageService } from "./harness.js";
  * symbol by its containing FILE (`"/main".Person`) named nothing anyone could write, and applied
  * to classes as much as typedefs.
  */
-const cwd = lpc.normalizePath(process.cwd());
 
 const PERSON = `/**\n * @typedef {mapping} Person\n * @property {string} name\n * @property {int} hp\n */\n`;
 
@@ -26,10 +24,9 @@ function hoverOf(src: string, marker: string): string | undefined {
     const { ls, abs } = createTestLanguageService({ "lib/main.c": src }, {
         driverType: lpc.LanguageVariant.FluffOS,
         diagnostics: true,
-        rootDir: lpc.normalizePath(path.join(cwd, "lib")),
+        rootDir: LIB_ROOT,
     });
-    return ls.getQuickInfoAtPosition(abs("lib/main.c"), src.indexOf(marker))
-        ?.displayParts?.map(p => p.text).join("").replace(/\s+/g, " ");
+    return hoverText(ls, abs("lib/main.c"), src.indexOf(marker), { collapse: true });
 }
 
 const declared = (body: string) => PERSON + `/**\n * @type {Person}\n */\nmapping p;\n` + body;
@@ -77,11 +74,10 @@ describe("a named mapping shape", () => {
         const { ls, abs } = createTestLanguageService({ "lib/main.c": src }, {
             driverType: lpc.LanguageVariant.FluffOS,
             diagnostics: true,
-            rootDir: lpc.normalizePath(path.join(cwd, "lib")),
+            rootDir: LIB_ROOT,
         });
         const f = abs("lib/main.c");
-        expect([...ls.getSyntacticDiagnostics(f), ...ls.getSemanticDiagnostics(f)]
-            .map(d => lpc.flattenDiagnosticMessageText(d.messageText, " "))).toEqual([]);
+        expect(allDiagnostics(ls, f).map(message)).toEqual([]);
     });
 
     it("keeps two typedefs over the same types apart", () => {

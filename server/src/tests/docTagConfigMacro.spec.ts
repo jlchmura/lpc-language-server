@@ -1,6 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, LIB_ROOT } from "./harness.js";
 
 /**
  * Doc tag types are surfaced exactly as authored -- `{mixed|undefined}` stays that way rather
@@ -16,13 +15,12 @@ import { createTestLanguageService } from "./harness.js";
  * *parsed*, because a mudlib `#define undefined` would clobber the type keyword and swallow
  * every tag that followed (see jsdocMacroTypes.spec.ts).
  */
-const cwd = lpc.normalizePath(process.cwd());
 
 function tagsFor(files: Record<string, string>, marker: string, extraOptions?: Partial<lpc.CompilerOptions>): string {
     const { ls, abs } = createTestLanguageService(files, {
         driverType: lpc.LanguageVariant.FluffOS,
         diagnostics: true,
-        rootDir: path.join(cwd, "lib"),
+        rootDir: LIB_ROOT,
         ...extraOptions,
     } as Partial<lpc.CompilerOptions>);
     const source = files["lib/test.c"];

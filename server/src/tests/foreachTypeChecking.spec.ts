@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, messageLines } from "./harness.js";
 
 /**
  * Type checking of the `foreach` loop variables.
@@ -24,8 +24,7 @@ function messagesFor(source: string): string[] {
         { driverType: lpc.LanguageVariant.FluffOS, diagnostics: true },
         { "test.c": source },
     );
-    return ls.getSemanticDiagnostics(abs("test.c"))
-        .map(d => lpc.flattenDiagnosticMessageText(d.messageText, "\n"));
+    return ls.getSemanticDiagnostics(abs("test.c")).map(messageLines);
 }
 
 const NARROWED_KEY = `

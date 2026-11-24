@@ -1,5 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
+import { message } from "./harness.js";
 
 /**
  * A parse error inside an `#include` cannot go in the including file's `parseDiagnostics`
@@ -46,12 +47,12 @@ function includeErrors(diags: readonly lpc.Diagnostic[]) {
  * to the runner, and `file` reaches a SourceFile whose nodes point at their parents.
  */
 function summarize(diags: readonly lpc.Diagnostic[]) {
-    return diags.map(d => lpc.flattenDiagnosticMessageText(d.messageText, " "));
+    return diags.map(message);
 }
 
 function summarizeRelated(diags: readonly lpc.Diagnostic[]) {
     return diags.flatMap(d => d.relatedInformation ?? []).map(r => ({
-        message: lpc.flattenDiagnosticMessageText(r.messageText, " "),
+        message: message(r),
         file: r.file && lpc.getBaseFileName(r.file.fileName),
         // Positions index the file they belong to; anything past its end lands nowhere.
         inRange: !!r.file && r.start! + r.length! <= r.file.text.length,

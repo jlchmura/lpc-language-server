@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, codeAndMessage } from "./harness.js";
 
 /**
  * Appending to an array checked the element types with `areTypesComparable`, which succeeds when
@@ -23,8 +23,7 @@ function diagnosticsFor(source: string): string[] {
         driverType: lpc.LanguageVariant.FluffOS,
         diagnostics: true,
     });
-    return ls.getSemanticDiagnostics(abs("test.c"))
-        .map(d => `${d.code}: ${lpc.flattenDiagnosticMessageText(d.messageText, " ")}`);
+    return ls.getSemanticDiagnostics(abs("test.c")).map(codeAndMessage);
 }
 
 describe("appending an array with a union element type", () => {

@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, allDiagnostics, messageLines } from "./harness.js";
 
 /**
  * LDMud coroutines (3.6.5): the `async` modifier on functions and inline closures, the
@@ -13,8 +13,7 @@ import { createTestLanguageService } from "./harness.js";
 
 function diagnostics(files: Record<string, string>): string[] {
     const { ls, fileName } = createTestLanguageService(files, { driverType: lpc.LanguageVariant.LDMud });
-    return [...ls.getSyntacticDiagnostics(fileName), ...ls.getSemanticDiagnostics(fileName)]
-        .map(d => lpc.flattenDiagnosticMessageText(d.messageText, "\n"));
+    return allDiagnostics(ls, fileName).map(messageLines);
 }
 
 const check = (source: string) => diagnostics({ "test.c": source });
@@ -340,7 +339,7 @@ async int counter;
         const { ls, fileName } = createTestLanguageService({
             "test.c": `int test() { int yield, coroutine; yield = coroutine = 1; return yield; }\n`,
         });
-        const errors = [...ls.getSyntacticDiagnostics(fileName), ...ls.getSemanticDiagnostics(fileName)];
-        expect(errors.map(d => lpc.flattenDiagnosticMessageText(d.messageText, "\n"))).toEqual([]);
+        const errors = allDiagnostics(ls, fileName);
+        expect(errors.map(messageLines)).toEqual([]);
     });
 });

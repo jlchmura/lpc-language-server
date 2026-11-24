@@ -1,10 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
-
-function getTag(quickInfo: lpc.QuickInfo | undefined, name: string): string | undefined {
-    const tag = quickInfo?.tags?.find(t => t.name === name);
-    return tag?.text?.map(p => p.text).join("");
-}
+import { createTestLanguageService, tagText } from "./harness.js";
 
 function getTags(quickInfo: lpc.QuickInfo | undefined, name: string): (string | undefined)[] {
     return (quickInfo?.tags ?? [])
@@ -34,7 +29,7 @@ void do_thing() {
         const quickInfo = ls.getQuickInfoAtPosition(fileName, pos);
 
         expect(getTags(quickInfo, "see")).toEqual(["other_func", "third_func"]);
-        expect(getTag(quickInfo, "example")).toBe("do_thing();");
+        expect(tagText(quickInfo, "example")).toBe("do_thing();");
     });
 
     it("@see continuation line keeps its text without the margin asterisk", () => {
@@ -49,8 +44,8 @@ void do_thing() {
         const pos = source.indexOf("do_thing()");
         const quickInfo = ls.getQuickInfoAtPosition(fileName, pos);
 
-        expect(getTag(quickInfo, "see")).toContain("for details");
-        expect(getTag(quickInfo, "see")).not.toContain("*");
+        expect(tagText(quickInfo, "see")).toContain("for details");
+        expect(tagText(quickInfo, "see")).not.toContain("*");
     });
 
     it("description-less @param followed by another line has no stray asterisk", () => {
@@ -65,8 +60,8 @@ void do_thing(int x) {
         const pos = source.indexOf("do_thing(int");
         const quickInfo = ls.getQuickInfoAtPosition(fileName, pos);
 
-        expect(getTag(quickInfo, "param")).not.toContain("*");
-        expect(getTag(quickInfo, "see")).toBe("other_func");
+        expect(tagText(quickInfo, "param")).not.toContain("*");
+        expect(tagText(quickInfo, "see")).toBe("other_func");
     });
 
     it("a genuine mid-line asterisk in a tag comment is preserved", () => {
@@ -81,6 +76,6 @@ int mul(int a, int b) {
         const pos = source.indexOf("mul(int");
         const quickInfo = ls.getQuickInfoAtPosition(fileName, pos);
 
-        expect(getTag(quickInfo, "returns")).toBe("{int} the product a * b");
+        expect(tagText(quickInfo, "returns")).toBe("{int} the product a * b");
     });
 });

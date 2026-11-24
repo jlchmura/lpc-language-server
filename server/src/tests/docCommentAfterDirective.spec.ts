@@ -1,6 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, LIB_ROOT, messageLines } from "./harness.js";
 
 /**
  * A doc comment on the line right after a preprocessor directive was ignored: its types were
@@ -12,19 +11,17 @@ import { createTestLanguageService } from "./harness.js";
  */
 const doc = `/**\n * @param {int} x - doc\n */\nvoid f(mixed x) {}\nvoid g() { f("s"); }\n`;
 
-const cwd = lpc.normalizePath(process.cwd());
-
 function check(prefix: string, driverType = lpc.LanguageVariant.FluffOS) {
     const source = prefix + doc;
     const { ls, abs } = createTestLanguageService({ "lib/main.c": source, "lib/inc/defs.h": "#define Q 1\n" }, {
         driverType,
-        rootDir: lpc.normalizePath(path.join(cwd, "lib")),
+        rootDir: LIB_ROOT,
     });
     const fileName = abs("lib/main.c");
     const quickInfo = ls.getQuickInfoAtPosition(fileName, source.indexOf("f("));
     return {
         hover: quickInfo?.displayParts?.map(p => p.text).join(""),
-        errors: ls.getSemanticDiagnostics(fileName).map(d => lpc.flattenDiagnosticMessageText(d.messageText, "\n")),
+        errors: ls.getSemanticDiagnostics(fileName).map(messageLines),
     };
 }
 

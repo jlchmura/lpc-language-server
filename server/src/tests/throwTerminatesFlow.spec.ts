@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, message } from "./harness.js";
 
 /**
  * `throw()` aborts execution, so code after it is unreachable and a function whose
@@ -21,7 +21,7 @@ function messages(source: string, driverType = lpc.LanguageVariant.FluffOS): str
     const program = ls.getProgram()!;
     const file = program.getSourceFile(fileName)!;
     return [...file.parseDiagnostics, ...program.getSemanticDiagnostics(file)]
-        .map(d => lpc.flattenDiagnosticMessageText(d.messageText, " "))
+        .map(message)
         .join(" | ");
 }
 

@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, hoverText } from "./harness.js";
 
 /**
  * Hover built its display from the type alone, so a declaration's modifiers -- the half
@@ -9,8 +9,7 @@ import { createTestLanguageService } from "./harness.js";
 
 function hover(source: string, needle: string): string {
     const { ls, fileName } = createTestLanguageService({ "test.c": source });
-    const quickInfo = ls.getQuickInfoAtPosition(fileName, source.indexOf(needle));
-    return quickInfo?.displayParts?.map(p => p.text).join("") ?? "";
+    return hoverText(ls, fileName, source.indexOf(needle)) ?? "";
 }
 
 describe("modifiers in hover", () => {

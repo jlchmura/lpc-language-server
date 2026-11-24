@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, allDiagnostics, messageLines } from "./harness.js";
 
 /**
  * LDMud operator closures, `#'<operator>`, and quoted arrays, `'({ ... })`.
@@ -24,8 +24,7 @@ const operators = [
 
 function load(source: string, driverType = lpc.LanguageVariant.LDMud) {
     const { ls, fileName } = createTestLanguageService({ "test.c": source }, { driverType });
-    const errors = [...ls.getSyntacticDiagnostics(fileName), ...ls.getSemanticDiagnostics(fileName)]
-        .map(d => lpc.flattenDiagnosticMessageText(d.messageText, "\n"));
+    const errors = allDiagnostics(ls, fileName).map(messageLines);
     return { ls, fileName, errors, sourceFile: ls.getProgram()!.getSourceFile(fileName)! };
 }
 

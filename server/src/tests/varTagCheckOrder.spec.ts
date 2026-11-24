@@ -1,5 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
+import { message } from "./harness.js";
 
 /**
  * `@var` retypes an inherited variable for the file that carries the tag, and for that file
@@ -26,7 +27,7 @@ function checkInOrder(order: string[]): Record<string, string[]> {
     const result: Record<string, string[]> = {};
     for (const name of order) {
         const sourceFile = program.getSourceFile(fixture(name))!;
-        result[name] = program.getSemanticDiagnostics(sourceFile).map(d => lpc.flattenDiagnosticMessageText(d.messageText, " "));
+        result[name] = program.getSemanticDiagnostics(sourceFile).map(message);
     }
     return result;
 }

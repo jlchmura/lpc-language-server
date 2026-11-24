@@ -1,14 +1,8 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { checkAllFiles, createTestLanguageService } from "./harness.js";
 
 function makeLanguageService(files: Record<string, string>) {
-    const svc = createTestLanguageService(files);
-    // force check every file so LPC inherits are resolved
-    const program = svc.ls.getProgram()!;
-    for (const rel of Object.keys(files)) {
-        program.getTypeChecker().getDiagnostics(program.getSourceFile(svc.abs(rel)));
-    }
-    return svc;
+    return checkAllFiles(createTestLanguageService(files), files);
 }
 
 function renameCountsByFile(ls: lpc.LanguageService, fileName: string, pos: number) {

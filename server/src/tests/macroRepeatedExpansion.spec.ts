@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, messageLines } from "./harness.js";
 
 /**
  * Collects the string-literal parts of every `->` receiver in the file, in source
@@ -82,8 +82,7 @@ void go() {
         // and the object path the checker actually resolves is the whole path on both
         // uses -- the truncated one used to reach the checker as `daemons/movement`,
         // which doesn't resolve against the lib root.
-        const notFound = ls.getSemanticDiagnostics(fileName)
-            .map((d) => lpc.flattenDiagnosticMessageText(d.messageText, "\n"))
+        const notFound = ls.getSemanticDiagnostics(fileName).map(messageLines)
             .filter((m) => m.startsWith("Cannot find object"));
         expect(notFound).toEqual([]);
     });

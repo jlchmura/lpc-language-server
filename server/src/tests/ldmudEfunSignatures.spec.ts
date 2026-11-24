@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, codeAndMessage } from "./harness.js";
 
 /**
  * LDMud efun declarations checked against the driver's func_spec (LDMud 3.6.8).
@@ -12,8 +12,7 @@ function errors(body: string): string[] {
         driverType: lpc.LanguageVariant.LDMud,
         diagnostics: true,
     });
-    return ls.getSemanticDiagnostics(abs("test.c"))
-        .map(d => `${d.code}: ${lpc.flattenDiagnosticMessageText(d.messageText, " ")}`);
+    return ls.getSemanticDiagnostics(abs("test.c")).map(codeAndMessage);
 }
 
 describe("LDMud efun signatures", () => {

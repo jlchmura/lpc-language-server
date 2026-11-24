@@ -1,5 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
+import { messageLines } from "./harness.js";
 
 /**
  * The `*p()` guard efuns narrow a union in the branch they guard, but only when
@@ -31,7 +32,7 @@ function messages(source: string, driverType: lpc.LanguageVariant): string {
     const program = lpc.createProgram({ host, rootNames: [virtualFile], options: compilerOptions, oldProgram: undefined });
     const file = program.getSourceFile(virtualFile)!;
     return [...file.parseDiagnostics, ...program.getSemanticDiagnostics(file)]
-        .map(d => lpc.flattenDiagnosticMessageText(d.messageText, "\n")).join("\n");
+        .map(messageLines).join("\n");
 }
 
 /**

@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, codeAndMessage, DRIVERS } from "./harness.js";
 
 /**
  * `arr->func()` against an array of objects calls func on every element and hands back an
@@ -31,8 +31,7 @@ function diagnosticsFor(driver: lpc.LanguageVariant, source: string, extraFiles:
         driverType: driver,
         diagnostics: true,
     });
-    return ls.getSemanticDiagnostics(abs("test.c"))
-        .map(d => `${d.code}: ${lpc.flattenDiagnosticMessageText(d.messageText, " ")}`);
+    return ls.getSemanticDiagnostics(abs("test.c")).map(codeAndMessage);
 }
 
 const body = {
@@ -50,10 +49,7 @@ function call(driver: lpc.LanguageVariant, stmt: string): string[] {
     );
 }
 
-describe.each([
-    ["FluffOS", lpc.LanguageVariant.FluffOS],
-    ["LDMud", lpc.LanguageVariant.LDMud],
-] as const)("a call-other against an array of objects (%s)", (_name, driver) => {
+describe.each(DRIVERS)("a call-other against an array of objects (%s)", (_name, driver) => {
     it("returns an array of the element returns", () => {
         expect(call(driver, `string *names = who->query_name();`)).toEqual([]);
         expect(call(driver, `int *levels = who->query_level();`)).toEqual([]);

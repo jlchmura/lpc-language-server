@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, allDiagnostics, message } from "./harness.js";
 
 /**
  * Operand types for `-`, `&`, `*` and `+`, and their assignment forms, follow each driver's
@@ -22,8 +22,7 @@ type Row = ["ok" | "error", string, string];
 function errors(body: string, driverType: lpc.LanguageVariant) {
     const source = `#pragma strong_types\nvoid f() {\n${body}\n}\n`;
     const { ls, fileName } = createTestLanguageService({ "test.c": source }, { driverType });
-    return [...ls.getSyntacticDiagnostics(fileName), ...ls.getSemanticDiagnostics(fileName)]
-        .map(d => lpc.flattenDiagnosticMessageText(d.messageText, " "));
+    return allDiagnostics(ls, fileName).map(message);
 }
 
 function checkRows(driverType: lpc.LanguageVariant, rows: Row[]) {

@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, codeAndMessage } from "./harness.js";
 
 /**
  * Two fixes that have to land together: annotating a foreach loop variable did nothing, and
@@ -23,8 +23,7 @@ function diagnosticsFor(source: string, extraFiles: Record<string, string> = {})
         driverType: lpc.LanguageVariant.FluffOS,
         diagnostics: true,
     });
-    return ls.getSemanticDiagnostics(abs("test.c"))
-        .map(d => `${d.code}: ${lpc.flattenDiagnosticMessageText(d.messageText, " ")}`);
+    return ls.getSemanticDiagnostics(abs("test.c")).map(codeAndMessage);
 }
 
 const files = {

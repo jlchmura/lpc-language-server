@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, codeAndMessage } from "./harness.js";
 
 /**
  * In LDMud each `case` or `default` label starts a scope of its own (#415, item 5). The
@@ -34,7 +34,7 @@ function syntaxErrors(driverType: lpc.LanguageVariant, source: string): string[]
 
 function diagnostics(driverType: lpc.LanguageVariant, source: string): string[] {
     const { ls, abs } = service(driverType, source);
-    return ls.getSemanticDiagnostics(abs("test.c")).map(d => `${d.code}: ${lpc.flattenDiagnosticMessageText(d.messageText, " ")}`);
+    return ls.getSemanticDiagnostics(abs("test.c")).map(codeAndMessage);
 }
 
 const REDECLARED = `string f(string v) {

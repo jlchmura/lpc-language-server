@@ -1,5 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
+import { messageLines } from "./harness.js";
 
 /**
  * The FluffOS external handle API (fluffos#1377): external_create() allocates a handle,
@@ -33,7 +34,7 @@ function diagnosticsFor(source: string, driverType: lpc.LanguageVariant): lpc.Di
 }
 
 function messages(source: string, driverType = lpc.LanguageVariant.FluffOS): string {
-    return diagnosticsFor(source, driverType).map(d => lpc.flattenDiagnosticMessageText(d.messageText, "\n")).join("\n");
+    return diagnosticsFor(source, driverType).map(messageLines).join("\n");
 }
 
 describe("FluffOS external handles (fluffos#1377)", () => {

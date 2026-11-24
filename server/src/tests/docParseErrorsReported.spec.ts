@@ -1,6 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, LIB_ROOT, allDiagnostics, message } from "./harness.js";
 
 /**
  * A parse error inside a doc comment was dropped from the file that owns the comment.
@@ -13,7 +13,6 @@ import { createTestLanguageService } from "./harness.js";
  * name. So an include reported an error its own file never showed, and a file nothing includes
  * showed its doc errors nowhere, while the unparsed type silently took effect.
  */
-const cwd = lpc.normalizePath(process.cwd());
 
 const badDoc = `/**\n * @returns {({ string, string })} pair\n */\nstring *f() { return ({}); }\n`;
 
@@ -23,14 +22,14 @@ function diagnosticsOf(files: Record<string, string>, target: string): Reported[
     const { ls, abs } = createTestLanguageService(files, {
         driverType: lpc.LanguageVariant.FluffOS,
         diagnostics: true,
-        rootDir: lpc.normalizePath(path.join(cwd, "lib")),
+        rootDir: LIB_ROOT,
     });
     const fileName = abs(target);
-    return [...ls.getSyntacticDiagnostics(fileName), ...ls.getSemanticDiagnostics(fileName)].map(d => ({
-        message: lpc.flattenDiagnosticMessageText(d.messageText, " "),
+    return allDiagnostics(ls, fileName).map(d => ({
+        message: message(d),
         line: d.file && d.start !== undefined ? lpc.getLineAndCharacterOfPosition(d.file, d.start).line + 1 : -1,
         related: (d.relatedInformation ?? []).map(r => ({
-            message: lpc.flattenDiagnosticMessageText(r.messageText, " "),
+            message: message(r),
             file: r.file ? path.basename(r.file.fileName) : undefined,
         })),
     }));

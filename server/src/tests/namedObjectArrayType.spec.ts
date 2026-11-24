@@ -1,6 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, LIB_ROOT, allDiagnostics, hoverText, message } from "./harness.js";
 
 /**
  * A named object type (`object "/std/living/player"`) parses its path with the full
@@ -13,7 +12,6 @@ import { createTestLanguageService } from "./harness.js";
  * the file is `#include`d, rolled up onto the include directive -- which is why an entire
  * mudlib simul_efun reported errors that could not be found in the file itself.
  */
-const cwd = lpc.normalizePath(process.cwd());
 
 const player = `int is_player() { return 1; }\n`;
 const defines =
@@ -24,7 +22,7 @@ function service(files: Record<string, string>) {
     return createTestLanguageService(files, {
         driverType: lpc.LanguageVariant.FluffOS,
         diagnostics: true,
-        rootDir: lpc.normalizePath(path.join(cwd, "lib")),
+        rootDir: LIB_ROOT,
     });
 }
 
@@ -33,10 +31,10 @@ function diagnosticsOf(files: Record<string, string>): string[] {
     const { ls, abs } = service(files);
     const fileName = abs("lib/main.c");
     const out: string[] = [];
-    for (const d of [...ls.getSyntacticDiagnostics(fileName), ...ls.getSemanticDiagnostics(fileName)]) {
-        out.push(lpc.flattenDiagnosticMessageText(d.messageText, " "));
+    for (const d of allDiagnostics(ls, fileName)) {
+        out.push(message(d));
         for (const related of d.relatedInformation ?? []) {
-            out.push(lpc.flattenDiagnosticMessageText(related.messageText, " "));
+            out.push(message(related));
         }
     }
     return out;
@@ -45,8 +43,7 @@ function diagnosticsOf(files: Record<string, string>): string[] {
 /** Hover text for the function declared in `lib/main.c`. */
 function returnTypeOf(main: string): string | undefined {
     const { ls, abs } = service({ "lib/std/living/player.c": player, "lib/main.c": main });
-    const quickInfo = ls.getQuickInfoAtPosition(abs("lib/main.c"), main.indexOf("players()"));
-    return quickInfo?.displayParts?.map(p => p.text).join("").replace(/\s+/g, " ");
+    return hoverText(ls, abs("lib/main.c"), main.indexOf("players()"), { collapse: true });
 }
 
 const returnsDoc = (type: string) => `/**\n * @returns {${type}} the players\n */\nobject *players() { return ({}); }\n`;

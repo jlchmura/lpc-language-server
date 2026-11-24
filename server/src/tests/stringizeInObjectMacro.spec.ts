@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, messageLines } from "./harness.js";
 
 /**
  * `#name` in the body of an object-like macro.
@@ -20,8 +20,7 @@ describe.each([
 ] as const)("#name in an object-like macro (%s)", (_name, driver, expected) => {
     it("reports an error instead of crashing", () => {
         const { ls, abs } = createTestLanguageService({ "test.c": source }, { driverType: driver, diagnostics: true });
-        const messages = ls.getSyntacticDiagnostics(abs("test.c"))
-            .map(d => lpc.flattenDiagnosticMessageText(d.messageText, "\n"));
+        const messages = ls.getSyntacticDiagnostics(abs("test.c")).map(messageLines);
         expect(messages.some(m => m.includes(expected))).toBe(true);
         expect(() => ls.getSemanticDiagnostics(abs("test.c"))).not.toThrow();
     });

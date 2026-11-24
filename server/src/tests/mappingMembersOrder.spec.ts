@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, hoverText, message } from "./harness.js";
 
 /**
  * Resolving a mapping type's declared members stored an empty member table on the shared
@@ -22,7 +22,7 @@ function typeAfterFullCheck(source: string) {
     // Check the whole file first, as the CLI and the editor's diagnostics do: the order is
     // what decided which resolution of `mapping` stuck.
     ls.getSemanticDiagnostics(fileName);
-    return ls.getQuickInfoAtPosition(fileName, source.indexOf("value/*X*/"))?.displayParts?.map(p => p.text).join("");
+    return hoverText(ls, fileName, source.indexOf("value/*X*/"));
 }
 
 describe("the mapping type's members don't depend on check order", () => {
@@ -39,7 +39,7 @@ describe("a foreach over never", () => {
     it("is not reported and does not throw", () => {
         const source = `void f(mixed v) {\n  if(!intp(v)) return;\n  if(intp(v)) return;\n  foreach(mixed x in v) { x; }\n}\n`;
         const { ls, fileName } = createTestLanguageService({ "test.c": source });
-        const messages = ls.getSemanticDiagnostics(fileName).map(d => lpc.flattenDiagnosticMessageText(d.messageText, " "));
+        const messages = ls.getSemanticDiagnostics(fileName).map(message);
         expect(messages).toEqual([]);
     });
 });

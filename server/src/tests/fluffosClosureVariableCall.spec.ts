@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
+import { createTestLanguageService, messageLines } from "./harness.js";
 
 /**
  * In FluffOS a variable holding a closure is callable by bare name: `f(x)`.
@@ -21,8 +21,7 @@ import { createTestLanguageService } from "./harness.js";
 
 function diagnosticsFor(source: string, driverType = lpc.LanguageVariant.FluffOS): string[] {
     const { ls, abs } = createTestLanguageService({ "test.c": source }, { driverType, diagnostics: true });
-    return ls.getSemanticDiagnostics(abs("test.c"))
-        .map(d => lpc.flattenDiagnosticMessageText(d.messageText, "\n"));
+    return ls.getSemanticDiagnostics(abs("test.c")).map(messageLines);
 }
 
 // The loop forces flow analysis to reach `cb()` via the back edge before the call is checked.

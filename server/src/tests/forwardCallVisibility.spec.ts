@@ -1,5 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
+import { message } from "./harness.js";
 
 /**
  * The driver compiles in one pass, top to bottom, so a call can only bind a name it has
@@ -31,8 +32,7 @@ function diagnosticsFor(rootName: string, source?: string, extraOptions?: Partia
 
     const program = lpc.createProgram({ host, rootNames: [rootName], options });
     return program
-        .getSemanticDiagnostics(program.getSourceFile(rootName)!)
-        .map(d => lpc.flattenDiagnosticMessageText(d.messageText, " "));
+        .getSemanticDiagnostics(program.getSourceFile(rootName)!).map(message);
 }
 
 /** Diagnostics for an inline source, driver selectable. */
