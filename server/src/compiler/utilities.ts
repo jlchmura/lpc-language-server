@@ -2240,6 +2240,23 @@ export function isCaseClauseScope(node: Node): node is CaseOrDefaultClause {
         && getSourceFileOfNode(node).languageVariant === LanguageVariant.LDMud;
 }
 
+/**
+ * True for a variable declared directly under a `case` or `default` label in FluffOS. The
+ * parser reports it (checkSwitchClauseDeclarations), since FluffOS's grammar has no
+ * declarations there, so the binder and checker skip their redeclaration errors for it:
+ * they would be a second error for the same mistake.
+ * @internal
+ */
+export function isFluffOSDeclarationUnderCaseLabel(node: Node): boolean {
+    if (!isVariableDeclaration(node)) {
+        return false;
+    }
+    const statement = node.parent?.parent;
+    return statement?.kind === SyntaxKind.VariableStatement
+        && (statement.parent?.kind === SyntaxKind.CaseClause || statement.parent?.kind === SyntaxKind.DefaultClause)
+        && getSourceFileOfNode(node).languageVariant === LanguageVariant.FluffOS;
+}
+
 /** @internal */
 export function isBlockScope(node: Node, parentNode: Node | undefined): boolean {
     switch (node.kind) {

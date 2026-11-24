@@ -95,11 +95,23 @@ describe("FluffOS: the switch keeps one scope", () => {
         expect(diagnostics(FLUFF, source)).toEqual([]);
     });
 
-    it("still reports the same name declared under two labels", () => {
-        expect(diagnostics(FLUFF, REDECLARED)).toEqual([
-            "2451: Cannot redeclare block-scoped variable 'temp'.",
-            "2451: Cannot redeclare block-scoped variable 'temp'.",
+    it("reports a declaration under a label once, as the syntax error, not also as a redeclaration", () => {
+        const message = "FluffOS requires a switch's local variables to be declared before the first 'case', or inside a block.";
+        expect(syntaxErrors(FLUFF, REDECLARED)).toEqual([
+            `9059 "string temp = "A";": ${message}`,
+            `9059 "string temp = "B";": ${message}`,
+            `9059 "string temp = "C";": ${message}`,
         ]);
+        expect(diagnostics(FLUFF, REDECLARED)).toEqual([]);
+
+        const shadowsPreBlock = `int f(int v) {\n    switch (v) {\n        int y;\n        case 1: int y = 1; return y;\n    }\n    return 0;\n}\n`;
+        expect(syntaxErrors(FLUFF, shadowsPreBlock)).toEqual([`9059 "int y = 1;": ${message}`]);
+        expect(diagnostics(FLUFF, shadowsPreBlock)).toEqual([]);
+    });
+
+    it("still reports a redeclaration before the first case", () => {
+        const source = `int f(int v) {\n    switch (v) {\n        int y;\n        int y;\n        case 1: return y;\n    }\n    return 0;\n}\n`;
+        expect(diagnostics(FLUFF, source)).toEqual(["2451: Cannot redeclare block-scoped variable 'y'."]);
     });
 });
 
