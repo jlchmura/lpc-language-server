@@ -5674,7 +5674,8 @@ export namespace LpcParser {
         
         // get text and trim the starting '#' char
         const macroParam = scanner.getTokenValue().slice(1);
-        const macroParamVal = currentMacro.argsIn[macroParam]?.text;
+        // an object-like macro has no arguments at all
+        const macroParamVal = currentMacro.argsIn?.[macroParam]?.text;
         
         nextToken();
 

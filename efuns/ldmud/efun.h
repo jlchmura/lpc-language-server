@@ -759,7 +759,7 @@ int trace(int traceflags);
  */
 string to_text(bytes bytesequence, string encoding);
 
-string to_text(int* bytes, string encoding);
+string to_text(int* byte_values, string encoding);
 
 string to_text(string unicode);
 
@@ -934,7 +934,7 @@ bytes to_bytes(int* characters, string encoding);
 
 bytes to_bytes(bytes bytesequence);
 
-bytes to_bytes(int* bytes);
+bytes to_bytes(int* byte_values);
 
 /**
  * to_array
@@ -2125,7 +2125,7 @@ mixed * sort_array(mixed *arr, closure cl, varargs mixed extra);
  * Starts a snoop from 'snooper' on 'snoopee', or if 'snoopee' is not
  * given, terminates any snoop from 'snooper'.
  * 
- * Return <snoopee> on success, or 0 for a failure (including snooping
+ * Return 1 on success, or 0 for a failure (including snooping
  * loops).
  * 
  * The snoop is checked with the master object for validity.  It
@@ -2142,9 +2142,9 @@ mixed * sort_array(mixed *arr, closure cl, varargs mixed extra);
  *
  *
  */
-object snoop(object snooper);
+int snoop(object snooper);
 
-object snoop(object snooper, object snoopee);
+int snoop(object snooper, object snoopee);
 
 /**
  * sl_open
@@ -2681,6 +2681,8 @@ void set_driver_hook(int what, closure arg);
 void set_driver_hook(int what, string arg);
 
 void set_driver_hook(int what, string *arg);
+
+void set_driver_hook(int what, mapping arg);
 
 /**
  * set_bit
@@ -3342,13 +3344,9 @@ string regreplace(string txt, string pattern,closure|string replacepattern, int 
  */
 string   regmatch(string text, string pattern);
 
-string   regmatch(string text, string pattern, int opt);
+mixed    regmatch(string text, string pattern, int opt);
 
-string   regmatch(string text, string pattern, int opt, int start);
-
-string * regmatch(string text, string pattern, int opt);
-
-string * regmatch(string text, string pattern, int opt, int start);
+mixed    regmatch(string text, string pattern, int opt, int start);
 
 /**
  * regexplode
@@ -5111,14 +5109,21 @@ mapping map_indices(mapping m, varargs closure cl );
 mixed * map(mixed *arg, string func, string|object ob, varargs mixed extra);
 mixed * map(mixed *arg, closure cl, varargs mixed extra);
 varargs mixed * map(mixed *arg, mapping m, int idx);
-mixed * map(struct arg s, string func, string|object ob, varargs mixed extra);
-mixed * map(struct arg s, closure cl, varargs mixed extra);
-varargs mixed * map(struct arg s, mapping m , int idx);
 mapping map(mapping arg, string func, string|object ob, varargs mixed extra);
 mapping map(mapping arg, closure cl, varargs mixed extra);
 string map(string arg, string func, string|object ob, varargs mixed extra);
 string map(string arg, closure cl, varargs mixed extra);
 varargs string map(string arg, mapping m , int idx);
+mixed * map(struct arg s, string func, string|object ob, varargs mixed extra);
+mixed * map(struct arg s, closure cl, varargs mixed extra);
+varargs mixed * map(struct arg s, mapping m , int idx);
+// A function name alone, or followed by arguments that aren't an object, calls it in this_object().
+mixed * map(mixed *arg, string func);
+string  map(string arg, string func);
+mapping map(mapping arg, string func);
+mixed * map(mixed *arg, string func, mixed extra, varargs mixed extras);
+string  map(string arg, string func, mixed extra, varargs mixed extras);
+mapping map(mapping arg, string func, mixed extra, varargs mixed extras);
 
 /**
  * make_shared_string
@@ -5572,7 +5577,7 @@ string load_name(string obj);
  * enable_commands() has been called from inside the ob).
  * ob may be 0.
  * @param ob the object to check
- * @returns {ob is __LPC_CONFIG_LIBFILES_PLAYER} 1 if ob is a living object, 0 otherwise
+ * @returns 1 if ob is a living object, 0 otherwise
  * @example 
  * living(this_player())
  *
@@ -6581,7 +6586,7 @@ int get_eval_cost();
  *
  *
  */
-mixed * get_error_file(string name, int set_forget_flag);
+varargs mixed * get_error_file(string name, int set_forget_flag);
 
 /**
  * get_dir
@@ -6792,7 +6797,7 @@ void garbage_collection(string filename, int flag);
  * @since LDMud 3.6.7 introduced RETURN_FUNCTION_LPCTYPE.
  *
  */
-mixed * functionlist(object|lwobject|string ob, int flags);
+varargs mixed * functionlist(object|lwobject|string ob, int flags);
 
 /**
  * function_exists
@@ -7116,6 +7121,12 @@ string  filter(string arg, closure cl, varargs mixed extra);
 string  filter(string arg, mapping map, varargs mixed extra);
 mapping filter(mapping arg, string func, string|object ob, varargs mixed extra);
 mapping filter(mapping arg, closure cl, varargs mixed extra);
+// A function name alone, or followed by arguments that aren't an object, calls it in this_object().
+mixed * filter(mixed *arg, string fun);
+string  filter(string arg, string fun);
+mapping filter(mapping arg, string fun);
+mixed * filter(mixed *arg, string fun, mixed extra, varargs mixed extras);
+mapping filter(mapping arg, string fun, mixed extra, varargs mixed extras);
 
 /**
  * file_size
