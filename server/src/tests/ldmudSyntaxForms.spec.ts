@@ -54,6 +54,24 @@ describe("LDMud inherits", () => {
             "base.c": `int base_value() { return 1; }`,
         })).toEqual([]);
     });
+
+    it("accepts virtual with other inheritance modifiers, in either order", () => {
+        for (const modifiers of ["private virtual", "virtual private"]) {
+            expect(diagnosticsFor({
+                "test.c": `${modifiers} inherit "base";\nint f() { return base_value(); }`,
+                "base.c": `int base_value() { return 1; }`,
+            })).toEqual([]);
+        }
+    });
+
+    it.each([
+        "virtual int x;",
+        "virtual void g() {}",
+        "private virtual int y;",
+        "void f() { virtual int z = 1; }",
+    ])("rejects virtual anywhere but an inherit: %s", source => {
+        expect(one(source)).toEqual(["9057: The 'virtual' modifier can only be used with 'inherit'."]);
+    });
 });
 
 describe("LDMud ranges and indexing", () => {

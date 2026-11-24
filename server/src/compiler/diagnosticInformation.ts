@@ -42,6 +42,7 @@ export const Diagnostics = {
     _0_is_only_allowed_inside_a_coroutine_an_async_function_or_inline_closure: diag(9054, DiagnosticCategory.Error, "_0_is_only_allowed_inside_a_coroutine_an_async_function_or_inline_closure_9054", "'{0}' is only allowed inside a coroutine (an 'async' function or inline closure)."),
     The_async_modifier_must_come_before_all_other_modifiers: diag(9055, DiagnosticCategory.Error, "The_async_modifier_must_come_before_all_other_modifiers_9055", "The 'async' modifier must come before all other modifiers."),
     Missing_function_name_after_Hash_Quote: diag(9056, DiagnosticCategory.Error, "Missing_function_name_after_Hash_Quote_9056", "Missing function name after #'."),
+    The_virtual_modifier_can_only_be_used_with_inherit: diag(9057, DiagnosticCategory.Error, "The_virtual_modifier_can_only_be_used_with_inherit_9057", "The 'virtual' modifier can only be used with 'inherit'."),
     Catch_expression_cannot_also_have_a_block: diag(9032, DiagnosticCategory.Error, "Catch_expression_cannot_also_have_a_block_9032", "Catch expression cannot also have a block."),
     Operator_0_is_not_supported_in_LDMud: diag(9033, DiagnosticCategory.Error, "Operator_0_is_not_supported_in_LDMud_9033", "Operator '{0}' is not supported in LDMud."),
     Anonymous_function_expressions_are_only_supported_in_FluffOS: diag(9034, DiagnosticCategory.Error, "Anonymous_function_expressions_are_only_supported_in_FluffOS_9034", "Anonymous function expressions are only supported in FluffOS."),

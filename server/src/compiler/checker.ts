@@ -12770,8 +12770,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
             if (node.kind === SyntaxKind.IndexSignature && (modifier.kind !== SyntaxKind.StaticKeyword || !isClassLike(node.parent))) {
                 return grammarErrorOnNode(modifier, Diagnostics._0_modifier_cannot_appear_on_an_index_signature, tokenToString(modifier.kind));
-            }                        
-            switch (modifier.kind) {                
+            }
+            // LDMud only has `virtual` as an inheritance_modifier (prolang.y): `virtual inherit "x";`. The parser
+            // takes it in any modifier list so that form parses, and an inherit never gets here (it isn't a
+            // HasModifiers node), so `virtual` on anything that does is misplaced.
+            if ((modifier.kind as SyntaxKind) === SyntaxKind.VirtualKeyword) {
+                return grammarErrorOnNode(modifier, Diagnostics.The_virtual_modifier_can_only_be_used_with_inherit);
+            }
+            switch (modifier.kind) {
                 case SyntaxKind.PublicKeyword:
                 case SyntaxKind.ProtectedKeyword:
                 case SyntaxKind.PrivateKeyword:
