@@ -860,13 +860,6 @@ function iterateCommentRanges<T, U>(reduce: boolean, text: string, pos: number, 
             pos = shebang.length;
         }
     }
-    else if (!trailing && pos > 0 && isLineBreak(text.charCodeAt(pos - 1))) {
-        // Comments before the first line break trail the previous token, so they are
-        // skipped. A position at the start of a line has no previous token on that line:
-        // a preprocessor directive's token ends with its newline, so the node after
-        // `#define A 1` starts on the next line, and its doc comment is leading.
-        collecting = true;
-    }
     scan:
     while (pos >= 0 && pos < text.length) {
         const ch = text.charCodeAt(pos);

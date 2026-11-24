@@ -8,7 +8,7 @@ import { createTestLanguageService } from "./harness.js";
  * types printed fine. https://github.com/jlchmura/lpc-language-server/issues/419
  */
 function hover(docTags: string, signature: string): string | undefined {
-    const source = `#define STD_ROOM "/std/" "room"\n/**\n${docTags}\n */\n${signature} {}\n`;
+    const source = `#define STD_ROOM "/std/" "room"\n\n/**\n${docTags}\n */\n${signature} {}\n`;
     const { ls, fileName } = createTestLanguageService({ "test.c": source });
     const name = signature.match(/(\w+)\(/)![1];
     const quickInfo = ls.getQuickInfoAtPosition(fileName, source.indexOf(`${name}(`));
