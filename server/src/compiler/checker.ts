@@ -9688,6 +9688,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // otherwise would return the type 'undefined').
             const restType = getTypeOfSymbol(signature.parameters[paramCount]);
             const index = pos - paramCount;
+            // An LPC array (`varargs int *args`) has no numeric index signature, so indexed access
+            // gives `unknown` and any argument would be accepted. Each extra argument is an element.
+            if (isArrayType(restType)) {
+                return getElementTypeOfArrayType(restType);
+            }
             if (!isTupleType(restType) || restType.target.combinedFlags & ElementFlags.Variable || index < restType.target.fixedLength) {
                 return getIndexedAccessType(restType, getNumberLiteralType(index));                
             }

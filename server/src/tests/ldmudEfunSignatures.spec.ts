@@ -80,6 +80,34 @@ describe("LDMud efun signatures", () => {
         `)).toEqual([]);
     });
 
+    it("max() and min() take any number of arguments (a varargs parameter is the array of the extra ones)", () => {
+        expect(errors(`
+            string s() { return max("a", "b"); }
+            bytes b(bytes x, bytes y) { return min(x, y, x); }
+            int i() { return min(3, 4, 5) + max(1); }
+            float fl() { return max(1.0, 2.0); }
+            mixed n() { return max(1, 2.5) + min(1, -1.1); }
+            int arr() { return min(({ 3, 4 })) + max(({ 1, 2 })); }
+            string sarr() { return max(({ "foo", "bar" })); }
+        `)).toEqual([]);
+    });
+
+    it("max() and min() still reject arguments the driver can't compare", () => {
+        expect(errors(`mixed f(object o) { return max(o, o); }`).length).toBeGreaterThan(0);
+    });
+
+    it("new_lwobject(), sl_exec() and limited() pass extra arguments on", () => {
+        expect(errors(`
+            lwobject lw() { return new_lwobject("/lw", 1, "a"); }
+            mixed sl() { return sl_exec("SELECT ?", 1); }
+            mixed lim(closure c) {
+                limited(c);
+                limited(c, 1, 1000, 2, 5);
+                return limited(c, ({ 100000 }), 1, 2);
+            }
+        `)).toEqual([]);
+    });
+
     it("living() does not narrow to the player object (NPCs are living)", () => {
         const source = `void t(object npc) {\n    if (living(npc)) {\n        npc/*T*/;\n    }\n}\n`;
         const { ls, abs } = createTestLanguageService({ "test.c": source, "obj/player.c": `int is_player() { return 1; }\n` }, {

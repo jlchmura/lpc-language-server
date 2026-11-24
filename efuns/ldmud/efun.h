@@ -2201,7 +2201,7 @@ int sl_insert_id();
  * @since Added in LDMud 3.3.713.
  *
  */
-mixed * sl_exec(varargs string statement);
+mixed * sl_exec(string statement, varargs mixed *args);
 
 /**
  * sl_close
@@ -4659,7 +4659,7 @@ int next_bit (string str, int start, int find_cleared);
  * @since LDMud 3.6.5 introduced lightweight objects.
  *
  */
-lwobject new_lwobject(varargs string name );
+lwobject new_lwobject(string name, varargs mixed *args);
 
 /**
  * net_connect
@@ -4821,14 +4821,16 @@ int mkdir(string path);
  * @since Introduced in LDMud 3.2.9.
  *
  */
-int    min(varargs int arg );
-float  min(varargs float arg );
-int    min(int *arg_array);
-float  min(float *arg_array);
-string min(varargs string arg );
-bytes  min(varargs bytes arg );
-string min(string|bytes *arg_array);
-bytes  min(bytes *arg_array);
+int         min(int arg, varargs int *args);
+float       min(float arg, varargs float *args);
+int|float   min(int|float arg, varargs <int|float> *args);
+string      min(string arg, varargs string *args);
+bytes       min(bytes arg, varargs bytes *args);
+int         min(int *arg_array);
+float       min(float *arg_array);
+int|float   min(<int|float> *arg_array);
+string      min(string *arg_array);
+bytes       min(bytes *arg_array);
 
 /**
  * member
@@ -4925,10 +4927,16 @@ string md5(int *  arg , int iterations);
  * @since Introduced in LDMud 3.2.9.
  *
  */
-string|bytes max(varargs string|bytes arg );
-string|bytes max(string|bytes *arg_array);
-int|float    max(varargs int|float arg );
-int|float    max(int|float *arg_array);
+int         max(int arg, varargs int *args);
+float       max(float arg, varargs float *args);
+int|float   max(int|float arg, varargs <int|float> *args);
+string      max(string arg, varargs string *args);
+bytes       max(bytes arg, varargs bytes *args);
+int         max(int *arg_array);
+float       max(float *arg_array);
+int|float   max(<int|float> *arg_array);
+string      max(string *arg_array);
+bytes       max(bytes *arg_array);
 
 /**
  * match_command
@@ -5632,11 +5640,9 @@ int living(object ob);
  */
 mixed limited(closure fun);
 
-mixed limited(closure fun, int tag, varargs int value );
+mixed limited(closure fun, int tag, int value, varargs int *tags_and_values);
 
-mixed limited(closure fun, int *limits);
-
-mixed limited(closure fun, int *limits, mixed *args);
+mixed limited(closure fun, int *limits, varargs mixed *args);
 
 /**
  * last_instructions
