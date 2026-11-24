@@ -145,6 +145,7 @@ import {
     LambdaIdentifierExpression,
     LambdaOperatorExpression,
     LambdaOperatorToken,
+    QuotedArrayExpression,
     lastOrUndefined,
     LeftHandSideExpression,
     LiteralToken,
@@ -414,6 +415,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         convertToAssignmentExpression,
         createLambdaIdentifierExpression,
         createLambdaOperatorExpression,
+        createQuotedArrayExpression,
         createCastExpression,
         createCloneObjectExpression,
         createTypeAssertion,
@@ -1443,6 +1445,15 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     function createLambdaOperatorExpression(op: LambdaOperatorToken): LambdaOperatorExpression {
         const node = createBaseNode<LambdaOperatorExpression>(SyntaxKind.LambdaOperatorExpression);
         node.operator = op;
+        return node;
+    }
+
+    // @api
+    function createQuotedArrayExpression(quotes: number, expression: ArrayLiteralExpression): QuotedArrayExpression {
+        const node = createBaseNode<QuotedArrayExpression>(SyntaxKind.QuotedArrayExpression);
+        node.quotes = quotes;
+        node.expression = expression;
+        node.transformFlags |= propagateChildFlags(node.expression);
         return node;
     }
         

@@ -286,6 +286,7 @@ function isLeftHandSideExpressionKind(kind: SyntaxKind): boolean {
         case SyntaxKind.Identifier:
         case SyntaxKind.LambdaIdentifierExpression:
         case SyntaxKind.LambdaOperatorExpression:
+        case SyntaxKind.QuotedArrayExpression:
         //case SyntaxKind.PrivateIdentifier: // technically this is only an Expression if it's in a `#field in expr` BinaryExpression
         //case SyntaxKind.RegularExpressionLiteral:
         case SyntaxKind.IntLiteral:

@@ -79,6 +79,7 @@ export interface Scanner {
     /** @internal */
     getTokenFlags(): TokenFlags;
     reScanGreaterToken(): SyntaxKind;    
+    reScanClosureOperatorToken(): SyntaxKind;
     reScanAsteriskEqualsToken(): SyntaxKind;    
     reScanLessThanToken(): SyntaxKind;
     reScanHashToken(): SyntaxKind;
@@ -1139,6 +1140,7 @@ export function createScanner(
         getNumericLiteralFlags: () => tokenFlags & TokenFlags.NumericLiteralFlags,
         getTokenFlags: () => tokenFlags,
         reScanGreaterToken,
+        reScanClosureOperatorToken,
         reScanAsteriskEqualsToken,                
         reScanLessThanToken,
         reScanLessThanTokenAsStringLiteral,
@@ -2225,7 +2227,22 @@ export function createScanner(
                     }
                     pos++;
                     return token = SyntaxKind.ExclamationToken;
-                case CharacterCodes.singleQuote:      
+                case CharacterCodes.singleQuote:
+                    if (languageVariant === LanguageVariant.LDMud) {
+                        let quoteEnd = pos + 1;
+                        while (charCodeUnchecked(quoteEnd) === CharacterCodes.singleQuote) quoteEnd++;
+                        // A quoted array, `'({ ... })`, with any number of quotes (lex.c's
+                        // L_QUOTED_AGGREGATE). The quotes are the token; `({` follows.
+                        if (charCodeUnchecked(quoteEnd) === CharacterCodes.openParen && charCodeUnchecked(quoteEnd + 1) === CharacterCodes.openBrace) {
+                            pos = quoteEnd;
+                            return token = SyntaxKind.QuoteToken;
+                        }
+                        // A symbol quoted more than once, `''foo`.
+                        if (quoteEnd > pos + 1 && isIdentifierStart(charCodeUnchecked(quoteEnd), languageVersion)) {
+                            pos = quoteEnd;
+                            return token = SyntaxKind.LambdaToken;
+                        }
+                    }
                     if (isIdentifierStart(charCodeUnchecked(pos+1), languageVersion) && lookAhead(lookForPossibleLambdaOperator) ) {
                         pos++
                         return token = SyntaxKind.LambdaToken;
@@ -2871,6 +2888,97 @@ export function createScanner(
             }
         }
         return token;
+    }
+
+    /**
+     * Rescan the token after `#'` as an LDMud operator closure, e.g. `#'+=`, `#'?!`, `#'[..<]`
+     * or `#'({`. The longest operator wins, as in lex.c's symbol_operator(). If no operator
+     * starts there, the token is rescanned unchanged. (The driver also needs the operator to
+     * follow the quote directly; the parser checks that.)
+     */
+    function reScanClosureOperatorToken(): SyntaxKind {
+        pos = tokenStart;
+        const length = getClosureOperatorLength(pos);
+        if (length === 0) {
+            return token = scan();
+        }
+        pos += length;
+        tokenValue = text.substring(tokenStart, pos);
+        return token = SyntaxKind.ClosureOperatorToken;
+    }
+
+    /** The length of the operator closure symbol at `start`, or 0 if there is none. */
+    function getClosureOperatorLength(start: number): number {
+        const at = (offset: number) => charCodeUnchecked(start + offset);
+        const first = at(0);
+        switch (first) {
+            case CharacterCodes.plus:
+                return at(1) === CharacterCodes.equals || at(1) === CharacterCodes.plus ? 2 : 1;
+            case CharacterCodes.minus:
+                return at(1) === CharacterCodes.equals || at(1) === CharacterCodes.minus || at(1) === CharacterCodes.greaterThan ? 2 : 1;
+            case CharacterCodes.asterisk:
+            case CharacterCodes.slash:
+            case CharacterCodes.percent:
+            case CharacterCodes.caret:
+            case CharacterCodes.equals:
+            case CharacterCodes.exclamation:
+                return at(1) === CharacterCodes.equals ? 2 : 1;
+            case CharacterCodes.dot:
+            case CharacterCodes.comma:
+            case CharacterCodes.tilde:
+                return 1;
+            case CharacterCodes.bar:
+            case CharacterCodes.ampersand:
+                if (at(1) === first) return at(2) === CharacterCodes.equals ? 3 : 2;
+                return at(1) === CharacterCodes.equals ? 2 : 1;
+            case CharacterCodes.lessThan:
+                if (at(1) === CharacterCodes.equals) return 2;
+                if (at(1) === CharacterCodes.lessThan) return at(2) === CharacterCodes.equals ? 3 : 2;
+                return 1;
+            case CharacterCodes.greaterThan:
+                if (at(1) === CharacterCodes.equals) return 2;
+                if (at(1) === CharacterCodes.greaterThan) {
+                    if (at(2) === CharacterCodes.equals) return 3;
+                    if (at(2) === CharacterCodes.greaterThan) return at(3) === CharacterCodes.equals ? 4 : 3;
+                    return 2;
+                }
+                return 1;
+            case CharacterCodes.question:
+                return at(1) === CharacterCodes.exclamation ? 2 : 1;
+            case CharacterCodes.openParen:
+                // #'({ (aggregate), #'([ (mapping), #'(< (struct)
+                return at(1) === CharacterCodes.openBrace || at(1) === CharacterCodes.openBracket || at(1) === CharacterCodes.lessThan ? 2 : 0;
+            case CharacterCodes.openBracket:
+                return 1 + getIndexOperatorLength(start + 1);
+        }
+        return 0;
+    }
+
+    /**
+     * The length of what follows `[` in an index or range operator closure: `<`, `>`, `..`,
+     * `<..`, `>..` and each of those after `,` (the mapping forms), then an optional `]`,
+     * `<]` or `>]` after a range. `[,` that isn't followed by one of those is just `#'[`.
+     */
+    function getIndexOperatorLength(start: number): number {
+        const at = (offset: number) => charCodeUnchecked(start + offset);
+        const isDotDot = (offset: number) => at(offset) === CharacterCodes.dot && at(offset + 1) === CharacterCodes.dot;
+        const isEdge = (offset: number) => at(offset) === CharacterCodes.lessThan || at(offset) === CharacterCodes.greaterThan;
+        const rangeEnd = (offset: number) => {
+            if (at(offset) === CharacterCodes.closeBracket) return offset + 1;
+            if (isEdge(offset) && at(offset + 1) === CharacterCodes.closeBracket) return offset + 2;
+            return offset;
+        };
+        let offset = 0;
+        const isMapping = at(0) === CharacterCodes.comma;
+        if (isMapping) offset++;
+        if (isEdge(offset)) {
+            if (isDotDot(offset + 1)) return rangeEnd(offset + 3);
+            if (!isMapping) return offset + 1;
+            return at(offset + 1) === CharacterCodes.closeBracket ? offset + 2 : 0;
+        }
+        if (isDotDot(offset)) return rangeEnd(offset + 2);
+        if (isMapping && at(offset) === CharacterCodes.closeBracket) return offset + 1;
+        return 0;
     }
 
     function reScanAsteriskEqualsToken(): SyntaxKind {
