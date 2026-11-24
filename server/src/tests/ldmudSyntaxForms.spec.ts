@@ -38,6 +38,18 @@ int f() { return funcall((: note("x"); 5 :)); }`)).toEqual([]);
     it("accepts a body starting with a declaration", () => {
         expect(one(`mixed f() { return map(({ 1 }), (: int i = $1; return i + 1; :)); }`)).toEqual([]);
     });
+
+    it("gives each expression before a statement its own range", () => {
+        const source = `void note(string s) {} int f() { closure c = (: note("a"), note("b"); return 1 :); return 0; }`;
+        const { ls, abs } = createTestLanguageService({ "test.c": source }, { driverType: lpc.LanguageVariant.LDMud });
+        const sourceFile = ls.getProgram()!.getSourceFile(abs("test.c"))!;
+        const statements: string[] = [];
+        lpc.forEachChildRecursively(sourceFile, node => {
+            if (lpc.isExpressionStatement(node)) statements.push(source.slice(node.pos, node.end).trim());
+            return undefined;
+        });
+        expect(statements).toEqual([`note("a")`, `note("b")`]);
+    });
 });
 
 describe("LDMud inherits", () => {

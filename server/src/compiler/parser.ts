@@ -95,7 +95,6 @@ export namespace LpcParser {
     var sourceText: string;    
 
     var languageVersion: ScriptTarget;
-    var languageVariant: LanguageVariant;
     var scriptKind: ScriptKind;
     var languageVariant: LanguageVariant;
 
@@ -269,7 +268,6 @@ export namespace LpcParser {
         scanner.setFileName(fileName);
         scanner.setOnError(scanError);
         scanner.setScriptTarget(languageVersion);
-        languageVariant = _languageVariant;
         scanner.setLanguageVariant(_languageVariant);
         scanner.setScriptKind(scriptKind);
         scanner.setJSDocParsingMode(_jsDocParsingMode);        
@@ -6029,33 +6027,39 @@ export namespace LpcParser {
         // the second form being a call_other shortcut
 
         const listPos = getPositionState();
-        let node = parseDelimitedList(ParsingContext.InlineClosure, parseArgumentExpression);
+        // LDMud: where each expression starts, for the expression statements made from them below.
+        const expressionPositions = languageVariant === LanguageVariant.LDMud ? new Map<Expression, PositionState>() : undefined;
+        const parseElement = !expressionPositions ? parseArgumentExpression : () => {
+            const elementPos = getPositionState();
+            const expression = parseArgumentExpression();
+            expressionPositions.set(expression, elementPos);
+            return expression;
+        };
+        let node = parseDelimitedList(ParsingContext.InlineClosure, parseElement);
 
         // LDMud `(: expr; expr :)`: ';' separates expressions like ',' (evaluated in order, the value is the last
         // one's). A ';' just before ':)' is allowed. A statement after a ';' (`(: f(); return 0; :)`) turns the body
         // into a block: the expressions so far become expression statements.
-        if (languageVariant === LanguageVariant.LDMud && token() === SyntaxKind.SemicolonToken) {
-            const segments: [PositionState, Expression[]][] = [[listPos, [...node]]];
+        if (expressionPositions && token() === SyntaxKind.SemicolonToken) {
+            const expressions: Expression[] = [...node];
             let block: Block | undefined;
             while (parseOptional(SyntaxKind.SemicolonToken)) {
                 if (token() === SyntaxKind.ColonToken || token() === SyntaxKind.ColonCloseParenToken) break;
                 if (isStartOfDeclaration() || (isStartOfStatement() && !isStartOfExpressionStatement())) {
-                    const statements: Statement[] = [];
-                    for (const [segmentPos, expressions] of segments) {
-                        for (const e of expressions) statements.push(finishNode(factory.createExpressionStatement(e), segmentPos, e.end));
-                    }
+                    // Each statement starts where its own expression does. Starting them all at their `;` group
+                    // made `(: a, b; return 0 :)` give two statements where the second's range covered the first.
+                    const statements: Statement[] = expressions.map(e => finishNode(factory.createExpressionStatement(e), expressionPositions.get(e)!, e.end));
                     statements.push(...doInInlineClosureBody(() => parseList(ParsingContext.BlockStatements, parseStatement)));
                     block = finishNode(factoryCreateBlock(createNodeArray(statements, listPos), /*multiLine*/ true), listPos);
                     break;
                 }
-                const segmentPos = getPositionState();
-                segments.push([segmentPos, [...parseDelimitedList(ParsingContext.InlineClosure, parseArgumentExpression)]]);
+                expressions.push(...parseDelimitedList(ParsingContext.InlineClosure, parseElement));
             }
             if (block) {
                 topLevel = savedTopLevel;
                 return block;
             }
-            node = createNodeArray(segments.flatMap(segment => segment[1]), listPos);
+            node = createNodeArray(expressions, listPos);
         }
 
         // const node = isAsync
