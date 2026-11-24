@@ -29614,7 +29614,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             const requireOptionalProperties = (relation === subtypeRelation || relation === strictSubtypeRelation) && !isObjectLiteralType(source) && !isEmptyArrayLiteralType(source) && !isTupleType(source);
             const unmatchedProperty = getUnmatchedProperty(source, target, requireOptionalProperties, /*matchDiscriminantProperties*/ false);
             if (unmatchedProperty) {
-                if (reportErrors && shouldReportUnmatchedPropertyError(source, target)) {
+                // The `__LS__` globals in efuns.*.h brand LPC's builtin types: an array type's one property is
+                // `__LS__Array`. Naming the brand ("Property '__LS__Array' is missing in type 'mapping' but required
+                // in type 'string*'") says nothing to the user, so leave the plain "Type 'mapping' is not
+                // assignable to type 'string*'" instead.
+                if (reportErrors && shouldReportUnmatchedPropertyError(source, target) && !startsWith(symbolName(unmatchedProperty), "__LS__")) {
                     reportUnmatchedProperty(source, target, unmatchedProperty, requireOptionalProperties);
                 }
                 return Ternary.False;
