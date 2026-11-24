@@ -5815,12 +5815,20 @@ export function getJSDocCommentRanges(node: Node, text: string) {
         // starts on that same line; one followed by a line break trails the previous code.
         concatenate(filter(getTrailingCommentRanges(text, node.pos), comment => !hasLineBreakBetween(text, comment.end, skipTrivia(text, node.pos))), getLeadingCommentRanges(text, node.pos)) :
         getLeadingCommentRanges(text, node.pos);
-    // True if the comment starts with '/**' but not if it is '/**/'
-    return filter(commentRanges, comment =>
-        comment.end <= node.end && // Due to parse errors sometime empty parameter may get comments assigned to it that end up not in parameter range
-        text.charCodeAt(comment.pos + 1) === CharacterCodes.asterisk &&
-        text.charCodeAt(comment.pos + 2) === CharacterCodes.asterisk &&
-        text.charCodeAt(comment.pos + 3) !== CharacterCodes.slash);
+    // True if the comment starts with '/**' but not if it is '/**/'.
+    // At position 0 the scanner collects the same comments as trailing and as leading (iterateCommentRanges), so
+    // a node at the start of the file got each doc comment twice from the concatenations above. A second copy of
+    // an `@var` tag then redeclared the first (TS2451). The node is at 0 when only directives come before it,
+    // as in `#include <x.h>\n/** @var {...} ob */\ninherit "y";`.
+    const seen = new Set<number>();
+    return filter(commentRanges, comment => {
+        if (seen.has(comment.pos)) return false;
+        seen.add(comment.pos);
+        return comment.end <= node.end && // Due to parse errors sometime empty parameter may get comments assigned to it that end up not in parameter range
+            text.charCodeAt(comment.pos + 1) === CharacterCodes.asterisk &&
+            text.charCodeAt(comment.pos + 2) === CharacterCodes.asterisk &&
+            text.charCodeAt(comment.pos + 3) !== CharacterCodes.slash;
+    });
 }
 
 function hasLineBreakBetween(text: string, start: number, end: number) {
