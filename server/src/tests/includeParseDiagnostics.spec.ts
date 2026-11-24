@@ -1,6 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
-import { message } from "./harness.js";
+import { message, createTestProgram } from "./harness.js";
 
 /**
  * A parse error inside an `#include` cannot go in the including file's `parseDiagnostics`
@@ -15,21 +14,8 @@ import { message } from "./harness.js";
 const CASES_DIR = "server/src/tests/cases/compiler";
 
 function programFor(source: string) {
-    const root = process.cwd();
-    const virtualFile = lpc.normalizeSlashes(path.join(root, CASES_DIR, "__includeDiags.c"));
-    const isVirtual = (fn: string) => !!fn && lpc.normalizeSlashes(fn) === virtualFile;
-
-    const compilerOptions: lpc.CompilerOptions = { driverType: lpc.LanguageVariant.FluffOS, diagnostics: true };
-    const host = lpc.createCompilerHost(compilerOptions);
-    const origReadFile = host.readFile;
-    const origFileExists = host.fileExists;
-    host.readFile = (fn: string) => (isVirtual(fn) ? source : origReadFile.call(host, fn));
-    host.fileExists = (fn: string) => (isVirtual(fn) ? true : origFileExists.call(host, fn));
-    host.getDefaultLibFileName = () =>
-        lpc.combinePaths(root, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
-
-    const program = lpc.createProgram({ host, rootNames: [virtualFile], options: compilerOptions, oldProgram: undefined });
-    return { program, sourceFile: program.getSourceFile(virtualFile)! };
+    const { program, sourceFile } = createTestProgram({ [`${CASES_DIR}/__includeDiags.c`]: source }, { driverType: lpc.LanguageVariant.FluffOS });
+    return { program, sourceFile: sourceFile() };
 }
 
 function diagnosticsFor(source: string) {

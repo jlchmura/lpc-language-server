@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
+import { createTestProgram } from "./harness.js";
 
 /**
  * Tests for FluffOS template literals: backtick-delimited strings with `${expr}`
@@ -190,32 +190,12 @@ describe("Template literals", () => {
     });
 
     describe("type inference", () => {
-        const root = process.cwd();
-
         function checkSource(source: string) {
-            // Use the compiler's canonical (forward-slash) path form so the in-memory
-            // file resolves on Windows too, where path.join would produce backslashes.
-            const virtualFile = lpc.normalizeSlashes(path.join(root, "server/src/tests/cases/compiler/__templateLiteralProbe.c"));
-            const isVirtual = (fn: string) => !!fn && lpc.normalizeSlashes(fn) === virtualFile;
-            const compilerOptions: lpc.CompilerOptions = {
-                driverType: lpc.LanguageVariant.FluffOS,
-                diagnostics: true,
-            };
-            const host = lpc.createCompilerHost(compilerOptions);
-            const origReadFile = host.readFile;
-            const origFileExists = host.fileExists;
-            host.readFile = (fn: string) => (isVirtual(fn) ? source : origReadFile.call(host, fn));
-            host.fileExists = (fn: string) => (isVirtual(fn) ? true : origFileExists.call(host, fn));
-            host.getDefaultLibFileName = () =>
-                lpc.combinePaths(root, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
-
-            const program = lpc.createProgram({
-                host,
-                rootNames: [virtualFile],
-                options: compilerOptions,
-                oldProgram: undefined,
-            });
-            const file = program.getSourceFile(virtualFile)!;
+            const { program, sourceFile } = createTestProgram(
+                { "server/src/tests/cases/compiler/__templateLiteralProbe.c": source },
+                { driverType: lpc.LanguageVariant.FluffOS },
+            );
+            const file = sourceFile();
             const checker = program.getTypeChecker();
             return { program, file, checker };
         }

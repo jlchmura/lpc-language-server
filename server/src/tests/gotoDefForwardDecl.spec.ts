@@ -1,5 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
+import { createTestProgram } from "./harness.js";
 
 /**
  * Goto-definition for a function that has a forward declaration (a prototype in a header)
@@ -26,11 +27,7 @@ const implPath = lpc.normalizeSlashes(path.join(dir, "fwd_impl.c"));
 const headPath = lpc.normalizeSlashes(path.join(dir, "fwd_head.h"));
 
 function build() {
-    const root = process.cwd();
-    const options: lpc.CompilerOptions = { driverType: lpc.LanguageVariant.FluffOS, diagnostics: true };
-    const host = lpc.createCompilerHost(options);
-    host.getDefaultLibFileName = () => lpc.combinePaths(root, lpc.getDefaultLibFolder(options), lpc.getDefaultLibFileName(options));
-    const program = lpc.createProgram({ host, rootNames: [implPath, headPath], options });
+    const { program } = createTestProgram({}, { driverType: lpc.LanguageVariant.FluffOS }, [implPath, headPath]);
     return { program, sf: program.getSourceFile(implPath)!, text: lpc.sys.readFile(implPath)! };
 }
 

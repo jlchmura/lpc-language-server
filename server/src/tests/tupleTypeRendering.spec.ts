@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
+import { createTestProgram } from "./harness.js";
 
 /**
  * LPC has no tuple type syntax, but the checker builds tuple types internally when
@@ -13,17 +13,8 @@ import * as path from "path";
  * shown correctly in the message.
  */
 function diagnosticMessages(source: string, driverType = lpc.LanguageVariant.LDMud): string[] {
-    const cwd = lpc.normalizePath(process.cwd());
-    const fileName = lpc.normalizePath(path.join(cwd, "tuple.c"));
-    const options: lpc.CompilerOptions = { driverType, diagnostics: true };
-    const host = lpc.createCompilerHost(options);
-    host.getDefaultLibFileName = () =>
-        lpc.combinePaths(cwd, lpc.getDefaultLibFolder(options), lpc.getDefaultLibFileName(options));
-    const origRead = host.readFile.bind(host);
-    host.readFile = (n?: string) => (n && lpc.normalizePath(n) === fileName ? source : (n ? origRead(n) : undefined));
-    host.fileExists = (n?: string) => (n ? (lpc.normalizePath(n) === fileName ? true : lpc.sys.fileExists(n)) : false);
-    const program = lpc.createProgram({ host, rootNames: [fileName], options, oldProgram: undefined });
-    const file = program.getSourceFile(fileName)!;
+    const { program, sourceFile } = createTestProgram({ "tuple.c": source }, { driverType });
+    const file = sourceFile();
     return [...file.parseDiagnostics, ...program.getSemanticDiagnostics(file)].map(d =>
         lpc.flattenDiagnosticMessageText(d.messageText, "\n"));
 }

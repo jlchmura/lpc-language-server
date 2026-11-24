@@ -1,6 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
-import { message } from "./harness.js";
+import { message, createTestProgram } from "./harness.js";
 
 /**
  * The driver compiles in one pass, top to bottom, so a call can only bind a name it has
@@ -17,20 +17,8 @@ const FIXTURES = lpc.normalizeSlashes(path.join(process.cwd(), "server/src/tests
 const VIRTUAL = lpc.normalizeSlashes(path.join(process.cwd(), "server/src/tests/cases/compiler/__fwdcall.c"));
 
 function diagnosticsFor(rootName: string, source?: string, extraOptions?: Partial<lpc.CompilerOptions>): string[] {
-    const root = process.cwd();
-    const isVirtual = (fn: string) => !!fn && lpc.normalizeSlashes(fn) === VIRTUAL;
-    const options: lpc.CompilerOptions = { driverType: lpc.LanguageVariant.FluffOS, diagnostics: true, ...extraOptions };
-    const host = lpc.createCompilerHost(options);
-    const origReadFile = host.readFile;
-    const origFileExists = host.fileExists;
-    if (source !== undefined) {
-        host.readFile = (fn: string) => (isVirtual(fn) ? source : origReadFile.call(host, fn));
-        host.fileExists = (fn: string) => (isVirtual(fn) ? true : origFileExists.call(host, fn));
-    }
-    host.getDefaultLibFileName = () =>
-        lpc.combinePaths(root, lpc.getDefaultLibFolder(options), lpc.getDefaultLibFileName(options));
-
-    const program = lpc.createProgram({ host, rootNames: [rootName], options });
+    const files = source === undefined ? {} : { [VIRTUAL]: source };
+    const { program } = createTestProgram(files, { driverType: lpc.LanguageVariant.FluffOS, ...extraOptions }, [rootName]);
     return program
         .getSemanticDiagnostics(program.getSourceFile(rootName)!).map(message);
 }

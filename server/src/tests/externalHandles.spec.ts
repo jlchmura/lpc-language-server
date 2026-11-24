@@ -1,6 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
-import { messageLines } from "./harness.js";
+import { messageLines, createTestProgram } from "./harness.js";
 
 /**
  * The FluffOS external handle API (fluffos#1377): external_create() allocates a handle,
@@ -15,21 +14,8 @@ import { messageLines } from "./harness.js";
  */
 
 function diagnosticsFor(source: string, driverType: lpc.LanguageVariant): lpc.Diagnostic[] {
-    const root = process.cwd();
-    const virtualFile = lpc.normalizeSlashes(path.join(root, "server/src/tests/cases/compiler/__externalProbe.c"));
-    const isVirtual = (fn: string) => !!fn && lpc.normalizeSlashes(fn) === virtualFile;
-
-    const compilerOptions: lpc.CompilerOptions = { driverType, diagnostics: true };
-    const host = lpc.createCompilerHost(compilerOptions);
-    const origReadFile = host.readFile;
-    const origFileExists = host.fileExists;
-    host.readFile = (fn: string) => (isVirtual(fn) ? source : origReadFile.call(host, fn));
-    host.fileExists = (fn: string) => (isVirtual(fn) ? true : origFileExists.call(host, fn));
-    host.getDefaultLibFileName = () =>
-        lpc.combinePaths(root, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
-
-    const program = lpc.createProgram({ host, rootNames: [virtualFile], options: compilerOptions, oldProgram: undefined });
-    const file = program.getSourceFile(virtualFile)!;
+    const { program, sourceFile } = createTestProgram({ "server/src/tests/cases/compiler/__externalProbe.c": source }, { driverType });
+    const file = sourceFile();
     return [...file.parseDiagnostics, ...program.getSemanticDiagnostics(file)];
 }
 

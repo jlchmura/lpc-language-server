@@ -1,6 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
-import { message } from "./harness.js";
+import { message, createTestProgram } from "./harness.js";
 
 /**
  * `private` is the one modifier an inheriting program cannot see through. FluffOS documents
@@ -18,11 +18,7 @@ const FIXTURES = lpc.normalizeSlashes(path.join(process.cwd(), "server/src/tests
 const fixture = (name: string) => lpc.normalizeSlashes(path.join(FIXTURES, name));
 
 function programFor(rootName: string, driverType: lpc.LanguageVariant) {
-    const options: lpc.CompilerOptions = { driverType, diagnostics: true };
-    const host = lpc.createCompilerHost(options);
-    host.getDefaultLibFileName = () =>
-        lpc.combinePaths(process.cwd(), lpc.getDefaultLibFolder(options), lpc.getDefaultLibFileName(options));
-    return lpc.createProgram({ host, rootNames: [rootName], options });
+    return createTestProgram({}, { driverType }, [rootName]).program;
 }
 
 /** Diagnostics for `fileName` inside the program rooted at `rootName`. */

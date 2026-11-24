@@ -1,5 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
+import { createTestProgram } from "./harness.js";
 
 /**
  * `parseList` requires every element parse to consume at least one token. When one does
@@ -16,20 +16,7 @@ import * as path from "path";
  * a production for the token is equally correct, and should stay passing.
  */
 function parse(source: string) {
-    const root = process.cwd();
-    const virtualFile = lpc.normalizeSlashes(path.join(root, "server/src/tests/cases/compiler/__progress.c"));
-    const isVirtual = (fn: string) => !!fn && lpc.normalizeSlashes(fn) === virtualFile;
-
-    const compilerOptions: lpc.CompilerOptions = { driverType: lpc.LanguageVariant.FluffOS, diagnostics: true };
-    const host = lpc.createCompilerHost(compilerOptions);
-    const origReadFile = host.readFile;
-    const origFileExists = host.fileExists;
-    host.readFile = (fn: string) => (isVirtual(fn) ? source : origReadFile.call(host, fn));
-    host.fileExists = (fn: string) => (isVirtual(fn) ? true : origFileExists.call(host, fn));
-    host.getDefaultLibFileName = () =>
-        lpc.combinePaths(root, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
-
-    const program = lpc.createProgram({ host, rootNames: [virtualFile], options: compilerOptions, oldProgram: undefined });
+    const { program, fileName: virtualFile } = createTestProgram({ "server/src/tests/cases/compiler/__progress.c": source }, { driverType: lpc.LanguageVariant.FluffOS });
     return program.getSourceFile(virtualFile)!;
 }
 

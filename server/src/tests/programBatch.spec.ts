@@ -1,5 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
+import { createTestCompilerHost } from "./harness.js";
 
 /**
  * `forEachProgramBatch` checks a large root set in memory-bounded batches, building an
@@ -9,24 +10,10 @@ import * as path from "path";
  *   - a file's dependencies (e.g. an inherited parent) are resolved within its own batch, and
  *   - the union of per-batch diagnostics equals a single full program's diagnostics.
  */
-const options: lpc.CompilerOptions = { driverType: lpc.LanguageVariant.FluffOS, diagnostics: true };
+const { options } = createTestCompilerHost({}, { driverType: lpc.LanguageVariant.FluffOS });
 
 function makeHost(files: Map<string, string>): lpc.CompilerHost {
-    const cwd = lpc.normalizePath(process.cwd());
-    const host = lpc.createCompilerHost(options);
-    host.getDefaultLibFileName = () =>
-        lpc.combinePaths(cwd, lpc.getDefaultLibFolder(options), lpc.getDefaultLibFileName(options));
-    const norm = (n?: string) => (n ? lpc.normalizePath(n) : n);
-    const origRead = host.readFile.bind(host);
-    host.readFile = (n?: string) => {
-        const k = norm(n);
-        return k && files.has(k) ? files.get(k)! : (n ? origRead(n) : undefined);
-    };
-    host.fileExists = (n?: string) => {
-        const k = norm(n);
-        return !!k && (files.has(k) || lpc.sys.fileExists(n!));
-    };
-    return host;
+    return createTestCompilerHost(Object.fromEntries(files), options).host;
 }
 
 function checkFile(program: lpc.Program, fileName: string): string[] {

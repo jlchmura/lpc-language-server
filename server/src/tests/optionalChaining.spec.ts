@@ -1,6 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import { createTestLanguageService } from "./harness.js";
-import * as path from "path";
+import { createTestLanguageService, createTestProgram } from "./harness.js";
 
 /**
  * Tests for two FluffOS access features:
@@ -86,22 +85,9 @@ describe("Mapping dot-access & optional chaining", () => {
     });
 
     describe("type inference", () => {
-        const root = process.cwd();
-
         function checkSource(source: string, variant = lpc.LanguageVariant.FluffOS) {
-            const virtualFile = lpc.normalizeSlashes(path.join(root, "server/src/tests/cases/compiler/__optionalChainingProbe.c"));
-            const isVirtual = (fn: string) => !!fn && lpc.normalizeSlashes(fn) === virtualFile;
-            const compilerOptions: lpc.CompilerOptions = { driverType: variant, diagnostics: true };
-            const host = lpc.createCompilerHost(compilerOptions);
-            const origReadFile = host.readFile;
-            const origFileExists = host.fileExists;
-            host.readFile = (fn: string) => (isVirtual(fn) ? source : origReadFile.call(host, fn));
-            host.fileExists = (fn: string) => (isVirtual(fn) ? true : origFileExists.call(host, fn));
-            host.getDefaultLibFileName = () =>
-                lpc.combinePaths(root, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
-
-            const program = lpc.createProgram({ host, rootNames: [virtualFile], options: compilerOptions, oldProgram: undefined });
-            const file = program.getSourceFile(virtualFile)!;
+            const { program, sourceFile } = createTestProgram({ "server/src/tests/cases/compiler/__optionalChainingProbe.c": source }, { driverType: variant });
+            const file = sourceFile();
             return { program, file, checker: program.getTypeChecker() };
         }
 
@@ -231,20 +217,9 @@ describe("Mapping dot-access & optional chaining", () => {
         });
 
         it("does not silently accept mapping dot-access under LDMud", () => {
-            const root = process.cwd();
-            const virtualFile = lpc.normalizeSlashes(path.join(root, "server/src/tests/cases/compiler/__ldmudProbe.c"));
-            const isVirtual = (fn: string) => !!fn && lpc.normalizeSlashes(fn) === virtualFile;
-            const compilerOptions: lpc.CompilerOptions = { driverType: lpc.LanguageVariant.LDMud, diagnostics: true };
-            const host = lpc.createCompilerHost(compilerOptions);
-            const origReadFile = host.readFile;
-            const origFileExists = host.fileExists;
             const source = "void f() { mapping m = ([]); mixed r = m.key; }";
-            host.readFile = (fn: string) => (isVirtual(fn) ? source : origReadFile.call(host, fn));
-            host.fileExists = (fn: string) => (isVirtual(fn) ? true : origFileExists.call(host, fn));
-            host.getDefaultLibFileName = () =>
-                lpc.combinePaths(root, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
-            const program = lpc.createProgram({ host, rootNames: [virtualFile], options: compilerOptions, oldProgram: undefined });
-            const file = program.getSourceFile(virtualFile)!;
+            const { program, sourceFile } = createTestProgram({ "server/src/tests/cases/compiler/__ldmudProbe.c": source }, { driverType: lpc.LanguageVariant.LDMud });
+            const file = sourceFile();
             const diags = [...file.parseDiagnostics, ...program.getSemanticDiagnostics(file)];
             expect(diags.length).toBeGreaterThan(0);
         });

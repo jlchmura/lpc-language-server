@@ -171,3 +171,67 @@ export function checkAllFiles(svc: TestLanguageService, files: Record<string, st
     }
     return svc;
 }
+
+/** A workspace-relative name as an absolute, normalized path; an absolute name is only normalized. */
+function resolveTestPath(name: string): string {
+    return path.isAbsolute(name) ? lpc.normalizePath(name) : testFilePath(name);
+}
+
+export interface TestProgram {
+    program: lpc.Program;
+    /** The options the program was built with, lib files filled in. */
+    options: lpc.CompilerOptions;
+    /** Absolute, normalized path for a workspace-relative (or already absolute) file name. */
+    abs: (rel: string) => string;
+    /** Absolute path of the first root -- convenient for single-file specs. */
+    fileName: string;
+    /** The source file for a file name (as `abs` takes it), or for the first root when omitted. */
+    sourceFile: (rel?: string) => lpc.SourceFile;
+}
+
+/**
+ * A `CompilerHost` over the real filesystem with `files` laid over it, for specs that build a
+ * `Program` (or a batch of them) directly instead of going through a language service. Files
+ * are keyed by workspace-relative (or absolute) path, and the options get the lib-file defaults
+ * that `createTestLanguageService` fills in.
+ */
+export function createTestCompilerHost(
+    files: Record<string, string> = {},
+    options?: Partial<lpc.CompilerOptions>,
+): { host: lpc.CompilerHost; options: lpc.CompilerOptions } {
+    const cwd = lpc.normalizePath(process.cwd());
+    const compilerOptions = withLibFiles({ ...DEFAULT_OPTIONS, ...options }, cwd);
+    const fileText = new Map<string, string>();
+    for (const rel of Object.keys(files)) fileText.set(resolveTestPath(rel), files[rel]);
+    const norm = (name: string | undefined) => (name ? lpc.normalizePath(name) : undefined);
+
+    const host = lpc.createCompilerHost(compilerOptions);
+    const readFile = host.readFile.bind(host);
+    const fileExists = host.fileExists.bind(host);
+    host.readFile = (name: string) => { const n = norm(name); return n && fileText.has(n) ? fileText.get(n) : readFile(name); };
+    host.fileExists = (name: string) => { const n = norm(name); return !!n && (fileText.has(n) || fileExists(name)); };
+    host.getDefaultLibFileName = () =>
+        lpc.combinePaths(cwd, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
+    return { host, options: compilerOptions };
+}
+
+/**
+ * A `Program` whose roots are `rootNames` (workspace-relative or absolute, defaulting to every
+ * key of `files`). `files` may be empty when the roots are fixtures on disk.
+ */
+export function createTestProgram(
+    files: Record<string, string>,
+    options?: Partial<lpc.CompilerOptions>,
+    rootNames: readonly string[] = Object.keys(files),
+): TestProgram {
+    const { host, options: compilerOptions } = createTestCompilerHost(files, options);
+    const roots = rootNames.map(resolveTestPath);
+    const program = lpc.createProgram({ host, rootNames: roots, options: compilerOptions });
+    return {
+        program,
+        options: compilerOptions,
+        abs: resolveTestPath,
+        fileName: roots[0],
+        sourceFile: rel => program.getSourceFile(rel === undefined ? roots[0] : resolveTestPath(rel))!,
+    };
+}

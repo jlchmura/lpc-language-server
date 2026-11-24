@@ -1,6 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
-import { message } from "./harness.js";
+import { message, createTestProgram } from "./harness.js";
 
 /**
  * `@var` retypes an inherited variable for the file that carries the tag, and for that file
@@ -14,11 +14,7 @@ const FIXTURES = lpc.normalizeSlashes(path.join(process.cwd(), "server/src/tests
 const fixture = (name: string) => lpc.normalizeSlashes(path.join(FIXTURES, name));
 
 function programFor(rootNames: string[]) {
-    const options: lpc.CompilerOptions = { driverType: lpc.LanguageVariant.FluffOS, diagnostics: true };
-    const host = lpc.createCompilerHost(options);
-    host.getDefaultLibFileName = () =>
-        lpc.combinePaths(process.cwd(), lpc.getDefaultLibFolder(options), lpc.getDefaultLibFileName(options));
-    return lpc.createProgram({ host, rootNames: rootNames.map(fixture), options });
+    return createTestProgram({}, { driverType: lpc.LanguageVariant.FluffOS }, rootNames.map(fixture)).program;
 }
 
 /** Checks `order` in sequence with one checker, returning each file's diagnostics. */
@@ -32,7 +28,9 @@ function checkInOrder(order: string[]): Record<string, string[]> {
     return result;
 }
 
-const childTyped = `Property 'nope_child' does not exist on type 'object "${fixture("var_object.c").replace(/\.c$/, "")}"'.`;
+// The harness sets `rootDir` to the workspace root, as a real config always has one, so the
+// object is named relative to it, the way the editor shows it.
+const childTyped = `Property 'nope_child' does not exist on type 'object "/server/src/tests/cases/vartag/var_object"'.`;
 
 describe("an @var tag", () => {
     it("types the inherited variable in the tagged file", () => {
