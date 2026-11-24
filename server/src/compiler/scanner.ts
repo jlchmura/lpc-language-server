@@ -256,8 +256,9 @@ export function isKeywordInLanguageVariant(keyword: SyntaxKind, variant: Languag
             return variant === LanguageVariant.LDMud;
         case SyntaxKind.AnyKeyword:
         case SyntaxKind.UnknownKeyword:
-            // Not LDMud keywords: `int any`, `mapping unknown` are names there.
-            return variant !== LanguageVariant.LDMud;
+            // Neither driver reserves these (LDMud's lex.c keyword table, FluffOS's reswords[] in lex.cc), so
+            // `int any`, `mapping unknown` are names in LPC code. Standard is the internal JSON/JSDoc scanner, not a driver.
+            return variant === LanguageVariant.Standard;
         default:
             return true;
     }

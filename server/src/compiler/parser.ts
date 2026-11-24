@@ -836,6 +836,14 @@ export namespace LpcParser {
             break;
         }
 
+        // `any` and `unknown` are names in LPC code (neither driver reserves them; see isKeywordInLanguageVariant),
+        // but in a doc comment they are LPCDoc type keywords: `@param {any} x`, `@returns {unknown}`.
+        if (incomingToken === SyntaxKind.Identifier && inContext(NodeFlags.JSDoc)) {
+            const value = scanner.getTokenValue();
+            if (value === "any") incomingToken = SyntaxKind.AnyKeyword;
+            else if (value === "unknown") incomingToken = SyntaxKind.UnknownKeyword;
+        }
+
         switch (incomingToken) {
             case SyntaxKind.StringLiteral:
             case SyntaxKind.CharLiteral:
@@ -4979,11 +4987,7 @@ export namespace LpcParser {
 
             reScanGreaterToken(); 
             const impliedStringConcat = canImplyStringConcat(leftOperand) && (token() == SyntaxKind.StringLiteral || token() === SyntaxKind.NoSubstitutionTemplateLiteral || token() === SyntaxKind.TemplateHead);
-            // LPC's = precedence is relational, but if this is the first entry into the parse loop
-            // when precendence is lowest, we should treat it as assignment
-            const newPrecedence = precedence == OperatorPrecedence.Lowest && token() == SyntaxKind.EqualsToken ?
-                OperatorPrecedence.Lowest :
-                getBinaryOperatorPrecedence(impliedStringConcat ? SyntaxKind.PlusToken : token());
+            const newPrecedence = getBinaryOperatorPrecedence(impliedStringConcat ? SyntaxKind.PlusToken : token());
 
             // Check the precedence to see if we should "take" this operator
             // - For left associative operator (all operator but **), consume the operator,
@@ -5027,8 +5031,15 @@ export namespace LpcParser {
             const tokenNode = impliedStringConcat ? finishNode(factoryCreateToken(SyntaxKind.PlusToken), getPositionState()) : parseTokenNode<BinaryOperatorToken>();
             const rightPos = getPositionState();
             let rightOperand = parseBinaryExpressionOrHigher(newPrecedence);
-            // LDMud's grammar takes an assignment as the right operand of && and || ('a && b += c' is a && (b += c)).
-            if (languageVariant === LanguageVariant.LDMud && (tokenNode.kind === SyntaxKind.AmpersandAmpersandToken || tokenNode.kind === SyntaxKind.BarBarToken) && isAssignmentOperator(token()) && isLeftHandSideExpression(rightOperand)) {
+            // Both drivers take an assignment as the right operand of any binary operator. Their grammars have
+            // `expr0: lvalue L_ASSIGN expr0` (LDMud prolang.y, FluffOS grammar.y), and bison reduces an lvalue
+            // followed by an assignment operator to that rule whatever operator comes before it. The
+            // assignment's right side is a whole expr0, so:
+            //      a && b += c         a && (b += c)
+            //      a + b = c           a + (b = c)
+            //      a || b = 1 || c     a || (b = (1 || c))
+            // reScanGreaterToken merges `> > =` into `>>=`, as in parseAssignmentExpressionOrHigher.
+            if (isLeftHandSideExpression(rightOperand) && isAssignmentOperator(reScanGreaterToken())) {
                 rightOperand = makeBinaryExpression(rightOperand, parseTokenNode<BinaryOperatorToken>(), parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ false), rightPos);
             }
             leftOperand = makeBinaryExpression(leftOperand, tokenNode, rightOperand, pos);
@@ -5242,13 +5253,18 @@ export namespace LpcParser {
     function parsePrefixUnaryExpression() {
         const pos = getPositionState();                                
         const operator = token() as PrefixUnaryOperator;
-        let expr = nextTokenAnd(()=>disallowComma(parseSimpleUnaryExpression))
-        // there is one higher precedence operator that can follow a unary operator in LPC
-        // and that is an assignment
-        if (token() == SyntaxKind.EqualsToken) {
-            // this syntax is allow in LPC but is ambiguous -- it should be parenethesized for better readability
-            // TODO: offer a codefix?
-            expr = finishNode(factoryCreateParenthesizedExpression(parseBinaryExpressionRest(OperatorPrecedence.Equality, expr, pos)), pos);            
+        nextToken();
+        const operandPos = getPositionState();
+        let expr = disallowComma(parseSimpleUnaryExpression);
+        // An assignment can follow a unary operator's operand: `!i = fn()` is `!(i = fn())`. As for a binary
+        // operator's right operand (see parseBinaryExpressionRest), both drivers' grammars reduce the lvalue
+        // operand of `!`, `~` and `-` to `lvalue L_ASSIGN expr0`, so the assignment's right side is a whole
+        // expression: `!i = a || b` is `!(i = (a || b))`.
+        // this syntax is allow in LPC but is ambiguous -- it should be parenethesized for better readability
+        // TODO: offer a codefix?
+        if (isLeftHandSideExpression(expr) && isAssignmentOperator(reScanGreaterToken())) {
+            const assignment = makeBinaryExpression(expr, parseTokenNode<BinaryOperatorToken>(), parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ false), operandPos);
+            expr = finishNode(factoryCreateParenthesizedExpression(assignment), operandPos);
         }
         return finishNode(factory.createPrefixUnaryExpression(operator, expr), pos);
     }

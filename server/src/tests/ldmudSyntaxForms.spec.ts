@@ -3,7 +3,8 @@ import { createTestLanguageService } from "./harness.js";
 
 /**
  * LDMud syntax forms the parser rejected, found by running the server over a whole LDMud 3.6
- * mudlib and checking each report against the driver.
+ * mudlib and checking each report against the driver. "expressions in both drivers" covers the ones
+ * FluffOS's grammar accepts the same way, so those run for both.
  */
 function diagnosticsFor(files: Record<string, string>, main = "test.c", driverType = lpc.LanguageVariant.LDMud): string[] {
     const { ls, abs } = createTestLanguageService(files, {
@@ -83,15 +84,58 @@ describe("LDMud preprocessor names", () => {
     });
 });
 
+const bothDrivers = [["LDMud", lpc.LanguageVariant.LDMud], ["FluffOS", lpc.LanguageVariant.FluffOS]] as const;
+
+/** The expression statement in `void f() { int a, b, c; <statement> }`, with each binary expression parenthesized. */
+function grouping(statement: string, driverType: lpc.LanguageVariant): string {
+    const source = `void f() { int a, b, c; ${statement} }`;
+    const { ls, abs } = createTestLanguageService({ "test.c": source }, { driverType });
+    const sourceFile = ls.getProgram()!.getSourceFile(abs("test.c"))!;
+    const render = (node: lpc.Expression): string =>
+        lpc.isBinaryExpression(node) ? `(${render(node.left)} ${lpc.tokenToString(node.operatorToken.kind)} ${render(node.right)})` :
+        lpc.isPrefixUnaryExpression(node) ? `${lpc.tokenToString(node.operator)}${render(node.operand)}` :
+        lpc.isParenthesizedExpression(node) ? render(node.expression) :
+        source.slice(lpc.skipTrivia(source, node.pos), node.end);
+    let found: string | undefined;
+    lpc.forEachChildRecursively(sourceFile, node => {
+        if (found === undefined && lpc.isExpressionStatement(node)) found = render(node.expression);
+        return undefined;
+    });
+    return found!;
+}
+
+describe.each(bothDrivers)("expressions in both drivers (%s)", (_name, driverType) => {
+    it("accepts any and unknown as names (neither driver reserves them)", () => {
+        expect(diagnosticsFor({ "test.c": `int f(int any) { mapping unknown = ([]); return any + sizeof(unknown); }` }, "test.c", driverType)).toEqual([]);
+    });
+
+    it("keeps any and unknown as doc comment types", () => {
+        const source = `/**\n * @param {any} x\n * @param {unknown} y\n * @param {int|any} any\n * @returns {any}\n */\nmixed f(mixed x, mixed y, mixed any) { return x; }\nvoid g() { f(1, 2, 3); }\n`;
+        expect(diagnosticsFor({ "test.c": source }, "test.c", driverType)).toEqual([]);
+        const { ls, abs } = createTestLanguageService({ "test.c": source }, { driverType });
+        const info = ls.getQuickInfoAtPosition(abs("test.c"), source.indexOf("f(1"));
+        expect(lpc.displayPartsToString(info?.displayParts)).toBe("function mixed f(any x, unknown y, int | any any)");
+    });
+
+    it.each([
+        ["a && b += 2;", "(a && (b += 2))"],
+        ["a || b = 1;", "(a || (b = 1))"],
+        ["a || b = 1 || c;", "(a || (b = (1 || c)))"],
+        ["c = a + b = 1;", "(c = (a + (b = 1)))"],
+        ["c = a == b = 1;", "(c = (a == (b = 1)))"],
+        ["c = a * b + c = 2 * a;", "(c = ((a * b) + (c = (2 * a))))"],
+        ["a && b >>= 1;", "(a && (b >>= 1))"],
+        // the operand of a unary operator too
+        ["!a = b || c;", "!(a = (b || c))"],
+        ["c = -a += 1;", "(c = -(a += 1))"],
+        ["c = ~a = b & c;", "(c = ~(a = (b & c)))"],
+    ])("takes an assignment as the right operand: %s", (statement, expected) => {
+        expect(grouping(statement, driverType)).toBe(expected);
+        expect(diagnosticsFor({ "test.c": `void f() { int a, b, c; ${statement} }` }, "test.c", driverType)).toEqual([]);
+    });
+});
+
 describe("other LDMud expressions", () => {
-    it("accepts any and unknown as names", () => {
-        expect(one(`int f(int any) { mapping unknown = ([]); return any + sizeof(unknown); }`)).toEqual([]);
-    });
-
-    it("parses a && b += c as a && (b += c)", () => {
-        expect(one(`int f(int a, int b) { a && b += 2; return b; }`)).toEqual([]);
-    });
-
     it("accepts a bytes literal as an argument", () => {
         expect(one(`int f(bytes txt) { return strstr(txt, b"\\n"); }`)).toEqual([]);
     });
