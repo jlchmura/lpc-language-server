@@ -17514,8 +17514,31 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return true;
     }
     
+    /**
+     * Whether `type` is a float. (A float literal such as `1.5` is typed as a number literal
+     * with a fractional value, see getNumberLiteralType().)
+     */
+    function isFloatOperand(type: Type) {
+        return type === floatType || !!(type.flags & TypeFlags.FloatLiteral)
+            || !!(type.flags & TypeFlags.IntLiteral && typeof (type as IntLiteralType).value === "number" && !Number.isInteger((type as IntLiteralType).value));
+    }
+
+    /** An operand's type as an operator error names it: `int`, `float` or `string`, not a literal. */
+    function getOperandTypeForDisplay(type: Type) {
+        return isFloatOperand(type) ? floatType : getBaseTypeOfLiteralType(type);
+    }
+
     /** An operand kind in LDMud's operator type tables (prolang.y's types_addition[] and so on). */
     const enum LDMudOperandKind { Int, Float, String, Bytes, Array, Mapping }
+
+    /**
+     * How an LDMud table entry gives its result: a fixed type, the matching left or right
+     * operand's type, that left operand's type only if the two arrays share an element type
+     * (get_sub_array_type() and get_common_type()), or an array of both element types
+     * (get_union_array_type()).
+     */
+    type LDMudTableResult = Type | "left" | "right" | "leftIfCommon" | "unionArray";
+    type LDMudTableEntry = [left: readonly LDMudOperandKind[], right: readonly LDMudOperandKind[], result: LDMudTableResult];
 
     /**
      * The kinds of a non-`mixed` operand: one per constituent of a union. Constituents that no
@@ -17525,101 +17548,273 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const kinds: { kind: LDMudOperandKind, type: Type }[] = [];
         for (const t of type.flags & TypeFlags.Union ? (type as UnionType).types : [type]) {
             const kind =
-                t === floatType || t.flags & TypeFlags.FloatLiteral ? LDMudOperandKind.Float :
+                isFloatOperand(t) ? LDMudOperandKind.Float :
                 t.flags & (TypeFlags.NumberLike | TypeFlags.BooleanLike) ? LDMudOperandKind.Int :
                 t.flags & TypeFlags.StringLike ? LDMudOperandKind.String :
                 t.flags & TypeFlags.BytesLike ? LDMudOperandKind.Bytes :
                 isArrayType(t) ? LDMudOperandKind.Array :
                 isMappingType(t) ? LDMudOperandKind.Mapping :
                 undefined;
-            if (kind !== undefined) kinds.push({ kind, type: t });
+            if (kind !== undefined) kinds.push({ kind, type: getBaseTypeOfLiteralType(t) });
         }
         return kinds;
     }
 
+    /** LDMud's operator type table for `operator` (prolang.y), or undefined if it has none here. */
+    function getLDMudOperatorTable(operator: SyntaxKind): readonly LDMudTableEntry[] | undefined {
+        const Int = LDMudOperandKind.Int, Float = LDMudOperandKind.Float, Str = LDMudOperandKind.String;
+        const Bytes = LDMudOperandKind.Bytes, Arr = LDMudOperandKind.Array, Map = LDMudOperandKind.Mapping;
+        switch (operator) {
+            case SyntaxKind.MinusToken: // types_subtraction[]
+                return [
+                    [[Str], [Str], stringType],
+                    [[Bytes], [Bytes], bytesType],
+                    [[Int], [Int], intType],
+                    [[Int], [Float], floatType],
+                    [[Float], [Int, Float], floatType],
+                    [[Map], [Map, Arr], "left"],
+                    [[Arr], [Map], "left"],
+                    // The driver needs a common element type (get_sub_array_type()); array
+                    // subtraction is deliberately permissive here (#355).
+                    [[Arr], [Arr], "left"],
+                ];
+            case SyntaxKind.MinusEqualsToken: // types_sub_assignment[]
+                return [
+                    [[Str], [Str], stringType],
+                    [[Bytes], [Bytes], bytesType],
+                    [[Int], [Int], intType],
+                    [[Float], [Int, Float], floatType],
+                    [[Map], [Map, Arr], "left"],
+                    [[Arr], [Map], "left"],
+                    [[Arr], [Arr], "left"], // permissive, as for `-`
+                ];
+            case SyntaxKind.AmpersandToken: // types_binary_and[]
+            case SyntaxKind.AmpersandEqualsToken: // types_binary_and_assignment[], the same
+                return [
+                    [[Map], [Map, Arr], "left"],
+                    [[Arr], [Map], "left"],
+                    [[Arr], [Arr], "leftIfCommon"],
+                    [[Int], [Int], intType],
+                    [[Str], [Str], stringType],
+                    [[Bytes], [Bytes], bytesType],
+                ];
+            case SyntaxKind.AsteriskToken: // types_multiplication[]
+                return [
+                    [[Int], [Int], intType],
+                    [[Int], [Float], floatType],
+                    [[Int], [Str, Bytes, Arr], "right"],
+                    [[Float], [Int, Float], floatType],
+                    [[Str, Bytes, Arr], [Int], "left"],
+                ];
+            case SyntaxKind.AsteriskEqualsToken: // types_mul_assignment[]
+                return [
+                    [[Int], [Int], intType],
+                    [[Float], [Int, Float], floatType],
+                    [[Str, Bytes, Arr], [Int], "left"],
+                ];
+            case SyntaxKind.PlusToken: // types_addition[]
+                return [
+                    [[Str], [Str, Int, Float], stringType],
+                    [[Bytes], [Bytes], bytesType],
+                    [[Int, Float], [Str], stringType],
+                    [[Int], [Int], intType],
+                    [[Int], [Float], floatType],
+                    [[Float], [Int, Float], floatType],
+                    [[Arr], [Arr], "unionArray"],
+                    [[Map], [Map], "left"],
+                ];
+            case SyntaxKind.PlusEqualsToken: // types_add_assignment[]
+                return [
+                    [[Str], [Str, Int, Float], stringType],
+                    [[Bytes], [Bytes], bytesType],
+                    [[Int], [Int], intType],
+                    [[Float], [Int, Float], floatType],
+                    [[Arr], [Arr], "leftIfCommon"],
+                    [[Map], [Map], "left"],
+                ];
+        }
+        return undefined;
+    }
+
+    /** Whether two array types share an element type, as get_common_type() of their members. */
+    function haveCommonElementType(left: Type, right: Type) {
+        const leftElement = getElementTypeOfArrayType(left) ?? anyType;
+        const rightElement = getElementTypeOfArrayType(right) ?? anyType;
+        return isTypeAny(leftElement) || isTypeAny(rightElement) || areTypesComparable(leftElement, rightElement);
+    }
+
     /**
-     * The result type of LDMud's `-`, `&`, `*` or `+` (or its assignment form), following the
-     * driver's operator type tables in prolang.y (types_subtraction[], types_binary_and[],
-     * types_multiplication[], types_addition[]): an operand matches an entry if any of its
-     * union constituents does, `mixed` matches every entry, and the result is the union of
-     * the matching entries' results. Returns undefined if no entry matches.
+     * The result type of an LDMud operator, following the driver's operator type tables in
+     * prolang.y as check_binary_op_types() reads them: an operand matches an entry if any of
+     * its union constituents does, `mixed` matches every entry, and the result is the union
+     * of the matching entries' results. Returns undefined if no entry matches.
+     *
+     * With a `mixed` operand the driver's result is a union that any later check only needs to
+     * overlap; unless every match gives the same type, it is `mixed` here.
      */
     function getLDMudBinaryOperatorType(operator: SyntaxKind, leftType: Type, rightType: Type): Type | undefined {
-        const Int = LDMudOperandKind.Int, Float = LDMudOperandKind.Float, String = LDMudOperandKind.String;
-        const Bytes = LDMudOperandKind.Bytes, Array = LDMudOperandKind.Array, Mapping = LDMudOperandKind.Mapping;
+        const table = getLDMudOperatorTable(operator);
+        if (!table) return undefined;
         const left = isTypeAny(leftType) ? undefined : getLDMudOperandKinds(leftType);
         const right = isTypeAny(rightType) ? undefined : getLDMudOperandKinds(rightType);
 
-        // Each entry: left kinds, right kinds, and the result: a type, or which operand's type.
-        type Entry = [LDMudOperandKind[], LDMudOperandKind[], Type | "left" | "right"];
-        let table: Entry[];
-        switch (operator) {
-            case SyntaxKind.MinusToken:
-            case SyntaxKind.MinusEqualsToken:
-                table = [
-                    [[String], [String], stringType],
-                    [[Bytes], [Bytes], bytesType],
-                    [[Int], [Int], intType],
-                    [[Int], [Float], floatType],
-                    [[Float], [Int, Float], floatType],
-                    [[Mapping], [Mapping, Array], "left"],
-                    [[Array], [Mapping, Array], "left"],
-                ];
-                break;
-            case SyntaxKind.AmpersandToken:
-            case SyntaxKind.AmpersandEqualsToken:
-                table = [
-                    [[Mapping], [Mapping, Array], "left"],
-                    [[Array], [Mapping, Array], "left"],
-                    [[Int], [Int], intType],
-                    [[String], [String], stringType],
-                    [[Bytes], [Bytes], bytesType],
-                ];
-                break;
-            case SyntaxKind.AsteriskToken:
-            case SyntaxKind.AsteriskEqualsToken:
-                table = [
-                    [[Int], [Int], intType],
-                    [[Int], [Float], floatType],
-                    [[Int], [String, Bytes, Array], "right"],
-                    [[Float], [Int, Float], floatType],
-                    [[String, Bytes, Array], [Int], "left"],
-                ];
-                break;
-            case SyntaxKind.PlusToken:
-            case SyntaxKind.PlusEqualsToken:
-                table = [
-                    [[String], [String, Int, Float], stringType],
-                    [[Bytes], [Bytes], bytesType],
-                    [[Int, Float], [String], stringType],
-                    [[Int], [Int], intType],
-                    [[Int], [Float], floatType],
-                    [[Float], [Int, Float], floatType],
-                    [[Array], [Array], "left"],
-                    [[Mapping], [Mapping], "left"],
-                ];
-                break;
-            default:
-                return undefined;
-        }
-
         const results: Type[] = [];
         for (const [leftKinds, rightKinds, result] of table) {
-            const leftMatches = left ? left.filter(c => leftKinds.includes(c.kind)) : undefined;
-            const rightMatches = right ? right.filter(c => rightKinds.includes(c.kind)) : undefined;
-            if (leftMatches?.length === 0 || rightMatches?.length === 0) continue;
-            // A `mixed` operand matches every entry, so the result can be any of them.
-            if (!leftMatches || !rightMatches) return anyType;
-            results.push(
-                result === "left" ? getUnionType(leftMatches.map(c => c.type)) :
-                result === "right" ? getUnionType(rightMatches.map(c => c.type)) :
-                result,
-            );
+            const leftMatches = left ? left.filter(c => leftKinds.includes(c.kind)).map(c => c.type) : [anyType];
+            const rightMatches = right ? right.filter(c => rightKinds.includes(c.kind)).map(c => c.type) : [anyType];
+            if (!leftMatches.length || !rightMatches.length) continue;
+            if (result === "left") {
+                results.push(...leftMatches);
+            }
+            else if (result === "right") {
+                results.push(...rightMatches);
+            }
+            else if (result === "leftIfCommon") {
+                results.push(...leftMatches.filter(l => rightMatches.some(r => isTypeAny(l) || isTypeAny(r) || haveCommonElementType(l, r))));
+            }
+            else if (result === "unionArray") {
+                for (const l of leftMatches) {
+                    for (const r of rightMatches) {
+                        results.push(isTypeAny(l) || isTypeAny(r) ? anyType : createArrayType(getUnionType([getElementTypeOfArrayType(l) ?? anyType, getElementTypeOfArrayType(r) ?? anyType])));
+                    }
+                }
+            }
+            else {
+                results.push(result);
+            }
         }
-        return results.length ? getUnionType(results) : undefined;
+        if (!results.length) return undefined;
+        const resultType = getUnionType(results);
+        if ((!left || !right) && resultType.flags & TypeFlags.Union) return anyType;
+        return resultType;
     }
 
-    function isLDMudTableOperator(operator: SyntaxKind) {
+    /** An operand kind in FluffOS's grammar.y type checks, which see one type per operand. */
+    const enum FluffOSOperandKind { Any, Number, Float, String, Array, Mapping, Object, Function, Other }
+
+    /**
+     * The FluffOS kind of an operand, or undefined for a union of non-numbers, which FluffOS's
+     * own types can't express. A union of numbers (`int | float`, the type this checker gives
+     * many number expressions) counts as a number.
+     */
+    function getFluffOSOperandKind(type: Type): FluffOSOperandKind | undefined {
+        if (isTypeAny(type)) return FluffOSOperandKind.Any;
+        if (isFloatOperand(type)) return FluffOSOperandKind.Float;
+        if (isTypeAssignableTo(type, numberType)) return FluffOSOperandKind.Number;
+        if (type.flags & TypeFlags.Union) return undefined;
+        if (type.flags & TypeFlags.StringLike) return FluffOSOperandKind.String;
+        if (isArrayType(type)) return FluffOSOperandKind.Array;
+        if (isMappingType(type)) return FluffOSOperandKind.Mapping;
+        if (isFunctionType(type) || type === globalFunctionType || type === closureType || type === globalClosureType) return FluffOSOperandKind.Function;
+        if (isTypeAssignableTo(type, objectType)) return FluffOSOperandKind.Object;
+        return FluffOSOperandKind.Other;
+    }
+
+    /**
+     * FluffOS's compatible_types(t1, t2) (compiler.cc), which a compound assignment `a op= b`
+     * checks as compatible_types(b, a): `mixed` fits anything, arrays only fit arrays of the
+     * same type or `mixed*`, numbers and floats fit each other, and any other type only itself.
+     */
+    function isFluffOSCompatibleType(source: Type, target: Type): boolean {
+        if (isTypeAny(source) || isTypeAny(target)) return true;
+        if (isArrayType(source) || isArrayType(target)) {
+            if (!isArrayType(source) || !isArrayType(target)) return false;
+            const sourceElement = getElementTypeOfArrayType(source)!;
+            const targetElement = getElementTypeOfArrayType(target)!;
+            return isTypeAny(sourceElement) || isTypeAny(targetElement) || isFluffOSSameType(sourceElement, targetElement);
+        }
+        if (isTypeAssignableTo(source, numberType) && isTypeAssignableTo(target, numberType)) return true;
+        return isFluffOSSameType(source, target);
+    }
+
+    /**
+     * Whether FluffOS sees one type in both: its types are a small set (one `mapping`, one
+     * `object`, ...), so a shaped mapping and a named object are the plain type there, and
+     * arrays compare by element type.
+     */
+    function isFluffOSSameType(a: Type, b: Type): boolean {
+        const kind = getFluffOSOperandKind(a);
+        if (kind === undefined || kind !== getFluffOSOperandKind(b)) return false;
+        switch (kind) {
+            case FluffOSOperandKind.Array:
+                return isFluffOSSameType(getElementTypeOfArrayType(a) ?? anyType, getElementTypeOfArrayType(b) ?? anyType);
+            case FluffOSOperandKind.Other:
+                a = getBaseTypeOfLiteralType(a);
+                b = getBaseTypeOfLiteralType(b);
+                return isTypeAssignableTo(a, b) && isTypeAssignableTo(b, a);
+        }
+        return true;
+    }
+
+    /**
+     * FluffOS's type checks for `-`, `&`, `*` and `+` (grammar.y's `expr0` rules and trees.cc's
+     * binary_int_op), and for their assignment forms, which only check compatible_types() on
+     * the right-hand side (`string += int` and `string += object` are also allowed). Returns
+     * the result type, false if FluffOS rejects the operands, or undefined to leave the
+     * operation to the general rules (numbers, and unions FluffOS can't express).
+     */
+    function getFluffOSOperatorType(operator: SyntaxKind, leftType: Type, rightType: Type): Type | false | undefined {
+        const left = getFluffOSOperandKind(leftType);
+        const right = getFluffOSOperandKind(rightType);
+        if (left === undefined || right === undefined) return undefined;
+        const Any = FluffOSOperandKind.Any, Num = FluffOSOperandKind.Number, Float = FluffOSOperandKind.Float;
+        const Str = FluffOSOperandKind.String, Arr = FluffOSOperandKind.Array, Map = FluffOSOperandKind.Mapping;
+        const Obj = FluffOSOperandKind.Object, Fn = FluffOSOperandKind.Function;
+        const isNumber = (k: FluffOSOperandKind) => k === Num || k === Float;
+        const isNumeric = (k: FluffOSOperandKind) => k === Any || isNumber(k);
+
+        switch (operator) {
+            case SyntaxKind.PlusEqualsToken:
+                if (isNumber(left) && isNumber(right)) return undefined;
+                // Arrays keep this checker's element check, which is stricter.
+                if (left === Arr && right === Arr) return undefined;
+                if (left === Str && (isNumeric(right) || right === Obj)) return leftType;
+                return isFluffOSCompatibleType(rightType, leftType) ? leftType : false;
+            case SyntaxKind.MinusEqualsToken:
+            case SyntaxKind.AmpersandEqualsToken:
+            case SyntaxKind.AsteriskEqualsToken:
+                if (isNumeric(left) && isNumeric(right) && operator !== SyntaxKind.AmpersandEqualsToken) return undefined;
+                // Array subtraction is deliberately permissive here (#355): removing elements
+                // the array can't hold is a no-op, so the element types need not match.
+                if (operator === SyntaxKind.MinusEqualsToken && left === Arr && right === Arr) return leftType;
+                return isFluffOSCompatibleType(rightType, leftType) ? leftType : false;
+            case SyntaxKind.PlusToken: {
+                if (isNumeric(left) && isNumeric(right)) return undefined;
+                const base = (t: Type) => getBaseTypeOfLiteralType(t);
+                if (left === Any) return right === Fn ? false : base(rightType);
+                if (right === Any) return left === Fn ? false : base(leftType);
+                if (left === Arr && right === Arr) return isFluffOSSameType(leftType, rightType) ? leftType : createArrayType(anyType);
+                if (left === right && isFluffOSSameType(leftType, rightType)) return base(leftType);
+                if (left === Str && (isNumber(right) || right === Obj)) return stringType;
+                if (right === Str && (isNumber(left) || left === Obj)) return stringType;
+                return false;
+            }
+            case SyntaxKind.MinusToken:
+                // numbers and floats, or arrays (`mixed` takes either)
+                if (isNumeric(left) && isNumeric(right)) return undefined;
+                if (left === Arr && (right === Arr || right === Any)) return leftType;
+                if (left === Any && right === Arr) return rightType;
+                return false;
+            case SyntaxKind.AmpersandToken:
+                // array intersection, otherwise ints only (binary_int_op)
+                if (left === Arr || right === Arr) {
+                    if (left === Arr && (right === Arr || right === Any)) return leftType;
+                    if (left === Any) return rightType;
+                    return false;
+                }
+                if ((left === Any || left === Num) && (right === Any || right === Num)) return undefined;
+                return false;
+            case SyntaxKind.AsteriskToken:
+                // numbers and floats, or mapping composition (`mixed` takes either)
+                if (isNumeric(left) && isNumeric(right)) return undefined;
+                if ((left === Map || left === Any) && (right === Map || right === Any)) return left === Map ? leftType : right === Map ? rightType : anyType;
+                return false;
+        }
+        return undefined;
+    }
+
+    /** The operators whose operand types follow each driver's own rules here. */
+    function isDriverTypedOperator(operator: SyntaxKind) {
         switch (operator) {
             case SyntaxKind.MinusToken:
             case SyntaxKind.MinusEqualsToken:
@@ -17627,6 +17822,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.AmpersandEqualsToken:
             case SyntaxKind.AsteriskToken:
             case SyntaxKind.AsteriskEqualsToken:
+            case SyntaxKind.PlusToken:
+            case SyntaxKind.PlusEqualsToken:
                 return true;
         }
         return false;
@@ -17638,6 +17835,30 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      */
     function isNumericOperand(type: Type) {
         return !isTypeAny(type) && isTypeAssignableTo(type, numberType);
+    }
+
+    /**
+     * The result of `left <operator> right` under the current driver's operand rules: a type,
+     * false if the driver rejects the operands, or undefined to use the general rules. For an
+     * assignment operator a type result means the assignment was checked here too.
+     */
+    function getDriverOperatorType(operator: SyntaxKind, leftType: Type, rightType: Type): { type: Type, assignmentChecked: boolean } | false | undefined {
+        if (!isDriverTypedOperator(operator)) return undefined;
+        if (languageVariant === LanguageVariant.FluffOS) {
+            const type = getFluffOSOperatorType(operator, leftType, rightType);
+            if (!type) return type as false | undefined;
+            return { type, assignmentChecked: true };
+        }
+        if (languageVariant === LanguageVariant.LDMud) {
+            // Number arithmetic keeps the general rules, but the assignment tables are
+            // narrower: an int variable takes no float (`int x; x -= 1.5;` is an error).
+            if (isNumericOperand(leftType) && isNumericOperand(rightType) && !isAssignmentOperator(operator)) return undefined;
+            // `+=` on two arrays keeps this checker's element check, which is stricter.
+            if (operator === SyntaxKind.PlusEqualsToken && isArrayType(leftType) && isArrayType(rightType)) return undefined;
+            const type = getLDMudBinaryOperatorType(operator, leftType, rightType);
+            return type ? { type, assignmentChecked: false } : false;
+        }
+        return undefined;
     }
 
     function isArrayLiteralTypeWithOnlyZero(type: Type): type is TypeReference {
@@ -17688,17 +17909,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 leftType = checkNonNullType(leftType, left);
                 rightType = checkNonNullType(rightType, right);
 
-                // LDMud also has mapping and string operands for `-`, `&` and `*` (mapping
-                // difference and intersection, string and array repetition, ...).
-                if (languageVariant === LanguageVariant.LDMud && isLDMudTableOperator(operator) && !(isNumericOperand(leftType) && isNumericOperand(rightType))) {
-                    const ldmudResultType = getLDMudBinaryOperatorType(operator, leftType, rightType);
-                    if (ldmudResultType) {
-                        checkAssignmentOperator(ldmudResultType);
-                        return ldmudResultType;
-                    }
+                const driverResult = getDriverOperatorType(operator, leftType, rightType);
+                if (driverResult === false) {
                     // Name the operand types without literals: `mapping` and `int`, not `1`.
-                    reportOperatorError((l, r) => !!getLDMudBinaryOperatorType(operator, l, r));
+                    leftType = getOperandTypeForDisplay(leftType);
+                    rightType = getOperandTypeForDisplay(rightType);
+                    reportOperatorError();
                     return errorType;
+                }
+                if (driverResult) {
+                    if (!driverResult.assignmentChecked) checkAssignmentOperator(driverResult.type);
+                    return driverResult.type;
                 }
 
                 let suggestedOperator: PunctuationSyntaxKind | undefined;
@@ -17771,6 +17992,19 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     rightType = checkNonNullType(rightType, right);
                 }
 
+                // Strings, arrays, mappings and `mixed` follow each driver's own rules.
+                const plusDriverResult = getDriverOperatorType(operator, leftType, rightType);
+                if (plusDriverResult === false) {
+                    leftType = getOperandTypeForDisplay(leftType);
+                    rightType = getOperandTypeForDisplay(rightType);
+                    reportOperatorError();
+                    return anyType;
+                }
+                if (plusDriverResult) {
+                    if (!plusDriverResult.assignmentChecked) checkAssignmentOperator(plusDriverResult.type);
+                    return plusDriverResult.type;
+                }
+
                 let resultType: Type | undefined;
                 if (isTypeAssignableToKind(leftType, TypeFlags.NumberLike, /*strict*/ true) && isTypeAssignableToKind(rightType, TypeFlags.NumberLike, /*strict*/ true)) {
                     // Operands of an enum type are treated as having the primitive type Number.
@@ -17814,12 +18048,6 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // if (resultType) {// && !checkForDisallowedESSymbolOperand(operator)) {
                 //     return resultType;
                 // }
-
-                // LDMud's table also takes a union operand if any of its constituents fits,
-                // e.g. `(mapping|int) + mapping`.
-                if (!resultType && languageVariant === LanguageVariant.LDMud) {
-                    resultType = getLDMudBinaryOperatorType(operator, leftType, rightType);
-                }
 
                 if (!resultType) {
                     // Types that have a reasonably good chance of being a valid operand type.
