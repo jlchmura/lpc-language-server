@@ -5111,17 +5111,18 @@ mixed * map(mixed *arg, closure cl, varargs mixed extra);
 varargs mixed * map(mixed *arg, mapping m, int idx);
 mapping map(mapping arg, string func, string|object ob, varargs mixed extra);
 mapping map(mapping arg, closure cl, varargs mixed extra);
-mixed * map(struct arg s, string func, string|object ob, varargs mixed extra);
-mixed * map(struct arg s, closure cl, varargs mixed extra);
-varargs mixed * map(struct arg s, mapping m , int idx);
 string map(string arg, string func, string|object ob, varargs mixed extra);
 string map(string arg, closure cl, varargs mixed extra);
 varargs string map(string arg, mapping m , int idx);
+mixed * map(struct arg s, string func, string|object ob, varargs mixed extra);
+mixed * map(struct arg s, closure cl, varargs mixed extra);
+varargs mixed * map(struct arg s, mapping m , int idx);
 // A function name alone, or followed by arguments that aren't an object, calls it in this_object().
 mixed * map(mixed *arg, string func);
 string  map(string arg, string func);
 mapping map(mapping arg, string func);
 mixed * map(mixed *arg, string func, mixed extra, varargs mixed extras);
+string  map(string arg, string func, mixed extra, varargs mixed extras);
 mapping map(mapping arg, string func, mixed extra, varargs mixed extras);
 
 /**

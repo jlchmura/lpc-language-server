@@ -71,14 +71,23 @@ describe("LDMud efun signatures", () => {
         expect(errors(`mapping f(mapping m) { return map(m, (: $2 + 1 :)); }`)).toEqual([]);
     });
 
-    it("living() is not a type predicate (NPCs are living)", () => {
-        // With the old `{ob is player}` predicate the false branch narrowed `object` to nothing.
-        const source = `int ask(object room) {\n    if (living(room)) return 0;\n    return objectp(room);\n}\n`;
-        const { ls, abs } = createTestLanguageService({ "test.c": source }, {
+    it("map() and filter() on a string take a function name with extra arguments", () => {
+        expect(errors(`
+            int f(int c, int n) { return c + n; }
+            void g() {
+                string s = map("abc", "f", 1);
+                s = filter("abc", "f", 1);
+            }
+        `)).toEqual([]);
+    });
+
+    it("living() does not narrow to the player object (NPCs are living)", () => {
+        const source = `void t(object npc) {\n    if (living(npc)) {\n        npc/*T*/;\n    }\n}\n`;
+        const { ls, abs } = createTestLanguageService({ "test.c": source, "obj/player.c": `int is_player() { return 1; }\n` }, {
             driverType: lpc.LanguageVariant.LDMud,
             diagnostics: true,
         });
-        const info = ls.getQuickInfoAtPosition(abs("test.c"), source.lastIndexOf("room"));
-        expect(lpc.displayPartsToString(info?.displayParts)).toMatch(/\bobject room$/);
+        const info = ls.getQuickInfoAtPosition(abs("test.c"), source.indexOf("npc/*T*/"));
+        expect(lpc.displayPartsToString(info?.displayParts)).toBe(`(parameter)  object npc`);
     });
 });
