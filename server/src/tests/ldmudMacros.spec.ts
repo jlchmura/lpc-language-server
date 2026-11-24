@@ -7,10 +7,11 @@ import { createTestLanguageService } from "./harness.js";
  * - there is no `#` stringify or `##` paste operator: '#' is an illegal character where such a macro is used;
  * - an empty macro body expands to nothing;
  * - a zero-parameter macro `f()` is function-like and consumes its `()`.
+ * The literal substitution is LDMud-only; "FluffOS leaves macro literals alone" checks the other driver.
  */
-function diagnosticsFor(source: string): { code: number; text: string; at: string; line: number }[] {
+function diagnosticsFor(source: string, driverType = lpc.LanguageVariant.LDMud): { code: number; text: string; at: string; line: number }[] {
     const { ls, abs } = createTestLanguageService({ "test.c": source }, {
-        driverType: lpc.LanguageVariant.LDMud,
+        driverType,
         diagnostics: true,
     });
     return [...ls.getSyntacticDiagnostics(abs("test.c")), ...ls.getSemanticDiagnostics(abs("test.c"))]
@@ -33,6 +34,30 @@ describe("LDMud macro parameters inside literals", () => {
         const diags = diagnosticsFor(source);
         expect(diags.find(d => d.code === 1005)?.at).toBe("QM");
         expect(diags.every(d => d.line === 3)).toBe(true);
+    });
+});
+
+// FluffOS's handle_define (lex.cc) tracks quotes and only substitutes a parameter outside them; a
+// parameter becomes a string with `#` there instead.
+describe("FluffOS leaves macro literals alone", () => {
+    const fluffos = (source: string) => diagnosticsFor(source, lpc.LanguageVariant.FluffOS);
+
+    it("keeps a parameter name inside a string literal as written", () => {
+        // LABEL(foo) stays "name", so comparing it with "foo" can never be true. In LDMud it is "foo".
+        const source = `#define LABEL(name) "name"\nint f() { return LABEL(foo) == "foo"; }\n`;
+        expect(fluffos(source).map(d => d.text))
+            .toEqual([`This comparison appears to be unintentional because the types '"name"' and '"foo"' have no overlap.`]);
+        expect(diagnosticsFor(source)).toEqual([]);
+    });
+
+    it("reads a quoted parameter name as a plain key", () => {
+        // QM("x") is ([ "name":"x" ]) in FluffOS; LDMud's ([ ""x"":"x" ]) fails to compile.
+        expect(fluffos("#define QM(name) ([ \"name\":name ])\n\nmapping test() {\n    return QM(\"x\");\n}\n")).toEqual([]);
+    });
+
+    it("keeps a parameter name inside a char literal as written", () => {
+        // CQ(ab) is 'c' in FluffOS; LDMud's 'ab' is not a valid char literal.
+        expect(fluffos("#define CQ(c) 'c'\nint f() { return CQ(ab); }\n")).toEqual([]);
     });
 });
 
