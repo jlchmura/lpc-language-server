@@ -1,5 +1,7 @@
 import {
     ACatchExpression,
+    CoroutineCallExpression,
+    CoroutineInstruction,
     PromiseTypeNode,
     AmpersandToken,
     AwaitExpression,
@@ -386,6 +388,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createPromiseTypeNode,
         createACatchExpression,
         createAwaitExpression,
+        createCoroutineCallExpression,
         createTimeExpression,
         createEvaluateExpression,
         createNewExpression,
@@ -915,6 +918,17 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         node.expression = expression;
 
         node.transformFlags |= propagateChildFlags(node.expression);
+
+        return node;
+    }
+
+    // @api
+    function createCoroutineCallExpression(instruction: CoroutineInstruction, argumentsArray: readonly Expression[]): CoroutineCallExpression {
+        const node = createBaseNode<CoroutineCallExpression>(SyntaxKind.CoroutineCallExpression);
+        node.instruction = instruction;
+        node.arguments = createNodeArray(argumentsArray);
+
+        node.transformFlags |= propagateChildrenFlags(node.arguments);
 
         return node;
     }

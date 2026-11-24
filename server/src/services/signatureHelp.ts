@@ -1,4 +1,4 @@
-import { Symbol, ArrowFunction, BinaryExpression, CallLikeExpression, CancellationToken, canHaveSymbol, contains, createPrinterWithRemoveComments, createTextSpan, createTextSpanFromBounds, createTextSpanFromNode, Debug, emptyArray, find, findAncestor, findIndex, findTokenOnLeftOfPosition, first, firstDefined, flatMapToMutable, FunctionExpression, getPossibleTypeArgumentsInfo, Identifier, identity, InternalSymbolName, isArrayBindingPattern, isBinaryExpression, isBindingElement, isBlock, isCallOrNewExpression, isFunctionTypeNode, isIdentifier, isInComment, isInString, isMethodDeclaration, isNoSubstitutionTemplateLiteral, isParameter, isPropertyAccessExpression, isSourceFile, isSpreadElement, isSyntaxList, last, lastOrUndefined, map, mapToDisplayParts, Node, NodeBuilderFlags, ParenthesizedExpression, Program, punctuationPart, Signature, SignatureHelpItem, SignatureHelpItems, SignatureHelpTriggerReason, skipTrivia, SourceFile, spacePart, SpreadElement, SymbolDisplayPart, symbolToDisplayParts, SyntaxKind, SyntaxList, TextRange, TextSpan, tryCast, Type, TypeChecker, TypeParameter, findPrecedingToken, getPossibleGenericSignatures, Expression, getInvokedExpression, EmitHint, ListFormat, factory, SignatureHelpParameter, Printer, isTransientSymbol, CheckFlags, ParameterDeclaration, ConciseBody, tryGetTextOfPropertyName, isInMacroContext } from "./_namespaces/lpc.js";
+import { Symbol, ArrowFunction, BinaryExpression, CallLikeExpression, CancellationToken, canHaveSymbol, contains, createPrinterWithRemoveComments, createTextSpan, createTextSpanFromBounds, createTextSpanFromNode, Debug, emptyArray, find, findAncestor, findIndex, findTokenOnLeftOfPosition, first, firstDefined, flatMapToMutable, FunctionExpression, getPossibleTypeArgumentsInfo, Identifier, identity, InternalSymbolName, isArrayBindingPattern, isBinaryExpression, isBindingElement, isBlock, isCallOrNewExpression, isFunctionTypeNode, isIdentifier, isInComment, isInString, isMethodDeclaration, isNoSubstitutionTemplateLiteral, isParameter, isPropertyAccessExpression, isSourceFile, isSpreadElement, isSyntaxList, last, lastOrUndefined, map, mapToDisplayParts, Node, NodeBuilderFlags, ParenthesizedExpression, Program, punctuationPart, Signature, SignatureHelpItem, SignatureHelpItems, SignatureHelpTriggerReason, skipTrivia, SourceFile, spacePart, SpreadElement, SymbolDisplayPart, symbolToDisplayParts, SyntaxKind, SyntaxList, TextRange, TextSpan, tryCast, Type, TypeChecker, TypeParameter, findPrecedingToken, getPossibleGenericSignatures, Expression, getInvokedExpression, EmitHint, ListFormat, factory, SignatureHelpParameter, Printer, isTransientSymbol, CheckFlags, ParameterDeclaration, ConciseBody, tryGetTextOfPropertyName, isInMacroContext, isFunctionDeclaration } from "./_namespaces/lpc.js";
 
 const enum InvocationKind {
     Call,
@@ -448,7 +448,15 @@ function getCandidateOrTypeInfo({ invocation, argumentCount }: ArgumentListInfo,
             }
             const candidates: Signature[] = [];
             const resolvedSignature = checker.getResolvedSignatureForSignatureHelp(invocation.node, candidates, argumentCount)!; // TODO: GH#18217
-            return candidates.length === 0 ? undefined : { kind: CandidateOrTypeKind.Candidate, candidates, resolvedSignature };
+            if (candidates.length === 0) return undefined;
+            // A prototype and its definition are one function, not overloads -- neither
+            // driver overloads a user function -- so offer the one signature the call
+            // resolved to. Only the efun stubs, which have no bodies, list overloads.
+            if (candidates.length > 1 && candidates.some(signature => signature.declaration && isFunctionDeclaration(signature.declaration) && signature.declaration.body)) {
+                const only = contains(candidates, resolvedSignature) ? resolvedSignature : candidates[0];
+                return { kind: CandidateOrTypeKind.Candidate, candidates: [only], resolvedSignature: only };
+            }
+            return { kind: CandidateOrTypeKind.Candidate, candidates, resolvedSignature };
         }
         case InvocationKind.TypeArgs: {
             const { called } = invocation;

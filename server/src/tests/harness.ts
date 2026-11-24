@@ -28,6 +28,33 @@ const DEFAULT_OPTIONS: lpc.CompilerOptions = {
     diagnostics: true,
 };
 
+/**
+ * Fill in the lib root and lib files the way a real `lpc-config.json` does (see
+ * commandLineParser.ts). A real config always has a `rootDir`, and the player, master and
+ * simul-efun files default to `/obj/player.c`, `/obj/master.c` and `/obj/sefun.c` under it.
+ * The efun headers depend on this: `@returns {ob is __LPC_CONFIG_LIBFILES_PLAYER}` names the
+ * player file through a macro that only exists when `playerFile` is set, and the macro's value
+ * is the file's path relative to `rootDir`. Without both, a spec tested a configuration no
+ * real project has.
+ *
+ * A lib file may be given relative to the lib root (`"/std/user.c"`, as in a config's
+ * `libFiles`) or as a full path under it.
+ */
+function withLibFiles(options: lpc.CompilerOptions, cwd: string): lpc.CompilerOptions {
+    const rootDir = lpc.normalizePath(options.rootDir ?? cwd);
+    const libFile = (file: string | undefined, fallback: string) => {
+        const name = lpc.normalizePath(file ?? fallback);
+        return name.startsWith(rootDir + "/") ? name : lpc.normalizePath(lpc.combinePaths(rootDir, lpc.trimStart(name, "/")));
+    };
+    return {
+        ...options,
+        rootDir,
+        playerFile: libFile(options.playerFile, "/obj/player.c"),
+        masterFile: libFile(options.masterFile, "/obj/master.c"),
+        sefunFile: libFile(options.sefunFile, "/obj/sefun.c"),
+    };
+}
+
 export function createTestLanguageService(
     files: Record<string, string>,
     options?: Partial<lpc.CompilerOptions>,
@@ -43,7 +70,7 @@ export function createTestLanguageService(
     const useCaseSensitiveFileNames = lpc.sys.useCaseSensitiveFileNames;
     const getCanonicalFileName = lpc.createGetCanonicalFileName(useCaseSensitiveFileNames);
 
-    const compilerOptions: lpc.CompilerOptions = { ...DEFAULT_OPTIONS, ...options };
+    const compilerOptions = withLibFiles({ ...DEFAULT_OPTIONS, ...options }, cwd);
 
     const host: lpc.LanguageServiceHost = {
         getCompilationSettings: () => compilerOptions,

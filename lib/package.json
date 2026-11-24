@@ -39,7 +39,6 @@
     },
     "homepage": "https://github.com/jlchmura/lpc-language-server#readme",
     "dependencies": {        
-        "glob": "^10.3.15",
         "jsonc-parser": "^3.3.1",        
         "setimmediate": "^1.0.5",        
         "vscode-uri": "^3.0.8"

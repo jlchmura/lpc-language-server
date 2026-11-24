@@ -5322,6 +5322,16 @@ mapping m_allocate(int size, int width);
 varargs mapping m_add(mapping map, mixed key, varargs mixed data);
 
 /**
+ * coroutinep
+ *
+ * @returns {arg is coroutine} 1 if the argument is a coroutine.
+ *
+ * @since Introduced in LDMud 3.6.5.
+ *
+ */
+int coroutinep(mixed arg);
+
+/**
  * lwobjectp
  *
  * @returns {arg is lwobject} 1 if arg is a lightweight object.

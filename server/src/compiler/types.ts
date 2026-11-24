@@ -772,6 +772,7 @@ export const enum SyntaxKind {
     FloatKeyword,    
     StringKeyword,
     LwObjectKeyword,            
+    CoroutineKeyword,   // LDMud only
     AnyKeyword,    
     ClosureKeyword,
     StructKeyword,
@@ -796,6 +797,7 @@ export const enum SyntaxKind {
     WhileKeyword,
     AsyncKeyword,
     AwaitKeyword,
+    YieldKeyword,       // LDMud only
     ACatchKeyword,
     InheritKeyword,
     ContinueKeyword,
@@ -998,6 +1000,7 @@ export const enum SyntaxKind {
     CatchExpression,
     ACatchExpression,
     AwaitExpression,
+    CoroutineCallExpression,
     TimeExpression,
     BinaryExpression,
     FunctionExpression,
@@ -1309,7 +1312,7 @@ export const enum ModifierFlags {
     Protected =          1 << 2,  // Property/Method
 
     // Syntactic-only modifiers
-    /** FluffOS `async` function modifier (issue #1319) -- the function returns a promise */
+    /** `async` function modifier: the function returns a FluffOS promise (issue #1319) or an LDMud coroutine */
     Async =              1 << 3,
     NoMask =             1 << 5,  //
     NoShadow =           1 << 6,  // 
@@ -1424,6 +1427,7 @@ export type KeywordTypeSyntaxKind =
     | SyntaxKind.MappingKeyword
     | SyntaxKind.StatusKeyword
     | SyntaxKind.LwObjectKeyword
+    | SyntaxKind.CoroutineKeyword
     | SyntaxKind.ClosureKeyword
     | SyntaxKind.SymbolKeyword
     | SyntaxKind.FunctionKeyword
@@ -1653,6 +1657,7 @@ export interface NodeFactory {
     createPromiseTypeNode(typeArgument?: TypeNode): PromiseTypeNode;
     createACatchExpression(expression: Expression | undefined, block?: Block): ACatchExpression;
     createAwaitExpression(expression: UnaryExpression): AwaitExpression;
+    createCoroutineCallExpression(instruction: CoroutineInstruction, argumentsArray: readonly Expression[]): CoroutineCallExpression;
     createTimeExpression(expression: Expression | undefined, block?: Block): TimeExpression;
     createEvaluateExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): EvaluateExpression;
     createNewExpression(expression: Expression|TypeNode|undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly NewExpressionArgument[] | undefined): NewExpression;
@@ -2281,6 +2286,7 @@ export type HasChildren =
     | CatchExpression
     | ACatchExpression
     | AwaitExpression
+    | CoroutineCallExpression
     | PromiseTypeNode
     | TimeExpression
     | SpreadElement
@@ -2442,6 +2448,7 @@ export type KeywordSyntaxKind =
     | SyntaxKind.StatusKeyword
     | SyntaxKind.BytesKeyword
     | SyntaxKind.LwObjectKeyword
+    | SyntaxKind.CoroutineKeyword
     | SyntaxKind.CatchKeyword
     | SyntaxKind.TimeExpressionKeyword
     | SyntaxKind.ClosureKeyword
@@ -2472,6 +2479,7 @@ export type KeywordSyntaxKind =
     | SyntaxKind.WhileKeyword
     | SyntaxKind.AsyncKeyword
     | SyntaxKind.AwaitKeyword
+    | SyntaxKind.YieldKeyword
     | SyntaxKind.ACatchKeyword
     | SyntaxKind.IntrinsicKeyword
     | SyntaxKind.PrivateKeyword
@@ -3805,6 +3813,29 @@ export interface ACatchExpression extends PrimaryExpression {
 export interface AwaitExpression extends UnaryExpression {
     readonly kind: SyntaxKind.AwaitExpression;
     readonly expression: UnaryExpression;
+}
+
+/** The two LDMud coroutine instructions, both spelled like calls. */
+export type CoroutineInstruction = SyntaxKind.AwaitKeyword | SyntaxKind.YieldKeyword;
+
+/**
+ * `await(cr)`, `await(cr, value)`, `yield()`, `yield(value)` or `yield(value, cr)` -- LDMud's
+ * coroutine instructions (prolang.y `coroutine_call`, LDMud 3.6.5).
+ *
+ * They look like calls but are grammar, not efuns: `await` and `yield` are reserved words,
+ * and the parenthesized arguments are part of the instruction. `await` hands control to the
+ * coroutine `cr` and waits for it to finish; `yield` suspends the current coroutine, passing
+ * `value` back to its caller or, with a second argument, on to the coroutine `cr`. Both are
+ * only legal inside a coroutine (an `async` function or inline closure), and the result is
+ * `mixed`. The grammar admits only the arities above; `arguments` holds whatever was written
+ * so a wrong count can be reported against the instruction instead of failing the parse.
+ *
+ * FluffOS spells its (promise-based) `await` as a unary operator; that is AwaitExpression.
+ */
+export interface CoroutineCallExpression extends PrimaryExpression {
+    readonly kind: SyntaxKind.CoroutineCallExpression;
+    readonly instruction: CoroutineInstruction;
+    readonly arguments: NodeArray<Expression>;
 }
 
 /**

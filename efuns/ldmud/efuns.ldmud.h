@@ -47,6 +47,7 @@
 #define __LPC_NOSAVE__              1 /* always defined */
 #define __LPC_STRUCTS__             1 /* always defined */
 #define __LPC_LWOBJECTS__           1 /* always defined */
+#define __LPC_COROUTINES__          1 /* always defined */
 #define __LPC_INLINE_CLOSURES__     1 /* always defined */
 #define __LPC_ARRAY_CALLS__         1 /* always defined */
 #define __BOOT_TIME__               1 /* the time() the driver was started */

@@ -80,15 +80,11 @@ void go() {
         ]);
 
         // and the object path the checker actually resolves is the whole path on both
-        // uses -- the truncated one used to reach the checker as `daemons/movement`.
-        // (The test host has no lib root, so neither use resolves; what matters is that
-        // they fail the same way rather than one of them losing `/adm/`.)
+        // uses -- the truncated one used to reach the checker as `daemons/movement`,
+        // which doesn't resolve against the lib root.
         const notFound = ls.getSemanticDiagnostics(fileName)
             .map((d) => lpc.flattenDiagnosticMessageText(d.messageText, "\n"))
             .filter((m) => m.startsWith("Cannot find object"));
-        expect(notFound.length).toBeGreaterThan(0);
-        for (const message of notFound) {
-            expect(message).toBe("Cannot find object '/adm/daemons/movement'.");
-        }
+        expect(notFound).toEqual([]);
     });
 });

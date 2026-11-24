@@ -7,9 +7,8 @@ import * as path from "path";
  * efuns.
  *
  * `acatch` and `promise` are FluffOS-only. `async` and `await` are not -- LDMud reserves
- * both -- but LDMud spells its coroutines differently enough that this scanner leaves them
- * as identifiers there for now; see isKeywordInVariant() for why, and the two LDMud cases
- * at the bottom of this file for what that does and does not assert.
+ * both -- but LDMud spells its coroutines differently; see isKeywordInVariant() and
+ * ldmudCoroutines.spec.ts.
  */
 
 function diagnosticsFor(source: string, driverType: lpc.LanguageVariant): lpc.Diagnostic[] {
@@ -637,6 +636,43 @@ void test() {
             .toContain("Type 'promise<int>' is not assignable to type 'string'");
     });
 
+    it("relates a promise to a union member-wise", () => {
+        // FluffOS source has no union types, but the checker builds them: a conditional with
+        // a 0 branch is \`0 | promise\`, and doc comments and efun headers can declare one.
+        // A promise still does not fit a union with no promise (or mixed) in it.
+        const source = `
+promise p();
+/** @param {promise|int} x */
+void take(mixed x) { }
+/** @param {int|string} x */
+void take_other(mixed x) { }
+void test(int flag) {
+    promise q = flag ? p() : 0;
+    take(p());
+    take(1);
+    take_other(p());
+}
+`;
+        const errors = diagnosticsFor(source, lpc.LanguageVariant.FluffOS);
+        expect(errors).toHaveLength(1);
+        expect(lpc.flattenDiagnosticMessageText(errors[0].messageText, "\n")).toMatch(/^Argument of type 'promise<mixed>' is not assignable to parameter of type '(int \| string|string \| int)'/);
+    });
+
+    it("is untouched by LDMud's coroutine grammar", () => {
+        // \`async\` is a type modifier in FluffOS (L_TYPE_MODIFIER), so it may follow other
+        // modifiers, and it may sit on a function returning \`function\`. Its anonymous
+        // functions take no modifiers (lambda_return_type '(' argument ')' block), so
+        // \`async function() {}\` is one clear error rather than a parse cascade.
+        expect(messages(`
+static async int f() { return 1; }
+private async void g() { }
+async function make() { return (: 1 :); }
+void test() { promise p = make(); }
+`)).toBe("");
+        expect(messages(`void test() { function f = async function() { }; }`))
+            .toBe("The 'async' modifier can only be applied to function declarations.");
+    });
+
     it("does not offer promise<T> to LDMud, which has no promises", () => {
         // `promise` is not a keyword there, so this is a chain of comparisons on locals --
         // exactly what it would have meant before any of this landed.
@@ -650,15 +686,11 @@ void test() {
         expect(messages(source, lpc.LanguageVariant.LDMud)).toBe("");
     });
 
-    it("leaves async and await as identifiers in LDMud, pending its coroutine grammar", () => {
-        // NOT because LDMud allows them as names -- it does not. LDMud reserves both in
-        // lex.c's reswords[]. This pins current behaviour, which is a gap in the scanner:
-        // LDMud's coroutines are `coroutine` VALUES with a call-shaped `await(cr, opt)`
-        // and `yield(...)`, sharing only the spelling with FluffOS's promise-based unary
-        // `await p`. Tokenizing them here without that grammar would mis-parse real LDMud
-        // code, so they are left alone until the grammar lands. When it does, this case
-        // should start reporting -- it is the tripwire, not the specification.
+    it("reserves async and await in LDMud too, for its own coroutine grammar", () => {
+        // LDMud reserves both in lex.c's reswords[], but spells its coroutines differently:
+        // `await(cr)` is call-shaped and works on `coroutine` values, not promises. That
+        // grammar is covered by ldmudCoroutines.spec.ts; here, only that the words are taken.
         const source = `int test() { int async, await; async = 1; return async; }`;
-        expect(messages(source, lpc.LanguageVariant.LDMud)).toBe("");
+        expect(messages(source, lpc.LanguageVariant.LDMud)).not.toBe("");
     });
 });
