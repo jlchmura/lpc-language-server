@@ -2210,6 +2210,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                         return symbol;
                     }
                 }
+                // A file-scope function and global variable may share a name; the binder keeps
+                // the second one beside the first.
+                const sameNameSymbol = symbol.sameNameSymbol;
+                if (sameNameSymbol && sameNameSymbol.flags & meaning) {
+                    return sameNameSymbol;
+                }
             }
         }
         // return undefined if we can't find a symbol.
@@ -24330,7 +24336,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return links.resolvedSymbol;
         }
 
-        const symbol = !nodeIsMissing(node) &&
+        let symbol = !nodeIsMissing(node) &&
                 resolveName(
                     node,
                     node,
@@ -24339,6 +24345,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     !isWriteOnlyAccess(node),
                     /*excludeGlobals*/ false,
                 ) || unknownSymbol;
+
+        // A bare name that isn't being called is a variable in LPC, even where a function of the
+        // same name is nearer in the lookup order (a child's function beside an inherited
+        // variable, say). Only a non-variable result needs the second, narrower walk; it is
+        // silent so a miss can't report or late-bind anything.
+        if (symbol !== unknownSymbol && !(symbol.flags & SymbolFlags.Variable) && symbolFlags & SymbolFlags.Variable && !(isCallExpression(node.parent) && node.parent.expression === node)) {
+            const variable = resolveName(node, node, SymbolFlags.Variable, /*nameNotFoundMessage*/ undefined, !isWriteOnlyAccess(node), /*excludeGlobals*/ false);
+            if (variable) {
+                symbol = variable;
+            }
+        }
 
         if (!speculative) {
             links.resolvedSymbol = symbol;
@@ -33527,6 +33544,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     }
                 }
                 let result = resolveEntityName(name, meaning, /*ignoreErrors*/ true, /*dontResolveAlias*/ true, getHostSignatureFromJSDoc(name));
+                // A bare name is a variable before a function of the same name, as in
+                // getResolvedSymbol, so hover and goto-definition agree with the checker.
+                if (result && meaning === SymbolFlags.Value && !(result.flags & SymbolFlags.Variable)) {
+                    result = resolveEntityName(name, SymbolFlags.Variable, /*ignoreErrors*/ true, /*dontResolveAlias*/ true, getHostSignatureFromJSDoc(name)) ?? result;
+                }
                 // In FluffOS a variable holding a closure is callable by bare name, so a call
                 // target that isn't a Function symbol is not an error -- it's a value. Mirror
                 // resolveCallExpression, which prefers a Function of that name and falls back
