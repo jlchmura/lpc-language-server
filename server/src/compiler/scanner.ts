@@ -254,6 +254,11 @@ export function isKeywordInLanguageVariant(keyword: SyntaxKind, variant: Languag
         case SyntaxKind.VirtualKeyword:
         case SyntaxKind.YieldKeyword:
             return variant === LanguageVariant.LDMud;
+        case SyntaxKind.AnyKeyword:
+        case SyntaxKind.UnknownKeyword:
+            // Neither driver reserves these (LDMud's lex.c keyword table, FluffOS's reswords[] in lex.cc), so
+            // `int any`, `mapping unknown` are names in LPC code. Standard is the internal JSON/JSDoc scanner, not a driver.
+            return variant === LanguageVariant.Standard;
         default:
             return true;
     }
@@ -2745,7 +2750,9 @@ export function createScanner(
                         pos--;
                     }
 
-                    if (isIdentifierStart(charAfterHash, languageVersion)) {
+                    // LDMud has no # stringify (or ## paste) operator: '#' outside a directive or `#'` is an
+                    // illegal character ("Illegal character (hex 23) '#'").
+                    if (languageVariant !== LanguageVariant.LDMud && isIdentifierStart(charAfterHash, languageVersion)) {
                         pos++;
                         // We're relying on scanIdentifier's behavior and adjusting the token kind after the fact.
                         // Notably absent from this block is the fact that calling a function named "scanIdentifier",

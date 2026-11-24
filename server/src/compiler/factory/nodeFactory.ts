@@ -1700,7 +1700,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     function createDefineDirective(name: string | Identifier, args: NodeArray<ParameterDeclaration>, range: TextRange): DefineDirective {
         const node = createBaseDeclaration<DefineDirective>(SyntaxKind.DefineDirective);
         node.name = asName(name);
-        node.arguments = asNodeArray(args);
+        // keep an empty parameter list: `#define f() ...` is function-like
+        node.arguments = args === undefined ? undefined : createNodeArray(args);
         node.range = range;
         node.transformFlags |= propagateChildFlags(node.name);
 

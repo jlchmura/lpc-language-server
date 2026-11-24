@@ -72,6 +72,10 @@ export namespace LpcParser {
      * phantom error behind. The bucket is built at the end from the diagnostics that
      * actually survived.
      */
+    /** True while the line of a #define is scanned. */
+    var inDefineDirective = false;
+    /** Texts of macro literals rescanned after parameter substitution (LDMud). */
+    var macroLiteralTexts: Set<string>;
     var includeDiagnosticOrigins: Map<DiagnosticWithDetachedLocation, IncludeDiagnosticOrigin>;
     // the current include directive being processed
     var currentIncludeDirective: IncludeDirective | undefined;
@@ -240,6 +244,7 @@ export namespace LpcParser {
         pendingMacroCallEnds = undefined;
                 
         includeDiagnosticOrigins = new Map();
+        macroLiteralTexts = new Set();
         includeFileCache = new Map<string, string>();
         includeFileCache.set(fileName, sourceText);
         includeGraph = new Map();
@@ -294,6 +299,7 @@ export namespace LpcParser {
         suppressSemicolonInsertion = false;
         includeFileCache = undefined!;                
         includeDiagnosticOrigins = undefined!;
+        macroLiteralTexts = undefined!;
         includeGraph.clear();
         includeGraph = undefined!;
         condFrames = undefined!;
@@ -314,6 +320,20 @@ export namespace LpcParser {
     }
 
     function scanError(message: DiagnosticMessage, length: number, arg0?: any): void {
+        // LDMud keeps a macro body as text: an illegal character in it ('#name', 'a##b') is reported only where the
+        // macro is used, at the outermost macro use (the driver's line), and never for an unused macro or in an inactive
+        // #if branch.
+        if (languageVariant === LanguageVariant.LDMud && message === Diagnostics.Invalid_character) {
+            if (inDefineDirective || isCodeExecutable === Ternary.False) return;
+            if (currentMacro) {
+                const rootMacro = getRootMacro(currentMacro);
+                if (rootMacro.pos?.fileName) {
+                    const start = rootMacro.pos.tokenStart ?? rootMacro.pos.pos;
+                    parseErrorAtPosition(start, Math.max(1, (rootMacro.end ?? start) - start), rootMacro.pos.fileName, message, arg0);
+                    return;
+                }
+            }
+        }
         parseErrorAtPosition(scanner.getTokenEnd(), length, scanner.getFileName(), message, arg0);
     }
 
@@ -499,24 +519,40 @@ export namespace LpcParser {
      * here -- the `#if` evaluator does its own expansion). Leaves the scanner on the
      * terminating newline/EOF, which is returned as `terminator`.
      */
-    function collectConditionTokens(): { tokens: PreprocessorToken[]; terminator: SyntaxKind } {
-        const tokens: PreprocessorToken[] = [];
-        let t = scanner.scan();
-        while (t !== SyntaxKind.NewLineTrivia && t !== SyntaxKind.EndOfFileToken) {
-            // The scanner always emits a bare `>` (to keep nested generics like `>>`
-            // splittable); recombine it into the real operator (`>=`, `>>`, `>>>`, ...)
-            // so `#if` relational/shift expressions evaluate correctly.
-            if (t === SyntaxKind.GreaterThanToken) {
-                t = scanner.reScanGreaterToken();
-            }
-            tokens.push({ kind: t, value: scanner.getTokenValue() });
-            t = scanner.scan();
+    /**
+     * @param nameOnly The line is an `#ifdef`/`#ifndef` name. The driver takes any word there
+     * (`#ifdef 3K` is simply not defined), so the scanner's "identifier cannot immediately follow
+     * a numeric literal" error is dropped.
+     */
+    function collectConditionTokens(nameOnly = false): { tokens: PreprocessorToken[]; terminator: SyntaxKind } {
+        if (nameOnly) {
+            scanner.setOnError((message, length, arg0) => {
+                if (message !== Diagnostics.An_identifier_or_keyword_cannot_immediately_follow_a_numeric_literal) scanError(message, length, arg0);
+            });
         }
-        return { tokens, terminator: t };
+        try {
+            const tokens: PreprocessorToken[] = [];
+            let t = scanner.scan();
+            while (t !== SyntaxKind.NewLineTrivia && t !== SyntaxKind.EndOfFileToken) {
+                // The scanner always emits a bare `>` (to keep nested generics like `>>`
+                // splittable); recombine it into the real operator (`>=`, `>>`, `>>>`, ...)
+                // so `#if` relational/shift expressions evaluate correctly.
+                if (t === SyntaxKind.GreaterThanToken) {
+                    t = scanner.reScanGreaterToken();
+                }
+                tokens.push({ kind: t, value: scanner.getTokenValue() });
+                t = scanner.scan();
+            }
+            return { tokens, terminator: t };
+        }
+        finally {
+            if (nameOnly) scanner.setOnError(scanError);
+        }
     }
 
     function firstConditionName(tokens: readonly PreprocessorToken[]): PreprocessorToken | undefined {
-        return firstOrUndefined(tokens.filter(t => t.kind === SyntaxKind.Identifier || isKeyword(t.kind)));
+        // Any word is a macro name to LDMud's preprocessor (`#ifdef private`); `#ifdef 0` names nothing defined.
+        return firstOrUndefined(tokens.filter(t => tokenIsIdentifierOrKeyword(t.kind) || t.kind === SyntaxKind.NumericLiteral || t.kind === SyntaxKind.IntLiteral));
     }
 
     /**
@@ -536,7 +572,7 @@ export namespace LpcParser {
             case SyntaxKind.IfDefDirective:
             case SyntaxKind.IfNDefDirective: {
                 const parentActive = conditionalParentActive();
-                const collected = collectConditionTokens();
+                const collected = collectConditionTokens(/*nameOnly*/ directive !== SyntaxKind.IfDirective);
                 terminator = collected.terminator;
 
                 let condition = false;
@@ -799,7 +835,36 @@ export namespace LpcParser {
             break;
         }
 
+        // `any` and `unknown` are names in LPC code (neither driver reserves them; see isKeywordInLanguageVariant),
+        // but in a doc comment they are LPCDoc type keywords: `@param {any} x`, `@returns {unknown}`.
+        if (incomingToken === SyntaxKind.Identifier && inContext(NodeFlags.JSDoc)) {
+            const value = scanner.getTokenValue();
+            if (value === "any") incomingToken = SyntaxKind.AnyKeyword;
+            else if (value === "unknown") incomingToken = SyntaxKind.UnknownKeyword;
+        }
+
         switch (incomingToken) {
+            case SyntaxKind.StringLiteral:
+            case SyntaxKind.CharLiteral:
+                // LDMud substitutes function-like macro parameters inside string and character literals of the macro
+                // body (whole [A-Za-z0-9_] words only: "name" -> "x", "xname"/"name9" stay). The literal is replaced
+                // by the substituted text and rescanned, so `#define M(name) (["name":name])` with M("x") gives
+                // `""x""` as in the driver. Only tokens read from the body text itself qualify, not argument text or
+                // a previous substitution.
+                if (allowMacroProcessing && languageVariant === LanguageVariant.LDMud && currentMacro?.argsIn && currentMacro.range &&
+                    scanner.getText() === currentMacro.getText() &&
+                    scanner.getTokenStart() >= currentMacro.range.pos && scanner.getTokenEnd() <= currentMacro.range.end) {
+                    const literalArgs = currentMacro.argsIn;
+                    const literalText = scanner.getTokenText();
+                    const substituted = literalText.replace(/[A-Za-z0-9_]+/g, word =>
+                        Object.prototype.hasOwnProperty.call(literalArgs, word) ? literalArgs[word].text.substring(literalArgs[word].pos, literalArgs[word].end) : word);
+                    if (substituted !== literalText) {
+                        macroLiteralTexts.add(substituted);
+                        scanner.switchStream("", substituted, 0, substituted.length, /*revertOnEOF*/ true, () => false);
+                        return nextTokenWithoutCheck();
+                    }
+                }
+                break;
             default:
                 // Inside a JSDoc comment, keywords are LPCDoc type vocabulary (`undefined`,
                 // `object`, `function`, ...) and must win over same-named macros (e.g. a
@@ -856,7 +921,8 @@ export namespace LpcParser {
        
         // check if this macro has argumnets                
         const argValsByName: MapLike<MacroParameter> = {};
-        if (macroArgsDef?.length > 0) {                                        
+        // a function-like macro, also one without parameters (`#define f() ...`), consumes its arguments
+        if (macroArgsDef !== undefined) {
             // scan the next token, which should be an open paren.. parseArg wil check it.
             currentToken = nextTokenWithoutCheck();
             
@@ -1120,6 +1186,16 @@ export namespace LpcParser {
     }
 
     function parseErrorAtPosition(start: number, errLength: number, fileName: string, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation | undefined {
+        // An error inside a rescanned macro literal (stream "" whose positions index no file) is reported at the
+        // outermost macro use instead of being dropped.
+        if (fileName === "" && currentMacro && macroLiteralTexts.has(scanner.getText())) {
+            const rootMacro = getRootMacro(currentMacro);
+            if (rootMacro.pos?.fileName) {
+                fileName = rootMacro.pos.fileName;
+                start = rootMacro.pos.tokenStart ?? rootMacro.pos.pos;
+                errLength = Math.max(1, (rootMacro.end ?? start) - start);
+            }
+        }
         // Don't report another error if it would just be at the same position as the last error.
         const lastError = lastOrUndefined(parseDiagnostics);
         let result: DiagnosticWithDetachedLocation | undefined;
@@ -1659,6 +1735,7 @@ export namespace LpcParser {
                 case SyntaxKind.NoSaveKeyword:
                 case SyntaxKind.VarArgsKeyword:
                 case SyntaxKind.NoShadowKeyword:
+                case SyntaxKind.VirtualKeyword: // LDMud `virtual inherit "x";`
                 case SyntaxKind.BytesKeyword:                
                 case SyntaxKind.LwObjectKeyword:
                 case SyntaxKind.CoroutineKeyword:
@@ -1727,7 +1804,8 @@ export namespace LpcParser {
             case ParsingContext.ImportAttributes:
                 return token() === SyntaxKind.CloseBraceToken || token() === SyntaxKind.ColonCloseParenToken || token() === SyntaxKind.NewLineTrivia || token() === SyntaxKind.ColonToken;
             case ParsingContext.InlineClosure:
-                return token() === SyntaxKind.ColonToken;
+                // `(: expr; expr :)`: ';' separates expressions too
+                return token() === SyntaxKind.ColonToken || token() === SyntaxKind.SemicolonToken;
             case ParsingContext.ObjectLiteralMembers:
                 return token() === SyntaxKind.CloseBraceToken;
             case ParsingContext.PragmaArguments:
@@ -1780,6 +1858,11 @@ export namespace LpcParser {
         // If we can consume a semicolon (either explicitly, or with ASI), then consider us done
         // with parsing the list of variable declarators.
         if (canParseSemicolon()) {
+            return true;
+        }
+
+        // An LDMud inline closure's context declarations end at the body's '{'.
+        if (inInlineClosureContext && token() === SyntaxKind.OpenBraceToken) {
             return true;
         }
 
@@ -2040,6 +2123,7 @@ export namespace LpcParser {
             case SyntaxKind.NoSaveKeyword:
             case SyntaxKind.NoShadowKeyword:                         
             case SyntaxKind.VarArgsKeyword:
+            case SyntaxKind.VirtualKeyword: // LDMud `virtual inherit "x";`
             // primitive types               
             case SyntaxKind.FunctionKeyword: 
             case SyntaxKind.BytesKeyword:
@@ -2336,6 +2420,18 @@ export namespace LpcParser {
     }
     
     function parseDefineDirective(): PreprocessorDirective {
+        // The whole directive line is scanned with inDefineDirective set (its first body token is scanned while the
+        // name or parameter list is consumed); the token after the line is scanned by the caller.
+        const saved = inDefineDirective;
+        inDefineDirective = true;
+        try {
+            return parseDefineDirectiveWorker();
+        } finally {
+            inDefineDirective = saved;
+        }
+    }
+
+    function parseDefineDirectiveWorker(): PreprocessorDirective {
         const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
 
@@ -2375,6 +2471,9 @@ export namespace LpcParser {
             // create a fake node to store the range so that v8 doesn't deoptimize the Node object
             const tempNode = setTextRangePosEnd(factory.createBlock([], /*multiLine*/ false), contentStart, endPos);
             range = tempNode;
+        } else {
+            // an empty body (`#define debug(x)`, `#define FOO`) expands to nothing
+            range = setTextRangePosEnd(factory.createBlock([], /*multiLine*/ false), contentStart, contentStart);
         }
 
         // Add to macro table here
@@ -2425,7 +2524,7 @@ export namespace LpcParser {
 
         parseExpected(SyntaxKind.UndefDirective);
         
-        const identifier = parseIdentifier();
+        const identifier = parseIdentifierName();
         
         macroEnv.undef(identifier.text);
         return withJSDoc(finishNode(factory.createUndefDirective(identifier), pos), hasJSDoc);
@@ -3111,6 +3210,11 @@ export namespace LpcParser {
             return true;
         }
 
+        // Inside an inline closure the last statement may end at ':)' ('(: f(); return 0 :)').
+        if (token() === SyntaxKind.ColonToken && inInlineClosureBody) {
+            return true;
+        }
+
         // Inside a `time_expression` block the driver requires a real semicolon, so don't
         // let a following `}` / EOF / line break stand in for one.
         if (suppressSemicolonInsertion) {
@@ -3356,6 +3460,7 @@ export namespace LpcParser {
             case SyntaxKind.FloatLiteral:
             case SyntaxKind.StringLiteral:
             case SyntaxKind.StringArrayLiteral:
+            case SyntaxKind.BytesLiteral:
             case SyntaxKind.NoSubstitutionTemplateLiteral:
             case SyntaxKind.TemplateHead:
             case SyntaxKind.OpenParenToken:
@@ -3468,6 +3573,10 @@ export namespace LpcParser {
             
             if (parseOptional(SyntaxKind.AsteriskToken)) {
                 return finishNode(factory.createArrayTypeNode(type), pos);
+            }
+            if (parseOptional(SyntaxKind.AsteriskAsteriskToken)) {
+                // `<object|lwobject>** unique_array(...)`: an array of arrays
+                return finishNode(factory.createArrayTypeNode(finishNode(factory.createArrayTypeNode(type), pos)), pos);
             }
 
             return type;
@@ -4060,7 +4169,8 @@ export namespace LpcParser {
         const modifiers = parseModifiers(/*allowDecorators*/ true);
         
         if (token() == SyntaxKind.InheritKeyword) {
-            return parseInheritStatementWorker(pos, hasJSDoc, modifiers);
+            // Register the import as parseInheritStatement does, so `private inherit` / `virtual inherit` resolve.
+            return addImportCandidate(parseInheritStatementWorker(pos, hasJSDoc, modifiers));
         }
         // if (isStructOrClassKeyword() && isStartOfStructDeclaration()) {            
         //     return parseStructDeclaration(pos, hasJSDoc, modifiers);                
@@ -4876,11 +4986,7 @@ export namespace LpcParser {
 
             reScanGreaterToken(); 
             const impliedStringConcat = canImplyStringConcat(leftOperand) && (token() == SyntaxKind.StringLiteral || token() === SyntaxKind.NoSubstitutionTemplateLiteral || token() === SyntaxKind.TemplateHead);
-            // LPC's = precedence is relational, but if this is the first entry into the parse loop
-            // when precendence is lowest, we should treat it as assignment
-            const newPrecedence = precedence == OperatorPrecedence.Lowest && token() == SyntaxKind.EqualsToken ?
-                OperatorPrecedence.Lowest :
-                getBinaryOperatorPrecedence(impliedStringConcat ? SyntaxKind.PlusToken : token());
+            const newPrecedence = getBinaryOperatorPrecedence(impliedStringConcat ? SyntaxKind.PlusToken : token());
 
             // Check the precedence to see if we should "take" this operator
             // - For left associative operator (all operator but **), consume the operator,
@@ -4922,7 +5028,20 @@ export namespace LpcParser {
             }
             
             const tokenNode = impliedStringConcat ? finishNode(factoryCreateToken(SyntaxKind.PlusToken), getPositionState()) : parseTokenNode<BinaryOperatorToken>();
-            leftOperand = makeBinaryExpression(leftOperand, tokenNode, parseBinaryExpressionOrHigher(newPrecedence), pos);
+            const rightPos = getPositionState();
+            let rightOperand = parseBinaryExpressionOrHigher(newPrecedence);
+            // Both drivers take an assignment as the right operand of any binary operator. Their grammars have
+            // `expr0: lvalue L_ASSIGN expr0` (LDMud prolang.y, FluffOS grammar.y), and bison reduces an lvalue
+            // followed by an assignment operator to that rule whatever operator comes before it. The
+            // assignment's right side is a whole expr0, so:
+            //      a && b += c         a && (b += c)
+            //      a + b = c           a + (b = c)
+            //      a || b = 1 || c     a || (b = (1 || c))
+            // reScanGreaterToken merges `> > =` into `>>=`, as in parseAssignmentExpressionOrHigher.
+            if (isLeftHandSideExpression(rightOperand) && isAssignmentOperator(reScanGreaterToken())) {
+                rightOperand = makeBinaryExpression(rightOperand, parseTokenNode<BinaryOperatorToken>(), parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ false), rightPos);
+            }
+            leftOperand = makeBinaryExpression(leftOperand, tokenNode, rightOperand, pos);
         }
 
         return leftOperand;
@@ -5133,13 +5252,18 @@ export namespace LpcParser {
     function parsePrefixUnaryExpression() {
         const pos = getPositionState();                                
         const operator = token() as PrefixUnaryOperator;
-        let expr = nextTokenAnd(()=>disallowComma(parseSimpleUnaryExpression))
-        // there is one higher precedence operator that can follow a unary operator in LPC
-        // and that is an assignment
-        if (token() == SyntaxKind.EqualsToken) {
-            // this syntax is allow in LPC but is ambiguous -- it should be parenethesized for better readability
-            // TODO: offer a codefix?
-            expr = finishNode(factoryCreateParenthesizedExpression(parseBinaryExpressionRest(OperatorPrecedence.Equality, expr, pos)), pos);            
+        nextToken();
+        const operandPos = getPositionState();
+        let expr = disallowComma(parseSimpleUnaryExpression);
+        // An assignment can follow a unary operator's operand: `!i = fn()` is `!(i = fn())`. As for a binary
+        // operator's right operand (see parseBinaryExpressionRest), both drivers' grammars reduce the lvalue
+        // operand of `!`, `~` and `-` to `lvalue L_ASSIGN expr0`, so the assignment's right side is a whole
+        // expression: `!i = a || b` is `!(i = (a || b))`.
+        // this syntax is allow in LPC but is ambiguous -- it should be parenethesized for better readability
+        // TODO: offer a codefix?
+        if (isLeftHandSideExpression(expr) && isAssignmentOperator(reScanGreaterToken())) {
+            const assignment = makeBinaryExpression(expr, parseTokenNode<BinaryOperatorToken>(), parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ false), operandPos);
+            expr = finishNode(factoryCreateParenthesizedExpression(assignment), operandPos);
         }
         return finishNode(factory.createPrefixUnaryExpression(operator, expr), pos);
     }
@@ -5483,6 +5607,15 @@ export namespace LpcParser {
             || token() === SyntaxKind.TemplateHead;
     }
 
+    // LDMud '[>n]', '[>a..>b]': '>' (count from the start, negatives allowed) prefixes a whole index bound, as '<'
+    // does (count from the end). Parsed as a prefix unary over the bound.
+    function parseIndexBound(parseBound: () => Expression): Expression {
+        if (languageVariant !== LanguageVariant.LDMud || token() !== SyntaxKind.GreaterThanToken) return parseBound();
+        const pos = getPositionState();
+        nextToken();
+        return finishNode(factory.createPrefixUnaryExpression(SyntaxKind.GreaterThanToken as PrefixUnaryOperator, parseBound()), pos);
+    }
+
     function parseMaybeRangeExpression(rangeTerminatorToken:PunctuationSyntaxKind): RangeExpression | Expression {        
         const pos = getPositionState();
         let left: Expression, right: Expression;
@@ -5524,15 +5657,15 @@ export namespace LpcParser {
             if (parseOptional(SyntaxKind.DotDotToken)) {
                 sawDotDot = true;
                 // rightOp = parseOptionalToken(SyntaxKind.LessThanToken);
-                right = allowCommaInAnd(parseExpression);
+                right = parseIndexBound(() => allowCommaInAnd(parseExpression));
             } else {
                 // leftOp = parseOptionalToken(SyntaxKind.LessThanToken);
-                left = allowCommaInAnd(parseExpression);
+                left = parseIndexBound(() => allowCommaInAnd(parseExpression));
                 if (parseOptional(SyntaxKind.DotDotToken)) {
                     sawDotDot = true;
                     if (token() !== SyntaxKind.CloseBracketToken) {
                         // leftOp = parseOptionalToken(SyntaxKind.LessThanToken);
-                        right = allowCommaInAnd(parseExpression);
+                        right = parseIndexBound(() => allowCommaInAnd(parseExpression));
                     }
                 }
             }
@@ -5842,6 +5975,16 @@ export namespace LpcParser {
             isStartOfExpression();
     }
 
+    function doInInlineClosureBody<T>(func: () => T): T {
+        const saved = inInlineClosureBody;
+        inInlineClosureBody = true;
+        try {
+            return func();
+        } finally {
+            inInlineClosureBody = saved;
+        }
+    }
+
     function parseInlineClosureExpressionBody(allowReturnTypeInArrowFunction: boolean): Block | Expression | NodeArray<Expression> {
         if (token() === SyntaxKind.OpenBraceToken) {
             return parseFunctionBlock(SignatureFlags.None);
@@ -5872,13 +6015,53 @@ export namespace LpcParser {
             return funcBlock;
         }
 
+        // An LDMud inline closure is a statement block; one that starts with a declaration ('(: int i = $1; ...')
+        // is parsed as a block.
+        if (languageVariant === LanguageVariant.LDMud && isStartOfDeclaration()) {
+            return doInInlineClosureBody(() => parseFunctionBlock(SignatureFlags.IgnoreMissingOpenBrace | SignatureFlags.None));
+        }
+
         const savedTopLevel = topLevel;
         topLevel = false;
         
         // in this situation, we may have a single expression - or a comma separated list of expressions.
         // the second form being a call_other shortcut
 
-        const node = parseDelimitedList(ParsingContext.InlineClosure, parseArgumentExpression);
+        const listPos = getPositionState();
+        // LDMud: where each expression starts, for the expression statements made from them below.
+        const expressionPositions = languageVariant === LanguageVariant.LDMud ? new Map<Expression, PositionState>() : undefined;
+        const parseElement = !expressionPositions ? parseArgumentExpression : () => {
+            const elementPos = getPositionState();
+            const expression = parseArgumentExpression();
+            expressionPositions.set(expression, elementPos);
+            return expression;
+        };
+        let node = parseDelimitedList(ParsingContext.InlineClosure, parseElement);
+
+        // LDMud `(: expr; expr :)`: ';' separates expressions like ',' (evaluated in order, the value is the last
+        // one's). A ';' just before ':)' is allowed. A statement after a ';' (`(: f(); return 0; :)`) turns the body
+        // into a block: the expressions so far become expression statements.
+        if (expressionPositions && token() === SyntaxKind.SemicolonToken) {
+            const expressions: Expression[] = [...node];
+            let block: Block | undefined;
+            while (parseOptional(SyntaxKind.SemicolonToken)) {
+                if (token() === SyntaxKind.ColonToken || token() === SyntaxKind.ColonCloseParenToken) break;
+                if (isStartOfDeclaration() || (isStartOfStatement() && !isStartOfExpressionStatement())) {
+                    // Each statement starts where its own expression does. Starting them all at their `;` group
+                    // made `(: a, b; return 0 :)` give two statements where the second's range covered the first.
+                    const statements: Statement[] = expressions.map(e => finishNode(factory.createExpressionStatement(e), expressionPositions.get(e)!, e.end));
+                    statements.push(...doInInlineClosureBody(() => parseList(ParsingContext.BlockStatements, parseStatement)));
+                    block = finishNode(factoryCreateBlock(createNodeArray(statements, listPos), /*multiLine*/ true), listPos);
+                    break;
+                }
+                expressions.push(...parseDelimitedList(ParsingContext.InlineClosure, parseElement));
+            }
+            if (block) {
+                topLevel = savedTopLevel;
+                return block;
+            }
+            node = createNodeArray(expressions, listPos);
+        }
 
         // const node = isAsync
         //     ? doInAwaitContext(() => parseAssignmentExpressionOrHigher(allowReturnTypeInArrowFunction))
@@ -6160,16 +6343,60 @@ export namespace LpcParser {
         // otherwise `parseType()` would try to read the `(` param list as a type.
         // Parse this permissively for every driver so the AST stays well-formed;
         // the checker reports the FluffOS-only grammar restriction (see below).
-        const type = token() === SyntaxKind.OpenParenToken ? undefined : parseType();
-        const name = isIdentifier() ? parseIdentifier() : undefined;
+        //
+        // LDMud inline closures (doc/LPC/inline-closures) are
+        //      function [<type>] [(<arguments>)] [: <context>] { <code> }
+        // where the type, the parameters and the context are all optional.
+        const isLDMud = languageVariant === LanguageVariant.LDMud;
+        const type = token() === SyntaxKind.OpenParenToken || isLDMud && (token() === SyntaxKind.OpenBraceToken || token() === SyntaxKind.ColonToken)
+            ? undefined
+            : parseType();
+        const name = !isLDMud && isIdentifier() ? parseIdentifier() : undefined;
 
         // const typeParameters = parseTypeParameters();
-        const parameters = parseParameters();
+        const parameters = isLDMud && token() !== SyntaxKind.OpenParenToken ? createNodeArray<ParameterDeclaration>([], getPositionState()) : parseParameters();
         // const type = parseReturnType(SyntaxKind.ColonToken, /*isType*/ false);
+        const context = isLDMud && parseOptional(SyntaxKind.ColonToken) ? parseInlineClosureContext() : undefined;
         const body = parseFunctionBlock(SignatureFlags.None);
+        if (context?.length && body) {
+            // Context variables are declared at the start of the body, so they get the body's scope
+            // and their declared types, as in the driver.
+            (body as Mutable<Block>).statements = createNodeArray([...context, ...body.statements], context[0].pos, body.statements.end);
+            // The body then starts at the context, so the declarations lie inside it. A node outside its
+            // parent's range is invisible to position lookups: hover, find-references and rename on a context
+            // variable's declaration found nothing.
+            setTextRangePos(body, context[0].pos);
+        }
         
         const node = factory.createFunctionExpression(modifiers, name, parameters, type, body);
         return withJSDoc(finishNode(node, pos), hasJSDoc);
+    }
+
+    /** True while parsing the statements of an LDMud `(: ... :)` body, where ':)' ends the last statement. */
+    var inInlineClosureBody = false;
+    var inInlineClosureContext = false;
+
+    /**
+     * An LDMud inline closure context: groups of `<type> name [= expr], name [= expr]`
+     * separated by `;` and ended by the body's `{`.
+     */
+    function parseInlineClosureContext(): VariableStatement[] {
+        const statements: VariableStatement[] = [];
+        const savedInContext = inInlineClosureContext;
+        inInlineClosureContext = true;
+        try {
+            while (token() !== SyntaxKind.OpenBraceToken && token() !== SyntaxKind.EndOfFileToken) {
+                const pos = getPositionState();
+                const type = parseType();
+                const declarationList = parseVariableDeclarationList(/*inForStatementInitializer*/ false, type);
+                statements.push(finishNode(factoryCreateVariableStatement(/*modifiers*/ undefined, type, declarationList), pos));
+                if (!parseOptional(SyntaxKind.SemicolonToken)) break;
+            }
+        }
+        finally {
+            inInlineClosureContext = savedInContext;
+        }
+        return statements;
     }
 
     function parseLiteralNode(): LiteralExpression {

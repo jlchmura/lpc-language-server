@@ -3959,11 +3959,8 @@ export function getBinaryOperatorPrecedence(kind: SyntaxKind): OperatorPrecedenc
             return OperatorPrecedence.Multiplicative;
         case SyntaxKind.AsteriskAsteriskToken:
             return OperatorPrecedence.Exponentiation;        
-        case SyntaxKind.EqualsToken:            
-            // in LPC, this is valid syntax:  if(!foo || foo = "") { ... }        
-            // so even though assignment operators are lower precendence, inside a binary
-            // expression, they are higher precedence than logical operators
-            return OperatorPrecedence.Relational;
+        // `=` is not a binary operator here. LPC's `if (!foo || foo = "")` is an assignment as the right
+        // operand of `||`; parseBinaryExpressionRest handles that for every assignment operator.
     }
 
     // -1 is lower than all other precedences.  Returning it will cause binary expression
