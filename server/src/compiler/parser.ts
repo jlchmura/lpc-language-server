@@ -299,6 +299,7 @@ export namespace LpcParser {
         suppressSemicolonInsertion = false;
         includeFileCache = undefined!;                
         includeDiagnosticOrigins = undefined!;
+        macroLiteralTexts = undefined!;
         includeGraph.clear();
         includeGraph = undefined!;
         condFrames = undefined!;
