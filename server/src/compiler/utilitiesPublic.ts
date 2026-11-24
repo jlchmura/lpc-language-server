@@ -131,6 +131,8 @@ export function canHaveLocals(node: Node): node is HasLocals {
         case SyntaxKind.InlineClosureExpression: 
         case SyntaxKind.CallSignature:
         case SyntaxKind.CaseBlock:
+        case SyntaxKind.CaseClause:
+        case SyntaxKind.DefaultClause:
         case SyntaxKind.CatchStatement:
         // case SyntaxKind.ClassStaticBlockDeclaration:
         case SyntaxKind.ConditionalType:
