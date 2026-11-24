@@ -14,9 +14,9 @@ import { createTestLanguageService } from "./harness.js";
  * The result keeps the left array's element type, so every element arriving from the right has
  * to fit it. That is assignability, and it is directional.
  *
- * Subtraction is deliberately left permissive: `-` removes elements rather than adding them, so
- * the right side's element type does not have to fit. Taking ints out of a `string*` is a no-op,
- * not a mistake.
+ * Subtraction follows the driver instead (see operatorOperandTypes.spec.ts). FluffOS takes any
+ * array literal on the right of `-=`, since it types every literal as `mixed*`, but two array
+ * variables need the same type.
  */
 function diagnosticsFor(source: string): string[] {
     const { ls, abs } = createTestLanguageService({ "test.c": source }, {
@@ -62,10 +62,16 @@ describe("appending where one side says nothing about its contents", () => {
     });
 });
 
-describe("array subtraction stays permissive", () => {
-    it("does not report removing elements the array could not contain", () => {
-        // `-` takes elements out; nothing new arrives, so the element types need not match.
+describe("array subtraction follows FluffOS", () => {
+    it("takes any array literal, which FluffOS types as mixed*", () => {
         expect(diagnosticsFor(`test() { string *a; a -= ({ "f", 123 }); }`)).toEqual([]);
-        expect(diagnosticsFor(`test() { string *a; int *b; a -= b; }`)).toEqual([]);
+        expect(diagnosticsFor(`test() { string *a; a -= ({ 123 }); }`)).toEqual([]);
+    });
+
+    it("takes two arrays of different types in `-`, but not in `-=`", () => {
+        expect(diagnosticsFor(`test() { string *a; int *b; mixed *r = a - b; }`)).toEqual([]);
+        expect(diagnosticsFor(`test() { string *a; int *b; a -= b; }`)).toEqual([
+            "2365: Operator '-=' cannot be applied to types 'string*' and 'int*'.",
+        ]);
     });
 });

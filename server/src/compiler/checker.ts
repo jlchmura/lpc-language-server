@@ -17574,9 +17574,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     [[Float], [Int, Float], floatType],
                     [[Map], [Map, Arr], "left"],
                     [[Arr], [Map], "left"],
-                    // The driver needs a common element type (get_sub_array_type()); array
-                    // subtraction is deliberately permissive here (#355).
-                    [[Arr], [Arr], "left"],
+                    [[Arr], [Arr], "leftIfCommon"],
                 ];
             case SyntaxKind.MinusEqualsToken: // types_sub_assignment[]
                 return [
@@ -17586,7 +17584,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     [[Float], [Int, Float], floatType],
                     [[Map], [Map, Arr], "left"],
                     [[Arr], [Map], "left"],
-                    [[Arr], [Arr], "left"], // permissive, as for `-`
+                    [[Arr], [Arr], "leftIfCommon"],
                 ];
             case SyntaxKind.AmpersandToken: // types_binary_and[]
             case SyntaxKind.AmpersandEqualsToken: // types_binary_and_assignment[], the same
@@ -17753,10 +17751,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      * the result type, false if FluffOS rejects the operands, or undefined to leave the
      * operation to the general rules (numbers, and unions FluffOS can't express).
      */
-    function getFluffOSOperatorType(operator: SyntaxKind, leftType: Type, rightType: Type): Type | false | undefined {
+    function getFluffOSOperatorType(operator: SyntaxKind, leftType: Type, rightType: Type, right?: Expression): Type | false | undefined {
+        // FluffOS types every array literal as `mixed*` (grammar.y's F_AGGREGATE), so an
+        // assignment takes one whatever its elements are.
+        const assignedType = right && isArrayLiteralExpression(skipParentheses(right)) ? createArrayType(anyType) : rightType;
         const left = getFluffOSOperandKind(leftType);
-        const right = getFluffOSOperandKind(rightType);
-        if (left === undefined || right === undefined) return undefined;
+        const rightKind = getFluffOSOperandKind(rightType);
+        if (left === undefined || rightKind === undefined) return undefined;
         const Any = FluffOSOperandKind.Any, Num = FluffOSOperandKind.Number, Float = FluffOSOperandKind.Float;
         const Str = FluffOSOperandKind.String, Arr = FluffOSOperandKind.Array, Map = FluffOSOperandKind.Mapping;
         const Obj = FluffOSOperandKind.Object, Fn = FluffOSOperandKind.Function;
@@ -17765,49 +17766,47 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         switch (operator) {
             case SyntaxKind.PlusEqualsToken:
-                if (isNumber(left) && isNumber(right)) return undefined;
+                if (isNumber(left) && isNumber(rightKind)) return undefined;
                 // Arrays keep this checker's element check, which is stricter.
-                if (left === Arr && right === Arr) return undefined;
-                if (left === Str && (isNumeric(right) || right === Obj)) return leftType;
-                return isFluffOSCompatibleType(rightType, leftType) ? leftType : false;
+                if (left === Arr && rightKind === Arr) return undefined;
+                if (left === Str && (isNumeric(rightKind) || rightKind === Obj)) return leftType;
+                return isFluffOSCompatibleType(assignedType, leftType) ? leftType : false;
             case SyntaxKind.MinusEqualsToken:
             case SyntaxKind.AmpersandEqualsToken:
             case SyntaxKind.AsteriskEqualsToken:
-                if (isNumeric(left) && isNumeric(right) && operator !== SyntaxKind.AmpersandEqualsToken) return undefined;
-                // Array subtraction is deliberately permissive here (#355): removing elements
-                // the array can't hold is a no-op, so the element types need not match.
-                if (operator === SyntaxKind.MinusEqualsToken && left === Arr && right === Arr) return leftType;
-                return isFluffOSCompatibleType(rightType, leftType) ? leftType : false;
+                if (isNumeric(left) && isNumeric(rightKind) && operator !== SyntaxKind.AmpersandEqualsToken) return undefined;
+                return isFluffOSCompatibleType(assignedType, leftType) ? leftType : false;
             case SyntaxKind.PlusToken: {
-                if (isNumeric(left) && isNumeric(right)) return undefined;
+                if (isNumeric(left) && isNumeric(rightKind)) return undefined;
                 const base = (t: Type) => getBaseTypeOfLiteralType(t);
-                if (left === Any) return right === Fn ? false : base(rightType);
-                if (right === Any) return left === Fn ? false : base(leftType);
-                if (left === Arr && right === Arr) return isFluffOSSameType(leftType, rightType) ? leftType : createArrayType(anyType);
-                if (left === right && isFluffOSSameType(leftType, rightType)) return base(leftType);
-                if (left === Str && (isNumber(right) || right === Obj)) return stringType;
-                if (right === Str && (isNumber(left) || left === Obj)) return stringType;
+                if (left === Any) return rightKind === Fn ? false : base(rightType);
+                if (rightKind === Any) return left === Fn ? false : base(leftType);
+                if (left === Arr && rightKind === Arr) return isFluffOSSameType(leftType, rightType) ? leftType : createArrayType(anyType);
+                if (left === rightKind && isFluffOSSameType(leftType, rightType)) return base(leftType);
+                if (left === Str && (isNumber(rightKind) || rightKind === Obj)) return stringType;
+                if (rightKind === Str && (isNumber(left) || left === Obj)) return stringType;
                 return false;
             }
             case SyntaxKind.MinusToken:
                 // numbers and floats, or arrays (`mixed` takes either)
-                if (isNumeric(left) && isNumeric(right)) return undefined;
-                if (left === Arr && (right === Arr || right === Any)) return leftType;
-                if (left === Any && right === Arr) return rightType;
+                if (isNumeric(left) && isNumeric(rightKind)) return undefined;
+                if (left === Arr && rightKind === Arr) return isFluffOSSameType(leftType, rightType) ? leftType : createArrayType(anyType);
+                if (left === Arr && rightKind === Any) return leftType;
+                if (left === Any && rightKind === Arr) return rightType;
                 return false;
             case SyntaxKind.AmpersandToken:
                 // array intersection, otherwise ints only (binary_int_op)
-                if (left === Arr || right === Arr) {
-                    if (left === Arr && (right === Arr || right === Any)) return leftType;
+                if (left === Arr || rightKind === Arr) {
+                    if (left === Arr && (rightKind === Arr || rightKind === Any)) return leftType;
                     if (left === Any) return rightType;
                     return false;
                 }
-                if ((left === Any || left === Num) && (right === Any || right === Num)) return undefined;
+                if ((left === Any || left === Num) && (rightKind === Any || rightKind === Num)) return undefined;
                 return false;
             case SyntaxKind.AsteriskToken:
                 // numbers and floats, or mapping composition (`mixed` takes either)
-                if (isNumeric(left) && isNumeric(right)) return undefined;
-                if ((left === Map || left === Any) && (right === Map || right === Any)) return left === Map ? leftType : right === Map ? rightType : anyType;
+                if (isNumeric(left) && isNumeric(rightKind)) return undefined;
+                if ((left === Map || left === Any) && (rightKind === Map || rightKind === Any)) return left === Map ? leftType : rightKind === Map ? rightType : anyType;
                 return false;
         }
         return undefined;
@@ -17842,10 +17841,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      * false if the driver rejects the operands, or undefined to use the general rules. For an
      * assignment operator a type result means the assignment was checked here too.
      */
-    function getDriverOperatorType(operator: SyntaxKind, leftType: Type, rightType: Type): { type: Type, assignmentChecked: boolean } | false | undefined {
+    function getDriverOperatorType(operator: SyntaxKind, leftType: Type, rightType: Type, right: Expression): { type: Type, assignmentChecked: boolean } | false | undefined {
         if (!isDriverTypedOperator(operator)) return undefined;
         if (languageVariant === LanguageVariant.FluffOS) {
-            const type = getFluffOSOperatorType(operator, leftType, rightType);
+            const type = getFluffOSOperatorType(operator, leftType, rightType, right);
             if (!type) return type as false | undefined;
             return { type, assignmentChecked: true };
         }
@@ -17909,7 +17908,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 leftType = checkNonNullType(leftType, left);
                 rightType = checkNonNullType(rightType, right);
 
-                const driverResult = getDriverOperatorType(operator, leftType, rightType);
+                const driverResult = getDriverOperatorType(operator, leftType, rightType, right);
                 if (driverResult === false) {
                     // Name the operand types without literals: `mapping` and `int`, not `1`.
                     leftType = getOperandTypeForDisplay(leftType);
@@ -17993,7 +17992,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 }
 
                 // Strings, arrays, mappings and `mixed` follow each driver's own rules.
-                const plusDriverResult = getDriverOperatorType(operator, leftType, rightType);
+                const plusDriverResult = getDriverOperatorType(operator, leftType, rightType, right);
                 if (plusDriverResult === false) {
                     leftType = getOperandTypeForDisplay(leftType);
                     rightType = getOperandTypeForDisplay(rightType);

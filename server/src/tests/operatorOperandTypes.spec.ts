@@ -45,7 +45,10 @@ describe("LDMud operand types (prolang.y)", () => {
         ["ok", "a union with a mapping in it", "mapping|int a; mapping b; mapping r = a - b;"],
         ["ok", "a mixed operand", "mapping a; mixed m; mapping r = a - m;"],
         ["ok", "numbers", "int a, b; int r = a - b; mixed m; int s = m - 1;"],
-        ["ok", "arrays with no common element type (permissive, #355)", "string *a; int *b; mixed r = a - b; a -= b;"],
+        ["ok", "an array literal with a common element type", `string *a; a -= ({ "f", 123 });`],
+        ["error", "arrays with no common element type", "string *a; int *b; mixed r = a - b;"],
+        ["error", "arrays with no common element type, in -=", "string *a; int *b; a -= b;"],
+        ["error", "an array literal with no common element type", "string *a; a -= ({ 123 });"],
         ["error", "mapping - int", "mapping a; mixed r = a - 1;"],
         ["error", "object - int", "object o; mixed r = o - 1;"],
     ]));
@@ -179,7 +182,8 @@ describe("FluffOS operand types (grammar.y)", () => {
         ["error", "int* *= int", "int *a; a *= 2;"],
         ["error", "mapping -= array", "mapping a; string *keys; a -= keys;"],
         ["error", "string *= int", "string s; s *= 2;"],
-        ["ok", "string* -= int* (permissive, #355)", "string *a; int *b; a -= b;"],
+        ["ok", "any array literal, which FluffOS types as mixed*", `string *a; a -= ({ 123 }); a -= ({ "f", 123 });`],
+        ["error", "string* -= int*", "string *a; int *b; a -= b;"],
         ["error", "int* += int", "int *a; a += 1;"],
     ]));
 
