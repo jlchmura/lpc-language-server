@@ -1,6 +1,7 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as lpcNode from "../lpcserver/nodeServer.js";
 import * as path from "path";
+import { createTestCompilerHost } from "./harness.js";
 
 /**
  * Common utilities
@@ -71,13 +72,12 @@ describe("Compiler", () => {
             const expectedErrorCount = +(testOptions["errors"] ?? "0");
             const extraFiles = (testOptions["files"]?.split(",") ?? lpc.emptyArray).map(f => lpc.combinePaths(lpc.getDirectoryPath(testCaseFile), f.trim()));
 
-            const compilerHost = lpc.createCompilerHost(compilerOptions);
-            compilerHost.getDefaultLibFileName = () => lpc.combinePaths(root, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
+            const { host: compilerHost, options: hostOptions } = createTestCompilerHost({}, compilerOptions);
 
             const createProgramOptions: lpc.CreateProgramOptions = {
                 host: compilerHost,
                 rootNames: [testCaseFile, ...extraFiles],
-                options: compilerOptions,                
+                options: hostOptions,                
                 oldProgram: undefined,                
             };
                         
@@ -123,14 +123,6 @@ describe("Compiler", () => {
 #define VALUE 456
 void test() { mapping m = ([ KEY: VALUE ]); }`;
             
-            const compilerOptions: lpc.CompilerOptions = {
-                driverType: lpc.LanguageVariant.FluffOS,
-                diagnostics: true
-            };
-
-            const compilerHost = lpc.createCompilerHost(compilerOptions);
-            compilerHost.getDefaultLibFileName = () => lpc.combinePaths(root, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
-
             const sourceFile = lpc.createSourceFile("test.c", source, lpc.ScriptTarget.Latest, /*setParentNodes*/ false, lpc.ScriptKind.LPC, lpc.LanguageVariant.FluffOS);
             
             // Find the mapping literal expression by traversing the AST
@@ -172,14 +164,6 @@ void test() { mapping m = ([ KEY: VALUE ]); }`;
 #define TYPE2 string
 void test() { TYPE1 | TYPE2 x; }`;
             
-            const compilerOptions: lpc.CompilerOptions = {
-                driverType: lpc.LanguageVariant.FluffOS,
-                diagnostics: true
-            };
-
-            const compilerHost = lpc.createCompilerHost(compilerOptions);
-            compilerHost.getDefaultLibFileName = () => lpc.combinePaths(root, lpc.getDefaultLibFolder(compilerOptions), lpc.getDefaultLibFileName(compilerOptions));
-
             const sourceFile = lpc.createSourceFile("test.c", source, lpc.ScriptTarget.Latest, /*setParentNodes*/ false, lpc.ScriptKind.LPC, lpc.LanguageVariant.FluffOS);
             
             // Find the union type by traversing the AST

@@ -1,6 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
-import { messageLines } from "./harness.js";
+import { messageLines, createTestProgram } from "./harness.js";
 
 /**
  * FluffOS anonymous function expressions put their parameter list directly
@@ -14,17 +13,8 @@ import { messageLines } from "./harness.js";
  * "'(' expected" / "Declaration or statement expected" diagnostics.
  */
 function syntacticDiags(source: string): string[] {
-    const cwd = lpc.normalizePath(process.cwd());
-    const fileName = lpc.normalizePath(path.join(cwd, "anon.c"));
-    const options: lpc.CompilerOptions = { driverType: lpc.LanguageVariant.FluffOS, diagnostics: true };
-    const host = lpc.createCompilerHost(options);
-    host.getDefaultLibFileName = () =>
-        lpc.combinePaths(cwd, lpc.getDefaultLibFolder(options), lpc.getDefaultLibFileName(options));
-    const origRead = host.readFile.bind(host);
-    host.readFile = (n?: string) => (n && lpc.normalizePath(n) === fileName ? source : (n ? origRead(n) : undefined));
-    host.fileExists = (n?: string) => (n ? (lpc.normalizePath(n) === fileName ? true : lpc.sys.fileExists(n)) : false);
-    const program = lpc.createProgram({ host, rootNames: [fileName], options, oldProgram: undefined });
-    const file = program.getSourceFile(fileName)!;
+    const { program, sourceFile } = createTestProgram({ "anon.c": source }, { driverType: lpc.LanguageVariant.FluffOS });
+    const file = sourceFile();
     return program.getSyntacticDiagnostics(file).map(messageLines);
 }
 

@@ -1,5 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
+import { createTestProgram } from "./harness.js";
 
 /**
  * A prototype and its definition are one function, and which symbol table the pair lands
@@ -22,18 +23,7 @@ import * as path from "path";
 const VIRTUAL = lpc.normalizeSlashes(path.join(process.cwd(), "server/src/tests/cases/compiler/__protomerge.c"));
 
 function build(source: string) {
-    const root = process.cwd();
-    const isVirtual = (fn: string) => !!fn && lpc.normalizeSlashes(fn) === VIRTUAL;
-    const options: lpc.CompilerOptions = { driverType: lpc.LanguageVariant.FluffOS, diagnostics: true };
-    const host = lpc.createCompilerHost(options);
-    const origReadFile = host.readFile;
-    const origFileExists = host.fileExists;
-    host.readFile = (fn: string) => (isVirtual(fn) ? source : origReadFile.call(host, fn));
-    host.fileExists = (fn: string) => (isVirtual(fn) ? true : origFileExists.call(host, fn));
-    host.getDefaultLibFileName = () =>
-        lpc.combinePaths(root, lpc.getDefaultLibFolder(options), lpc.getDefaultLibFileName(options));
-
-    const program = lpc.createProgram({ host, rootNames: [VIRTUAL], options });
+    const { program } = createTestProgram({ [VIRTUAL]: source }, { driverType: lpc.LanguageVariant.FluffOS });
     return { program, sf: program.getSourceFile(VIRTUAL)! };
 }
 
@@ -75,11 +65,7 @@ describe("a prototype and its definition are one symbol", () => {
     it("merges a header prototype with a private definition", () => {
         const dir = lpc.normalizeSlashes(path.join(process.cwd(), "server/src/tests/cases/protomerge"));
         const implPath = lpc.normalizeSlashes(path.join(dir, "proto_impl.c"));
-        const options: lpc.CompilerOptions = { driverType: lpc.LanguageVariant.FluffOS, diagnostics: true };
-        const host = lpc.createCompilerHost(options);
-        host.getDefaultLibFileName = () =>
-            lpc.combinePaths(process.cwd(), lpc.getDefaultLibFolder(options), lpc.getDefaultLibFileName(options));
-        const program = lpc.createProgram({ host, rootNames: [implPath], options });
+        const { program } = createTestProgram({}, { driverType: lpc.LanguageVariant.FluffOS }, [implPath]);
         const sf = program.getSourceFile(implPath)!;
         const text = lpc.sys.readFile(implPath)!;
         const node = lpc.getTouchingPropertyName(sf, text.indexOf("from_header();"));

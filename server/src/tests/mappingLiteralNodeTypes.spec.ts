@@ -1,6 +1,5 @@
 import * as lpc from "./_namespaces/lpc.js";
-import * as path from "path";
-import { message } from "./harness.js";
+import { message, createTestProgram } from "./harness.js";
 
 /**
  * Every node inside a mapping literal used to report `mixed` -- values, keys, even a
@@ -14,19 +13,8 @@ import { message } from "./harness.js";
  * pinned below.
  */
 function typeAt(source: string, name: string, parentKind: lpc.SyntaxKind): string {
-    const root = process.cwd();
-    const vf = lpc.normalizeSlashes(path.join(root, "server/src/tests/cases/compiler/__mapnode.c"));
-    const isV = (f: string) => !!f && lpc.normalizeSlashes(f) === vf;
-    const opts: lpc.CompilerOptions = { driverType: lpc.LanguageVariant.FluffOS, diagnostics: true };
-    const host = lpc.createCompilerHost(opts);
-    const orf = host.readFile, ofe = host.fileExists;
-    host.readFile = (f: string) => (isV(f) ? source : orf.call(host, f));
-    host.fileExists = (f: string) => (isV(f) ? true : ofe.call(host, f));
-    host.getDefaultLibFileName = () =>
-        lpc.combinePaths(root, lpc.getDefaultLibFolder(opts), lpc.getDefaultLibFileName(opts));
-
-    const program = lpc.createProgram({ host, rootNames: [vf], options: opts, oldProgram: undefined });
-    const sf = program.getSourceFile(vf)!;
+    const { program, sourceFile } = createTestProgram({ "server/src/tests/cases/compiler/__mapnode.c": source }, { driverType: lpc.LanguageVariant.FluffOS });
+    const sf = sourceFile();
     const checker = program.getTypeChecker() as any;
     let found = "";
     (function walk(n: lpc.Node) {
@@ -39,18 +27,8 @@ function typeAt(source: string, name: string, parentKind: lpc.SyntaxKind): strin
 }
 
 function diagnostics(source: string): string[] {
-    const root = process.cwd();
-    const vf = lpc.normalizeSlashes(path.join(root, "server/src/tests/cases/compiler/__mapnode.c"));
-    const isV = (f: string) => !!f && lpc.normalizeSlashes(f) === vf;
-    const opts: lpc.CompilerOptions = { driverType: lpc.LanguageVariant.FluffOS, diagnostics: true };
-    const host = lpc.createCompilerHost(opts);
-    const orf = host.readFile, ofe = host.fileExists;
-    host.readFile = (f: string) => (isV(f) ? source : orf.call(host, f));
-    host.fileExists = (f: string) => (isV(f) ? true : ofe.call(host, f));
-    host.getDefaultLibFileName = () =>
-        lpc.combinePaths(root, lpc.getDefaultLibFolder(opts), lpc.getDefaultLibFileName(opts));
-    const program = lpc.createProgram({ host, rootNames: [vf], options: opts, oldProgram: undefined });
-    const sf = program.getSourceFile(vf)!;
+    const { program, sourceFile } = createTestProgram({ "server/src/tests/cases/compiler/__mapnode.c": source }, { driverType: lpc.LanguageVariant.FluffOS });
+    const sf = sourceFile();
     return program.getSemanticDiagnostics(sf).map(message);
 }
 
