@@ -324,6 +324,18 @@ async int counter;
         });
     });
 
+    it("offers each driver's coroutine keywords in completions, and only those", () => {
+        const keywordsAt = (driverType: lpc.LanguageVariant) => {
+            const source = `void test() {\n    \n}\n`;
+            const { ls, fileName } = createTestLanguageService({ "test.c": source }, { driverType });
+            const entries = ls.getCompletionsAtPosition(fileName, source.indexOf("    ") + 4, {})?.entries ?? [];
+            const names = new Set(entries.filter(e => e.kind === lpc.ScriptElementKind.keyword).map(e => e.name));
+            return ["async", "await", "yield", "acatch"].filter(k => names.has(k));
+        };
+        expect(keywordsAt(lpc.LanguageVariant.LDMud)).toEqual(["async", "await", "yield"]);
+        expect(keywordsAt(lpc.LanguageVariant.FluffOS)).toEqual(["async", "await", "acatch"]);
+    });
+
     it("leaves yield and coroutine as identifiers in FluffOS", () => {
         const { ls, fileName } = createTestLanguageService({
             "test.c": `int test() { int yield, coroutine; yield = coroutine = 1; return yield; }\n`,

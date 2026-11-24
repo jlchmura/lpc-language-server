@@ -2,6 +2,7 @@ import { pushIfDefined } from "../utils.js";
 import { StringCompletions } from "./_namespaces/lpc.Completions.js";
 import {
     IncludeDirective,
+    isKeywordInLanguageVariant,
     BinaryExpression,
     BindingElement,
     BindingPattern,
@@ -1117,10 +1118,10 @@ function specificKeywordCompletionInfo(entries: readonly CompletionEntry[], isNe
     };
 }
 
-function keywordCompletionData(keywordFilters: KeywordCompletionFilters, filterOutTsOnlyKeywords: boolean, isNewIdentifierLocation: boolean): Request {
+function keywordCompletionData(keywordFilters: KeywordCompletionFilters, filterOutTsOnlyKeywords: boolean, isNewIdentifierLocation: boolean, languageVariant: LanguageVariant): Request {
     return {
         kind: CompletionDataKind.Keywords,
-        keywordCompletions: getKeywordCompletions(keywordFilters, filterOutTsOnlyKeywords),
+        keywordCompletions: getKeywordCompletions(keywordFilters, filterOutTsOnlyKeywords, languageVariant),
         isNewIdentifierLocation,
     };
 }
@@ -1239,7 +1240,7 @@ function completionInfoFromData(
     }
 
     if (keywordFilters !== KeywordCompletionFilters.None) {
-        for (const keywordEntry of getKeywordCompletions(keywordFilters, !insideJsDocTagTypeExpression)) {
+        for (const keywordEntry of getKeywordCompletions(keywordFilters, !insideJsDocTagTypeExpression, sourceFile.languageVariant)) {
             if (
                 isTypeOnlyLocation && isTypeKeyword(stringToToken(keywordEntry.name)!) ||
                 !isTypeOnlyLocation && isContextualKeywordInAutoImportableExpressionSpace(keywordEntry.name) ||
@@ -3295,7 +3296,7 @@ function getCompletionData(
         if (isTopLevel || !tryGetGlobalSymbols()) {
             keywordFilters = !isTopLevel ? KeywordCompletionFilters.FunctionLikeBodyKeywords : KeywordCompletionFilters.All;
             return keywordFilters
-                ? keywordCompletionData(keywordFilters, isJsOnlyLocation, isNewIdentifierLocation)
+                ? keywordCompletionData(keywordFilters, isJsOnlyLocation, isNewIdentifierLocation, sourceFile.languageVariant)
                 : undefined;
         }
     }
@@ -4979,7 +4980,17 @@ const allKeywordsCompletions: () => readonly CompletionEntry[] = memoize(() => {
     return res;
 });
 
-function getKeywordCompletions(keywordFilter: KeywordCompletionFilters, filterOutTsOnlyKeywords: boolean): readonly CompletionEntry[] {
+/**
+ * Keywords for a completion list, minus those the file's driver does not have: the scanner
+ * reads those as plain identifiers there (`yield` and `coroutine` are LDMud-only, `acatch`
+ * and `promise` FluffOS-only, and so on), so offering them would suggest invalid code.
+ */
+function getKeywordCompletions(keywordFilter: KeywordCompletionFilters, filterOutTsOnlyKeywords: boolean, languageVariant: LanguageVariant): readonly CompletionEntry[] {
+    return getKeywordCompletionsForAnyDriver(keywordFilter, filterOutTsOnlyKeywords)
+        .filter(entry => isKeywordInLanguageVariant(stringToToken(entry.name)!, languageVariant));
+}
+
+function getKeywordCompletionsForAnyDriver(keywordFilter: KeywordCompletionFilters, filterOutTsOnlyKeywords: boolean): readonly CompletionEntry[] {
     if (!filterOutTsOnlyKeywords) return getTypescriptKeywordCompletions(keywordFilter);
 
     const index = keywordFilter + KeywordCompletionFilters.Last + 1;

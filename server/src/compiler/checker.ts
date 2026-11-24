@@ -28607,15 +28607,18 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // and `mixed`. Its brand keeps it apart from the other fake globals, but not from
             // the bare intrinsic object types (`object`/`lwobject`/`closure`), which carry no
             // members to compare. (`mixed`, `0` and the identity case are accepted above.)
-            if (isPromiseType(source) !== isPromiseType(target)) {
+            // A union is not itself a promise, so leave unions to the member-wise comparison
+            // below: `cond ? p : 0` is `0 | promise`, and a promise fits a `promise|int` slot.
+            if (!((source.flags | target.flags) & TypeFlags.UnionOrIntersection) && isPromiseType(source) !== isPromiseType(target)) {
                 if (reportErrors) {
                     reportErrorResults(originalSource, originalTarget, source, target, headMessage);
                 }
                 return Ternary.False;
             }
 
-            // LDMud `coroutine` is nominal for the same reason: it is a bare intrinsic object
-            // type, so without this it would relate structurally to `closure`/`lwobject`.
+            // LDMud `coroutine` is nominal for the same reason, and unions are left alone the
+            // same way: it is a bare intrinsic object type, so without this it would relate
+            // structurally to `closure`/`lwobject`.
             // The driver only converts to it by declarative cast (there is no to_coroutine()).
             if (!((source.flags | target.flags) & TypeFlags.UnionOrIntersection) && (source === coroutineType) !== (target === coroutineType)) {
                 if (reportErrors) {

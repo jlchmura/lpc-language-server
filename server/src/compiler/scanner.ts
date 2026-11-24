@@ -225,6 +225,40 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
 
 const textToKeyword = new Map(Object.entries(textToKeywordObj));
 
+// Both drivers have coroutines, and both reserve `async` and `await`, but they share
+// only the spelling. FluffOS (fluffos#1319) builds on promises: `await p` is a unary
+// prefix operator, and `acatch` and the `promise` type are FluffOS-only. LDMud (3.6.5,
+// lex.c reswords[]) builds on `coroutine` values: `await(cr[, value])` and
+// `yield([value[, cr]])` are call-shaped instructions, and `coroutine` is a type. So
+// `async` and `await` are keywords in both, and the parser picks the grammar by driver;
+// `yield` and `coroutine` are LDMud-only.
+/** @internal */
+export function isKeywordInLanguageVariant(keyword: SyntaxKind, variant: LanguageVariant): boolean {
+    switch (keyword) {
+        case SyntaxKind.ACatchKeyword:
+        case SyntaxKind.BufferKeyword:
+        case SyntaxKind.ClassKeyword:
+        case SyntaxKind.NewKeyword:
+        case SyntaxKind.PromiseKeyword:
+        case SyntaxKind.RefKeyword:
+        case SyntaxKind.TimeExpressionKeyword:
+            return variant === LanguageVariant.FluffOS;
+        case SyntaxKind.BytesKeyword:
+        case SyntaxKind.ClosureKeyword:
+        case SyntaxKind.CoroutineKeyword:
+        case SyntaxKind.DeprecatedKeyword:
+        case SyntaxKind.LwObjectKeyword:
+        case SyntaxKind.StatusKeyword:
+        case SyntaxKind.SymbolKeyword:
+        case SyntaxKind.VirtualKeyword:
+        case SyntaxKind.YieldKeyword:
+            return variant === LanguageVariant.LDMud;
+        default:
+            return true;
+    }
+}
+
+
 const textToToken = new Map(Object.entries({
     ...textToKeywordObj,
     "{": SyntaxKind.OpenBraceToken,
@@ -1981,36 +2015,8 @@ export function createScanner(
     // driver, so demote it to an Identifier token here rather than gating it per grammar
     // position downstream.
     //
-    // Both drivers have coroutines, and both reserve `async` and `await`, but they share
-    // only the spelling. FluffOS (fluffos#1319) builds on promises: `await p` is a unary
-    // prefix operator, and `acatch` and the `promise` type are FluffOS-only. LDMud (3.6.5,
-    // lex.c reswords[]) builds on `coroutine` values: `await(cr[, value])` and
-    // `yield([value[, cr]])` are call-shaped instructions, and `coroutine` is a type. So
-    // `async` and `await` are keywords in both, and the parser picks the grammar by driver;
-    // `yield` and `coroutine` are LDMud-only.
     function isKeywordInVariant(keyword: SyntaxKind, variant: LanguageVariant): boolean {
-        switch (keyword) {
-            case SyntaxKind.ACatchKeyword:
-            case SyntaxKind.BufferKeyword:
-            case SyntaxKind.ClassKeyword:
-            case SyntaxKind.NewKeyword:
-            case SyntaxKind.PromiseKeyword:
-            case SyntaxKind.RefKeyword:
-            case SyntaxKind.TimeExpressionKeyword:
-                return variant === LanguageVariant.FluffOS;
-            case SyntaxKind.BytesKeyword:
-            case SyntaxKind.ClosureKeyword:
-            case SyntaxKind.CoroutineKeyword:
-            case SyntaxKind.DeprecatedKeyword:
-            case SyntaxKind.LwObjectKeyword:
-            case SyntaxKind.StatusKeyword:
-            case SyntaxKind.SymbolKeyword:
-            case SyntaxKind.VirtualKeyword:
-            case SyntaxKind.YieldKeyword:
-                return variant === LanguageVariant.LDMud;
-            default:
-                return true;
-        }
+        return isKeywordInLanguageVariant(keyword, variant);
     }
 
     function getDirectiveToken(firstNonWhitespaceOffset: number): DirectiveSyntaxKind | SyntaxKind.Identifier {
