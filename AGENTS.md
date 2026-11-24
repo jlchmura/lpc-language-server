@@ -20,7 +20,7 @@ adapted for LPC syntax.
 - `npm ci`: Clean install (CI uses this). Root `postinstall` also installs dependencies in `client/` and `server/`.
 - `npm run compile`: Builds TypeScript, bundles artifacts, and copies `efuns/` into the server output.
 - `npm run watch`: Incremental rebuild while developing.
-- `npm test`: Runs Jest unit tests (configured in `jest.config.ts`).
+- `npm test`: Runs the Vitest unit tests (configured in `vitest.config.mts`). `npm run local-test` adds coverage.
 - VS Code: use `.vscode/launch.json` → “Launch Client” (F5) to run the extension in an Extension Host.
 
 ## Coding Style & Naming Conventions
@@ -31,8 +31,9 @@ adapted for LPC syntax.
 
 ## Testing Guidelines
 
-- Jest + `ts-jest` (ESM preset). Tests live in `server/src/tests` (example: `server/src/tests/compiler.spec.ts`).
-- When adding features or bug fixes, add/extend tests and keep coverage thresholds from `jest.config.ts` met.
+- Vitest with globals (`describe`/`it`/`expect` need no import). Tests live in `server/src/tests` (example: `server/src/tests/compiler.spec.ts`).
+- Cross-module enum accesses (`SyntaxKind.X`) are inlined for test runs by `scripts/vitest-inline-enums.mjs`; without it the suite runs about 6x slower.
+- When adding features or bug fixes, add/extend tests and keep coverage thresholds from `vitest.config.mts` met.
 
 ## Commit & Pull Request Guidelines
 

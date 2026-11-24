@@ -98,24 +98,18 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Jest Tests",
-            "program": "${workspaceFolder}/node_modules/jest/bin/jest",
+            "name": "Vitest Tests",
+            "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
             "sourceMaps": true,
             "args": [
+                "run",
                 "${fileBasenameNoExtension}",
-                "--no-cache",
-                "--runInBand",
-                "--coverage=false"
-                // "--config",
-                // "${workspaceFolder}/jest.config.js"
+                "--no-file-parallelism",
+                "--coverage.enabled=false"
             ],
-            "preLaunchTask": "compile",
             "cwd": "${workspaceRoot}",
             "console": "integratedTerminal",
-            "internalConsoleOptions": "neverOpen",
-            "windows": {
-                "program": "${workspaceFolder}/node_modules/jest/bin/jest"
-            }
+            "internalConsoleOptions": "neverOpen"
             // "envFile": "${workspaceFolder}/.env"
         }
     ]

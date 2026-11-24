@@ -3,7 +3,7 @@ import { createTestLanguageService } from "./harness.js";
 
 /**
  * Parses `text` and returns its syntactic diagnostics as readable strings (raw
- * diagnostics hold the source file, which Jest cannot serialize when an assertion
+ * diagnostics hold the source file, which the test runner cannot serialize when an assertion
  * fails) plus each function declaration's name and parameter count.
  */
 function parseFunctions(text: string) {

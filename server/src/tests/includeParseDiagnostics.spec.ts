@@ -42,7 +42,7 @@ function includeErrors(diags: readonly lpc.Diagnostic[]) {
 
 /**
  * Reduce a diagnostic to plain strings before asserting on it. A failed `expect` on a
- * Diagnostic itself cannot be reported: jest serializes the actual value to hand it back
+ * Diagnostic itself cannot be reported: the test runner serializes the actual value to hand it back
  * to the runner, and `file` reaches a SourceFile whose nodes point at their parents.
  */
 function summarize(diags: readonly lpc.Diagnostic[]) {
