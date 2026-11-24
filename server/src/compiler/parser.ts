@@ -6357,6 +6357,10 @@ export namespace LpcParser {
             // Context variables are declared at the start of the body, so they get the body's scope
             // and their declared types, as in the driver.
             (body as Mutable<Block>).statements = createNodeArray([...context, ...body.statements], context[0].pos, body.statements.end);
+            // The body then starts at the context, so the declarations lie inside it. A node outside its
+            // parent's range is invisible to position lookups: hover, find-references and rename on a context
+            // variable's declaration found nothing.
+            setTextRangePos(body, context[0].pos);
         }
         
         const node = factory.createFunctionExpression(modifiers, name, parameters, type, body);

@@ -50,4 +50,14 @@ describe("LDMud inline closures", () => {
         expect(diagnosticsFor(`#pragma strict_types\nclosure f(int arg) { return function int (int val) : string s = "x" { return s; }; }`))
             .toEqual([expect.stringMatching(/^2322: Type 'string' is not assignable to type 'int'/)]);
     });
+
+    it("finds a context variable from its declaration (hover, references)", () => {
+        const source = `int f() {\n    closure c = function int (int a) : int ctx = 1; string s = "" { return ctx + a + sizeof(s); };\n    return 0;\n}\n`;
+        const { ls, abs } = createTestLanguageService({ "test.c": source }, { driverType: lpc.LanguageVariant.LDMud });
+        const declaration = source.indexOf("ctx"), use = source.indexOf("ctx", declaration + 1);
+        expect(lpc.displayPartsToString(ls.getQuickInfoAtPosition(abs("test.c"), declaration)?.displayParts)).toBe("(local var)  int ctx");
+        expect(lpc.displayPartsToString(ls.getQuickInfoAtPosition(abs("test.c"), source.indexOf("s ="))?.displayParts)).toBe("(local var)  string s");
+        const references = ls.findReferences(abs("test.c"), declaration)?.flatMap(r => r.references.map(x => x.textSpan.start));
+        expect(references).toEqual([declaration, use]);
+    });
 });
