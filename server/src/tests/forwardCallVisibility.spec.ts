@@ -169,4 +169,44 @@ describe("an LDMud closure of a function the driver has not seen yet", () => {
     it("accepts a closure of an inherited function by its qualified name", () => {
         expect(ldmudFixture("fwd_lambda_super.c")).toEqual([]);
     });
+
+    it("says it is a closure, not a call", () => {
+        expect(closures(`mixed a() { return #'b; }\nvoid b() { }\n`))
+            .toEqual([expect.stringContaining("Add a prototype above this closure")]);
+    });
+
+    // An earlier call `b()` leaves a forward stub for `b`, typed caller or not (prolang.y,
+    // define_new_function with NAME_UNDEFINED), and lex.c's closure() then finds it.
+    it("accepts a closure after an untyped call has made a stub", () => {
+        expect(closures(`x() { b(); }\nmixed f() { return #'b; }\nvoid b() { }\n`)).toEqual([]);
+    });
+
+    it("reports only the call when the earlier call is in a typed function", () => {
+        expect(closures(`void x() { b(); }\nmixed f() { return #'b; }\nvoid b() { }\n`))
+            .toEqual([expect.stringContaining("Add a prototype above this call")]);
+    });
+
+    it("reports a closure passed to the call that would make the stub", () => {
+        // The arguments are compiled before the call makes its stub.
+        expect(closures(`x() { return b(#'b); }\nvoid b(mixed c) { }\n`)).toHaveLength(1);
+    });
+
+    it("reports a closure after a stub when a local of that name is in the way", () => {
+        expect(closures(`mixed f() { int b; b = 1; return #'b; }\nvoid b() { }\n`)).toHaveLength(1);
+        expect(closures(`x() { b(); }\nmixed f() { int b; return #'b; }\nvoid b() { }\n`)).toEqual([]);
+    });
+
+    // lex.c's closure() falls back to a global variable: `#'b` is then a variable closure.
+    it("accepts a closure of a global variable declared earlier", () => {
+        expect(closures(`mixed b;\nmixed f() { return #'b; }\nvoid b() { }\n`)).toEqual([]);
+    });
+
+    it("reports a closure before a global variable of that name", () => {
+        expect(closures(`mixed f() { return #'b; }\nmixed b;\nvoid b() { }\n`)).toHaveLength(1);
+    });
+
+    it("tells a closure from a quoted symbol inside a macro", () => {
+        expect(closures(`#define CL(f) #'f\nmixed f() { return CL(b); }\nvoid b() { }\n`)).toHaveLength(1);
+        expect(closures(`#define Q(f) ({ 'f, 1 })\nmixed f() { return Q(b); }\nvoid b() { }\n`)).toEqual([]);
+    });
 });

@@ -1435,9 +1435,10 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createLambdaIdentifierExpression(name: Expression): LambdaIdentifierExpression {
+    function createLambdaIdentifierExpression(name: Expression, isQuotedSymbol?: boolean): LambdaIdentifierExpression {
         const node = createBaseNode<LambdaIdentifierExpression>(SyntaxKind.LambdaIdentifierExpression);
         node.name = (name);
+        if (isQuotedSymbol) node.isQuotedSymbol = true;
         return node;
     }
 
