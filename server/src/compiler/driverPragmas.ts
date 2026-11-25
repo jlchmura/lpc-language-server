@@ -26,6 +26,12 @@ export interface DriverPragmaState {
      * that matters for an inherited program.
      */
     readonly saveTypes: boolean;
+    /**
+     * LDMud's `pedantic` (`sloppy` turns it off): among other things, a call to a function
+     * the program has not declared is a warning even where `exact_types` is off (prolang.y).
+     * FluffOS has no such pragma.
+     */
+    readonly pedantic: boolean;
 }
 
 export interface DriverPragmaStates {
@@ -41,7 +47,7 @@ export interface DriverPragmaStates {
  * lexer resets to weak types with nothing saved for every compile (lex.c `start_lex`).
  */
 function getInitialDriverPragmaState(variant: LanguageVariant): DriverPragmaState {
-    return { types: DriverTypesPragma.Weak, saveTypes: variant === LanguageVariant.FluffOS };
+    return { types: DriverTypesPragma.Weak, saveTypes: variant === LanguageVariant.FluffOS, pedantic: false };
 }
 
 /** Applies one pragma name to `state`, the way the driver's lexer would. */
@@ -71,6 +77,10 @@ export function applyDriverPragma(state: DriverPragmaState, name: string, varian
         case "rtt_checks":
         case "warn_rtt_checks":
             return { ...state, saveTypes: true };
+        case "pedantic":
+            return { ...state, pedantic: true };
+        case "sloppy":
+            return { ...state, pedantic: false };
     }
     return state;
 }

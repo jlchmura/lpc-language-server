@@ -216,6 +216,48 @@ describe.each([
         });
     });
 
+    describe("a call to a function nothing defines (#446)", () => {
+        // Where exact_types is off both drivers compile the call to an undefined stub, and
+        // it fails only if it runs. LDMud 3.6.7 loads `a() { return never_defined(); }`.
+        it("is not reported in a function without a return type", () => {
+            expect(codes(driver, `a() { return never_defined(); }\n`)).toEqual([]);
+            expect(codes(driver, `a() { never_defined(1, "x"); }\n`)).toEqual([]);
+        });
+
+        it("is reported in a function with a return type", () => {
+            expect(codes(driver, `int a() { return never_defined(); }\n`)).toEqual([2304]);
+            expect(codes(driver, `void a() { never_defined(); }\n`)).toEqual([2304]);
+        });
+
+        it("is still reported outside driver mode", () => {
+            expect(codes(driver, `a() { return never_defined(); }\n`, { mode: "strict" })).toEqual([2304]);
+        });
+
+        it("is reported in a `function` closure, which is always typed", () => {
+            expect(codes(driver, `a() { function f = function() { return never_defined(); }; return f; }\n`)).toEqual([2304]);
+        });
+
+        it(isLD ? "is reported in a `(: :)` closure" : "follows the enclosing function in a `(: :)` closure", () => {
+            expect(codes(driver, `a() { function f = (: never_defined() :); return f; }\n`)).toEqual(isLD ? [2304] : []);
+            expect(codes(driver, `mixed a() { function f = (: never_defined() :); return f; }\n`)).toEqual([2304]);
+        });
+
+        it("is still reported in a global initialiser, which runs when the object loads", () => {
+            expect(codes(driver, `mixed x = never_defined();\n`)).toEqual([2304]);
+            expect(codes(driver, `f() { }\nmixed x = never_defined();\n`)).toEqual([2304]);
+        });
+
+        it("still reports an undefined variable passed to it", () => {
+            expect(codes(driver, `a() { return never_defined(nope); }\n`)).toEqual([2304]);
+        });
+
+        it(isLD ? "is a warning under #pragma pedantic, until #pragma sloppy" : "ignores #pragma pedantic", () => {
+            const pedantic = diagnostics(driver, `#pragma pedantic\na() { return never_defined(); }\n#pragma sloppy\nb() { return also_undefined(); }\n`);
+            expect(pedantic).toEqual(isLD ? ["9078: Undefined function 'never_defined'."] : []);
+            expect(codes(driver, `a() { return never_defined(); }\n`, { defaultPragmas: ["pedantic"] })).toEqual(isLD ? [9078] : []);
+        });
+    });
+
     describe("code at file scope", () => {
         // Neither driver resets `exact_types` for a global initialiser, so it is checked
         // under what the function compiled just before it left behind.
