@@ -15530,9 +15530,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         if (node.block) {
             checkBlock(node.block);
-        } else {
+        } else if (node.expression) {
             checkExpression(node.expression, checkMode);
         }
+        // Neither is `catch;`, which the parser has already reported.
         checkCatchModifier(node);
 
         // catch always returns either 0 or a string

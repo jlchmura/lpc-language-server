@@ -2647,8 +2647,12 @@ export namespace LpcParser {
             }
 
             parseExpected(SyntaxKind.CloseParenToken);
+        } else if (token() === SyntaxKind.OpenBraceToken) {
+            block = doInsideOfContext(NodeFlags.CatchContext, () => parseFunctionBlock(SignatureFlags.None));
         } else {
-            block = doInsideOfContext(NodeFlags.CatchContext,() => parseFunctionBlockOrSemicolon(SignatureFlags.None));
+            // `catch;`, or `catch` at the end of a line or the file, has neither `(` nor a
+            // block. Both drivers call that a syntax error (#457).
+            parseExpected(SyntaxKind.OpenParenToken);
         }
 
         return finishNode(factory.createCatchExpression(expression, modifier, modifierExpression, block), post);
@@ -2783,9 +2787,16 @@ export namespace LpcParser {
             }
 
             parseExpected(SyntaxKind.CloseParenToken);
-        }        
+        }
 
-        const block = doInsideOfContext(NodeFlags.CatchContext,() => parseFunctionBlockOrSemicolon(SignatureFlags.None));
+        // Without `(` the only other form is a block; `catch;` is a syntax error (#457).
+        let block: Block | undefined;
+        if (expression || token() === SyntaxKind.OpenBraceToken) {
+            block = doInsideOfContext(NodeFlags.CatchContext,() => parseFunctionBlockOrSemicolon(SignatureFlags.None));
+        }
+        else {
+            parseExpected(SyntaxKind.OpenParenToken);
+        }
 
         return withJSDoc(finishNode(factory.createCatchStatement(expression, block, modifier, modifierExpression), pos), hasJSDoc);
     }
