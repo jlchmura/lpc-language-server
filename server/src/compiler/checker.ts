@@ -17109,7 +17109,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         for (const statement of statements) {
             if (before && !comesBeforeInCompileOrder(statement, before)) break;
             if (isFunctionDeclaration(statement)) found = statement;
-            else if (isIncludeDirective(statement)) found = findLastFunctionHeader(statement.statements, before) ?? found;
+            // An include that was not found, or is empty, has no statements.
+            else if (isIncludeDirective(statement)) found = findLastFunctionHeader(statement.statements ?? emptyArray, before) ?? found;
         }
         return found;
     }

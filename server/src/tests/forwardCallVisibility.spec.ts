@@ -150,6 +150,12 @@ describe("a call at file scope", () => {
         expect(fixture("fwd_init_include.c")).toHaveLength(1);
     });
 
+    it("looks past an include that was not found, without crashing", () => {
+        // A missing include has no statements to search.
+        expect(undefinedFunctions(`#include "missing.h"\nint x = b();\nint b() { return 1; }\n`)).toEqual([]);
+        expect(undefinedFunctions(`void a() { }\n#include "missing.h"\nint x = b();\nint b() { return 1; }\n`)).toHaveLength(1);
+    });
+
     it("falls back to the last function of the inherited program", () => {
         for (const driverType of bothDrivers) {
             expect(fixture("fwd_init_inherit_typed.c", { driverType })).toHaveLength(1);
