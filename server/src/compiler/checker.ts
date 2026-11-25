@@ -16409,6 +16409,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 if (parameterType) {
                     return parameterType;
                 }
+            } else if (languageVariant === LanguageVariant.LDMud) {
+                checkLambdaTargetIsVisibleToTheDriver(node, name as Identifier);
             }
         }
 
@@ -16887,6 +16889,71 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         const diagnostic = error(callee, Diagnostics.Undefined_function_0_it_is_not_declared_until_later_in_this_program, callee.text);
         addRelatedInfo(diagnostic, createDiagnosticForNode(declarations[0], Diagnostics._0_is_declared_here, callee.text));
+    }
+
+    /**
+     * LDMud binds `#'fn` when it compiles it, so a closure of a function this program does
+     * not declare until later is "Undefined function" (LDMud 3.6.8). Unlike a call, there is
+     * no forward stub to fall back on: an untyped function and a variable initialiser at
+     * file scope reject it as well, so neither exemption of checkCallTargetIsVisibleToTheDriver
+     * applies.
+     *
+     * lex.c's closure() tries, in order, a function this program already knows, a simul_efun,
+     * an efun and a global variable. Two of those make an out-of-order closure legal:
+     * - an earlier call `fn()`, which leaves a forward stub for `fn` behind (prolang.y,
+     *   define_new_function with NAME_UNDEFINED), typed caller or not;
+     * - a global variable `fn` declared earlier: `#'fn` is then a closure of the variable.
+     *
+     * A quoted symbol, `'fn`, parses to the same node but is only a name until it is used,
+     * so it is not checked.
+     */
+    function checkLambdaTargetIsVisibleToTheDriver(node: LambdaIdentifierExpression, name: Identifier) {
+        if (node.isQuotedSymbol) return;
+
+        // Silent and uncached: a closure names a function, and nothing has reported this
+        // name before, so a miss here must not become a new "Cannot find name".
+        const symbol = getResolvedSymbol(name, SymbolFlags.Function, /*speculative*/ true);
+        const declarations = symbol?.declarations;
+        if (!symbol || symbol === unknownSymbol || !declarations?.length) return;
+
+        const file = getSourceFileOfNode(node);
+        if (!declarations.every(declaration => isFunctionDeclaration(declaration) && getSourceFileOfNode(declaration) === file)) return;
+        if (declarations.some(declaration => comesBeforeInCompileOrder(declaration, name))) return;
+
+        if (driverBindsNameWithoutDeclaration(name.text, file)) return;
+        if (isDeclaredByAnInherit(file, name.text)) return;
+        if (isGlobalVariableVisibleToClosure(name)) return;
+        if (hasEarlierCallTo(file, symbol, name)) return;
+
+        const diagnostic = error(name, Diagnostics.Undefined_function_0_closure_it_is_not_declared_until_later_in_this_program, name.text);
+        addRelatedInfo(diagnostic, createDiagnosticForNode(declarations[0], Diagnostics._0_is_declared_here, name.text));
+    }
+
+    /**
+     * Whether `#'name` binds to a global variable instead: one declared earlier in this
+     * program, or one it inherits. A local or a parameter does not count -- the driver only
+     * looks at object variables, and reports "Undefined function" past a local of that name.
+     */
+    function isGlobalVariableVisibleToClosure(name: Identifier): boolean {
+        const variable = resolveName(name, name, SymbolFlags.Variable, /*nameNotFoundMessage*/ undefined, /*isUse*/ false, /*excludeGlobals*/ false);
+        return !!variable?.declarations?.some(declaration =>
+            isVariableDeclaration(declaration)
+            && isVariableStatement(declaration.parent.parent)
+            && isSourceFile(declaration.parent.parent.parent)
+            && (getSourceFileOfNode(declaration) !== getSourceFileOfNode(name) || comesBeforeInCompileOrder(declaration, name)));
+    }
+
+    /**
+     * Whether a plain call to `symbol` is compiled before `before`. A call that contains it,
+     * `fn(#'fn)`, does not count: the stub is made once the arguments are compiled.
+     */
+    function hasEarlierCallTo(file: SourceFile, symbol: Symbol, before: Identifier): boolean {
+        const text = before.text;
+        return !!forEachChildRecursively(file, child => {
+            if (!comesBeforeInCompileOrder(child, before)) return "skip";
+            return isCallExpression(child) && isIdentifier(child.expression) && child.expression.text === text
+                && !isNodeDescendantOf(before, child) && getResolvedSymbol(child.expression) === symbol || undefined;
+        });
     }
 
     function checkCallExpression(node: CallExpression | NewExpression, checkMode?: CheckMode): Type {

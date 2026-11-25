@@ -1688,7 +1688,7 @@ export interface NodeFactory {
     createMappingEntryExpression(name: Expression, elements: readonly Expression[]): MappingEntryExpression
     convertToAssignmentExpression(node: Mutable<VariableDeclaration>): BinaryExpression;
     createLambdaOperatorExpression(op: LambdaOperatorToken): LambdaOperatorExpression;
-    createLambdaIdentifierExpression(name: Expression): LambdaIdentifierExpression;
+    createLambdaIdentifierExpression(name: Expression, isQuotedSymbol?: boolean): LambdaIdentifierExpression;
     createQuotedArrayExpression(quotes: number, expression: ArrayLiteralExpression): QuotedArrayExpression;
     createCastExpression(expression: Expression, type: TypeNode): Expression;
     createCloneObjectExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): CloneObjectExpression;
@@ -4090,6 +4090,8 @@ export interface LambdaExpression extends PrimaryExpression {
 export interface LambdaIdentifierExpression extends LambdaExpression {
     readonly kind: SyntaxKind.LambdaIdentifierExpression;
     readonly name: Expression;
+    /** LDMud `'name`: a quoted symbol, which is only a name, rather than the closure `#'name`. */
+    readonly isQuotedSymbol?: boolean;
 }
 
 export interface LambdaOperatorExpression extends LambdaExpression {

@@ -5794,6 +5794,10 @@ export namespace LpcParser {
 
     function parseLambdaExpression(): LambdaExpression {
         const pos = getPositionState();
+        // The scanner returns the same token for `#'` and for the quote(s) of a symbol, `'foo`.
+        // Its text is read here rather than from the source later, so a token that came from
+        // a macro body is told apart too.
+        const isQuotedSymbol = scanner.getTokenText().charCodeAt(0) === CharacterCodes.singleQuote;
         parseExpected(SyntaxKind.LambdaToken);
         
         let node: LambdaExpression;        
@@ -5805,7 +5809,7 @@ export namespace LpcParser {
                 name = parseSuperExpression(idPos, name);
             }
 
-            node = factory.createLambdaIdentifierExpression(name);
+            node = factory.createLambdaIdentifierExpression(name, isQuotedSymbol);
         } else if (token() == SyntaxKind.ColonColonToken) {
             // `#'::foo`, the inherited `foo`
             node = factory.createLambdaIdentifierExpression(parseSuperExpression(getPositionState()));
