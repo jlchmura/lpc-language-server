@@ -24699,6 +24699,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
         }
 
+        if (errorLocation && isCallTheDriverDefersToRunTime(errorLocation)) {
+            if (getDriverPragmaStateAt(errorLocation).pedantic) {
+                addLazyDiagnostic(() => error(errorLocation, Diagnostics.Undefined_function_0, name));
+            }
+            return undefined;
+        }
+
         addLazyDiagnostic(() => {
             if (
                 !errorLocation ||
@@ -24748,6 +24755,23 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         });
 
         return undefined;
+    }
+
+    /**
+     * Whether `name` is the callee of a call the driver compiles even though nothing by that
+     * name exists. Where `exact_types` is off, both drivers define an undefined stub for it
+     * and the call fails only if it runs (LDMud prolang.y, FluffOS grammar.y: "Undefined
+     * function" is an error only `if (exact_types)`); LDMud's `#pragma pedantic` makes it a
+     * warning. A call in a global initialiser is still reported: it runs when the object
+     * loads, so the load fails ("Undefined function" at run time).
+     */
+    function isCallTheDriverDefersToRunTime(name: Node): boolean {
+        return driverTypeChecking
+            && isIdentifier(name)
+            && isCallExpression(name.parent)
+            && name.parent.expression === name
+            && !!getContainingFunction(name)
+            && !isTypeCheckedByDriver(name);
     }
 
     function addErrorOrSuggestion(isError: boolean, diagnostic: Diagnostic) {
