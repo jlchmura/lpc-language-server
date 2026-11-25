@@ -126,6 +126,19 @@ const intrinsicTypeKinds: ReadonlyMap<string, IntrinsicTypeKind> = new Map(Objec
     NoInfer: IntrinsicTypeKind.NoInfer,
 }));
 
+/** What LDMud's grammar records about a statement (prolang.y `struct statement_s`). */
+interface DriverStatementFlow {
+    /** Control can leave it at its end. */
+    readonly mayFinish: boolean;
+    /** It holds a `break` that leaves the enclosing loop or switch. */
+    readonly mayBreak: boolean;
+    /** It holds a `continue` for the enclosing loop. */
+    readonly mayContinue: boolean;
+}
+
+const driverFlowFinishes: DriverStatementFlow = { mayFinish: true, mayBreak: false, mayContinue: false };
+const driverFlowStops: DriverStatementFlow = { mayFinish: false, mayBreak: false, mayContinue: false };
+
 /** @internal */
 export function createTypeChecker(host: TypeCheckerHost): TypeChecker {        
     // Why var? It avoids TDZ checks in the runtime which can be costly.
@@ -6324,6 +6337,120 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     /**
+     * LDMud warns "Missing 'return <value>' statement" when a function with a return type
+     * other than `void` can reach the end of its body (prolang.y def_function_check_return),
+     * unless `#pragma no_warn_missing_return` is in force there. A `function` closure
+     * without a type is `mixed`, so it is checked too. A function declared with no type is
+     * not: the driver checks one only under `strict_types`, which rejects it anyway.
+     *
+     * Whether the end is reachable is the driver's own judgement, see
+     * {@link getDriverStatementsFlow}, not the checker's control flow.
+     */
+    function checkDriverMissingReturn(func: FunctionLikeDeclaration) {
+        if (!isFunctionDeclaration(func) && !isFunctionExpression(func)) return;
+        const body = func.body;
+        if (!body || nodeIsMissing(body) || !isBlock(body)) return;
+        const returnType = func.type;
+        if (isFunctionDeclaration(func) && !returnType) return;
+        if (returnType?.kind === SyntaxKind.VoidKeyword) return;
+        if (getFunctionFlags(func) & FunctionFlags.Async) return;
+        if (!getDriverStatementsFlow(body.statements).mayFinish) return;
+        if (!getDriverPragmaStates(getSourceFileOfNode(func)).stateAtEndOf(func).warnMissingReturn) return;
+        error(returnType ?? func, Diagnostics.Missing_return_value_statement);
+    }
+
+    /**
+     * LDMud's `may_finish` for a statement list: every statement must finish. The rules
+     * are syntactic and simpler than the checker's control flow -- a `while (1)` loop
+     * finishes, for one -- so they are worked out here, rule for rule.
+     */
+    function getDriverStatementsFlow(statements: readonly Statement[]): DriverStatementFlow {
+        let mayFinish = true, mayBreak = false, mayContinue = false;
+        for (const statement of statements) {
+            const flow = getDriverStatementFlow(statement);
+            mayFinish &&= flow.mayFinish;
+            mayBreak ||= flow.mayBreak;
+            mayContinue ||= flow.mayContinue;
+        }
+        return { mayFinish, mayBreak, mayContinue };
+    }
+
+    function getDriverStatementFlow(node: Statement): DriverStatementFlow {
+        switch (node.kind) {
+            case SyntaxKind.Block:
+                return getDriverStatementsFlow((node as Block).statements);
+            case SyntaxKind.IncludeDirective:
+                return getDriverStatementsFlow((node as IncludeDirective).statements ?? emptyArray);
+            case SyntaxKind.IfStatement: {
+                // An `if` with no `else` finishes through its empty else-part.
+                const { thenStatement, elseStatement } = node as IfStatement;
+                const thenFlow = getDriverStatementFlow(thenStatement);
+                const elseFlow = elseStatement ? getDriverStatementFlow(elseStatement) : driverFlowFinishes;
+                return {
+                    mayFinish: thenFlow.mayFinish || elseFlow.mayFinish,
+                    mayBreak: thenFlow.mayBreak || elseFlow.mayBreak,
+                    mayContinue: thenFlow.mayContinue || elseFlow.mayContinue,
+                };
+            }
+            case SyntaxKind.WhileStatement:
+            case SyntaxKind.ForStatement:
+            case SyntaxKind.ForEachStatement:
+                // Always taken to finish, whatever the condition.
+                return driverFlowFinishes;
+            case SyntaxKind.DoWhileStatement: {
+                const bodyFlow = getDriverStatementFlow((node as DoWhileStatement).statement);
+                return { mayFinish: bodyFlow.mayBreak || bodyFlow.mayContinue || bodyFlow.mayFinish, mayBreak: false, mayContinue: false };
+            }
+            case SyntaxKind.SwitchStatement: {
+                // Without a `default` the switch can be skipped. Otherwise it finishes through
+                // a `break` or by falling out of its last case.
+                const clauses = (node as SwitchStatement).caseBlock.clauses;
+                const all = getDriverStatementsFlow(flatMap(clauses, clause => clause.statements));
+                const lastFlow = clauses.length ? getDriverStatementsFlow(last(clauses).statements) : driverFlowFinishes;
+                const hasDefault = clauses.some(clause => clause.kind === SyntaxKind.DefaultClause);
+                return { mayFinish: !hasDefault || all.mayBreak || lastFlow.mayFinish, mayBreak: false, mayContinue: all.mayContinue };
+            }
+            case SyntaxKind.ReturnStatement:
+                return driverFlowStops;
+            case SyntaxKind.BreakStatement:
+                return { mayFinish: false, mayBreak: true, mayContinue: false };
+            case SyntaxKind.ContinueStatement:
+                return { mayFinish: false, mayBreak: false, mayContinue: true };
+            case SyntaxKind.ExpressionStatement:
+                return endsWithRaiseError((node as ExpressionStatement).expression) ? driverFlowStops : driverFlowFinishes;
+        }
+        return driverFlowFinishes;
+    }
+
+    /**
+     * Whether the last instruction LDMud compiles for an expression statement is the
+     * `raise_error` or `throw` efun, which is how it knows the statement does not finish:
+     * `raise_error(...)`, `(raise_error(...))` or `x, raise_error(...)`, but not
+     * `x = raise_error(...)` or a call to a simul_efun of that name.
+     */
+    function endsWithRaiseError(expression: Expression): boolean {
+        let current = expression;
+        while (true) {
+            if (isParenthesizedExpression(current)) current = current.expression;
+            else if (isBinaryExpression(current) && current.operatorToken.kind === SyntaxKind.CommaToken) current = current.right;
+            else if (current.kind === SyntaxKind.CommaListExpression && (current as CommaListExpression).elements.length) current = last((current as CommaListExpression).elements);
+            else break;
+        }
+        if (!isCallExpression(current)) return false;
+        const callee = current.expression;
+        let name: string | undefined;
+        if (isIdentifier(callee)) {
+            const declarations = getResolvedSymbol(callee).declarations;
+            if (!declarations?.length || !declarations.every(declaration => getSourceFileOfNode(declaration).isDefaultLib)) return false;
+            name = callee.text;
+        }
+        else if (isSuperAccessExpression(callee) && isIdentifier(callee.namespace) && callee.namespace.text === "efun" && isIdentifier(callee.name)) {
+            name = callee.name.text;
+        }
+        return name === "raise_error" || name === "throw";
+    }
+
+    /**
      * TypeScript Specification 1.0 (6.3) - July 2014
      *   An explicitly typed function whose return type isn't the Void type,
      *   the Any type, or a union type containing the Void or Any type as a constituent
@@ -6337,6 +6464,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return;
 
         function checkAllCodePathsInNonVoidFunctionReturnOrThrowDiagnostics(): void {
+            if (driverTypeChecking) {
+                // FluffOS has no warning for a function that can run off its end.
+                if (languageVariant === LanguageVariant.LDMud) checkDriverMissingReturn(func);
+                return;
+            }
+            // `#pragma no_warn_missing_return` turns this warning off in LDMud.
+            if (languageVariant === LanguageVariant.LDMud && !getDriverPragmaStates(getSourceFileOfNode(func)).stateAtEndOf(func).warnMissingReturn) {
+                return;
+            }
+
             const functionFlags = getFunctionFlags(func);
             const type = returnType && unwrapReturnType(returnType, functionFlags);
 

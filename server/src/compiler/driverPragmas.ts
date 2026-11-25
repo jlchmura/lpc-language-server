@@ -1,4 +1,4 @@
-import { CompilerOptions, IncludeDirective, isIncludeDirective, LanguageVariant, Node, PragmaDirective, SourceFile, Statement, SyntaxKind } from "./_namespaces/lpc.js";
+import { CompilerOptions, forEachChild, IncludeDirective, isIncludeDirective, LanguageVariant, Node, PragmaDirective, SourceFile, Statement, SyntaxKind } from "./_namespaces/lpc.js";
 
 /**
  * The type-enforcing pragma in effect. LDMud has all three (`weak_types`, `strong_types`,
@@ -32,11 +32,22 @@ export interface DriverPragmaState {
      * FluffOS has no such pragma.
      */
     readonly pedantic: boolean;
+    /**
+     * LDMud's `warn_missing_return`, on by default (lex.c): warn when a typed, non-void
+     * function can reach its end. The driver reads it when it reaches the end of the
+     * function, so it is {@link DriverPragmaStates.stateAtEndOf} that matters.
+     */
+    readonly warnMissingReturn: boolean;
 }
 
 export interface DriverPragmaStates {
     /** The state in force when the driver reaches `node`. */
     stateAt(node: Node): DriverPragmaState;
+    /**
+     * The state in force when the driver reaches the end of `node`, counting any `#pragma`
+     * written inside the statement that holds it (a function body, say).
+     */
+    stateAtEndOf(node: Node): DriverPragmaState;
     /** The state at the end of the file. */
     readonly final: DriverPragmaState;
 }
@@ -47,7 +58,7 @@ export interface DriverPragmaStates {
  * lexer resets to weak types with nothing saved for every compile (lex.c `start_lex`).
  */
 function getInitialDriverPragmaState(variant: LanguageVariant): DriverPragmaState {
-    return { types: DriverTypesPragma.Weak, saveTypes: variant === LanguageVariant.FluffOS, pedantic: false };
+    return { types: DriverTypesPragma.Weak, saveTypes: variant === LanguageVariant.FluffOS, pedantic: false, warnMissingReturn: variant === LanguageVariant.LDMud };
 }
 
 /** Applies one pragma name to `state`, the way the driver's lexer would. */
@@ -81,6 +92,10 @@ export function applyDriverPragma(state: DriverPragmaState, name: string, varian
             return { ...state, pedantic: true };
         case "sloppy":
             return { ...state, pedantic: false };
+        case "warn_missing_return":
+            return { ...state, warnMissingReturn: true };
+        case "no_warn_missing_return":
+            return { ...state, warnMissingReturn: false };
     }
     return state;
 }
@@ -112,6 +127,33 @@ export function computeDriverPragmaStates(file: SourceFile, options: CompilerOpt
     const initial = state;
     const byStatement = new Map<Node, DriverPragmaState>();
 
+    /** Applies the `#pragma` lines nested in `node` that start before `end`, in order. */
+    const applyNested = (state: DriverPragmaState, node: Node, end: number): DriverPragmaState => {
+        // Nodes inside an include carry positions in the included file, so only the
+        // include itself is compared with `end`; everything in it comes before its end.
+        const walk = (child: Node, limit: number): void => {
+            if (child.pos >= limit) return;
+            if (child.kind === SyntaxKind.PragmaDirective) {
+                state = applyPragmaDirective(state, child as PragmaDirective, variant);
+            }
+            else {
+                const childLimit = isIncludeDirective(child) ? Infinity : limit;
+                forEachChild(child, grandchild => walk(grandchild, childLimit));
+            }
+        };
+        forEachChild(node, child => walk(child, end));
+        return state;
+    };
+
+    /** The statement that sits directly in the file or in an include and holds `node`. */
+    const topLevelStatementOf = (node: Node): Node | undefined => {
+        let current: Node | undefined = node;
+        while (current?.parent && current.parent.kind !== SyntaxKind.SourceFile && current.parent.kind !== SyntaxKind.IncludeDirective) {
+            current = current.parent;
+        }
+        return current;
+    };
+
     const visit = (statements: readonly Statement[] | undefined) => {
         for (const statement of statements ?? []) {
             if (statement.kind === SyntaxKind.PragmaDirective) {
@@ -122,6 +164,8 @@ export function computeDriverPragmaStates(file: SourceFile, options: CompilerOpt
             }
             else {
                 byStatement.set(statement, state);
+                // A pragma inside a function holds from there on, after the function too.
+                state = applyNested(state, statement, statement.end);
             }
         }
     };
@@ -130,12 +174,13 @@ export function computeDriverPragmaStates(file: SourceFile, options: CompilerOpt
     return {
         final: state,
         stateAt(node: Node) {
-            // Climb to the statement that sits directly in the file or in an include.
-            let current: Node | undefined = node;
-            while (current?.parent && current.parent.kind !== SyntaxKind.SourceFile && current.parent.kind !== SyntaxKind.IncludeDirective) {
-                current = current.parent;
-            }
-            return (current && byStatement.get(current)) ?? initial;
+            const statement = topLevelStatementOf(node);
+            return (statement && byStatement.get(statement)) ?? initial;
+        },
+        stateAtEndOf(node: Node) {
+            const statement = topLevelStatementOf(node);
+            const start = (statement && byStatement.get(statement)) ?? initial;
+            return statement ? applyNested(start, statement, node.end) : start;
         },
     };
 }
