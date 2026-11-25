@@ -132,3 +132,41 @@ describe("inside the simul_efun object, siblings are ordinary program-local func
         expect(diagnostics).toEqual([]);
     });
 });
+
+describe("an LDMud closure of a function the driver has not seen yet", () => {
+    // LDMud binds `#'fn` when it compiles it, and there is no forward stub for a closure:
+    // LDMud 3.6.8 rejects `#'later_fn` before later_fn with "Undefined function: later_fn"
+    // in a typed function, an untyped one and a file-scope initialiser alike.
+    const closures = (source: string) => undefinedFunctions(source, lpc.LanguageVariant.LDMud);
+    const ldmudFixture = (name: string) => fixture(name, { driverType: lpc.LanguageVariant.LDMud });
+
+    it("reports a closure taken before the function is declared", () => {
+        const diagnostics = ldmudFixture("fwd_lambda_later.c");
+        expect(diagnostics).toHaveLength(1);
+        expect(diagnostics[0]).toContain("'later_fn'");
+    });
+
+    it("reports it in an untyped function too", () => {
+        expect(closures(`a() { return #'b; }\nvoid b() { }\n`)).toHaveLength(1);
+    });
+
+    it("reports it at file scope too -- unlike a call, it is not deferred to __INIT", () => {
+        expect(closures(`mixed m = #'b;\nvoid b() { }\n`)).toHaveLength(1);
+    });
+
+    it("accepts a file-scope closure after a prototype", () => {
+        expect(closures(`void b();\nmixed m = #'b;\nvoid b() { }\n`)).toEqual([]);
+    });
+
+    it("accepts a prototype, an earlier definition, an inherited function and an efun", () => {
+        expect(ldmudFixture("fwd_lambda_visible.c")).toEqual([]);
+    });
+
+    it("accepts a quoted symbol -- it is only a name, not a closure", () => {
+        expect(closures(`mixed a() { return 'b; }\nvoid b() { }\n`)).toEqual([]);
+    });
+
+    it("accepts a closure of an inherited function by its qualified name", () => {
+        expect(ldmudFixture("fwd_lambda_super.c")).toEqual([]);
+    });
+});
