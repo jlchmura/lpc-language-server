@@ -15530,9 +15530,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         if (node.block) {
             checkBlock(node.block);
-        } else {
+        } else if (node.expression) {
             checkExpression(node.expression, checkMode);
         }
+        // Neither is `catch;`, which the parser has already reported.
         checkCatchModifier(node);
 
         // catch always returns either 0 or a string
@@ -17109,7 +17110,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         for (const statement of statements) {
             if (before && !comesBeforeInCompileOrder(statement, before)) break;
             if (isFunctionDeclaration(statement)) found = statement;
-            else if (isIncludeDirective(statement)) found = findLastFunctionHeader(statement.statements, before) ?? found;
+            // An include that was not found, or is empty, has no statements.
+            else if (isIncludeDirective(statement)) found = findLastFunctionHeader(statement.statements ?? emptyArray, before) ?? found;
         }
         return found;
     }
