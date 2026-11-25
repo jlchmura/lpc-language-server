@@ -1652,7 +1652,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // this handles the fluff array property access shortcut. 
             // e.g. users()->foo() where users is object*
             const firstTypeArg = firstOrUndefined(type.resolvedTypeArguments);
-            if (firstTypeArg.flags & TypeFlags.Object) { 
+            // An array type with no element type comes from source that failed to parse.
+            if (firstTypeArg && firstTypeArg.flags & TypeFlags.Object) {
                 // pull out the type and then fall through to the rest of this function
                 type = firstTypeArg;
             }
