@@ -67,6 +67,21 @@ describe("arguments to a FluffOS rest parameter", () => {
     });
 });
 
+describe("a varargs parameter in FluffOS", () => {
+    // grammar.y: a parameter is `arg_type` (a type, optionally `ref`); `varargs` is a function modifier only.
+    it("is reported on the modifier, whatever its type", () => {
+        const source = `void f(varargs int x) {}\nvoid g(varargs int *y) {}\nvarargs void h(int z) {}\n`;
+        const { ls, abs } = createTestLanguageService({ "test.c": source }, { driverType: lpc.LanguageVariant.FluffOS, diagnostics: true });
+        const diagnostics = [...ls.getSyntacticDiagnostics(abs("test.c")), ...ls.getSemanticDiagnostics(abs("test.c"))];
+        expect(diagnostics.map(codeAndMessage)).toEqual([
+            "1090: 'varargs' modifier cannot appear on a parameter.",
+            "1090: 'varargs' modifier cannot appear on a parameter.",
+        ]);
+        expect(diagnostics.map(d => source.substr(d.start!, d.length!))).toEqual(["varargs", "varargs"]);
+        expect(diagnostics.map(d => source.substring(0, d.start!).split("\n").length)).toEqual([1, 2]);
+    });
+});
+
 describe("an LDMud varargs parameter declaration", () => {
     // prolang.y: "varargs parameter must be declared array or mixed".
     it("must allow an array", () => {

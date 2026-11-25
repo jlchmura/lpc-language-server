@@ -6858,13 +6858,20 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (node.dotDotDotToken && !isBindingPattern(node.name) && !isTypeAssignableTo(getReducedType(getTypeOfSymbol(node.symbol)), anyReadonlyArrayType)) {
             error(node, Diagnostics.A_rest_parameter_must_be_of_an_array_type);
         }
-        // An LDMud `varargs` parameter collects the extra arguments into an array, so it has to allow
-        // one: prolang.y reports "varargs parameter must be declared array or mixed" unless the type
-        // is mixed, an array, or a union with an array in it. (Not an assignability check: object,
-        // lwobject and struct types are assignable to an array type here.)
-        if (hasSyntacticModifier(node, ModifierFlags.VarArgs) && node.type &&
-            !someType(getReducedType(getTypeOfSymbol(node.symbol)), t => isTypeAny(t) || isArrayType(t))) {
-            error(node, Diagnostics.A_varargs_parameter_must_be_declared_as_an_array_or_mixed);
+        if (hasSyntacticModifier(node, ModifierFlags.VarArgs)) {
+            if (languageVariant === LanguageVariant.FluffOS) {
+                // FluffOS has no varargs parameter: a parameter is a type, optionally `ref`
+                // (grammar.y arg_type), and `type *name...` collects the extra arguments instead.
+                const modifier = find(node.modifiers!, m => m.kind === SyntaxKind.VarArgsKeyword)!;
+                grammarErrorOnNode(modifier, Diagnostics._0_modifier_cannot_appear_on_a_parameter, "varargs");
+            }
+            // An LDMud `varargs` parameter collects the extra arguments into an array, so it has to allow
+            // one: prolang.y reports "varargs parameter must be declared array or mixed" unless the type
+            // is mixed, an array, or a union with an array in it. (Not an assignability check: object,
+            // lwobject and struct types are assignable to an array type here.)
+            else if (node.type && !someType(getReducedType(getTypeOfSymbol(node.symbol)), t => isTypeAny(t) || isArrayType(t))) {
+                error(node, Diagnostics.A_varargs_parameter_must_be_declared_as_an_array_or_mixed);
+            }
         }
     }
 
