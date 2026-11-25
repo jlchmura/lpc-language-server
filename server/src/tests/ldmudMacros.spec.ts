@@ -81,4 +81,22 @@ describe("LDMud macro bodies and parameter lists", () => {
     it("keeps a zero-parameter macro function-like", () => {
         expect(diagnosticsFor("#define LOG(x,y) log_value(x, \\\n\ty)\n#define check_security() \\\n\tif( gate != 1 ) { \\\n\t\tLOG(\"a\", \"b\"); \\\n\t\treturn( 1 ); \\\n\t}\n#define BUMP() { logged += 10; }\n#define TWO() 2\nint gate, logged;\nvoid log_value(string a, string b) { logged++; }\nint f()\n{\n\tcheck_security();\n\treturn TWO();\n}\nint check() { gate = 1; if(f() != 2) return 0; gate = 0; if(f() != 1 || logged != 1) return 0; BUMP(); return logged == 11; }\n")).toEqual([]);
     });
+
+    // A macro body is scanned as its own text, so a quoted symbol that ends it runs into the
+    // end of that text rather than a delimiter (#445).
+    it("reads a quoted symbol at the end of a macro body as a symbol", () => {
+        expect(diagnosticsFor("#define Q(f) 'f\nmixed f() { return Q(b); }\nvoid b() { }\n")).toEqual([]);
+        expect(diagnosticsFor("#define SYM 'foo\nmixed f() { return SYM; }\n")).toEqual([]);
+        expect(diagnosticsFor("#define SYMS ({ 'a, 'b })\nmixed f() { return SYMS; }\n")).toEqual([]);
+    });
+
+    it("reads a quoted symbol at the very end of the file as a symbol", () => {
+        const codes = diagnosticsFor("mixed f() { return 'b").map(d => d.code);
+        expect(codes).not.toContain(1002);
+    });
+
+    it("still reports an unterminated char literal at the end of a FluffOS file", () => {
+        const codes = diagnosticsFor("int c = 'a", lpc.LanguageVariant.FluffOS).map(d => d.code);
+        expect(codes).toContain(1002);
+    });
 });
