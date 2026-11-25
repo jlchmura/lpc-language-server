@@ -265,6 +265,9 @@ export interface TypeChecker {
     getSuggestionDiagnostics(file: SourceFile, cancellationToken?: CancellationToken): readonly DiagnosticWithLocation[];
 }
 
+/** See {@link CompilerOptions.typeChecking}. */
+export type TypeCheckingMode = "strict" | "driver";
+
 export type CompilerOptionsValue = string | number | boolean | (string | number)[] | string[] | MapLike<string> | MapLike<string[]> | ProjectReference[] | null | undefined; // eslint-disable-line no-restricted-syntax
 
 export interface TypeAcquisition {
@@ -1797,6 +1800,19 @@ export interface CompilerOptions {
      */
     allowUndeclaredAssignmentsInLd?: boolean;
     noImplicitAny?: boolean;
+    /**
+     * How strictly to type check. `"strict"` (the default) checks every file the way the
+     * language server always has, TypeScript-style, with LPCDoc types and flow narrowing.
+     * `"driver"` reports only the type errors the configured driver's own compiler would,
+     * following the `#pragma strict_types` / `strong_types` / `weak_types` in effect.
+     */
+    typeChecking?: TypeCheckingMode;
+    /**
+     * Pragmas applied to every file as if it began with a `#pragma` line for each, like
+     * FluffOS's `DEFAULT_PRAGMAS` or an LDMud auto-include. Only consulted when
+     * `typeChecking` is `"driver"`; a file's own `#pragma` lines still apply after them.
+     */
+    defaultPragmas?: string[];
     rootDir?: string;
     rootDirs?: string[];
     outDir?: string;

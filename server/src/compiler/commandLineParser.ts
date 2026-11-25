@@ -271,6 +271,15 @@ function parseLpcConfigFileContentWorker(
     // an error; otherwise (the default) it surfaces as a suggestion.
     options.noImplicitAny = raw?.noImplicitAny === true;
 
+    // "strict" (the default) is the TypeScript-style checking the server has always done;
+    // "driver" reports only what the driver's compiler would. Anything else is "strict".
+    options.typeChecking = raw?.typeChecking === "driver" ? "driver" : "strict";
+
+    // Pragmas every file starts with, as if each began with these `#pragma` lines.
+    options.defaultPragmas = isArray(raw?.defaultPragmas)
+        ? (raw.defaultPragmas as unknown[]).filter((p): p is string => typeof p === "string" && p.trim().length > 0).map(p => p.trim())
+        : [];
+
     const sefunFilePath = trimStart(options.sefunFile ?? raw?.libFiles?.simul_efun ?? "/obj/sefun.c", "/");
     options.sefunFile = normalizePath(combinePaths(libRootPath, sefunFilePath));
 

@@ -1,4 +1,4 @@
-import { ACatchExpression, AwaitExpression, CoroutineCallExpression, PromiseTypeNode, isPromiseTypeNode, setCommentRange as setCommentRangeWorker, isStatic, visitEachChild as visitEachChildWorker, setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, InternalNodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, isArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, TemplateExpression, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType, arrayIsEqualTo, isObjectLiteralMethod, isNonNullAccess, FlowSwitchClauseData, LiteralExpression, CaseClause, DefaultClause, findIndex, orderedRemoveItemAt, UnionTypeNode, ParenthesizedTypeNode, concatenateDiagnosticMessageChains, isDeclaration, InterfaceTypeWithDeclaredMembers, rangeEquals, InferenceFlags, minAndMax, last, IntersectionFlags, IntersectionType, flatten, createDiagnosticMessageChainFromDiagnostic, setTextRangePosEnd, createDiagnosticForNodeArrayFromMessageChain, createDiagnosticForNodeArray, isConstructorDeclaration, TypeComparer, InferencePriority, pathIsRelative, moduleSpecifiers, EmitResolver, isRestParameter, SpreadElement, ElementFlags, ModuleKind, ResolutionMode, ModuleResolutionKind, getResolutionDiagnostic, hasExtension, removeExtension, CloneObjectExpression, isCloneObjectExpression, PropertyAccessChain, OptionalChain, ExportDeclaration, getTextOfNode, InheritDeclaration, isCallLikeOrFunctionLikeExpression, isFunctionExpressionOrArrowFunction, CharacterCodes, Visitor, visitNodes, isGlobalSourceFile, isExternalModule, introducesArgumentsExoticObject, getCombinedLocalAndExportSymbolFlags, StructTypeNode, StructDeclaration, ClassLikeDeclaration, getEffectiveBaseTypeNode, ComputedPropertyName, TypeReferenceType, NodeWithTypeArguments, ClassDeclaration, ClassExpression, TypeLiteralNode, JSDocTypeLiteral, isJSDocTypeLiteral, isInJSDoc, isTypeDeclaration, JSDocTypeAssertion, AssertionExpression, isParenthesizedExpression, getJSDocTypeAssertionType, AccessFlags, NewStructExpression, isJSDocTypeAlias, isAssertionExpression, TypeAssertion, DeclarationName, isKnownSymbol, createEvaluator, EntityNameExpression, evaluatorResult, isStringLiteralLike, SyntheticExpression, ArrayBindingPattern, isTypeUsableAsPropertyName, isPropertyName, tryGetPropertyAccessOrIdentifierToString, IndexedAccessType, MappingLiteralExpression, MappingTypeNode, MappingTypeEntryNode, isOmittedExpression, UnionOrIntersectionTypeNode, PropertySignature, isPropertySignature, LateBoundName, isClassExpression, LateBoundDeclaration, LateBoundBinaryExpressionDeclaration, ElementAccessChain, MappedSymbol, VariableLikeDeclaration, isComputedNonLiteralName, getElementOrPropertyAccessName, findLastIndex, hasAccessorModifier, emptyMap, BytesLiteral, BytesLiteralType, WhileStatement, hasType, getEnclosingContainer, isPropertyNameLiteral, getTextOfIdentifierOrLiteral, JSDocOverloadTag, JSDocCallbackTag, TypePredicate, isIdentifierTypePredicate, IdentifierTypePredicate, HasInitializer, resolvingEmptyArray, getClassLikeDeclarationOfSymbol, ExpressionWithTypeArguments, isNumericLiteral, isInfinityOrNaNString, getEffectiveConstraintOfTypeParameter, isTypeReferenceNode, JSDocParameterTag, canHaveModifiers, modifiersToFlags, JSDocPropertyTag, hasInferredType, isTypePredicateNode, isOptionalDeclaration, getModifiers, isJSDocTypeAssertion, getJSDocThisTag, FunctionTypeNode, createSyntacticTypeNodeBuilder, getJSDocHost, createPrinterWithRemoveCommentsOmitTrailingSemicolon, getTrailingSemicolonDeferringWriter, getThisContainer, JSDocTypeExpression, getEmitFlags, isJSDocTypeExpression, isModifier, visitNode, ConditionalTypeNode, isConditionalTypeNode, skipTypeParentheses, isThisTypeNode, isThisIdentifier, isJSDocAllType, isJSDocUnknownType, isJSDocVariadicType, isJSDocOptionalType, isExpressionWithTypeArguments, isJSDocIndexSignature, isJSDocFunctionType, hasDynamicName, HasIllegalModifiers, modifierToFlag, getJSDocTags, NamedDeclaration, MethodSignature, HasChildren, isInTypeQuery, getEnclosingLocalsContainer, BreakOrContinueStatement, isFunctionLikeOrClassStaticBlockDeclaration, LabeledStatement, JSDocFunctionType, JSDocTypeTag, CaseOrDefaultClause, IndexKind, getInvokedExpression, skipTypeChecking, getParameterSymbolFromJSDoc, isJSDocPropertyTag, TypePredicateNode, TypePredicateKind, createFlowNode, JSDocComment, isArray, isJSDocLinkLike, getJSDocTypeTag, JSDocReturnTag, InstantiableType, isDottedName, BinaryOperator, isLiteralLike, LiteralLikeNode, isJSDocNode, BindableStaticNameExpression, getEffectiveJSDocHost, isLeftHandSideExpression, TupleTypeReference, parseNodeFactory, NamedTupleMember, TupleType, isNewExpression, MappingEntryExpression, BindingElementGrandparent, hasJSDocNodes, getOwnJSDoc, isOptionalJSDocPropertyLikeTag, isJSDocOverloadTag, thisObjectPragmaToStringLiteral, isSpreadElement, isFunctionDeclaration, createGetCanonicalFileName, getLibRootedFileName, isCommaExpression, RangeExpression, isInlineClosureExpression, isArrayTypeNode, LanguageVariant, VarianceFlags, firstOrUndefinedIterator, arrayOf, TypeVariable, StringMappingType, cartesianProduct, equateValues, replaceElement, JSDocTemplateTag, getTypeParameterFromJsDoc, getEffectiveTypeParameterDeclarations, DeclarationWithTypeParameterChildren, rangeOfNode, isJSDocTemplateTag, tryAddToSet, rangeOfTypeParameters, TypeAliasDeclaration, JSDocTypedefTag, JSDoc, getEffectiveContainerForJSDocTemplateTag, DynamicNamedDeclaration, ConditionalType, ConditionalRoot, TupleTypeNode, isJSDocPropertyLikeTag, JSDocPropertyLikeTag, getJSDocClassTag, InferTypeNode, JSDocThisTag, isValueSignatureDeclaration, getJSDocType, hasJSDocParameterTags, isJSDocThisTag, isSuperCall, getJSDocOverloadTags, DeclarationWithTypeParameters, getStrictOptionValue, isJSDocSatisfiesExpression, getJSDocSatisfiesExpressionType, walkUpParenthesizedExpressions, InterfaceDeclaration, walkUpParenthesizedTypesAndGetParentAndChild, isJSDocNameReference, isJSDocMemberName, isExportAssignment, isTypeReferenceType, isInterfaceDeclaration, isTypeAliasDeclaration, JSDocTypeReferencingNode, scanTokenAtPosition, isJSDocOptionalParameter, SuperAccessExpression, JSDocOptionalType, isSuperAccessExpression, JSDocVariableTag, tryGetJSDocSatisfiesTypeNode, IncludeDirective, IncludeParseDiagnostic, isJSDocVariableTag, isIncludeDirective, getSourceFileOrIncludeOfNode, isInIncludeContext, getIncludeDirectiveFilename, isDefineDirective, DefineDirective, SourceFileBase, isThisObjectExpression, isObjectLiteralOrClassExpressionMethodOrAccessor, CatchStatement, IntersectionTypeNode, CatchExpression, TimeExpression, NamedObjectTypeNode, isByRefParameterDeclaration, ByRefElement, getDeprecatedModifierOrJSDocTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, isStructDeclaration, isStructTypeNode, isPropertyAccessEntityNameExpression, createPropertyNameNodeForIdentifierOrLiteral, getTextOfJSDocComment, setSyntheticLeadingComments, trimQuotes, JSDocVariadicType, isJSDocCallbackTag, isNewClassExpression, EvaluateExpression, isCatchStatement, LambdaIdentifierExpression, LambdaOperatorExpression, QuotedArrayExpression, getJSDocVariableTagTypeNode, isIntersectionTypeNode, isUnionTypeNode, isFluffOSDeclarationUnderCaseLabel } from "./_namespaces/lpc";
+import { ACatchExpression, CommaListExpression, DriverPragmaState, DriverPragmaStates, DriverTypesPragma, computeDriverPragmaStates, AwaitExpression, CoroutineCallExpression, PromiseTypeNode, isPromiseTypeNode, setCommentRange as setCommentRangeWorker, isStatic, visitEachChild as visitEachChildWorker, setTextRange as setTextRangeWorker, Type, Symbol, SymbolLinks, CancellationToken, createSymbolTable, Declaration, EmitTextWriter, ModifierFlags, Node, NodeFlags, objectAllocator, Scanner, Signature, SignatureKind, SymbolFlags, TypeChecker, TypeCheckerHost, TypeFormatFlags, TypeParameter, CheckFlags, TransientSymbol, TransientSymbolLinks, reduceLeft, bindSourceFile, SourceFile, Diagnostic, createDiagnosticCollection, concatenate, forEach, tracing, performance, NodeLinks, NodeCheckFlags, FlowNode, FlowType, clear, SyntaxKind, TracingNode, CallLikeExpression, CallExpression, isCallOrNewExpression, isBinaryExpression, Expression, SignatureDeclaration, SignatureFlags, emptyArray, TypeFlags, IntrinsicType, ObjectFlags, Debug, BinaryExpression, ObjectType, StructuredType, ResolvedType, SymbolTable, IndexInfo, Identifier, nodeIsMissing, createNameResolver, InternalSymbolName, SymbolId, some, DiagnosticMessage, DiagnosticArguments, createDiagnosticForNode, createCompilerDiagnostic, FunctionLikeDeclaration, PropertyDeclaration, isString, isIdentifier, Diagnostics, findLast, SymbolFormatFlags, isAccessExpression, isFunctionExpression, isAliasableExpression, PropertyAssignment, isVariableDeclarationInitializedToBareOrAccessedRequire, mapDefined, arrayFrom, getSpellingSuggestion, symbolName, startsWith, nodeIsSynthesized, declarationNameToString, getCanonicalDiagnostic, DiagnosticCategory, addRelatedInfo, ParameterDeclaration, BindingElement, isSourceFile, isExternalOrCommonJsModule, isBlockOrCatchScoped, length, every, isValidTypeOnlyAliasUseSite, isWriteOnlyAccess, getCombinedNodeFlags, DiagnosticWithLocation, getJSDocDeprecatedTag, findAncestor, isCallLikeExpression, isFunctionLike, ParenthesizedExpression, isAssignmentExpression, isVariableDeclaration, isBindingElement, PropertyAccessExpression, getEnclosingBlockScopeContainer, isPropertyDeclaration, nodeStartsNewLexicalEnvironment, isIterationStatement, isForStatement, getAncestor, ForStatement, pushIfUnique, isAssignmentTarget, PrefixUnaryExpression, PostfixUnaryExpression, isBlock, isExpressionNode, isPropertyAccessExpression, getAssignmentTargetKind, AssignmentKind, isInCompoundLikeAssignment, UnionType, TypeId, UnionReduction, getRootDeclaration, getImmediatelyInvokedFunctionExpression, isSpreadAssignment, isParameter, VariableDeclaration, isFunctionLikeDeclaration, isTypeNode, forEachChild, tryCast, canHaveFlowNode, ElementAccessExpression, RelationComparisonResult, LiteralType, FreshableType, getObjectFlags, DiagnosticMessageChain, setNodeFlags, isCallExpression, LazyNodeCheckFlags, getSourceFileOfNode, canIncludeBindAndCheckDiagnostics, forEachChildRecursively, isDeclarationName, EntityName, JSDocMemberName, canHaveSymbol, isLiteralTypeNode, isElementAccessExpression, isIndexedAccessTypeNode, TypeNode, canHaveJSDoc, FlowFlags, FlowArrayMutation, FlowAssignment, FlowCall, FlowCondition, FlowLabel, FlowReduceLabel, FlowSwitchClause, SwitchStatement, createFileDiagnostic, createDiagnosticForFileFromMessageChain, createDiagnosticForNodeFromMessageChain, VariableStatement, HasModifiers, VariableDeclarationList, Block, isFunctionOrModuleBlock, CaseBlock, ForEachStatement, IndexSignatureDeclaration, Path, HasLocals, BindingPattern, idText, isForEachStatement, getNameOfDeclaration, isArrayBindingPattern, first, BindingName, cast, containsParseError, FunctionDeclaration, getFunctionFlags, getEffectiveReturnTypeNode, FunctionFlags, nodeIsPresent, JSDocSignature, isJSDocSignature, getJSDocRoot, LiteralTypeNode, TypeNodeSyntaxKind, isStatement, UnionOrIntersectionType, getContainingFunction, hasSyntacticModifier, isBindingPattern, sameMap, flatMap, getCheckFlags, singleElementArray, getDeclarationModifierFlagsFromSymbol, Ternary, append, find, isNumericLiteralName, StringLiteralType, contains, isTransientSymbol, addRange, filter, IndexType, getParseTreeNode, isRightSideOfQualifiedNameOrPropertyAccess, isWriteAccess, isRightSideOfAccessExpression, hasEffectiveModifier, getCombinedModifierFlags, isEntityName, PropertyAccessEntityNameExpression, isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName, QualifiedName, getHostSignatureFromJSDoc, or, EntityNameOrEntityNameExpression, isInJSFile, getFirstIdentifier, isQualifiedName, entityNameToString, isCallChain, isEntityNameExpression, isLineBreak, skipTrivia, DiagnosticRelatedInformation, IntLiteralType, FloatLiteralType, createTextWriter, chainDiagnosticMessages, getErrorSpanForNode, ShorthandPropertyAssignment, NodeBuilderFlags, InternalNodeBuilderFlags, SymbolTracker, TrackedSymbol, ReverseMappedSymbol, TypeMapper, ModuleSpecifierResolutionHost, Program, maybeBind, setEmitFlags, createNodeFactory, NodeFactoryFlags, BaseNodeFactory, Mutable, firstDefined, isComputedPropertyName, isIdentifierText, escapeString, getEmitScriptTarget, factory, EmitFlags, isSingleOrDoubleQuote, canUsePropertyAccess, stripQuotes, DoWhileStatement, BinaryOperatorToken, isLogicalOrCoalescingBinaryOperator, isLogicalOrCoalescingBinaryExpression, isIfStatement, skipParentheses, Statement, PunctuationSyntaxKind, tokenToString, FreshableIntrinsicType, isLiteralExpressionOfObject, getAssignmentDeclarationKind, AssignmentDeclarationKind, ConditionalExpression, isAssignmentOperator, isJSDocTypedefTag, isIntLiteral, skipOuterExpressions, OuterExpressionKinds, isExpression, ObjectLiteralExpression, ArrayLiteralExpression, isArrayLiteralExpression, FunctionExpression, InlineClosureExpression, ObjectLiteralElementLike, hasContextSensitiveParameters, forEachReturnStatement, compareDiagnostics, Comparison, createBinaryExpressionTrampoline, IntLiteral, FloatLiteral, isShorthandPropertyAssignment, isPropertyAccessOrQualifiedName, isPrivateIdentifier, WideningContext, StringLiteral, TemplateExpression, ReturnStatement, ExpressionStatement, IfStatement, NewExpression, getMembersOfDeclaration, AccessExpression, isThisInitializedDeclaration, setValueDeclaration, comparePaths, getOrUpdate, usingSingleLineStringWriter, createPrinterWithRemoveCommentsNeverAsciiEscape, createPrinterWithRemoveComments, EmitHint, getEffectiveModifierFlags, getEffectiveTypeAnnotationNode, getAssignmentDeclarationPropertyAccessKind, isNamedDeclaration, map, PropertyName, isFloatLiteral, getPropertyNameForPropertyNameNode, isPartOfParameterDeclaration, hasOnlyExpressionInitializer, not, getEffectiveInitializer, isObjectLiteralExpression, isVariableLike, getSelectedEffectiveModifierFlags, AliasDeclarationNode, isBindingElementOfBareOrAccessedRequire, TypeReference, isFunctionExpressionOrInlineClosure, ContextFlags, indexOfNode, InferenceContext, isNodeDescendantOf, ObjectFlagsType, GenericType, ReverseMappedType, AnonymousType, DeferredTypeReference, InstantiationExpressionType, SingleSignatureType, MappedTypeNode, TypeParameterDeclaration, appendIfUnique, TypeMapKind, isPartOfTypeNode, TypeReferenceNode, MappedType, ArrayTypeNode, isParenthesizedTypeNode, isTypeAlias, IndexFlags, InferenceInfo, binarySearch, compareValues, hasInitializer, lastOrUndefined, HasExpressionInitializer, getContainingFunctionOrClassStaticBlock, getSpanOfTokenAtPosition, isJSDocParameterTag, hasRestParameter, isStringLiteral, walkUpBindingElementsAndPatterns, BindableObjectDefinePropertyCall, copyEntries, InterfaceType, isPropertyAssignment, DiagnosticAndArguments, FreshObjectLiteralType, BaseType, firstOrUndefined, SubstitutionType, createPrinterWithDefaults, noTruncationMaximumTruncationLength, defaultMaximumTruncationLength, arrayIsHomogeneous, isIdentifierTypeReference, createMultiMap, addSyntheticLeadingComment, NodeArray, getOriginalNode, getIdentifierTypeArguments, setIdentifierTypeArguments, IndexedAccessTypeNode, forEachEntry, ScriptTarget, SymbolAccessibility, canHaveLocals, getDeclarationOfKind, isClassLike, TypeElement, SymbolAccessibilityResult, SymbolVisibilityResult, LateVisibilityPaintedStatement, isVariableStatement, isLateVisibilityPaintedStatement, isTypeLiteralNode, PlusToken, MinusToken, walkUpParenthesizedTypes, setOriginalNode, countWhere, getNameFromIndexInfo, Modifier, notImplemented, isTypeParameterDeclaration, setParent, CallChain, isLiteralExpression, isStringOrNumericLiteralLike, FlowStart, getPropertyNameFromType, EvolvingArrayType, arrayIsEqualTo, isObjectLiteralMethod, isNonNullAccess, FlowSwitchClauseData, LiteralExpression, CaseClause, DefaultClause, findIndex, orderedRemoveItemAt, UnionTypeNode, ParenthesizedTypeNode, concatenateDiagnosticMessageChains, isDeclaration, InterfaceTypeWithDeclaredMembers, rangeEquals, InferenceFlags, minAndMax, last, IntersectionFlags, IntersectionType, flatten, createDiagnosticMessageChainFromDiagnostic, setTextRangePosEnd, createDiagnosticForNodeArrayFromMessageChain, createDiagnosticForNodeArray, isConstructorDeclaration, TypeComparer, InferencePriority, pathIsRelative, moduleSpecifiers, EmitResolver, isRestParameter, SpreadElement, ElementFlags, ModuleKind, ResolutionMode, ModuleResolutionKind, getResolutionDiagnostic, hasExtension, removeExtension, CloneObjectExpression, isCloneObjectExpression, PropertyAccessChain, OptionalChain, ExportDeclaration, getTextOfNode, InheritDeclaration, isCallLikeOrFunctionLikeExpression, isFunctionExpressionOrArrowFunction, CharacterCodes, Visitor, visitNodes, isGlobalSourceFile, isExternalModule, introducesArgumentsExoticObject, getCombinedLocalAndExportSymbolFlags, StructTypeNode, StructDeclaration, ClassLikeDeclaration, getEffectiveBaseTypeNode, ComputedPropertyName, TypeReferenceType, NodeWithTypeArguments, ClassDeclaration, ClassExpression, TypeLiteralNode, JSDocTypeLiteral, isJSDocTypeLiteral, isInJSDoc, isTypeDeclaration, JSDocTypeAssertion, AssertionExpression, isParenthesizedExpression, getJSDocTypeAssertionType, AccessFlags, NewStructExpression, isJSDocTypeAlias, isAssertionExpression, TypeAssertion, DeclarationName, isKnownSymbol, createEvaluator, EntityNameExpression, evaluatorResult, isStringLiteralLike, SyntheticExpression, ArrayBindingPattern, isTypeUsableAsPropertyName, isPropertyName, tryGetPropertyAccessOrIdentifierToString, IndexedAccessType, MappingLiteralExpression, MappingTypeNode, MappingTypeEntryNode, isOmittedExpression, UnionOrIntersectionTypeNode, PropertySignature, isPropertySignature, LateBoundName, isClassExpression, LateBoundDeclaration, LateBoundBinaryExpressionDeclaration, ElementAccessChain, MappedSymbol, VariableLikeDeclaration, isComputedNonLiteralName, getElementOrPropertyAccessName, findLastIndex, hasAccessorModifier, emptyMap, BytesLiteral, BytesLiteralType, WhileStatement, hasType, getEnclosingContainer, isPropertyNameLiteral, getTextOfIdentifierOrLiteral, JSDocOverloadTag, JSDocCallbackTag, TypePredicate, isIdentifierTypePredicate, IdentifierTypePredicate, HasInitializer, resolvingEmptyArray, getClassLikeDeclarationOfSymbol, ExpressionWithTypeArguments, isNumericLiteral, isInfinityOrNaNString, getEffectiveConstraintOfTypeParameter, isTypeReferenceNode, JSDocParameterTag, canHaveModifiers, modifiersToFlags, JSDocPropertyTag, hasInferredType, isTypePredicateNode, isOptionalDeclaration, getModifiers, isJSDocTypeAssertion, getJSDocThisTag, FunctionTypeNode, createSyntacticTypeNodeBuilder, getJSDocHost, createPrinterWithRemoveCommentsOmitTrailingSemicolon, getTrailingSemicolonDeferringWriter, getThisContainer, JSDocTypeExpression, getEmitFlags, isJSDocTypeExpression, isModifier, visitNode, ConditionalTypeNode, isConditionalTypeNode, skipTypeParentheses, isThisTypeNode, isThisIdentifier, isJSDocAllType, isJSDocUnknownType, isJSDocVariadicType, isJSDocOptionalType, isExpressionWithTypeArguments, isJSDocIndexSignature, isJSDocFunctionType, hasDynamicName, HasIllegalModifiers, modifierToFlag, getJSDocTags, NamedDeclaration, MethodSignature, HasChildren, isInTypeQuery, getEnclosingLocalsContainer, BreakOrContinueStatement, isFunctionLikeOrClassStaticBlockDeclaration, LabeledStatement, JSDocFunctionType, JSDocTypeTag, CaseOrDefaultClause, IndexKind, getInvokedExpression, skipTypeChecking, getParameterSymbolFromJSDoc, isJSDocPropertyTag, TypePredicateNode, TypePredicateKind, createFlowNode, JSDocComment, isArray, isJSDocLinkLike, getJSDocTypeTag, JSDocReturnTag, InstantiableType, isDottedName, BinaryOperator, isLiteralLike, LiteralLikeNode, isJSDocNode, BindableStaticNameExpression, getEffectiveJSDocHost, isLeftHandSideExpression, TupleTypeReference, parseNodeFactory, NamedTupleMember, TupleType, isNewExpression, MappingEntryExpression, BindingElementGrandparent, hasJSDocNodes, getOwnJSDoc, isOptionalJSDocPropertyLikeTag, isJSDocOverloadTag, thisObjectPragmaToStringLiteral, isSpreadElement, isFunctionDeclaration, createGetCanonicalFileName, getLibRootedFileName, isCommaExpression, RangeExpression, isInlineClosureExpression, isArrayTypeNode, LanguageVariant, VarianceFlags, firstOrUndefinedIterator, arrayOf, TypeVariable, StringMappingType, cartesianProduct, equateValues, replaceElement, JSDocTemplateTag, getTypeParameterFromJsDoc, getEffectiveTypeParameterDeclarations, DeclarationWithTypeParameterChildren, rangeOfNode, isJSDocTemplateTag, tryAddToSet, rangeOfTypeParameters, TypeAliasDeclaration, JSDocTypedefTag, JSDoc, getEffectiveContainerForJSDocTemplateTag, DynamicNamedDeclaration, ConditionalType, ConditionalRoot, TupleTypeNode, isJSDocPropertyLikeTag, JSDocPropertyLikeTag, getJSDocClassTag, InferTypeNode, JSDocThisTag, isValueSignatureDeclaration, getJSDocType, hasJSDocParameterTags, isJSDocThisTag, isSuperCall, getJSDocOverloadTags, DeclarationWithTypeParameters, getStrictOptionValue, isJSDocSatisfiesExpression, getJSDocSatisfiesExpressionType, walkUpParenthesizedExpressions, InterfaceDeclaration, walkUpParenthesizedTypesAndGetParentAndChild, isJSDocNameReference, isJSDocMemberName, isExportAssignment, isTypeReferenceType, isInterfaceDeclaration, isTypeAliasDeclaration, JSDocTypeReferencingNode, scanTokenAtPosition, isJSDocOptionalParameter, SuperAccessExpression, JSDocOptionalType, isSuperAccessExpression, JSDocVariableTag, tryGetJSDocSatisfiesTypeNode, IncludeDirective, IncludeParseDiagnostic, isJSDocVariableTag, isIncludeDirective, getSourceFileOrIncludeOfNode, isInIncludeContext, getIncludeDirectiveFilename, isDefineDirective, DefineDirective, SourceFileBase, isThisObjectExpression, isObjectLiteralOrClassExpressionMethodOrAccessor, CatchStatement, IntersectionTypeNode, CatchExpression, TimeExpression, NamedObjectTypeNode, isByRefParameterDeclaration, ByRefElement, getDeprecatedModifierOrJSDocTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, isStructDeclaration, isStructTypeNode, isPropertyAccessEntityNameExpression, createPropertyNameNodeForIdentifierOrLiteral, getTextOfJSDocComment, setSyntheticLeadingComments, trimQuotes, JSDocVariadicType, isJSDocCallbackTag, isNewClassExpression, EvaluateExpression, isCatchStatement, LambdaIdentifierExpression, LambdaOperatorExpression, QuotedArrayExpression, getJSDocVariableTagTypeNode, isIntersectionTypeNode, isUnionTypeNode, isFluffOSDeclarationUnderCaseLabel } from "./_namespaces/lpc";
 
 let nextSymbolId = 1;
 let nextNodeId = 1;
@@ -201,6 +201,25 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         isDefinitelyReferenceToGlobalSymbolObject,
     });
     var noImplicitAny = false; // Not currently used in LPC: getStrictOptionValue(compilerOptions, "noImplicitAny");
+    /** `typeChecking: "driver"`: report only the type errors the driver's compiler would. */
+    var driverTypeChecking = compilerOptions.typeChecking === "driver";
+    var driverPragmaStatesCache = new Map<SourceFile, DriverPragmaStates>();
+    /**
+     * Which parts of a call the driver checks; see {@link getDriverCallChecks}. Plain flags
+     * rather than an enum, since it is private to the checker.
+     */
+    var DriverCallChecks = {
+        None: 0,
+        /** Too few arguments is an error. */
+        TooFew: 1 << 0,
+        /** Too many arguments is an error. */
+        TooMany: 1 << 1,
+        /** Argument types are checked. */
+        Types: 1 << 2,
+        /** Keep the checker's own arity rules (efuns: both drivers always count them). */
+        DefaultArity: 1 << 3,
+    } as const;
+
     var strictBindCallApply = false;
 
     interface DuplicateInfoForSymbol {
@@ -3920,6 +3939,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return;
         }
 
+        // Neither driver checks a return in a function that does not declare its return type.
+        if (!isReportedByDriver(node, "return")) {
+            if (node.expression) checkExpressionCached(node.expression);
+            return;
+        }
+
         const signature = getSignatureFromDeclaration(container);
         Debug.assertIsDefined(signature, "Container should have a signature");
         const returnType = getReturnTypeOfSignature(signature);
@@ -4369,7 +4394,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function checkTruthinessOfType(type: Type, node: Node) {
-        if (type.flags & TypeFlags.Void) {
+        // Both drivers accept a void call in a condition or under `!`, `&&` and `||`: the
+        // value is just 0. (LDMud prolang.y and FluffOS exprs.cc check no operand types there.)
+        if (type.flags & TypeFlags.Void && !driverTypeChecking) {
             error(node, Diagnostics.An_expression_of_type_void_cannot_be_tested_for_truthiness);
         }
         return type;
@@ -4802,7 +4829,22 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         function checkFunctionDeclarationDiagnostics() {
             checkFunctionOrMethodDeclaration(node);            
             checkCollisionsForDeclarationName(node, node.name);
+            checkDriverRequiresReturnType(node);
         }
+    }
+
+    /**
+     * Under LDMud's `strong_types`/`strict_types`, or FluffOS's `strict_types`, a function
+     * must declare its return type (LDMud prolang.y def_function_typecheck, FluffOS
+     * grammar_rules.cc rule_func_type). FluffOS exempts `create()`, which it types void.
+     */
+    function checkDriverRequiresReturnType(node: FunctionDeclaration) {
+        if (!driverTypeChecking || node.type || !node.name || !isIdentifier(node.name)) return;
+        const types = getDriverPragmaStateAt(node).types;
+        if (types === DriverTypesPragma.Weak) return;
+        if (languageVariant === LanguageVariant.FluffOS && node.name.text === "create") return;
+        const pragma = types === DriverTypesPragma.Strict ? "strict_types" : "strong_types";
+        error(node.name, Diagnostics.Pragma_0_requires_a_return_type_for_function_1, pragma, node.name.text);
     }
 
     /**
@@ -6580,7 +6622,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                         initializerType = checkExpressionCached(initializer);
                     }
 
-                    if (checkTypeAssignableToAndOptionallyElaborate(initializerType, type, node, initializer, /*headMessage*/ undefined)) {
+                    // A global's initialiser is checked by both drivers; a local's depends on the driver.
+                    if ((!getContainingFunction(node) || isReportedByDriver(node, "localInitializer")) &&
+                        checkTypeAssignableToAndOptionallyElaborate(initializerType, type, node, initializer, /*headMessage*/ undefined)) {
                         // if everything is ok up to this point, and the initializer is a mapping, then override
                         // the symbol's resolved type - because the initializer here is probably more specific
                         // if (isMappingType(initializerType)) {
@@ -13378,7 +13422,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             let type = signature.target ? instantiateType(getReturnTypeOfSignature(signature.target), signature.mapper) :
                 signature.compositeSignatures ? instantiateType(getUnionOrIntersectionType(map(signature.compositeSignatures, getReturnTypeOfSignature), signature.compositeKind, UnionReduction.Subtype), signature.mapper) :
                 getReturnTypeFromAnnotation(signature.declaration!) ||
-                (nodeIsMissing((signature.declaration as FunctionLikeDeclaration).body) ? anyType : getReturnTypeFromBody(signature.declaration as FunctionLikeDeclaration));
+                // The driver does not infer: a function with no declared return type
+                // returns mixed (FluffOS types it `unknown`, which only fits a mixed target).
+                (driverTypeChecking && signature.declaration && isFunctionDeclaration(signature.declaration) ? anyType :
+                nodeIsMissing((signature.declaration as FunctionLikeDeclaration).body) ? anyType : getReturnTypeFromBody(signature.declaration as FunctionLikeDeclaration));
             // if (signature.flags & SignatureFlags.IsInnerCallChain) {
             //     type = addOptionalTypeMarker(type);
             // }
@@ -14237,7 +14284,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (!isErrorType(targetType)) {
             addLazyDiagnostic(() => {
                 const widenedType = getWidenedType(exprType);
-                if (!isTypeComparableTo(targetType, widenedType)) {
+                if (!isTypeComparableTo(targetType, widenedType) && isReportedByDriver(node, "cast")) {
                     checkTypeComparableTo(exprType, targetType, errNode, Diagnostics.Conversion_of_type_0_to_type_1_may_be_a_mistake_because_neither_type_sufficiently_overlaps_with_the_other_If_this_was_intentional_convert_the_expression_to_unknown_first);
                 }
             });
@@ -16565,6 +16612,238 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return false;
     }
 
+    // ---------------------------------------------------------------------------------
+    // `typeChecking: "driver"`
+    //
+    // In driver mode the checker reports only what the configured driver's compiler would.
+    // What both drivers share (LDMud prolang.y, FluffOS src/compiler/internal):
+    //  - A function body is type checked only when the function declares a return type
+    //    (`exact_types`); the pragma does not change that. It only makes a return type
+    //    mandatory, and under LDMud's strict_types a call_other result must be cast.
+    //  - There is no flow narrowing: a variable always has its declared type.
+    //  - call_other never looks at its target: any function name is accepted, the
+    //    arguments are not checked, and the result is `mixed`.
+    // ---------------------------------------------------------------------------------
+
+    function getDriverPragmaStates(file: SourceFile): DriverPragmaStates {
+        let states = driverPragmaStatesCache.get(file);
+        if (!states) {
+            states = computeDriverPragmaStates(file, compilerOptions, languageVariant);
+            driverPragmaStatesCache.set(file, states);
+        }
+        return states;
+    }
+
+    function getDriverPragmaStateAt(node: Node): DriverPragmaState {
+        return getDriverPragmaStates(getSourceFileOfNode(node)).stateAt(node);
+    }
+
+    /**
+     * Whether the driver type checks the code at `node` -- its `exact_types` there. That is
+     * the nearest enclosing function declaring a return type (any type, `void` and `mixed`
+     * included). A `function (...) { }` closure is always checked in both drivers (LDMud
+     * defaults its type to mixed, FluffOS sets TYPE_ANY); LDMud checks a `(: :)` closure
+     * too, while FluffOS compiles one with the enclosing function's setting. Code outside
+     * any function (a global initialiser) is treated as unchecked: both drivers leave a
+     * stale `exact_types` from whatever function they compiled last there.
+     *
+     * Always true outside driver mode.
+     */
+    function isTypeCheckedByDriver(node: Node): boolean {
+        if (!driverTypeChecking) return true;
+        for (let current = node.parent; current; current = current.parent) {
+            switch (current.kind) {
+                case SyntaxKind.FunctionExpression:
+                    return true;
+                case SyntaxKind.InlineClosureExpression:
+                    if (languageVariant === LanguageVariant.LDMud) return true;
+                    break;
+                case SyntaxKind.FunctionDeclaration:
+                    return !!(current as FunctionDeclaration).type;
+                case SyntaxKind.SourceFile:
+                    return false;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * A kind of check whose reporting depends on the driver's `exact_types` (see
+     * {@link isTypeCheckedByDriver}). Each driver also runs a few of them everywhere:
+     *  - `assignment`, a plain `=`: LDMud everywhere (prolang.y `Bad assignment`), FluffOS
+     *    only in a typed function (exprs.cc rule_expr_assign).
+     *  - `localInitializer`, `T x = e` in a function: FluffOS everywhere (decls.cc
+     *    rule_new_local_def_with_init), LDMud only in a typed function.
+     *  - `equality`, `==`/`!=` between types with nothing in common: LDMud everywhere,
+     *    FluffOS only in a typed function.
+     *  - `cast`, a cast between unrelated types: LDMud everywhere ("Illegal cast"), FluffOS
+     *    only in a typed function (exprs.cc rule_expr_cast).
+     *  - `operator`, `return`: only in a typed function, in both.
+     */
+    type DriverCheck = "assignment" | "localInitializer" | "equality" | "cast" | "operator" | "return";
+
+    /**
+     * Whether the driver accepts a value of type `source` where `target` is expected: in an
+     * assignment, an initialiser, a return, or a function argument.
+     *
+     * LDMud asks only that the two types overlap (prolang.y check_assignment_types,
+     * has_common_type), which is why `int r = (int|string)v;` compiles. FluffOS has no
+     * union types of its own; it matches types exactly with `mixed` as a wildcard
+     * (compiler.cc compatible_types), and the unions the checker builds stand in for what
+     * FluffOS types as mixed (a `?:` of two types, say), so overlap fits it too. On top of
+     * that FluffOS converts between int and float, lets a void value into an int, and types
+     * an array literal as `mixed *`, so its elements are never compared.
+     */
+    function isDriverAssignable(source: Type, target: Type): boolean {
+        if (isTypeRelatedTo(source, target, comparableRelation)) return true;
+        if (languageVariant === LanguageVariant.FluffOS) {
+            const isNumeric = (t: Type) => !!(t.flags & TypeFlags.NumberLike);
+            if (source.flags & (TypeFlags.Void | TypeFlags.NumberLike) && someType(target, isNumeric)) return true;
+            if (getObjectFlags(source) & ObjectFlags.ArrayLiteral && someType(target, isArrayType)) return true;
+        }
+        return false;
+    }
+
+    /** Whether the driver would report a `check` at `node`. Always true outside driver mode. */
+    function isReportedByDriver(node: Node, check: DriverCheck): boolean {
+        if (!driverTypeChecking) return true;
+        switch (check) {
+            case "assignment":
+            case "equality":
+            case "cast":
+                if (languageVariant === LanguageVariant.LDMud) return true;
+                break;
+            case "localInitializer":
+                if (languageVariant === LanguageVariant.FluffOS) return true;
+                break;
+        }
+        return isTypeCheckedByDriver(node);
+    }
+
+    /**
+     * What the driver checks about a call to `signature` at `node`.
+     *
+     *  - Efuns: the count always (LDMud prolang.y, FluffOS compiler.cc validate_efun_call),
+     *    argument types only in a typed function, and FluffOS never checks the types for an
+     *    efun taking `...` (sprintf, call_out, ...).
+     *  - A function of this program or one it inherits: only when the caller is typed and
+     *    the callee's first declaration (a prototype counts) declares a return type, and for an inherited function only if its
+     *    program was compiled with `save_types` (FluffOS has that on by default). Not the
+     *    count for a `varargs` function. FluffOS's current master reports only too few
+     *    arguments; LDMud reports too many as well.
+     *  - `::f()`: LDMud as for an inherited function; FluffOS checks nothing.
+     *  - Simul-efuns: FluffOS checks nothing; LDMud reports too many arguments everywhere
+     *    (too few is only a warning) and the types if the simul-efun program saved them.
+     *  - Anything else (a closure, a function variable): nothing.
+     */
+    function getDriverCallChecks(node: CallLikeExpression, signature: Signature): number {
+        const declaration = signature.declaration;
+        if (!declaration) return DriverCallChecks.None;
+        const declarationFile = getSourceFileOfNode(declaration);
+        const callerTyped = isTypeCheckedByDriver(node);
+
+        if (declarationFile.isDefaultLib) {
+            const typesChecked = callerTyped && !(languageVariant === LanguageVariant.FluffOS && hasEffectiveRestParameter(signature));
+            return DriverCallChecks.DefaultArity | (typesChecked ? DriverCallChecks.Types : 0);
+        }
+        if (!isFunctionDeclaration(declaration)) return DriverCallChecks.None;
+
+        const callerFile = getSourceFileOfNode(node);
+        const sefunFile = compilerOptions.sefunFile ? host.getSourceFile(compilerOptions.sefunFile) : undefined;
+        if (declarationFile === sefunFile && callerFile !== sefunFile) {
+            if (languageVariant === LanguageVariant.FluffOS) return DriverCallChecks.None;
+            return DriverCallChecks.TooMany | (getDriverPragmaStates(declarationFile).final.saveTypes ? DriverCallChecks.Types : 0);
+        }
+
+        const isSuperCall = isCallExpression(node) && node.expression.kind === SyntaxKind.SuperAccessExpression;
+        if (isSuperCall && languageVariant === LanguageVariant.FluffOS) return DriverCallChecks.None;
+
+        const symbol = getSymbolOfDeclaration(declaration);
+        // The driver stores a function's argument types when it first declares it,
+        // prototype or definition, and only if that declaration has a return type
+        // (LDMud prolang.y def_function_prototype -> store_argument_types, which checks the
+        // exact_types the header just set; FluffOS compiler.cc FUNC_STRICT_TYPES).
+        const firstDeclaration = firstOrUndefined(symbol?.declarations) ?? declaration;
+        const calleeTyped = isFunctionDeclaration(firstDeclaration) && !!firstDeclaration.type;
+        const argumentTypesKnown = declarationFile === callerFile || getDriverPragmaStates(declarationFile).final.saveTypes;
+        if (!callerTyped || !calleeTyped || !argumentTypesKnown) return DriverCallChecks.None;
+
+        const isVarargsFunction = some(symbol?.declarations ?? [declaration], d => !!(getCombinedModifierFlagsCached(d as Declaration) & ModifierFlags.VarArgs));
+        let checks: number = DriverCallChecks.Types;
+        if (!isVarargsFunction) {
+            checks |= DriverCallChecks.TooFew;
+            if (languageVariant === LanguageVariant.LDMud) checks |= DriverCallChecks.TooMany;
+        }
+        return checks;
+    }
+
+    /**
+     * A call through `->` or `.` that the driver compiles as a call_other (`call_strict`
+     * for LDMud's `.`): `ob->f()`, `"/path"->f()`, `obs->f()`. A struct or class receiver
+     * is a member access instead, and keeps its usual checks.
+     */
+    function isDriverCallOther(node: Node): node is CallExpression & { expression: PropertyAccessExpression } {
+        if (!isCallExpression(node) || !isPropertyAccessExpression(node.expression)) return false;
+        const receiverType = getTypeOfExpression(node.expression.expression);
+        return !someType(receiverType, t => isStructOrClassType(isArrayType(t) ? getElementTypeOfArrayType(t) : t));
+    }
+
+    function isStructOrClassType(type: Type): boolean {
+        const declaration = type.symbol?.valueDeclaration;
+        return !!declaration && declaration.kind === SyntaxKind.StructDeclaration;
+    }
+
+    /**
+     * Whether LDMud accepts `type` as a call_other receiver: it must overlap
+     * `string|object|lwobject` or an array of those (prolang.y, the call_other rule).
+     */
+    function isPlausibleCallOtherReceiver(type: Type): boolean {
+        return someType(type, t => {
+            if (isArrayType(t)) return isPlausibleCallOtherReceiver(getElementTypeOfArrayType(t));
+            return !!(t.flags & (TypeFlags.Any | TypeFlags.StringLike)) || t === objectType || t === lwObjectType ||
+                !!(t.symbol && t.symbol.flags & SymbolFlags.Class && isSourceFile(t.symbol.valueDeclaration));
+        });
+    }
+
+    /**
+     * LDMud `#pragma strict_types` gives a call_other result the `unknown` type (lex.c
+     * handle_pragma), and every place that uses a value runs `check_unknown_type`, which
+     * rejects it until it is cast. Discarding the result is fine, and so is passing it to
+     * another call_other, whose arguments are never looked at.
+     */
+    function checkDriverCallOtherResultIsCast(node: CallExpression) {
+        if (languageVariant !== LanguageVariant.LDMud || getDriverPragmaStateAt(node).types !== DriverTypesPragma.Strict) return;
+        const use = walkUpParenthesizedExpressions(node.parent);
+        let child: Node = node;
+        while (child.parent && child.parent.kind === SyntaxKind.ParenthesizedExpression) child = child.parent;
+        switch (use.kind) {
+            case SyntaxKind.ExpressionStatement:
+            case SyntaxKind.CastExpression:
+            case SyntaxKind.TypeAssertionExpression:
+                return;
+            case SyntaxKind.CallExpression:
+                // An argument of another call_other is never checked.
+                if ((use as CallExpression).expression !== child && isDriverCallOther(use)) return;
+                break;
+            case SyntaxKind.ForStatement:
+                // The initialiser and increment are discarded; only the condition is used.
+                if ((use as ForStatement).condition !== child) return;
+                break;
+            case SyntaxKind.CommaListExpression:
+                if (last((use as CommaListExpression).elements) !== child) return;
+                break;
+            case SyntaxKind.BinaryExpression:
+                if ((use as BinaryExpression).operatorToken.kind === SyntaxKind.CommaToken && (use as BinaryExpression).left === child) return;
+                break;
+        }
+        error(node, Diagnostics.A_call_other_result_must_be_cast_under_pragma_strict_types);
+    }
+
+    /** A `->`/`.` call in driver mode: the driver checks nothing about its target. */
+    function isUncheckedDriverCallOther(node: Node): boolean {
+        return driverTypeChecking && isDriverCallOther(node);
+    }
+
     /**
      * The driver compiles in one pass, top to bottom, and can only bind a name it has
      * already seen. Inside a function that declares a return type -- which is exactly what
@@ -16618,6 +16897,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // After the signature, never before: resolving the callee here would cache a symbol
         // picked with the wrong meaning and leave the call looking uncallable.
         if (isCallExpression(node)) checkCallTargetIsVisibleToTheDriver(node);
+        if (driverTypeChecking && isDriverCallOther(node)) checkDriverCallOtherResultIsCast(node);
 
         if (signature === resolvingSignature) {
             // CheckMode.SkipGenericFunctions is enabled and this is a call to a generic function that
@@ -16835,7 +17115,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // }
                 if (node.operator === SyntaxKind.PlusToken) {
                     if (maybeTypeOfKindConsideringBaseConstraint(operandType, TypeFlags.FloatLiteral)) {
-                        error(node.operand, Diagnostics.Operator_0_cannot_be_applied_to_type_1, tokenToString(node.operator), typeToString(getBaseTypeOfLiteralType(operandType)));
+                        if (isReportedByDriver(node.operand, "operator")) {
+                            error(node.operand, Diagnostics.Operator_0_cannot_be_applied_to_type_1, tokenToString(node.operator), typeToString(getBaseTypeOfLiteralType(operandType)));
+                        }
                     }
                     return numberType;
                 }
@@ -17200,6 +17482,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         errorOutputContainer: { errors?: Diagnostic[]; skipLogging?: boolean; } | undefined,
     ): boolean {
         if (isTypeRelatedTo(source, target, relation)) return true;
+        if (driverTypeChecking && relation === assignableRelation && isDriverAssignable(source, target)) return true;
         if (!errorNode || !elaborateError(expr, source, target, relation, headMessage, containingMessageChain, errorOutputContainer)) {
             return checkTypeRelatedTo(source, target, relation, errorNode, headMessage, containingMessageChain, errorOutputContainer);
         }
@@ -17550,6 +17833,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function checkArithmeticOperandType(operand: Node, type: Type, diagnostic: DiagnosticMessage, isAwaitValid = false): boolean {        
         if (!isTypeAssignableTo(type, validArithmeticType)) {
+            if (!isReportedByDriver(operand, "operator")) return true;
             errorAndMaybeSuggestAwait(
                 operand,
                 false,
@@ -18302,7 +18586,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     //     }
                     // }
                     // to avoid cascading errors check assignability only if 'isReference' check succeeded and no errors were reported
-                    checkTypeAssignableToAndOptionallyElaborate(valueType, assigneeType, left, right, headMessage);
+                    if (isReportedByDriver(left, operator === SyntaxKind.EqualsToken ? "assignment" : "operator")) {
+                        checkTypeAssignableToAndOptionallyElaborate(valueType, assigneeType, left, right, headMessage);
+                    }
                 }
             }
         }
@@ -18340,6 +18626,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         function reportOperatorError(isRelated?: (left: Type, right: Type) => boolean) {
             let wouldWorkWithAwait = false;
             const errNode = errorNode || operatorToken;
+            const isEquality = operatorToken.kind === SyntaxKind.EqualsEqualsToken || operatorToken.kind === SyntaxKind.ExclamationEqualsToken ||
+                operatorToken.kind === SyntaxKind.EqualsEqualsEqualsToken || operatorToken.kind === SyntaxKind.ExclamationEqualsEqualsToken;
+            if (!isReportedByDriver(errNode, isEquality ? "equality" : "operator")) return;
             if (isRelated) {
                 const awaitedLeftType = getAwaitedTypeNoAlias(leftType);
                 const awaitedRightType = getAwaitedTypeNoAlias(rightType);
@@ -26558,6 +26847,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 //     }
                 //     return anyType;
                 // }
+                // The driver never checks that a call_other's target has the function. LDMud
+                // does reject a receiver that cannot be an object at all (`int i; i->f()`,
+                // prolang.y "Bad arg 1 type to call_other()"); FluffOS compiles even that.
+                if (driverTypeChecking && isDriverCallOther(walkUpParenthesizedExpressions(node.parent)) &&
+                    (languageVariant === LanguageVariant.FluffOS || isPlausibleCallOtherReceiver(leftType))) {
+                    return anyType;
+                }
                 if (right.text && !checkAndReportErrorForExtendingInterface(node)) {
                     reportNonexistentProperty(right, leftType, isUncheckedJS);
                 }
@@ -32149,6 +32445,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (!flowNode) {
             return declaredType;
         }
+        // Neither driver narrows: a variable has its declared type wherever it is used
+        // (LDMud prolang.y, whose comment on check_assignment_types explains that overlap
+        // is what lets `if (intp(v)) i = v;` compile; FluffOS fixes each node's type as it
+        // builds it). A variable with no declared type still evolves, as it would anyway.
+        if (driverTypeChecking && declaredType !== autoType && declaredType !== autoArrayType) {
+            return declaredType;
+        }
         flowInvocationCount++;
         const sharedFlowStart = sharedFlowCount;
         const evolvedType =  getTypeFromFlowType(getTypeAtFlowNode(flowNode));
@@ -34451,6 +34754,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         else {
             const callSymbolFlags = languageVariant === LanguageVariant.FluffOS ? SymbolFlags.Value : SymbolFlags.Function;
             funcType = checkExpression(node.expression, undefined, undefined, callSymbolFlags);
+            // In driver mode a call_other is unchecked: any arguments, a mixed result. The
+            // member was still resolved above, so hover and go-to-definition work. Signature
+            // help resolves normally, so it can still show the target's parameters.
+            if (isUncheckedDriverCallOther(node) && !(checkMode & CheckMode.IsForSignatureHelp)) {
+                for (const arg of node.arguments ?? emptyArray) {
+                    checkExpression(arg);
+                }
+                return anySignature;
+            }
         }
         if (isCallChain(node)) {
             console.debug("todo - call chain");
@@ -35479,6 +35791,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         containingMessageChain: (() => DiagnosticMessageChain | undefined) | undefined,
         inferenceContext: InferenceContext | undefined,
     ): readonly Diagnostic[] | undefined {
+        if (driverTypeChecking && !(getDriverCallChecks(node, signature) & DriverCallChecks.Types)) return undefined;
         const errorOutputContainer: { errors?: Diagnostic[]; skipLogging?: boolean; } = { errors: undefined, skipLogging: true };        
         // const thisType = getThisTypeOfSignature(signature);
         // if (thisType && thisType !== voidType && !(isNewExpression(node) || isCallExpression(node) && isSuperProperty(node.expression))) {
@@ -35734,6 +36047,19 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function hasCorrectArity(node: CallLikeExpression, args: readonly Expression[], signature: Signature, signatureHelpTrailingComma = false) {
+        if (driverTypeChecking && node.arguments && getSpreadArgumentIndex(args) < 0) {
+            const checks = getDriverCallChecks(node, signature);
+            if (!(checks & DriverCallChecks.DefaultArity)) {
+                const count = signatureHelpTrailingComma ? args.length + 1 : args.length;
+                if (checks & DriverCallChecks.TooMany && !hasEffectiveRestParameter(signature) && !signatureAcceptsExtraArguments(signature) && count > getParameterCount(signature)) {
+                    return false;
+                }
+                if (checks & DriverCallChecks.TooFew && node.arguments.isComplete && count < getMinArgumentCount(signature)) {
+                    return false;
+                }
+                return true;
+            }
+        }
         let argCount: number;
         let callIsIncomplete = false; // In incomplete call we want to be lenient when we have too few arguments
         let effectiveParameterCount = getParameterCount(signature);
