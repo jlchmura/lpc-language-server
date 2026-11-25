@@ -1504,7 +1504,8 @@ export namespace LpcParser {
             case ParsingContext.TypeMembers:
                 return lookAhead(isTypeMemberStart);
             case ParsingContext.PropertySignatureNames:
-                return tokenIsIdentifierOrKeyword(token());
+                // `*` starts an array member after a comma: `int one, *two;`
+                return token() === SyntaxKind.AsteriskToken || tokenIsIdentifierOrKeyword(token());
             // case ParsingContext.ClassMembers:
             //     // We allow semicolons as class elements (as specified by ES6) as long as we're
             //     // not in error recovery.  If we're in error recovery, we don't want an errant
@@ -4358,18 +4359,29 @@ export namespace LpcParser {
     function parsePropertyOrMethodSignature(pos: PositionState, hasJSDoc: boolean, modifiers: NodeArray<Modifier> | undefined): NodeArray<PropertySignature | MethodSignature> {
         const type = parseType();
 
-        let node: PropertySignature | MethodSignature;                
+        let node: PropertySignature | MethodSignature;
 
-        const names = parseDelimitedList(ParsingContext.PropertySignatureNames, parsePropertyName);
+        // As in a variable declaration, a `*` belongs to the one name after it: in
+        // `int *one, two;` only `one` is an array, and `int one, *two;` makes only `two` one.
+        // parseType() has already taken the first name's `*` into `type`, so every later
+        // member starts from the element type and adds its own `*`.
+        const baseType = isArrayTypeNode(type) && type.elementType ? type.elementType : type;
+        const memberTypes: TypeNode[] = [];
+        const names = parseDelimitedList(ParsingContext.PropertySignatureNames, index => {
+            const starPos = getPositionState();
+            const hasStar = parseOptional(SyntaxKind.AsteriskToken);
+            let memberType: TypeNode = index === 0 ? type : factory.cloneNode(baseType);
+            if (index > 0) setNodeFlags(memberType, memberType.flags | NodeFlags.Synthesized);
+            if (hasStar) memberType = finishNode(factory.createArrayTypeNode(memberType), starPos);
+            memberTypes[index] = memberType;
+            return parsePropertyName();
+        });
         let gotSemi = false;
         const nodes = map(names, (name, i) => {
-            let nodeType: TypeNode = type;
+            const nodeType: TypeNode = memberTypes[i] ?? type;
             let nodeModifiers = modifiers;
 
             if (i > 0) {
-                nodeType = factory.cloneNode(type);                
-                setNodeFlags(nodeType, nodeType.flags | NodeFlags.Synthesized);
-
                 nodeModifiers = factory.createNodeArray(map(modifiers, m=> {
                     const clonedMod = factory.cloneNode(m);
                     setNodeFlags(clonedMod, clonedMod.flags | NodeFlags.Synthesized);
