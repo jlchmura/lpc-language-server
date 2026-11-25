@@ -63,6 +63,7 @@ export const Diagnostics = {
     The_0_modifier_in_catch_needs_an_expression: diag(9076, DiagnosticCategory.Error, "The_0_modifier_in_catch_needs_an_expression_9076", "The '{0}' modifier in catch() needs an expression."),
     Catch_modifiers_are_only_supported_in_LDMud: diag(9077, DiagnosticCategory.Error, "Catch_modifiers_are_only_supported_in_LDMud_9077", "Catch modifiers are only supported in LDMud."),
     Undefined_function_0: diag(9078, DiagnosticCategory.Warning, "Undefined_function_0_9078", "Undefined function '{0}'."),
+    Missing_return_value_statement: diag(9079, DiagnosticCategory.Warning, "Missing_return_value_statement_9079", "Missing 'return <value>' statement."),
     The_virtual_modifier_can_only_be_used_with_inherit: diag(9057, DiagnosticCategory.Error, "The_virtual_modifier_can_only_be_used_with_inherit_9057", "The 'virtual' modifier can only be used with 'inherit'."),
     Catch_expression_cannot_also_have_a_block: diag(9032, DiagnosticCategory.Error, "Catch_expression_cannot_also_have_a_block_9032", "Catch expression cannot also have a block."),
     Operator_0_is_not_supported_in_LDMud: diag(9033, DiagnosticCategory.Error, "Operator_0_is_not_supported_in_LDMud_9033", "Operator '{0}' is not supported in LDMud."),
