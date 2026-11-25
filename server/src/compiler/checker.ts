@@ -3919,9 +3919,126 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 };
             }
         });
+        addLazyDiagnostic(() => checkDriverCaseLabels(node));
         if (node.caseBlock.locals) {
             registerForUnusedIdentifiersCheck(node.caseBlock);
         }
+    }
+
+    /**
+     * What both drivers reject about a switch's labels when they compile it:
+     *  - A string as a range bound (LDMud prolang.y and FluffOS grammar.y, the `case` rule).
+     *  - String labels together with non-zero number labels; `0` goes with either (the
+     *    `case_label` rule in both).
+     *  - Two labels that cover the same value. LDMud rejects any overlap, strings included
+     *    (closure.c store_case_labels: "Duplicate case", "Discontinued case label list
+     *    range"). FluffOS only compares the labels of a switch that has a range, and then
+     *    reports overlapping numbers (compiler.cc, "Overlapping cases"); a repeated label
+     *    in a switch with no range compiles.
+     * A label whose value is not a constant here is left out.
+     */
+    function checkDriverCaseLabels(node: SwitchStatement) {
+        interface Label { clause: CaseClause; low: number | string; high: number | string; }
+        const labels: Label[] = [];
+        let hasNumericRange = false;
+        let sawString = false;
+        let sawNonZeroNumber = false;
+
+        const noteKind = (expression: Expression, value: number | string | undefined) => {
+            if (typeof value === "string") {
+                if (sawNonZeroNumber) error(expression, Diagnostics.Mixed_case_label_list_not_allowed_a_switch_cannot_have_both_string_labels_and_non_zero_number_labels);
+                sawString = true;
+            }
+            else if (typeof value === "number" && value !== 0) {
+                if (sawString) error(expression, Diagnostics.Mixed_case_label_list_not_allowed_a_switch_cannot_have_both_string_labels_and_non_zero_number_labels);
+                sawNonZeroNumber = true;
+            }
+        };
+
+        for (const clause of node.caseBlock.clauses) {
+            if (clause.kind !== SyntaxKind.CaseClause) continue;
+            const expression = clause.expression;
+            if (expression.kind === SyntaxKind.RangeExpression) {
+                const range = expression as RangeExpression;
+                const low = range.left ? getCaseLabelValue(range.left) : -Infinity;
+                const high = range.right ? getCaseLabelValue(range.right) : Infinity;
+                if (range.left) noteKind(range.left, low);
+                if (range.right) noteKind(range.right, high);
+                if (typeof low === "string" || typeof high === "string") {
+                    error(range, Diagnostics.String_case_labels_not_allowed_as_range_bounds);
+                    continue;
+                }
+                // An inverted range matches nothing (LDMud reports it on its own).
+                if (low === undefined || high === undefined || low > high) continue;
+                hasNumericRange = true;
+                labels.push({ clause, low, high });
+            }
+            else {
+                const value = getCaseLabelValue(expression);
+                noteKind(expression, value);
+                if (value !== undefined) labels.push({ clause, low: value, high: value });
+            }
+        }
+
+        if (languageVariant === LanguageVariant.FluffOS && !hasNumericRange) return;
+        for (let i = 1; i < labels.length; i++) {
+            const label = labels[i];
+            const earlier = find(labels.slice(0, i), other => typeof other.low === typeof label.low && other.low <= label.high && label.low <= other.high);
+            if (!earlier) continue;
+            if (languageVariant === LanguageVariant.FluffOS && typeof label.low === "string") continue;
+            const diagnostic = error(label.clause.expression, Diagnostics.Duplicate_case_label_an_earlier_case_already_covers_this_value);
+            addRelatedInfo(diagnostic, createDiagnosticForNode(earlier.clause.expression, Diagnostics.The_earlier_case_is_here));
+        }
+    }
+
+    /**
+     * A bare `return;` in a function that declares a return type other than `void` or
+     * `mixed` (an array of either counts as other): LDMud rejects it (prolang.y, the
+     * `return` rule: "Must return a value for a function declared"), FluffOS warns
+     * (grammar.y: "Non-void functions must return a value."). Both look at `exact_types`,
+     * which only a declared return type sets, so an untyped function is fine. An `async`
+     * function returns a promise, so it is left alone.
+     */
+    function checkDriverReturnHasValue(node: ReturnStatement, container: SignatureDeclaration) {
+        if (container.kind !== SyntaxKind.FunctionDeclaration && container.kind !== SyntaxKind.FunctionExpression) return;
+        const returnType = (container as FunctionDeclaration | FunctionExpression).type;
+        if (!returnType || returnType.kind === SyntaxKind.VoidKeyword || returnType.kind === SyntaxKind.MixedKeyword) return;
+        if (getFunctionFlags(container) & FunctionFlags.Async) return;
+        if (languageVariant === LanguageVariant.LDMud) {
+            error(node, Diagnostics.Must_return_a_value_for_a_function_declared_0, getTextOfNode(returnType));
+        }
+        else if (languageVariant === LanguageVariant.FluffOS) {
+            error(node, Diagnostics.Non_void_functions_must_return_a_value);
+        }
+    }
+
+    /**
+     * A variable or a named parameter of type `void`. Both drivers reject it: LDMud
+     * ("Illegal to define variable '%s' as type 'void'", prolang.y; a `void` parameter
+     * with a name is a syntax error there) and FluffOS ("Illegal to declare global/local
+     * variable/argument of type void.", grammar.y). A lone unnamed `void`, `f(void)`,
+     * is an empty parameter list and is fine.
+     */
+    function checkNotDeclaredVoid(node: VariableDeclaration | ParameterDeclaration) {
+        // A variable statement's one type heads all its declarators, `void a, b;`; a
+        // declarator has its own only when it adds a `*`.
+        const type = node.type ?? (isVariableDeclaration(node) && isVariableStatement(node.parent.parent) ? node.parent.parent.type : undefined);
+        if (type?.kind !== SyntaxKind.VoidKeyword || !node.name || !isIdentifier(node.name)) return;
+        if (getSourceFileOfNode(node).isDefaultLib) return;
+        const message = node.kind === SyntaxKind.Parameter
+            ? Diagnostics.Illegal_to_declare_parameter_0_of_type_void
+            : Diagnostics.Illegal_to_declare_variable_0_of_type_void;
+        error(node.name, message, idText(node.name));
+    }
+
+    /** The constant value of a case label, or undefined if it is not a number or string constant. */
+    function getCaseLabelValue(expression: Expression): number | string | undefined {
+        const result = evaluate(expression);
+        if (!result.hasExternalReferences && (typeof result.value === "number" || typeof result.value === "string")) return result.value;
+        const type = getTypeOfExpression(expression);
+        if (type.flags & TypeFlags.StringLiteral) return (type as StringLiteralType).value;
+        if (type.flags & TypeFlags.IntLiteral) return (type as IntLiteralType).value;
+        return undefined;
     }
 
     function checkReturnStatement(node: ReturnStatement) {        
@@ -3940,6 +4057,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             grammarErrorOnFirstToken(node, Diagnostics.A_return_statement_can_only_be_used_within_a_function_body);
             return;
         }
+
+        if (!node.expression) checkDriverReturnHasValue(node, container);
 
         // Neither driver checks a return in a function that does not declare its return type.
         if (!isReportedByDriver(node, "return")) {
@@ -4075,8 +4194,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     function checkVariableDeclaration(node: VariableDeclaration) {
         tracing?.push(tracing.Phase.Check, "checkVariableDeclaration", { kind: node.kind, pos: node.pos, end: node.end, path: (node as TracingNode).tracingPath });
-        checkGrammarVariableDeclaration(node);        
+        checkGrammarVariableDeclaration(node);
         checkLocalDoesNotShadowEnclosingLocal(node);
+        checkNotDeclaredVoid(node);
         const type = checkVariableLikeDeclaration(node);
         tracing?.pop();
         return type;
@@ -4832,6 +4952,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             checkFunctionOrMethodDeclaration(node);            
             checkCollisionsForDeclarationName(node, node.name);
             checkDriverRequiresReturnType(node);
+            checkNotRedefiningNomask(node);
         }
     }
 
@@ -6889,6 +7010,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // or if its FunctionBody is strict code(11.1.5).
         checkGrammarModifiers(node);
 
+        checkNotDeclaredVoid(node);
         checkVariableLikeDeclaration(node);
         const func = getContainingFunction(node)!;
         if (hasSyntacticModifier(node, ModifierFlags.ParameterPropertyModifier)) {            
@@ -15408,13 +15530,42 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (node.block) {
             checkBlock(node.block);
         } else {
-            checkExpression(node.expression, checkMode);                            
+            checkExpression(node.expression, checkMode);
         }
-        
-        
+        checkCatchModifier(node);
+
         // catch always returns either 0 or a string
         // for both LD & Fluff
         return getUnionType([falseType, stringType]);
+    }
+
+    /**
+     * `catch(expr; modifier)`. LDMud knows `nolog` and `publish`, which take no expression,
+     * and `reserve <expr>` and `limit <expr>`, which need one (prolang.y
+     * opt_catch_modifier). FluffOS has no modifiers: its `catch` takes a plain
+     * `( comma_expr )` (grammar.y).
+     */
+    function checkCatchModifier(node: CatchExpression | CatchStatement) {
+        const modifier = node.modifier;
+        if (!modifier || nodeIsMissing(modifier)) return;
+        if (node.modifierExpression) checkExpression(node.modifierExpression);
+        if (languageVariant !== LanguageVariant.LDMud) {
+            error(modifier, Diagnostics.Catch_modifiers_are_only_supported_in_LDMud);
+            return;
+        }
+        const name = idText(modifier);
+        switch (name) {
+            case "nolog":
+            case "publish":
+                if (node.modifierExpression) error(node.modifierExpression, Diagnostics.The_0_modifier_in_catch_takes_no_expression, name);
+                return;
+            case "reserve":
+            case "limit":
+                if (!node.modifierExpression) error(modifier, Diagnostics.The_0_modifier_in_catch_needs_an_expression, name);
+                return;
+            default:
+                error(modifier, Diagnostics.Illegal_modifier_0_in_catch_expected_nolog_publish_reserve_expr_or_limit_expr, name);
+        }
     }
 
     /**
@@ -16598,8 +16749,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      * wherever this program's own definition sits.
      */
     function isDeclaredByAnInherit(file: SourceFile, name: string): boolean {
+        return !!getInheritedMember(file, name);
+    }
+
+    /** The member named `name` of the nearest inherited program that declares one. */
+    function getInheritedMember(file: SourceFile, name: string): Symbol | undefined {
         const fileSymbol = getSymbolAtLocation(file, /*includeSourceFile*/ true);
-        if (!fileSymbol) return false;
+        if (!fileSymbol) return undefined;
 
         const fileType = getTypeOfSymbol(fileSymbol, CheckMode.TypeOnly) as InterfaceType;
         // A program that inherits lists its own type first among its base types
@@ -16610,10 +16766,28 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             const current = pending.shift()!;
             if (!current?.symbol || seen.has(current)) continue;
             seen.add(current);
-            if (current.members?.has(name)) return true;
+            const member = current.members?.get(name);
+            if (member) return member;
             pending.push(...getBaseTypes(current) as InterfaceType[]);
         }
-        return false;
+        return undefined;
+    }
+
+    /**
+     * A function here that redefines a `nomask` function an inherited program defines.
+     * LDMud rejects a prototype as well as a definition (prolang.y define_new_function);
+     * FluffOS only a definition (compiler.cc define_new_function). Either way the inherited
+     * function must have a body: a nomask prototype there can still be defined.
+     */
+    function checkNotRedefiningNomask(node: FunctionDeclaration) {
+        if (!node.name || !isIdentifier(node.name)) return;
+        if (languageVariant === LanguageVariant.FluffOS && !node.body) return;
+        const inherited = getInheritedMember(getSourceFileOfNode(node), node.name.text);
+        const declarations = inherited?.declarations?.filter(isFunctionDeclaration);
+        if (!declarations?.length) return;
+        const isNomask = some(declarations, declaration => !!(getCombinedModifierFlagsCached(declaration) & ModifierFlags.NoMask));
+        if (!isNomask || !some(declarations, declaration => !!declaration.body)) return;
+        error(node.name, Diagnostics.Illegal_to_redefine_nomask_function_0, node.name.text);
     }
 
     // ---------------------------------------------------------------------------------
