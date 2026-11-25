@@ -1,5 +1,37 @@
 # LPC Language Services Changelog
 
+## 1.1.59
+
+- New: LDMud - coroutines: `async`, `await()`, `yield()`, the `coroutine` type, and `foreach` over a coroutine - #422
+- New: LDMud - operator closures (`#'+`, `#'[..<]` and the rest) and quoted arrays `'({ })` - #426
+- New: LDMud - every inline closure form, including `: <context>` and the paren-less form, plus more syntax forms inside `(: :)` - #428
+- New: LDMud - the driver's preprocessor rules: macro parameters are substituted inside string and char literals, and there is no `#` or `##` operator - #428
+- New: report a `varargs` parameter that can't hold an array (LDMud), and any `varargs` parameter in FluffOS - #438
+- Fix: the operand types for `-`, `&`, `*` and `+` (and their assignment forms) now follow each driver's compiler - #427
+- Fix: LDMud - each `case` is its own scope; FluffOS - declarations after a `case` label and statements before the first `case` are reported - #434
+- Fix: a global variable and a function can share a name - #433
+- Fix: LDMud - `max()`, `min()` and other varargs efuns now accept their extra arguments, and each extra argument is type-checked - #438
+- Fix: LDMud - efun signatures that disagreed with the driver, and two crashes (a varargs call with no arguments, and `#name` in an object-like macro) - #416
+- Fix: a call to a function defined later in the file is now reported when the file has an `inherit` - #439
+- Fix: narrowing on assignment no longer widens `0` to `int` - #435
+- Fix: a doc comment at the start of a file was attached twice, so an `@var` tag there reported a redeclaration - #431
+- Fix: type errors between builtin types no longer mention an internal `__LS__` type - #431
+- Fix: a doc comment right after a preprocessor directive is now read - #425
+- Fix: a hover showed an intersection type as empty - #423
+- Fix: a crash on an optional `@param` at the end of an `@overload` block - #421
+- Fix: a type predicate that doesn't resolve no longer narrows - #420
+- Fix: a crash checking a whole mudlib, where the mapping type's members depended on check order - #409
+- Fix: an `@var` tag now applies wherever the tagged file reads the variable - #410
+- Fix: a function with a type predicate keeps its declared return type - #411
+- Fix: a local's doc comment can share a line with the code before it - #412
+- Fix: doc type unions built from macros now display correctly in hovers - #413
+- Fix: a user function's `@overload` shapes are shown as overloads - #408
+- Fix: signature help documentation is shown as markdown - #407
+- Fix: syntax highlighting - a doc tag is only highlighted at the start of a word - #406
+- Fix: a standalone doc block, such as a file header or an `@typedef`, no longer becomes the next declaration's doc - #405
+- `@lpc-lang/core` no longer depends on `glob` - #414
+- Unit tests run on Vitest instead of Jest - #432
+
 ## 1.1.58
 
 - Fix: syntax highlighting - a `#define` body no longer swallows the lines after it, and `\`-continued directives stay highlighted as preprocessor - #402

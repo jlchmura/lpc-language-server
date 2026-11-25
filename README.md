@@ -1,4 +1,17 @@
+<div align="center">
+
 # LPC Language Services
+
+[![VS Marketplace version](https://badgen.net/vs-marketplace/v/jlchmura.lpc)](https://marketplace.visualstudio.com/items?itemName=jlchmura.lpc)
+[![VS Marketplace installs](https://badgen.net/vs-marketplace/i/jlchmura.lpc)](https://marketplace.visualstudio.com/items?itemName=jlchmura.lpc)
+[![VS Marketplace rating](https://badgen.net/vs-marketplace/rating/jlchmura.lpc)](https://marketplace.visualstudio.com/items?itemName=jlchmura.lpc&ssr=false#review-details)
+[![Node.js CI](https://github.com/jlchmura/lpc-language-server/actions/workflows/node.js.yml/badge.svg?branch=main)](https://github.com/jlchmura/lpc-language-server/actions/workflows/node.js.yml)
+[![npm @lpc-lang/core](https://img.shields.io/npm/v/@lpc-lang/core.svg?label=%40lpc-lang%2Fcore)](https://www.npmjs.com/package/@lpc-lang/core)
+[![license](https://img.shields.io/github/license/jlchmura/lpc-language-server.svg)](https://github.com/jlchmura/lpc-language-server/blob/main/LICENSE)
+[![LPC Discord](https://img.shields.io/badge/Discord-LPC-5865F2?logo=discord&logoColor=white)](https://discord.gg/wzUbBgs3AQ)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-FFDD00?logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/jlchmura)
+
+</div>
 
 Language server and VSCode extension that provides rich language support for LPC (Lars Pensjö C) - an object-oriented programming language derived from C and developed originally by Lars Pensjö to facilitate MUD building on LPMuds.
 
@@ -22,6 +35,7 @@ Install from the VS Code Marketplace: https://marketplace.visualstudio.com/items
 -   Code navigation
 -   Folding (with support for `// #region` blocks)
 -   Build task
+-   Project-wide problem check (`LPC: Check Project for Problems`)
 
 ## Changelog
 
@@ -189,7 +203,7 @@ It is not a mechanism that prevents a file from being included in the codebase -
 | Setting          | Description                                                             |
 | ---------------- | ----------------------------------------------------------------------- |
 | `master`         | The location of your master object. Defaults to `"/obj/master.c"`       |
-| `simul_efun`     | The location of your simul_efun file. Defaults to `"/obj/simul_efun.c"` |
+| `simul_efun`     | The location of your simul_efun file. Defaults to `"/obj/sefun.c"`      |
 | `global_include` | When provided, will add this file as an `#include` to each file.        |
 | `player`         | The location of your player file. Defaults to `"/obj/player.c"`         |
 
@@ -201,7 +215,7 @@ to specify the location of the root folder.
 
 An array of folders that are searched when including files via the `#include` directive.
 
-Defaults to `["/sys", "/obj", "/room"]`
+There is no default: if `libInclude` is not set, no include search folders are used.
 
 #### Predefined Macros - `defines`
 
@@ -266,16 +280,15 @@ The following settings are configured through your editor's settings (e.g. `sett
 | `LPC.locale`                             | `"auto"`   | The locale used to report LPC errors. Defaults to your editor's display language.                                                                                                   |
 | `LPC.languageServer.maxLpcServerMemory`  | `3072`     | The maximum amount of memory (in MB) to allocate to the language server process.                                                                                                    |
 | `LPC.languageServer.logVerbosity`        | `"normal"` | How much the language server writes to its log: `terse`, `normal`, or `verbose`. Use `verbose` to surface file-watcher activity that is otherwise suppressed when diagnosing watch behavior. |
+| `LPC.checkProject.openProblemsPanel`     | `true`     | Open the Problems panel when `LPC: Check Project for Problems` finishes.                                                                                                             |
 
-Changing any of these requires restarting the language server (`LPC: Restart Language Server`) to take effect.
+Changing any of the `LPC.locale` or `LPC.languageServer.*` settings requires restarting the language server (`LPC: Restart LPC Language Server`) to take effect.
 
 ## Grammar ToDo's
 
 Language services is a work in progress. Some major areas that have yet to be implemented are:
 
 -   LWObjects
--   Named object validation
--   Coroutines
 
 ## Credits
 
