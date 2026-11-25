@@ -16550,12 +16550,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const fileSymbol = getSymbolAtLocation(file, /*includeSourceFile*/ true);
         if (!fileSymbol) return false;
 
-        const seen = new Set<string>();
-        const pending = [...getBaseTypes(getTypeOfSymbol(fileSymbol, CheckMode.TypeOnly) as InterfaceType) as InterfaceType[]];
+        const fileType = getTypeOfSymbol(fileSymbol, CheckMode.TypeOnly) as InterfaceType;
+        // A program that inherits lists its own type first among its base types
+        // (resolveBaseTypeOfSourceFile); its own declarations are not inherited.
+        const seen = new Set<Type>([fileType]);
+        const pending = [...getBaseTypes(fileType) as InterfaceType[]];
         while (pending.length) {
             const current = pending.shift()!;
-            if (!current?.symbol || seen.has(current.symbol.name)) continue;
-            seen.add(current.symbol.name);
+            if (!current?.symbol || seen.has(current)) continue;
+            seen.add(current);
             if (current.members?.has(name)) return true;
             pending.push(...getBaseTypes(current) as InterfaceType[]);
         }
