@@ -7220,6 +7220,8 @@ bytes *  explode(bytes str, bytes del);
  */
 string expand_define(string name);
 
+// The man page shows (string name, string arg, ...), but func_spec allows only two arguments and
+// f_expand_define (lex.c) reads one arg ("TODO: Right now, only one arg is evaluated.").
 string expand_define(string name, string arg);
 
 /**
