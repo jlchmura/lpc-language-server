@@ -204,6 +204,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     /** `typeChecking: "driver"`: report only the type errors the driver's compiler would. */
     var driverTypeChecking = compilerOptions.typeChecking === "driver";
     var driverPragmaStatesCache = new Map<SourceFile, DriverPragmaStates>();
+    /** {@link getFunctionCompiledBefore}, by the file-level statement around the node; `false` for none. */
+    var functionCompiledBeforeCache = new Map<Node, FunctionDeclaration | false>();
     /**
      * Which parts of a call the driver checks; see {@link getDriverCallChecks}. Plain flags
      * rather than an enum, since it is private to the checker.
@@ -16646,8 +16648,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      * included). A `function (...) { }` closure is always checked in both drivers (LDMud
      * defaults its type to mixed, FluffOS sets TYPE_ANY); LDMud checks a `(: :)` closure
      * too, while FluffOS compiles one with the enclosing function's setting. Code outside
-     * any function (a global initialiser) is treated as unchecked: both drivers leave a
-     * stale `exact_types` from whatever function they compiled last there.
+     * any function (a global initialiser) has no setting of its own: neither driver resets
+     * `exact_types` there, so it is checked when the function the driver compiled just
+     * before it declares a return type (see {@link getFunctionCompiledBefore}).
      *
      * Always true outside driver mode.
      */
@@ -16663,7 +16666,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 case SyntaxKind.FunctionDeclaration:
                     return !!(current as FunctionDeclaration).type;
                 case SyntaxKind.SourceFile:
-                    return false;
+                    return !!getFunctionCompiledBefore(node)?.type;
             }
         }
         return false;
@@ -16855,23 +16858,24 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      *
      * An untyped caller is deliberately not checked: there the driver quietly defines a
      * forward stub and resolves it when the definition arrives, so the same source is legal.
-     * A call at file scope is not checked either, because it compiles into `__INIT`, which
-     * is untyped.
+     *
+     * A call at file scope (a global initialiser) has no function of its own, and neither
+     * driver resets `exact_types` for it, so it is checked under whatever the function the
+     * driver compiled just before left behind (see {@link getFunctionCompiledBefore}).
      */
     function checkCallTargetIsVisibleToTheDriver(node: CallExpression) {
         const callee = node.expression;
         if (!isIdentifier(callee)) return;
 
-        const containingFunction = getContainingFunction(node);
-        if (!containingFunction) return;
-
         // An inline closure takes its checking from the function it is written in, so the
         // question is always about the outermost declaration around the call.
-        let outermost: Node = containingFunction;
-        for (let parent = containingFunction.parent; parent; parent = parent.parent) {
+        let outermost: FunctionDeclaration | undefined;
+        for (let parent: Node | undefined = getContainingFunction(node); parent; parent = parent.parent) {
             if (isFunctionDeclaration(parent)) outermost = parent;
         }
-        if (!isFunctionDeclaration(outermost) || !outermost.type) return;
+        const atFileScope = !outermost;
+        const governing = outermost ?? getFunctionCompiledBefore(node);
+        if (!governing?.type) return;
 
         const symbol = getResolvedSymbol(callee);
         const declarations = symbol?.declarations;
@@ -16889,6 +16893,61 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
         const diagnostic = error(callee, Diagnostics.Undefined_function_0_it_is_not_declared_until_later_in_this_program, callee.text);
         addRelatedInfo(diagnostic, createDiagnosticForNode(declarations[0], Diagnostics._0_is_declared_here, callee.text));
+        if (atFileScope && governing.name) {
+            addRelatedInfo(diagnostic, createDiagnosticForNode(governing.name,
+                Diagnostics.The_driver_checks_this_call_because_0_the_function_it_compiles_just_before_declares_a_return_type,
+                declarationNameToString(governing.name)));
+        }
+    }
+
+    /**
+     * The function header -- prototype or definition, both set `exact_types` (FluffOS
+     * grammar.y `function` -> rule_func_type, LDMud prolang.y `function_def` ->
+     * def_function_typecheck) -- the driver compiles last before `node`, which is outside
+     * any function. Inline closures save and restore `exact_types`, so they leave nothing
+     * behind and are not counted.
+     *
+     * That is the nearest function earlier in this program, includes and all. With none,
+     * it is the last function the driver compiled before starting on this program, which
+     * cannot be known in general. The best guess is the last program inherited before
+     * `node`: an inherit the driver has not loaded yet is compiled first, and the program
+     * is then compiled again from the top. That inherit's last function counts, or, if it
+     * has none, the same rule applied to its own inherits. With no inherit either, the
+     * answer is undefined, and nothing is checked.
+     */
+    function getFunctionCompiledBefore(node: Node): FunctionDeclaration | undefined {
+        // Everything in one file-level statement shares the answer.
+        let statement = node;
+        while (statement.parent && !isSourceFile(statement.parent) && !isIncludeDirective(statement.parent)) statement = statement.parent;
+        let cached = functionCompiledBeforeCache.get(statement);
+        if (cached === undefined) {
+            const file = getSourceFileOfNode(node);
+            cached = findLastFunctionHeader(file.statements, statement) ?? findLastFunctionOfInherit(file, statement, new Set([file])) ?? false;
+            functionCompiledBeforeCache.set(statement, cached);
+        }
+        return cached || undefined;
+    }
+
+    /** The last function header among `statements` (and the includes among them) that comes before `before`, or the last of all. */
+    function findLastFunctionHeader(statements: readonly Statement[], before: Node | undefined): FunctionDeclaration | undefined {
+        let found: FunctionDeclaration | undefined;
+        for (const statement of statements) {
+            if (before && !comesBeforeInCompileOrder(statement, before)) break;
+            if (isFunctionDeclaration(statement)) found = statement;
+            else if (isIncludeDirective(statement)) found = findLastFunctionHeader(statement.statements, before) ?? found;
+        }
+        return found;
+    }
+
+    function findLastFunctionOfInherit(file: SourceFile, before: Node | undefined, seen: Set<SourceFile>): FunctionDeclaration | undefined {
+        const inherit = findLast(file.heritageClauses ?? emptyArray, clause => !before || comesBeforeInCompileOrder(clause, before));
+        if (!inherit) return undefined;
+        const specifier = inherit.inheritClause;
+        const moduleSymbol = resolveExternalModuleName(inherit, specifier, getTypeOfExpression(specifier), /*ignoreErrors*/ true);
+        const inherited = moduleSymbol?.valueDeclaration;
+        if (!inherited || !isSourceFile(inherited) || seen.has(inherited)) return undefined;
+        seen.add(inherited);
+        return findLastFunctionHeader(inherited.statements, /*before*/ undefined) ?? findLastFunctionOfInherit(inherited, /*before*/ undefined, seen);
     }
 
     /**

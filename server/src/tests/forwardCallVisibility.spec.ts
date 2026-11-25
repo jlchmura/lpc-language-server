@@ -10,8 +10,9 @@ import { message, createTestProgram } from "./harness.js";
  *
  * Every expectation here was run against build/src/lpcc first. The boundaries are not all
  * obvious: an untyped caller is silent (the driver makes a forward stub), a call at file
- * scope is silent (it compiles into the untyped `__INIT`), and an inline closure follows
- * the function it is written in rather than having a rule of its own.
+ * scope follows the function compiled just before it (neither driver resets `exact_types`
+ * there), and an inline closure follows the function it is written in rather than having a
+ * rule of its own.
  */
 const FIXTURES = lpc.normalizeSlashes(path.join(process.cwd(), "server/src/tests/cases/fwdcall"));
 const VIRTUAL = lpc.normalizeSlashes(path.join(process.cwd(), "server/src/tests/cases/compiler/__fwdcall.c"));
@@ -84,10 +85,6 @@ describe("the shapes the driver accepts", () => {
         expect(undefinedFunctions(`a() { function f = (: b() :); return f; }\nvoid b() { }\n`)).toEqual([]);
     });
 
-    it("accepts a forward call at file scope -- that compiles into the untyped __INIT", () => {
-        expect(undefinedFunctions(`int x = b();\nint b() { return 1; }\n`)).toEqual([]);
-    });
-
     it("accepts a call to an efun this program redefines later", () => {
         expect(undefinedFunctions(`void a() { typeof(1); }\nstring typeof(mixed v) { return "x"; }\n`)).toEqual([]);
     });
@@ -98,6 +95,77 @@ describe("the shapes the driver accepts", () => {
 
     it("accepts a call to a name an inherited program declares", () => {
         expect(fixture("fwd_derived.c")).toEqual([]);
+    });
+});
+
+describe("a call at file scope", () => {
+    // Neither driver resets `exact_types` for a global initialiser, so it is checked under
+    // whatever the last function header the driver compiled left behind (FluffOS lpcc:
+    // "Undefined function b"; LDMud 3.6.7: "Undefined function 'b'").
+    const bothDrivers = [lpc.LanguageVariant.FluffOS, lpc.LanguageVariant.LDMud];
+
+    it("reports it after a typed function", () => {
+        for (const driverType of bothDrivers) {
+            expect(undefinedFunctions(`void a() { }\nint x = b();\nint b() { return 1; }\n`, driverType)).toHaveLength(1);
+        }
+    });
+
+    it("reports it after a typed prototype -- the header alone sets exact_types", () => {
+        expect(undefinedFunctions(`void a();\nint x = b();\nint b() { return 1; }\nvoid a() { }\n`)).toHaveLength(1);
+    });
+
+    it("accepts it after an untyped function", () => {
+        for (const driverType of bothDrivers) {
+            expect(undefinedFunctions(`x() { }\nint y = b();\nint b() { return 1; }\n`, driverType)).toEqual([]);
+        }
+    });
+
+    it("goes by the nearest function before it, not the first", () => {
+        expect(undefinedFunctions(`void a() { }\nx() { }\nint y = b();\nint b() { return 1; }\n`)).toEqual([]);
+        expect(undefinedFunctions(`x() { }\nvoid a() { }\nint y = b();\nint b() { return 1; }\n`)).toHaveLength(1);
+    });
+
+    it("ignores a function that comes after it", () => {
+        expect(undefinedFunctions(`x() { }\nint y = b();\nvoid a() { }\nint b() { return 1; }\n`)).toEqual([]);
+    });
+
+    it("ignores an inline closure -- the driver restores exact_types after one", () => {
+        expect(undefinedFunctions(`x() { }\nfunction f = function() { return 1; };\nint y = b();\nint b() { return 1; }\n`)).toEqual([]);
+    });
+
+    it("reports a call in a closure at file scope after a typed function", () => {
+        expect(undefinedFunctions(`void a() { }\nfunction f = (: b() :);\nint b() { return 1; }\n`)).toHaveLength(1);
+    });
+
+    it("accepts it with no function before it and nothing inherited", () => {
+        // What the driver compiled last could be anything; reporting nothing is the safe side.
+        expect(undefinedFunctions(`int x = b();\nint b() { return 1; }\n`)).toEqual([]);
+    });
+
+    it("accepts it after a prototype of the callee", () => {
+        expect(undefinedFunctions(`void a() { }\nint b();\nint x = b();\nint b() { return 1; }\n`)).toEqual([]);
+    });
+
+    it("counts a function declared in an include before it", () => {
+        expect(fixture("fwd_init_include.c")).toHaveLength(1);
+    });
+
+    it("falls back to the last function of the inherited program", () => {
+        for (const driverType of bothDrivers) {
+            expect(fixture("fwd_init_inherit_typed.c", { driverType })).toHaveLength(1);
+            expect(fixture("fwd_init_inherit_untyped.c", { driverType })).toEqual([]);
+        }
+    });
+
+    it("says which function makes the driver check it", () => {
+        const { program } = createTestProgram({ [VIRTUAL]: `void a() { }\nint x = b();\nint b() { return 1; }\n` },
+            { driverType: lpc.LanguageVariant.FluffOS }, [VIRTUAL]);
+        const [diagnostic] = program.getSemanticDiagnostics(program.getSourceFile(VIRTUAL)!)
+            .filter(d => message(d).startsWith("Undefined function"));
+        expect(diagnostic.relatedInformation?.map(message)).toEqual([
+            "'b' is declared here.",
+            "The driver checks this call because 'a', the function it compiles just before, declares a return type.",
+        ]);
     });
 });
 
