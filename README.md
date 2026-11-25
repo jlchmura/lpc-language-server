@@ -37,6 +37,13 @@ Install from the VS Code Marketplace: https://marketplace.visualstudio.com/items
 -   Build task
 -   Project-wide problem check (`LPC: Check Project for Problems`)
 
+## A note about type checking
+
+By default the language server type checks more strictly than your driver, the way TypeScript checks JavaScript. It uses LPCDoc annotations and narrows types through `if (stringp(x))` and assignments. It also reports a `->` call whose target is not known to have the function. This catches real bugs, but on an existing mudlib it can also flag a lot of code that compiles and runs fine.
+
+If you would rather see only the type errors your driver would report, set [`typeChecking`](#type-checking---typechecking) to `"driver"`. Hover, completion, go-to-definition and the other editor features work the same in either mode.
+
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md).
@@ -237,6 +244,34 @@ Semantic analysis is always run, but diagnostics are only reported if you opt in
 ```json
 "diagnostics": "on"
 ```
+
+#### Type Checking - `typeChecking`
+
+How strictly to type check. Valid options are `"strict"` (the default) or `"driver"`.
+
+-   `"strict"`: type checks as described in [A note about type checking](#a-note-about-type-checking), stricter than your driver.
+-   `"driver"`: reports only the type errors your driver's compiler would report. These follow the driver's own rules:
+    -   A function body is type checked only if the function declares a return type. This is how both LDMud and FluffOS work, whatever the pragma.
+    -   There is no narrowing: a variable has its declared type everywhere.
+    -   A `->` call accepts any function name, its arguments are not checked, and its result is `mixed`.
+    -   Under LDMud's `#pragma strict_types`, a `->` call's result must be cast before it is used, as in `(string)ob->query_name()`.
+    -   `#pragma strict_types` (and LDMud's `strong_types`) requires every function to declare a return type.
+    -   Argument counts and types are checked where the driver checks them. For example, an inherited function is checked only if its program was compiled with `save_types`.
+
+```json
+"typeChecking": "driver"
+```
+
+#### Default Pragmas - `defaultPragmas`
+
+Pragmas every file starts with, as if each file began with a `#pragma` line for each entry. Use this to mirror FluffOS's `DEFAULT_PRAGMAS` or an LDMud auto-include. A file's own `#pragma` lines still apply after these, so `#pragma weak_types` (LDMud) or `#pragma no_strict_types` (FluffOS) opts a single file out. Only used when `typeChecking` is `"driver"`.
+
+```json
+"typeChecking": "driver",
+"defaultPragmas": ["strict_types"]
+```
+
+Pragmas in a file are read where they appear, so a pragma applies to the code after it, including a pragma in an `#include`d header.
 
 ### Compiler Options - `compilerOptions`
 
