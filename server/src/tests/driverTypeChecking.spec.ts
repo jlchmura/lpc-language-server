@@ -216,6 +216,43 @@ describe.each([
         });
     });
 
+    describe("code at file scope", () => {
+        // Neither driver resets `exact_types` for a global initialiser, so it is checked
+        // under what the function compiled just before it left behind.
+        const operator = `string s;\nint i = s - 1;\n`;
+
+        it("is checked after a typed function", () => {
+            expect(codes(driver, `void a() { }\n${operator}`)).toEqual([2365]);
+        });
+
+        it("is not checked after an untyped function, or with no function before it", () => {
+            expect(codes(driver, `void a() { }\nx() { }\n${operator}`)).toEqual([]);
+            expect(codes(driver, operator)).toEqual([]);
+        });
+
+        it("goes by the inherited program's last function when there is none of its own", () => {
+            const source = `inherit "/base";\n${operator}`;
+            expect(codes(driver, source, { files: { "base.c": `int g() { return 1; }\n` } })).toEqual([2365]);
+            expect(codes(driver, source, { files: { "base.c": `int g() { return 1; }\nh() { }\n` } })).toEqual([]);
+        });
+
+        it("checks a call's arguments after a typed function", () => {
+            expect(codes(driver, `int f(int i) { return i; }\nint x = f("s");\n`)).toEqual([2345]);
+            expect(codes(driver, `int f(int i) { return i; }\nx() { }\nint y = f("s");\n`)).toEqual([]);
+        });
+
+        it("checks an efun's argument types after a typed function", () => {
+            expect(codes(driver, `void a() { }\nint x = random("x");\n`)).toEqual([2345]);
+            expect(codes(driver, `x() { }\nint y = random("x");\n`)).toEqual([]);
+        });
+
+        it(isLD ? "always rejects == between unrelated types" : "checks == only after a typed function", () => {
+            const equality = `string s;\nint i;\nint b = s == i;\n`;
+            expect(codes(driver, `void a() { }\n${equality}`)).toEqual([2367]);
+            expect(codes(driver, `x() { }\n${equality}`)).toEqual(isLD ? [2367] : []);
+        });
+    });
+
     describe("assignability in a typed function", () => {
         it("accepts a value whose type overlaps the target", () => {
             expect(codes(driver, `int f(int|string v) {\n  int r = v;\n  return r;\n}\n`)).toEqual([]);
