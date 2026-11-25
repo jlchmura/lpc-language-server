@@ -35,3 +35,6 @@ build*.js
 scripts/
 lib/
 work/
+.claude/**
+AGENTS.md
+tools/

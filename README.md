@@ -5,6 +5,8 @@
 [![VS Marketplace version](https://badgen.net/vs-marketplace/v/jlchmura.lpc)](https://marketplace.visualstudio.com/items?itemName=jlchmura.lpc)
 [![VS Marketplace installs](https://badgen.net/vs-marketplace/i/jlchmura.lpc)](https://marketplace.visualstudio.com/items?itemName=jlchmura.lpc)
 [![VS Marketplace rating](https://badgen.net/vs-marketplace/rating/jlchmura.lpc)](https://marketplace.visualstudio.com/items?itemName=jlchmura.lpc&ssr=false#review-details)
+[![Open VSX version](https://badgen.net/open-vsx/version/jlchmura/lpc?label=Open%20VSX)](https://open-vsx.org/extension/jlchmura/lpc)
+[![Open VSX downloads](https://badgen.net/open-vsx/d/jlchmura/lpc?label=Open%20VSX%20downloads)](https://open-vsx.org/extension/jlchmura/lpc)
 [![Node.js CI](https://github.com/jlchmura/lpc-language-server/actions/workflows/node.js.yml/badge.svg?branch=main)](https://github.com/jlchmura/lpc-language-server/actions/workflows/node.js.yml)
 [![npm @lpc-lang/core](https://img.shields.io/npm/v/@lpc-lang/core.svg?label=%40lpc-lang%2Fcore)](https://www.npmjs.com/package/@lpc-lang/core)
 [![license](https://img.shields.io/github/license/jlchmura/lpc-language-server.svg)](https://github.com/jlchmura/lpc-language-server/blob/main/LICENSE)
@@ -18,6 +20,8 @@ Language server and VSCode extension that provides rich language support for LPC
 This extension supports the LPC syntax used by both the [LDMud](https://www.ldmud.eu/) and [FluffOS](https://www.fluffos.info/) branch of [LPmud drivers](https://en.wikipedia.org/wiki/LPMud).
 
 Install from the VS Code Marketplace: https://marketplace.visualstudio.com/items?itemName=jlchmura.lpc
+
+For VSCodium, Cursor, Windsurf and other editors that use Open VSX: https://open-vsx.org/extension/jlchmura/lpc
 
 ## Features
 
