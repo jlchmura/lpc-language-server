@@ -5032,9 +5032,11 @@ mixed * map_objects(string   *arr, string fun, varargs mixed extra );
  * @since In LDMud 3.2.6 renamed from map_mapping() and complemented by map().
  *
  */
-mapping map_indices(mapping m, string func, varargs string|object ob );
-
-mapping map_indices(mapping m, varargs closure cl );
+mapping map_indices(mapping m, string func, string|object|lwobject ob, varargs mixed extra);
+mapping map_indices(mapping m, closure cl, varargs mixed extra);
+// A function name alone, or followed by arguments that aren't an object, calls it in this_object().
+mapping map_indices(mapping m, string func);
+mapping map_indices(mapping m, string func, mixed extra, varargs mixed extras);
 
 /**
  * map
@@ -6104,9 +6106,9 @@ mixed * input_to_info(object player);
  */
 void input_to(string|closure fun);
 
-void input_to(string|closure fun, varargs int flag );
-
-void input_to(string|closure fun, int flag, varargs string|closure prompt );
+// With INPUT_PROMPT in <flag> the first extra argument is the prompt (a string or closure);
+// the remaining arguments are passed on to <fun>.
+void input_to(string|closure fun, int flag, varargs mixed *args);
 
 /**
  * inherit_list
@@ -7065,8 +7067,11 @@ int find_call_out(closure func);
         by efun filter().
  *
  */
-mapping filter_indices(mapping m, string func, varargs string|object ob );
-mapping filter_indices(mapping m, varargs closure cl );
+mapping filter_indices(mapping m, string func, string|object|lwobject ob, varargs mixed extra);
+mapping filter_indices(mapping m, closure cl, varargs mixed extra);
+// A function name alone, or followed by arguments that aren't an object, calls it in this_object().
+mapping filter_indices(mapping m, string func);
+mapping filter_indices(mapping m, string func, mixed extra, varargs mixed extras);
 
 /**
  * filter
@@ -7215,7 +7220,7 @@ bytes *  explode(bytes str, bytes del);
  */
 string expand_define(string name);
 
-string expand_define(string name, varargs string arg );
+string expand_define(string name, string arg);
 
 /**
  * exp
@@ -9413,8 +9418,9 @@ int clonep(mixed  arg);
         share_variables pragma.
  *
  */
-object clone_object(varargs string name );
-object clone_object(varargs object template );
+// Extra arguments are passed on to create().
+object clone_object(string name, varargs mixed *args);
+object clone_object(object template, varargs mixed *args);
 
 /**
  * clear_bit
@@ -9646,8 +9652,8 @@ int caller_stack_depth();
  * @since Introduced in LDMud 3.6.2.
  *
  */
-unknown call_strict(object|string ob, varargs string func );
-unknown call_strict(object*|string* ob, varargs string func );
+unknown call_strict(object|lwobject|string ob, string func, varargs mixed *args);
+unknown call_strict(object*|lwobject*|string* ob, string func, varargs mixed *args);
 
 /**
  * call_resolved
@@ -9684,9 +9690,9 @@ unknown call_strict(object*|string* ob, varargs string func );
         LDMud 3.6.2 added array calls.
  *
  */
-int call_resolved(mixed result, object ob, varargs string func );
+int call_resolved(mixed result, object|lwobject|string ob, string func, varargs mixed *args);
 
-int* call_resolved(mixed* result, object* ob, varargs string func );
+int* call_resolved(mixed* result, object*|lwobject*|string* ob, string func, varargs mixed *args);
 
 /**
  * call_out_info
@@ -9877,8 +9883,8 @@ unknown call_other(object *ob, string fun, varargs mixed arg );
  * @since Introduced in LDMud 3.6.2.
  *
  */
-unknown call_direct_strict(object|string ob, varargs string func );
-unknown call_direct_strict(object*|string* ob, varargs string func );
+unknown call_direct_strict(object|lwobject|string ob, string func, varargs mixed *args);
+unknown call_direct_strict(object*|lwobject*|string* ob, string func, varargs mixed *args);
 
 /**
  * call_direct_resolved
@@ -9911,8 +9917,8 @@ unknown call_direct_strict(object*|string* ob, varargs string func );
         LDMud 3.6.2 added array calls.
  *
  */
-int call_direct_resolved(mixed result, object ob, varargs string func );
-int* call_direct_resolved(mixed* result, object* ob, varargs string func );
+int call_direct_resolved(mixed result, object|lwobject|string ob, string func, varargs mixed *args);
+int* call_direct_resolved(mixed* result, object*|lwobject*|string* ob, string func, varargs mixed *args);
 
 /**
  * call_direct
@@ -10232,7 +10238,7 @@ float asin(float n);
         LDMud 3.3.266 added support for structs.
  *
  */
-mixed apply(varargs closure cl );
+mixed apply(closure cl, varargs mixed *args);
 
 /**
  * and_bits

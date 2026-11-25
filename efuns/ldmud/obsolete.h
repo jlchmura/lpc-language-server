@@ -230,7 +230,7 @@ void set_max_commands(int num, object obj);
         LDMud 3.5.0 introduced LIMIT_MEMORY.
  *
  */
-void set_limits(int tag, varargs int value );
+void set_limits(int tag, int value, varargs int *tags_and_values);
 void set_limits(int *limits);
 
 /**
@@ -898,9 +898,10 @@ int mapping_contains(varargs mixed &data1, map, key);
         Removed in LDMud 3.3.
  *
  */
-mapping map_mapping(mapping m, string func, varargs string|object ob );
-
-mapping map_mapping(mapping m, varargs closure cl );
+mapping map_mapping(mapping m, string func, string|object ob, varargs mixed extra);
+mapping map_mapping(mapping m, closure cl, varargs mixed extra);
+mapping map_mapping(mapping m, string func);
+mapping map_mapping(mapping m, string func, mixed extra, varargs mixed extras);
 
 /**
  * map_array
@@ -1132,8 +1133,10 @@ mixed get_combine_charset(int mode);
         Removed in LDMud 3.3.
  *
  */
-mapping filter_mapping(mapping m, string func, varargs string|object ob );
-mapping filter_mapping(mapping m, varargs closure cl );
+mapping filter_mapping(mapping m, string func, string|object ob, varargs mixed extra);
+mapping filter_mapping(mapping m, closure cl, varargs mixed extra);
+mapping filter_mapping(mapping m, string func);
+mapping filter_mapping(mapping m, string func, mixed extra, varargs mixed extras);
 
 /**
  * filter_array
