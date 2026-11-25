@@ -1530,7 +1530,10 @@ export function createScanner(
         const lambdaStart = pos;
         while (true) {
             if (pos >= end) {
-                return false;
+                // The text ran out inside the name: `'f` at the end of a macro body (scanned
+                // as its own text) or of the file. With no closing quote ahead, LDMud reads it
+                // as a quoted symbol. Elsewhere it is still an unterminated char literal.
+                return languageVariant === LanguageVariant.LDMud && pos > lambdaStart;
             }
 
             const ch = charCodeUnchecked(pos);
