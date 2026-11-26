@@ -1001,7 +1001,7 @@ void tls_refresh_certs();
  * @since Introduced in LDMud 3.3.474 and following, backported to 3.2.11.
  *
  */
-int tls_query_connection_state(object ob);
+varargs int tls_query_connection_state(object ob);
 
 /**
  * tls_query_connection_info
@@ -1033,7 +1033,7 @@ int tls_query_connection_state(object ob);
  * @since Introduced in LDMud 3.3.474 and following, backported to 3.2.11.
  *
  */
-int * tls_query_connection_info(object ob);
+varargs int * tls_query_connection_info(object ob);
 
 /**
  * tls_init_connection
@@ -1077,7 +1077,7 @@ int * tls_query_connection_info(object ob);
         during logon.
  *
  */
-int tls_init_connection(object ob);
+varargs int tls_init_connection(object ob);
 
 int tls_init_connection(object ob, string fun, string|object fob, varargs mixed extra);
 
@@ -1108,7 +1108,7 @@ string tls_error(int errorno);
  * @since Introduced in LDMud 3.3.474 and following, backported to 3.2.11.
  *
  */
-void tls_deinit_connection(object ob);
+varargs void tls_deinit_connection(object ob);
 
 /**
  * tls_check_certificate
@@ -2422,9 +2422,9 @@ int shadow(object ob);
         Since LDMud 3.3.719 obsoleted by hash().
  *
  */
-string sha1(string arg , int iterations );
-string sha1(bytes  arg , int iterations );
-string sha1(int  * arg , int iterations );
+string sha1(string arg , void|int iterations );
+string sha1(bytes  arg , void|int iterations );
+string sha1(int  * arg , void|int iterations );
 
 /**
  * sgn
@@ -2768,7 +2768,7 @@ int send_udp(string host, int port, int * message);
         LDMud 3.3.318 introduced the ERQ_CB_STRING flag.
  *
  */
-int send_erq(int request, bytes|int * data, closure callback);
+int send_erq(int request, bytes|int * data, void|closure callback);
 
 /**
  * say
@@ -3512,7 +3512,7 @@ varargs string read_file(string file, int start, int number, string encoding);
  * @since LDMud 3.6.5 accepts start offsets before the beginning of the file.
  *
  */
-bytes read_bytes(string file, int start, int number);
+bytes read_bytes(string file, void|int start, void|int number);
 
 /**
  * random
@@ -4870,11 +4870,11 @@ int member(mapping m, mixed key);
  * @since Introduced in LDMud 3.3
  *
  */
-string md5_crypt(string str, int seed);
+string md5_crypt(string str, void|int seed);
 
 string md5_crypt(string str, string seed);
 
-string md5_crypt(bytes str, int seed);
+string md5_crypt(bytes str, void|int seed);
 
 string md5_crypt(bytes str, string seed);
 
@@ -4907,9 +4907,9 @@ string md5_crypt(bytes str, string seed);
         Since LDMud 3.3.719 obsoleted by hash().
  *
  */
-string md5(string arg , int iterations);
-string md5(bytes arg , int iterations);
-string md5(int *  arg , int iterations);
+string md5(string arg , void|int iterations);
+string md5(bytes arg , void|int iterations);
+string md5(int *  arg , void|int iterations);
 
 /**
  * max
@@ -5502,7 +5502,7 @@ float log(int|float arg);
  * @since Introduced in LDMud 3.2.9.
  *
  */
-int * localtime(int clock);
+varargs int * localtime(int clock);
 
 int * localtime(int *uclock);
 
@@ -5673,7 +5673,7 @@ mixed limited(closure fun, int *limits, varargs mixed *args);
         The absolute stack depth information was added in LDMud 3.2.8.
  *
  */
-string * last_instructions(int length, int verbose);
+string * last_instructions(int length, void|int verbose);
 
 /**
  * last_bit
@@ -6321,7 +6321,7 @@ string idna_to_ascii(string name);
  * @since Introduced in LDMud 3.3.713.
  *
  */
-string idna_stringprep(string str, int profile, int flags);
+string idna_stringprep(string str, int profile, void|int flags);
 
 /**
  * hmac
@@ -6445,7 +6445,7 @@ varargs string hash(int method, int *  arg , int iterations  );
  * @since Introduced in LDMud 3.2.9.
  *
  */
-int * gmtime(int clock);
+varargs int * gmtime(int clock);
 
 int * gmtime(int *uclock);
 
@@ -6461,7 +6461,7 @@ int * gmtime(int *uclock);
  * @since Since 3.2.1@47, this creator() is an alias for this efun.
  *
  */
-string getuid(object|lwobject ob);
+varargs string getuid(object|lwobject ob);
 
 /**
  * geteuid
@@ -6475,7 +6475,7 @@ string getuid(object|lwobject ob);
         Since 3.2.7, this efun is always available.
  *
  */
-string geteuid(object|lwobject ob);
+varargs string geteuid(object|lwobject ob);
 
 /**
  * get_type_info
@@ -8570,11 +8570,11 @@ varargs string ctime(int *uclock);
  *
  *
  */
-string crypt(string str, int seed);
+string crypt(string str, void|int seed);
 
 string crypt(string str, string seed);
 
-string crypt(bytes str, int seed);
+string crypt(bytes str, void|int seed);
 
 string crypt(bytes str, string seed);
 
@@ -10074,7 +10074,7 @@ object blueprint(string|object|lwobject ob);
  * @since Introduced in 3.2@82.
  *
  */
-closure bind_lambda(closure c, object|lwobject ob);
+closure bind_lambda(closure c, void|object|lwobject ob);
 
 /**
  * binary_message
@@ -10105,7 +10105,7 @@ closure bind_lambda(closure c, object|lwobject ob);
         Argument 'flags' introduced in 3.2.1@60.
  *
  */
-int binary_message(int *|bytes message, int flags);
+int binary_message(int *|bytes message, void|int flags);
 
 /**
  * baseof
@@ -10156,9 +10156,9 @@ int baseof(struct b s1, struct s s2);
  * @since Introduced in 3.2.1@61.
  *
  */
-int attach_erq_demon(object ob,     int do_close);
+int attach_erq_demon(object ob,     void|int do_close);
 
-int attach_erq_demon(string obname, int do_close);
+int attach_erq_demon(string obname, void|int do_close);
 
 /**
  * atan2

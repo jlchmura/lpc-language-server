@@ -173,6 +173,43 @@ describe("LDMud efun signatures", () => {
         expect(errors(`string e() { return save_object("/save/x"); }`)).toEqual(["2322: Type 'int' is not assignable to type 'string'."]);
     });
 
+    // func_spec marks these `void|` or `default:` (#456); LDMud 3.6.8 compiles every call.
+    const optionalArguments = `
+        void f(string s, closure c, object o) {
+            mixed x;
+            x = sha1(s); x = md5(s); x = sha1(({ 65 })); x = md5(b"a");
+            x = crypt(s); x = md5_crypt(s); x = crypt(b"a");
+            x = getuid(); x = geteuid();
+            x = read_bytes("/f.c"); x = read_bytes("/f.c", 1);
+            x = bind_lambda(c);
+            binary_message(({ 65 }));
+            x = attach_erq_demon(o); x = attach_erq_demon("x");
+            x = send_erq(1, ({ 1 }));
+            x = idna_stringprep("a", 0);
+            x = gmtime(); x = localtime();
+            x = last_instructions(10);
+            x = tls_query_connection_state(); x = tls_query_connection_info();
+            x = tls_init_connection();
+            tls_deinit_connection();
+        }
+    `;
+
+    it("efun arguments that func_spec marks optional can be left out (#456)", () => {
+        expect(errors(optionalArguments)).toEqual([]);
+        const { ls, abs } = createTestLanguageService({ "test.c": optionalArguments }, {
+            driverType: lpc.LanguageVariant.LDMud,
+            diagnostics: true,
+            typeChecking: "driver",
+        });
+        expect(ls.getSemanticDiagnostics(abs("test.c")).map(codeAndMessage)).toEqual([]);
+    });
+
+    it("the arguments before them are still required (#456)", () => {
+        for (const call of [`sha1()`, `crypt()`, `read_bytes()`, `bind_lambda()`, `binary_message()`, `attach_erq_demon()`, `send_erq(1)`, `idna_stringprep("a")`, `last_instructions()`]) {
+            expect(errors(`void f() { mixed x = ${call}; }`).map(d => d.slice(0, 4))).toEqual(["2554"]);
+        }
+    });
+
     it("living() does not narrow to the player object (NPCs are living)", () => {
         const source = `void t(object npc) {\n    if (living(npc)) {\n        npc/*T*/;\n    }\n}\n`;
         const { ls, abs } = createTestLanguageService({ "test.c": source, "obj/player.c": `int is_player() { return 1; }\n` }, {
