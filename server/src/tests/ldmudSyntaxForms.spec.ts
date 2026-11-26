@@ -30,8 +30,50 @@ int f() { return funcall((: note("x"); 5 :)); }`)).toEqual([]);
         expect(one(`void note(string s) {} mixed f() { return map(({ "a" }), (: note($1); return sizeof($1); :)); }`)).toEqual([]);
     });
 
-    it("accepts a last statement ending at ':)'", () => {
-        expect(one(`void note(string s) {} mixed f() { return map(({ "a" }), (: note($1); return sizeof($1) :)); }`)).toEqual([]);
+    // The body is prolang.y's `statements inline_comma_expr`: a statement keeps its ';' even
+    // right before the ':)'. LDMud 3.6.7 rejects all three with a syntax error.
+    it("requires a statement's ';' before ':)'", () => {
+        expect(one(`void note(string s) {} mixed f() { return map(({ "a" }), (: note($1); return sizeof($1) :)); }`)).toEqual(["1005: ';' expected."]);
+        expect(one(`mixed f() { return map(({ 1 }), (: int i = $1 :)); }`)).toEqual(["1005: ';' expected."]);
+        expect(one(`mixed f() { return map(({ 1 }), (: int i = $1; return i :)); }`)).toEqual(["1005: ';' expected."]);
+    });
+
+    describe("a last expression with no ';' is the closure's value (#451)", () => {
+        it.each([
+            ["after a declaration", `(: int i = $1; i :)`],
+            ["after statements", `(: int i = $1; i++; i :)`],
+            ["after a loop", `(: int i = $1; while (i < 3) { i++; } i++ :)`],
+            ["after an if", `(: if ($1) return 1; 2 :)`],
+            ["after a switch", `(: int i = $1; switch (i) { case 1: i++; } i :)`],
+            ["after a block", `(: { $1++; } $1 :)`],
+            ["that is a conditional", `(: int i = $1; i ? i : 0 :)`],
+        ])("accepts one %s", (_, closure) => {
+            expect(one(`mixed f() { return map(({ 1, 2 }), ${closure}); }`)).toEqual([]);
+        });
+
+        it("types the closure by that value, as a return would", () => {
+            const call = (closure: string) => one(`void p(string s) { function f = ${closure}; string y = f(s); }`);
+            expect(call(`(: int i = $1; i :)`)).toEqual(["2322: Type 'int' is not assignable to type 'string'."]);
+            expect(call(`(: int i = $1; return i; :)`)).toEqual(["2322: Type 'int' is not assignable to type 'string'."]);
+            expect(call(`(: int i = $1; i++; "s" :)`)).toEqual([]);
+        });
+
+        it("is only allowed as the body's own last statement", () => {
+            // `if (x) y` is a statement missing its ';', not a value: LDMud rejects it.
+            expect(one(`mixed f() { return map(({ 1 }), (: if ($1) 1 :)); }`)).toEqual(["1005: ';' expected."]);
+        });
+
+        it("parses as a return of the expression", () => {
+            const source = `void f() { closure c = (: int i = $1; i + 1 :); }`;
+            const { ls, abs } = createTestLanguageService({ "test.c": source }, { driverType: lpc.LanguageVariant.LDMud });
+            const sourceFile = ls.getProgram()!.getSourceFile(abs("test.c"))!;
+            const returns: string[] = [];
+            lpc.forEachChildRecursively(sourceFile, node => {
+                if (node.kind === lpc.SyntaxKind.ReturnStatement) returns.push(source.slice(node.pos, node.end).trim());
+                return undefined;
+            });
+            expect(returns).toEqual(["i + 1"]);
+        });
     });
 
     it("accepts a body starting with a declaration", () => {
@@ -39,7 +81,7 @@ int f() { return funcall((: note("x"); 5 :)); }`)).toEqual([]);
     });
 
     it("gives each expression before a statement its own range", () => {
-        const source = `void note(string s) {} int f() { closure c = (: note("a"), note("b"); return 1 :); return 0; }`;
+        const source = `void note(string s) {} int f() { closure c = (: note("a"), note("b"); return 1; :); return 0; }`;
         const { ls, abs } = createTestLanguageService({ "test.c": source }, { driverType: lpc.LanguageVariant.LDMud });
         const sourceFile = ls.getProgram()!.getSourceFile(abs("test.c"))!;
         const statements: string[] = [];

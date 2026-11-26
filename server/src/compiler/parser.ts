@@ -3268,11 +3268,6 @@ export namespace LpcParser {
             return true;
         }
 
-        // Inside an inline closure the last statement may end at ':)' ('(: f(); return 0 :)').
-        if (token() === SyntaxKind.ColonToken && inInlineClosureBody) {
-            return true;
-        }
-
         // Inside a `time_expression` block the driver requires a real semicolon, so don't
         // let a following `}` / EOF / line break stand in for one.
         if (suppressSemicolonInsertion) {
@@ -3364,7 +3359,9 @@ export namespace LpcParser {
         return tryParseSemicolon() || parseExpected(SyntaxKind.SemicolonToken);
     }
 
-    function parseExpressionOrLabeledStatement(): ExpressionStatement | LabeledStatement {
+    function parseExpressionOrLabeledStatement(): ExpressionStatement | LabeledStatement;
+    function parseExpressionOrLabeledStatement(allowInlineClosureValue: true): ExpressionStatement | LabeledStatement | ReturnStatement;
+    function parseExpressionOrLabeledStatement(allowInlineClosureValue = false): ExpressionStatement | LabeledStatement | ReturnStatement {
         // Avoiding having to do the lookahead for a labeled statement by just trying to parse
         // out an expression, seeing if it is identifier and then seeing if it is followed by
         // a colon.
@@ -3373,6 +3370,11 @@ export namespace LpcParser {
         let node: ExpressionStatement | LabeledStatement;
         const hasParen = token() === SyntaxKind.OpenParenToken;
         const expression = allowInAnd(parseExpression);
+        // The last expression of an LDMud inline closure, with no ';' before the ':)', is the
+        // closure's value: the driver compiles it as `return expression;`.
+        if (allowInlineClosureValue && (token() === SyntaxKind.ColonToken || token() === SyntaxKind.ColonCloseParenToken)) {
+            return withJSDoc(finishNode(factory.createReturnStatement(expression), pos, expression.end), hasJSDoc);
+        }
         // if (isIdentifierNode(expression) && parseOptional(SyntaxKind.ColonToken)) {
         //     node = factory.createLabeledStatement(expression, parseStatement());
         // }
@@ -6048,19 +6050,35 @@ export namespace LpcParser {
             isStartOfExpression();
     }
 
-    function doInInlineClosureBody<T>(func: () => T): T {
-        const saved = inInlineClosureBody;
-        inInlineClosureBody = true;
-        try {
-            return func();
-        } finally {
-            inInlineClosureBody = saved;
-        }
+    /**
+     * An LDMud inline closure body with statements: prolang.y's `statements inline_comma_expr`.
+     * The statements end with ';' as anywhere else, and a last expression with no ';' before
+     * the ':)' is the closure's value (#451). Only the body's own statements can end that way;
+     * a nested one (`(: if (x) y :)`) still needs its ';'.
+     */
+    function parseInlineClosureStatements(): NodeArray<Statement> {
+        return parseList(ParsingContext.BlockStatements, parseInlineClosureStatement);
+    }
+
+    function parseInlineClosureStatement(): Statement {
+        return isStartOfExpressionStatement() && !isStartOfDeclaration() && !isDirective()
+            ? parseExpressionOrLabeledStatement(/*allowInlineClosureValue*/ true)
+            : parseStatement();
+    }
+
+    function parseInlineClosureBlock(): Block {
+        const pos = getPositionState();
+        const savedTopLevel = topLevel;
+        topLevel = false;
+        const statements = parseInlineClosureStatements();
+        topLevel = savedTopLevel;
+        return finishNode(factoryCreateBlock(statements, /*multiLine*/ true), pos);
     }
 
     function parseInlineClosureExpressionBody(allowReturnTypeInArrowFunction: boolean): Block | Expression | NodeArray<Expression> {
         if (token() === SyntaxKind.OpenBraceToken) {
-            return parseFunctionBlock(SignatureFlags.None);
+            // LDMud: a block is one of the body's statements (`(: { ... } 1 :)`).
+            return languageVariant === LanguageVariant.LDMud ? parseInlineClosureBlock() : parseFunctionBlock(SignatureFlags.None);
         }
 
         if (
@@ -6084,6 +6102,9 @@ export namespace LpcParser {
             // up preemptively closing the containing construct.
             //
             // Note: even when 'IgnoreMissingOpenBrace' is passed, parseBody will still error.
+            if (languageVariant === LanguageVariant.LDMud) {
+                return parseInlineClosureBlock();
+            }
             const funcBlock = parseFunctionBlock(SignatureFlags.IgnoreMissingOpenBrace | SignatureFlags.None);
             return funcBlock;
         }
@@ -6091,7 +6112,7 @@ export namespace LpcParser {
         // An LDMud inline closure is a statement block; one that starts with a declaration ('(: int i = $1; ...')
         // is parsed as a block.
         if (languageVariant === LanguageVariant.LDMud && isStartOfDeclaration()) {
-            return doInInlineClosureBody(() => parseFunctionBlock(SignatureFlags.IgnoreMissingOpenBrace | SignatureFlags.None));
+            return parseInlineClosureBlock();
         }
 
         const savedTopLevel = topLevel;
@@ -6123,7 +6144,7 @@ export namespace LpcParser {
                     // Each statement starts where its own expression does. Starting them all at their `;` group
                     // made `(: a, b; return 0 :)` give two statements where the second's range covered the first.
                     const statements: Statement[] = expressions.map(e => finishNode(factory.createExpressionStatement(e), expressionPositions.get(e)!, e.end));
-                    statements.push(...doInInlineClosureBody(() => parseList(ParsingContext.BlockStatements, parseStatement)));
+                    statements.push(...parseInlineClosureStatements());
                     block = finishNode(factoryCreateBlock(createNodeArray(statements, listPos), /*multiLine*/ true), listPos);
                     break;
                 }
@@ -6445,8 +6466,6 @@ export namespace LpcParser {
         return withJSDoc(finishNode(node, pos), hasJSDoc);
     }
 
-    /** True while parsing the statements of an LDMud `(: ... :)` body, where ':)' ends the last statement. */
-    var inInlineClosureBody = false;
     var inInlineClosureContext = false;
 
     /**
