@@ -1355,9 +1355,13 @@ export function createNameResolver({
                         // (see declareSourceFileMember in the binder), so it has to be searched
                         // even though only some of it is inherited. Neither driver inherits a
                         // `private` name: it stays out of the child's name space, and a call to
-                        // it from an inheriting program is an undefined function.
+                        // it from an inheriting program is an undefined function. Nor does
+                        // either driver carry a macro across `inherit` (#479): it belongs to the
+                        // file that defines it and the files that file includes, so a define
+                        // there is skipped as if it were not.
                         if (!result) {
-                            const inheritedMember = lookup(importType?.symbol?.members ?? emptySymbols, name, meaning);
+                            const member = lookup(importType?.symbol?.members ?? emptySymbols, name, meaning);
+                            const inheritedMember = member && !(member.flags & SymbolFlags.Define) ? member : undefined;
                             if (inheritedMember && !isPrivateToDeclaringFile(inheritedMember)) {
                                 result = inheritedMember;
                             }
