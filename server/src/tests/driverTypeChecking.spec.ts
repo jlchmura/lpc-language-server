@@ -371,4 +371,43 @@ describe.each([
             expect(codes(driver, `void foo() {\n  random("x");\n}\n`)).toEqual([2345]);
         });
     });
+
+    // The driver compiles in one pass: until this program redefines a function, a call binds
+    // to what the name already means. Checked on LDMud 3.6.7; FluffOS's
+    // validate_function_call reads the function table entry the same way.
+    describe("a call above this program's redefinition of the function (#450)", () => {
+        const base = { "base.c": `varargs int w(string s, int n) { return n; }\nint g(int x) { return x; }\n` };
+        const savedBase = { "base.c": `#pragma save_types\n${base["base.c"]}` };
+        const redefinition = `varargs int w(string s, string r) { return ::w(s); }\n`;
+
+        it("is checked against the inherited function, not the later one", () => {
+            const source = `inherit "/base";\nvoid f() { w("x", 1); }\n${redefinition}`;
+            expect(codes(driver, source, { files: base })).toEqual([]);
+            expect(codes(driver, source, { files: savedBase })).toEqual([]);
+            expect(codes(driver, `inherit "/base";\nvoid f() { g(1, 2); }\nint g(int x, int y) { return x; }\n`, { files: savedBase })).toEqual(isLD ? [2554] : []);
+            expect(codes(driver, `inherit "/base";\nint f() { return g("x"); }\nint g(mixed x) { return 0; }\n`, { files: savedBase })).toEqual([2345]);
+        });
+
+        it("has the inherited function's return type, saved types or not", () => {
+            const source = `inherit "/base";\nvoid f() { string s = g(1); }\nstring g(int x) { return ""; }\n`;
+            expect(codes(driver, source, { files: base })).toEqual([2322]);
+            expect(codes(driver, `inherit "/base";\nvoid f() { int s = g(1); }\nstring g(int x) { return ""; }\n`, { files: base })).toEqual([]);
+        });
+
+        it("is checked against this program's function after the redefinition or a prototype", () => {
+            expect(codes(driver, `inherit "/base";\n${redefinition}void f() { w("x", 1); }\n`, { files: base })).toEqual([2345]);
+            expect(codes(driver, `inherit "/base";\nvarargs int w(string s, string r);\nvoid f() { w("x", 1); }\n${redefinition}`, { files: base })).toEqual([2769]);
+            // The header comes before the body, so a recursive call is this program's own.
+            expect(codes(driver, `inherit "/base";\nint g(string x) { return g("x"); }\n`, { files: savedBase })).toEqual([]);
+        });
+
+        it("binds to the efun above a function that overrides it", () => {
+            expect(codes(driver, `int f() { string s = time(); return 0; }\nstring time() { return "x"; }\n`)).toEqual([2322]);
+            expect(codes(driver, `string time() { return "x"; }\nint f() { string s = time(); return 0; }\n`)).toEqual([]);
+        });
+
+        it("is unchanged in strict mode", () => {
+            expect(codes(driver, `inherit "/base";\nvoid f() { w("x", 1); }\n${redefinition}`, { files: base, mode: "strict" })).toEqual([2345]);
+        });
+    });
 });

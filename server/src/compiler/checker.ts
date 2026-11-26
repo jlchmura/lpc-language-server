@@ -6495,7 +6495,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (!declarations?.length || !declarations.every(declaration => getSourceFileOfNode(declaration).isDefaultLib)) return false;
             name = callee.text;
         }
-        else if (isSuperAccessExpression(callee) && isIdentifier(callee.namespace) && callee.namespace.text === "efun" && isIdentifier(callee.name)) {
+        // `::f()` has no namespace.
+        else if (isSuperAccessExpression(callee) && callee.namespace && isIdentifier(callee.namespace) && callee.namespace.text === "efun" && isIdentifier(callee.name)) {
             name = callee.name.text;
         }
         return name === "raise_error" || name === "throw";
@@ -16940,6 +16941,33 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      */
     function isDeclaredByAnInherit(file: SourceFile, name: string): boolean {
         return !!getInheritedMember(file, name);
+    }
+
+    /**
+     * In driver mode, what a call to `callee` binds to when this program declares that
+     * function only after the call (#450). The driver compiles in one pass, so at the call
+     * it knows only what it has seen: the inherited function, or else the efun or
+     * simul_efun, and the call is checked against that one's signature and return type
+     * (LDMud prolang.y and FluffOS compiler.cc validate_function_call both use the function
+     * table entry as it stands; the later definition replaces the entry for calls after
+     * it). A prototype above the call counts as a declaration. Undefined when the name is
+     * declared before the call, or when nothing else binds it (that is
+     * checkCallTargetIsVisibleToTheDriver's "Undefined function").
+     */
+    function getFunctionTheDriverBindsBeforeItsDeclaration(callee: Identifier, symbol: Symbol): Symbol | undefined {
+        if (!driverTypeChecking || symbol === unknownSymbol) return undefined;
+        const declarations = symbol.declarations;
+        const file = getSourceFileOfNode(callee);
+        if (!declarations?.length || !declarations.every(declaration => isFunctionDeclaration(declaration) && getSourceFileOfNode(declaration) === file)) return undefined;
+        if (declarations.some(declaration => comesBeforeInCompileOrder(declaration, callee))) return undefined;
+
+        const inherited = getInheritedMember(file, callee.text);
+        if (inherited) return inherited.flags & SymbolFlags.Function ? inherited : undefined;
+        if (!driverBindsNameWithoutDeclaration(callee.text, file)) return undefined;
+        // Inside the simul_efun object only the efun binds (see driverBindsNameWithoutDeclaration).
+        const isSefunFile = !!compilerOptions.sefunFile && file === host.getSourceFile(compilerOptions.sefunFile);
+        const global = isSefunFile ? globals.get(InternalSymbolName.EfunNamespace)?.members?.get(callee.text) : globals.get(callee.text);
+        return global && global.flags & SymbolFlags.Function ? global : undefined;
     }
 
     /** The member named `name` of the nearest inherited program that declares one. */
@@ -35294,6 +35322,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             funcType = functionSymbol
                 ? checkExpression(identifier, undefined, undefined, SymbolFlags.Function)
                 : checkExpression(identifier, undefined, undefined, SymbolFlags.Value);
+            // The name still resolves to this program's function (hover, go-to-definition),
+            // but the call is checked against what the driver binds it to at this point.
+            const boundAtCall = functionSymbol && getFunctionTheDriverBindsBeforeItsDeclaration(identifier, getResolvedSymbol(identifier));
+            if (boundAtCall) funcType = getTypeOfSymbol(boundAtCall);
         }
         else {
             const callSymbolFlags = languageVariant === LanguageVariant.FluffOS ? SymbolFlags.Value : SymbolFlags.Function;
