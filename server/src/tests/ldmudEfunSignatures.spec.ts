@@ -162,6 +162,17 @@ describe("LDMud efun signatures", () => {
         expect(errors(`string f() { return expand_define("Y", "1", "2"); }`)).toHaveLength(1);
     });
 
+    it("save_object() without a file name returns the save string (#453)", () => {
+        // Both declarations are varargs, so a call with no arguments matches whichever is first.
+        expect(errors(`
+            string a() { return save_object(); }
+            string b() { return save_object(2); }
+            int c() { return save_object("/save/x"); }
+            int d() { return save_object("/save/x", 2); }
+        `)).toEqual([]);
+        expect(errors(`string e() { return save_object("/save/x"); }`)).toEqual(["2322: Type 'int' is not assignable to type 'string'."]);
+    });
+
     it("living() does not narrow to the player object (NPCs are living)", () => {
         const source = `void t(object npc) {\n    if (living(npc)) {\n        npc/*T*/;\n    }\n}\n`;
         const { ls, abs } = createTestLanguageService({ "test.c": source, "obj/player.c": `int is_player() { return 1; }\n` }, {
