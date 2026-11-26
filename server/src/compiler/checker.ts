@@ -17153,7 +17153,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      *    efun taking `...` (sprintf, call_out, ...).
      *  - A function of this program or one it inherits: only when the caller is typed and
      *    the callee's first declaration (a prototype counts) declares a return type, and for an inherited function only if its
-     *    program was compiled with `save_types` (FluffOS has that on by default). Not the
+     *    program was compiled with `save_types` (FluffOS has that on by default; for this
+     *    program's redeclaration of one, see ldmudStoresArgumentTypesOfRedeclaration). Not the
      *    count for a `varargs` function. FluffOS's current master reports only too few
      *    arguments; LDMud reports too many as well.
      *  - `::f()`: LDMud as for an inherited function; FluffOS checks nothing.
@@ -17190,7 +17191,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // exact_types the header just set; FluffOS compiler.cc FUNC_STRICT_TYPES).
         const firstDeclaration = firstOrUndefined(symbol?.declarations) ?? declaration;
         const calleeTyped = isFunctionDeclaration(firstDeclaration) && !!firstDeclaration.type;
-        const argumentTypesKnown = declarationFile === callerFile || getDriverPragmaStates(declarationFile).final.saveTypes;
+        const argumentTypesKnown = declarationFile === callerFile
+            ? !symbol || ldmudStoresArgumentTypesOfRedeclaration(node, symbol, callerFile)
+            : getDriverPragmaStates(declarationFile).final.saveTypes;
         if (!callerTyped || !calleeTyped || !argumentTypesKnown) return DriverCallChecks.None;
 
         const isVarargsFunction = some(symbol?.declarations ?? [declaration], d => !!(getCombinedModifierFlagsCached(d as Declaration) & ModifierFlags.VarArgs));
@@ -17200,6 +17203,30 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (languageVariant === LanguageVariant.LDMud) checks |= DriverCallChecks.TooMany;
         }
         return checks;
+    }
+
+    /**
+     * Whether LDMud has argument types for `symbol`, a function of this program, when it
+     * compiles the call at `node` (#455). If this program redeclares a function it
+     * inherits from a program that did not save types, the function table entry starts
+     * without them. A typed prototype or definition stores its own only when its number
+     * of arguments differs from the inherited function's (prolang.y define_new_function,
+     * the "yet another prototype" branch), and only a declaration above the call has been
+     * compiled by then. Otherwise the call goes unchecked, as a call to the inherited
+     * function would. FluffOS gives this program's declaration an entry of its own.
+     */
+    function ldmudStoresArgumentTypesOfRedeclaration(node: CallLikeExpression, symbol: Symbol, file: SourceFile): boolean {
+        if (languageVariant !== LanguageVariant.LDMud) return true;
+        const inherited = getInheritedMember(file, symbolName(symbol));
+        const inheritedDeclaration = inherited && inherited.flags & SymbolFlags.Function ? find(inherited.declarations ?? [], isFunctionDeclaration) : undefined;
+        if (!inheritedDeclaration || getDriverPragmaStates(getSourceFileOfNode(inheritedDeclaration)).final.saveTypes) return true;
+        const inheritedCount = inheritedDeclaration.parameters.length;
+        return some(symbol.declarations, declaration =>
+            isFunctionDeclaration(declaration)
+            && !!declaration.type
+            && getSourceFileOfNode(declaration) === file
+            && declaration.parameters.length !== inheritedCount
+            && comesBeforeInCompileOrder(declaration, node));
     }
 
     /**

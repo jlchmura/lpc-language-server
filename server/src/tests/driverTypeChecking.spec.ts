@@ -395,8 +395,11 @@ describe.each([
         });
 
         it("is checked against this program's function after the redefinition or a prototype", () => {
-            expect(codes(driver, `inherit "/base";\n${redefinition}void f() { w("x", 1); }\n`, { files: base })).toEqual([2345]);
-            expect(codes(driver, `inherit "/base";\nvarargs int w(string s, string r);\nvoid f() { w("x", 1); }\n${redefinition}`, { files: base })).toEqual([2769]);
+            // LDMud: unchecked unless the inherited program saved types (#455).
+            expect(codes(driver, `inherit "/base";\n${redefinition}void f() { w("x", 1); }\n`, { files: base })).toEqual(isLD ? [] : [2345]);
+            expect(codes(driver, `inherit "/base";\n${redefinition}void f() { w("x", 1); }\n`, { files: savedBase })).toEqual([2345]);
+            expect(codes(driver, `inherit "/base";\nvarargs int w(string s, string r);\nvoid f() { w("x", 1); }\n${redefinition}`, { files: base })).toEqual(isLD ? [] : [2769]);
+            expect(codes(driver, `inherit "/base";\nvarargs int w(string s, string r);\nvoid f() { w("x", 1); }\n${redefinition}`, { files: savedBase })).toEqual([2769]);
             // The header comes before the body, so a recursive call is this program's own.
             expect(codes(driver, `inherit "/base";\nint g(string x) { return g("x"); }\n`, { files: savedBase })).toEqual([]);
         });
@@ -408,6 +411,41 @@ describe.each([
 
         it("is unchanged in strict mode", () => {
             expect(codes(driver, `inherit "/base";\nvoid f() { w("x", 1); }\n${redefinition}`, { files: base, mode: "strict" })).toEqual([2345]);
+        });
+    });
+
+    // LDMud keeps the inherited function's entry when this program redeclares it, and an
+    // inherited program without save_types leaves that entry without argument types. A
+    // typed declaration stores its own only if its number of arguments differs (prolang.y
+    // define_new_function). Checked on LDMud 3.6.7 and 3.6.8. FluffOS gives this
+    // program's declaration an entry of its own.
+    describe("this program's redeclaration of an inherited function (#455)", () => {
+        const base = { "base.c": `int p(int a, int b) { return a + b; }\n` };
+        const savedBase = { "base.c": `#pragma save_types\n${base["base.c"]}` };
+        const program = (...lines: string[]) => `inherit "/base";\n${lines.join("\n")}\n`;
+
+        it(isLD ? "is unchecked after a prototype or definition with the inherited count, if the base did not save types" : "is checked after a prototype or definition", () => {
+            const checked = (codes: number[]) => isLD ? [] : codes;
+            expect(codes(driver, program(`int p(int a, int b);`, `int check() { return p(1); }`), { files: base })).toEqual(checked([2554]));
+            expect(codes(driver, program(`int p(int a, int b);`, `int check() { return p("x", 1); }`), { files: base })).toEqual(checked([2345]));
+            expect(codes(driver, program(`int p(string a, string b);`, `int check() { return p(1, 2); }`), { files: base })).toEqual(checked([2345]));
+            expect(codes(driver, program(`int p(int a, int b) { return 1; }`, `int check() { return p(1); }`), { files: base })).toEqual(checked([2554]));
+            expect(codes(driver, program(`int p(int a, int b);`, `int check() { return p(1); }`, `int p(int a, int b) { return 1; }`), { files: base })).toEqual(checked([2554]));
+            // Too many arguments: FluffOS reports only too few.
+            expect(codes(driver, program(`int p(int a, int b);`, `int check() { return p(1, 2, 3); }`), { files: base })).toEqual([]);
+        });
+
+        it("is checked after a declaration with a different number of arguments", () => {
+            expect(codes(driver, program(`int p(int a, int b, int c);`, `int check() { return p(1, 2); }`), { files: base })).toEqual([2554]);
+            expect(codes(driver, program(`int p(string a, string b, string c);`, `int check() { return p(1, 2, 3); }`), { files: base })).toEqual([2345]);
+            // ...but not when the declaration comes after the call.
+            expect(codes(driver, program(`int check() { return p(1, 2); }`, `int p(int a, int b, int c);`), { files: base })).toEqual([]);
+        });
+
+        it("is checked if the base saved types", () => {
+            expect(codes(driver, program(`int p(int a, int b);`, `int check() { return p(1); }`), { files: savedBase })).toEqual([2554]);
+            expect(codes(driver, program(`int p(int a, int b);`, `int check() { return p("x", 1); }`), { files: savedBase })).toEqual([2345]);
+            expect(codes(driver, program(`int p(int a, int b) { return 1; }`, `int check() { return p(1); }`), { files: savedBase })).toEqual([2554]);
         });
     });
 });
