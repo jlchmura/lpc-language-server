@@ -600,6 +600,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var bytesType = createIntrinsicType(TypeFlags.Bytes, "bytes");
     var closureType = createIntrinsicType(TypeFlags.Object, "closure", ObjectFlags.NonInferrableType, "closure");
     var lwObjectType = createIntrinsicType(TypeFlags.Object, "lwobject", ObjectFlags.NonInferrableType, "lwobject");
+    /**
+     * LDMud `lwobject "/path"`, one per program, keyed by the id of its file's symbol. It is the
+     * program's own type with the same members, so `lwob->fun()` resolves like `ob->fun()` on an
+     * `object "/path"`, but it is a separate type that only an lwobject relates to.
+     */
+    var namedLwObjectTypes = new Map<number, ObjectType>();
     /** LDMud `coroutine` (3.6.5): the value an `async` function or inline closure produces. */
     var coroutineType = createIntrinsicType(TypeFlags.Object, "coroutine", ObjectFlags.NonInferrableType, "coroutine");
     /** LDMud `lpctype` (3.6.7): an LPC type as a value, from `[<type>]`, `decltype()` or to_lpctype(). */
@@ -5411,12 +5417,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             const specifier = node.name;
             const moduleSymbol = resolveExternalModuleName(node, specifier, undefined);
             const objectSymbol = resolveExternalObjectSymbol(moduleSymbol, specifier, /*dontResolveAlias*/ true);
+            const isLightweight = node.objectKeyword.kind === SyntaxKind.LwObjectKeyword;
             if (objectSymbol && isSourceFile(objectSymbol.valueDeclaration)) {                
-                const resolvedType = getTypeOfSymbol(objectSymbol);
-                links.resolvedType = resolvedType;
+                links.resolvedType = isLightweight ? getNamedLwObjectType(objectSymbol) : getTypeOfSymbol(objectSymbol);
             } else {
-                // fall back to plain object type
-                links.resolvedType = objectType;
+                // fall back to the plain (lw)object type
+                links.resolvedType = isLightweight ? lwObjectType : objectType;
             }             
         }        
         return links.resolvedType;
@@ -5428,6 +5434,21 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      * resolves to its object, which is how `([ STD_BODY: float ])` -- a mapping keyed by an
      * object -- already reads. LPC paths always contain a separator, so the two never collide.
      */
+    /** The type of `lwobject "<file>"`, for the symbol of a program's source file. */
+    function getNamedLwObjectType(fileSymbol: Symbol): Type {
+        const id = getSymbolId(fileSymbol);
+        let type = namedLwObjectTypes.get(id);
+        if (!type) {
+            type = createObjectType(ObjectFlags.Anonymous, fileSymbol);
+            namedLwObjectTypes.set(id, type);
+        }
+        return type;
+    }
+
+    function isNamedLwObjectType(type: Type): boolean {
+        return !!(type.flags & TypeFlags.Object) && !!type.symbol && namedLwObjectTypes.get(getSymbolId(type.symbol)) === type;
+    }
+
     function isNonPathMappingKey(node: LiteralTypeNode): boolean {
         if (!node.parent || node.parent.kind !== SyntaxKind.MappingTypeEntry) return false;
         if ((node.parent as MappingTypeEntryNode).keyType !== node) return false;
@@ -9910,7 +9931,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function hasEffectiveRestParameter(signature: Signature): boolean {
-        if (hasVarArgsParam(signature.declaration as SignatureDeclaration)) {
+        // A signature the checker synthesizes (a union's, say) has no declaration.
+        if (signature.declaration && hasVarArgsParam(signature.declaration as SignatureDeclaration)) {
             return true;
         } 
         else if (signatureHasRestParameter(signature)) {
@@ -10022,7 +10044,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const voidIsNonOptional = flags! & MinArgumentCountFlags.VoidIsNonOptional;
         if (voidIsNonOptional || signature.resolvedMinArgumentCount === undefined) {
             let minArgumentCount: number | undefined;
-            if (hasSyntacticModifier(signature.declaration, ModifierFlags.VarArgs)) {
+            if (signature.declaration && hasSyntacticModifier(signature.declaration, ModifierFlags.VarArgs)) {
                 minArgumentCount = 0;
             } else if (signatureHasRestParameter(signature)) {
                 const restType = getTypeOfSymbol(signature.parameters[signature.parameters.length - 1]);
@@ -16919,7 +16941,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
      * the checker's `object` also accepts in an assignment.
      */
     function isLpcObjectType(type: Type): boolean {
-        return everyType(type, t => t === objectType || !!(t.flags & TypeFlags.Object && t.symbol?.valueDeclaration && isSourceFile(t.symbol.valueDeclaration)));
+        return everyType(type, t => t === objectType || !!(t.flags & TypeFlags.Object && t.symbol?.valueDeclaration && isSourceFile(t.symbol.valueDeclaration)) && !isNamedLwObjectType(t));
     }
 
     function resolveExternalObjectSymbol(moduleSymbol: Symbol|undefined, referencingLocation: Node, dontResolveAlias: boolean): Symbol | undefined {
@@ -17551,6 +17573,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     const sourceFileSymbol = getSymbolAtLocation(file);                    
                     resultType = getTypeOfSymbol(sourceFileSymbol);
                     // resultType = firstOrUndefined(resolveBaseTypeOfSourceFile(getTypeOfSymbol(sourceFileSymbol) as InterfaceType, file));
+                    // An LDMud `#pragma lightweight` program runs as lightweight objects, and
+                    // as its blueprint, a regular object. The driver types this_object() as
+                    // `object|lwobject` (func_spec); this is that, narrowed to the program.
+                    if (languageVariant === LanguageVariant.LDMud && sourceFileSymbol && getDriverPragmaStates(file).final.lightweight) {
+                        resultType = getUnionType([resultType, getNamedLwObjectType(sourceFileSymbol)]);
+                    }
                 }
 
                 return resultType;
@@ -22931,7 +22959,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     // this is a named object symbol
                     // display the filename as part of the type name
                     context.approximateLength += 3;
-                    return factory.createNamedObjectTypeNode(factory.createStringLiteral(trimQuotes(type.symbol.name)), factory.createKeywordTypeNode(SyntaxKind.ObjectKeyword));
+                    return factory.createNamedObjectTypeNode(factory.createStringLiteral(trimQuotes(type.symbol.name)), factory.createKeywordTypeNode(isNamedLwObjectType(type) ? SyntaxKind.LwObjectKeyword : SyntaxKind.ObjectKeyword));
                     // return factory.createKeywordTypeNode(SyntaxKind.ObjectKeyword);
                 }
 
@@ -28386,7 +28414,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // nor over LDMud's nominal `coroutine` (see the guard in isRelatedTo)
                 source !== coroutineType && target !== coroutineType &&
                 source !== lpctypeType && target !== lpctypeType &&
-                source !== anyStructType && target !== anyStructType;
+                source !== anyStructType && target !== anyStructType &&
+                !isNamedLwObjectType(source) && !isNamedLwObjectType(target);
         // The loose object relation must never paper over a missing type predicate. A callback that
         // isn't a type guard cannot satisfy a type-guard parameter, and if we let it, overloads that
         // differ only in whether their callback is a type guard can never be discriminated.
@@ -30083,6 +30112,21 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // any struct goes: it only asks that the two types have one in common
             // (has_common_type). So every struct relates to it and it to every struct, and
             // nothing else does either way.
+            // LDMud `lwobject "/path"` is nominal too. Two object types share a value only when
+            // both are the same kind of object and at most one names a program (types.c
+            // internal_get_common_type, TCLASS_OBJECT), so it relates to plain `lwobject`,
+            // either way, and to itself; not to any `object`, not even of the same program, nor
+            // to the lwobject of a program it inherits. (Plain `lwobject` is left loose: efuns
+            // such as previous_object() give `object|lwobject`, and mudlibs use that as an
+            // `object` everywhere.)
+            if (!((source.flags | target.flags) & TypeFlags.UnionOrIntersection) && (isNamedLwObjectType(source) || isNamedLwObjectType(target))) {
+                if (source === lwObjectType || target === lwObjectType) return Ternary.True;
+                if (reportErrors) {
+                    reportErrorResults(originalSource, originalTarget, source, target, headMessage);
+                }
+                return Ternary.False;
+            }
+
             if (!((source.flags | target.flags) & TypeFlags.UnionOrIntersection) && (source === anyStructType || target === anyStructType)) {
                 if (isStructOrClassType(source === anyStructType ? target : source)) return Ternary.True;
                 if (reportErrors) {
@@ -33085,7 +33129,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         function check(type: Type): boolean {
             if (getObjectFlags(type) & (ObjectFlags.ClassOrInterface | ObjectFlags.Reference)) {
                 const target = getTargetType(type) as InterfaceType;
-                return target === checkBase || some(getBaseTypes(target), check);
+                // A program's base types list the program itself first, then what it inherits
+                // (resolveBaseTypeOfSourceFile), so skip that entry or the walk never ends.
+                return target === checkBase || some(getBaseTypes(target), base => base !== target && check(base));
             }
             else if (type.flags & TypeFlags.Intersection) {
                 return some((type as IntersectionType).types, check);

@@ -9903,8 +9903,8 @@ void call_out(closure cl, int delay, varargs mixed arg );
         LDMud 3.5.0 made the call on arrays of objects non-optional.
  *
  */
-unknown call_other(object ob, string fun, varargs mixed arg );
-unknown call_other(object *ob, string fun, varargs mixed arg );
+unknown call_other(object|lwobject|string ob, string fun, varargs mixed arg );
+unknown call_other(object*|lwobject*|string* ob, string fun, varargs mixed arg );
 
 /**
  * call_direct_strict
@@ -10038,8 +10038,8 @@ int* call_direct_resolved(mixed* result, object*|lwobject*|string* ob, string fu
         LDMud 3.5.0 made the call on arrays of objects non-optional.
  *
  */
-unknown call_direct(object ob, string fun, varargs mixed arg );
-unknown call_direct(object *ob, string fun, varargs mixed arg );
+unknown call_direct(object|lwobject|string ob, string fun, varargs mixed arg );
+unknown call_direct(object*|lwobject*|string* ob, string fun, varargs mixed arg );
 
 /**
  * call_coroutine

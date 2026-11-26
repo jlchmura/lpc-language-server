@@ -38,6 +38,12 @@ export interface DriverPragmaState {
      * function, so it is {@link DriverPragmaStates.stateAtEndOf} that matters.
      */
     readonly warnMissingReturn: boolean;
+    /**
+     * LDMud's `lightweight` (`no_lightweight` turns it off): the program can be made into
+     * lightweight objects. The driver reads it when the program is done, so it is
+     * {@link DriverPragmaStates.final} that matters.
+     */
+    readonly lightweight: boolean;
 }
 
 export interface DriverPragmaStates {
@@ -58,7 +64,7 @@ export interface DriverPragmaStates {
  * lexer resets to weak types with nothing saved for every compile (lex.c `start_lex`).
  */
 function getInitialDriverPragmaState(variant: LanguageVariant): DriverPragmaState {
-    return { types: DriverTypesPragma.Weak, saveTypes: variant === LanguageVariant.FluffOS, pedantic: false, warnMissingReturn: variant === LanguageVariant.LDMud };
+    return { types: DriverTypesPragma.Weak, saveTypes: variant === LanguageVariant.FluffOS, pedantic: false, warnMissingReturn: variant === LanguageVariant.LDMud, lightweight: false };
 }
 
 /** Applies one pragma name to `state`, the way the driver's lexer would. */
@@ -96,6 +102,10 @@ export function applyDriverPragma(state: DriverPragmaState, name: string, varian
             return { ...state, warnMissingReturn: true };
         case "no_warn_missing_return":
             return { ...state, warnMissingReturn: false };
+        case "lightweight":
+            return { ...state, lightweight: true };
+        case "no_lightweight":
+            return { ...state, lightweight: false };
     }
     return state;
 }
