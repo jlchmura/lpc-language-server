@@ -3815,7 +3815,6 @@ export namespace LpcParser {
             case SyntaxKind.UnknownKeyword:
             case SyntaxKind.StringKeyword:
             case SyntaxKind.BytesKeyword:
-            case SyntaxKind.LwObjectKeyword:
             case SyntaxKind.CoroutineKeyword:
             case SyntaxKind.LpcTypeKeyword:
             case SyntaxKind.ClosureKeyword:
@@ -3836,7 +3835,9 @@ export namespace LpcParser {
             case SyntaxKind.PromiseKeyword:
                 return parsePromiseTypeNode();
             case SyntaxKind.ObjectKeyword:
-                // A "named object" type is `object "path"`. Parse it dialect-agnostically in
+            case SyntaxKind.LwObjectKeyword:
+                // A "named object" type is `object "path"`, or LDMud's `lwobject "path"`
+                // (prolang.y single_basic_non_void_type). Parse it dialect-agnostically in
                 // every driver/context; the checker reports when it is used outside LDMud
                 // source or a JSDoc annotation (see checkGrammarNamedObjectType).
                 const pos = getPositionState();

@@ -2650,7 +2650,7 @@ export function createPrinter(printerOptions: PrinterOptions = {}, handlers: Pri
     }
 
     function emitNamedObjectType(node: NamedObjectTypeNode) {
-        writeKeyword("object");
+        writeKeyword(node.objectKeyword.kind === SyntaxKind.LwObjectKeyword ? "lwobject" : "object");
         writeSpace();                
         writeStringLiteral(`"${getStringLiteralsTextRecursively(node.name).join("")}"`);
     }
