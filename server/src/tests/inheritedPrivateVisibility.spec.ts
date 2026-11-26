@@ -1,6 +1,6 @@
 import * as lpc from "./_namespaces/lpc.js";
 import * as path from "path";
-import { message, createTestProgram } from "./harness.js";
+import { message, createTestProgram, createTestLanguageService, allDiagnostics, codeAndMessage } from "./harness.js";
 
 /**
  * `private` is the one modifier an inheriting program cannot see through. FluffOS documents
@@ -85,5 +85,96 @@ describe("two inherits declaring the same private name", () => {
         expect(diagnosticsIn("priv_both_override.c", "priv_a.c")).toEqual([]);
         expect(diagnosticsIn("priv_both_override.c", "priv_b.c")).toEqual([]);
         expect(diagnosticsIn("priv_both_override.c", "priv_both_override.c")).toEqual([]);
+    });
+});
+
+/**
+ * A program that redefines an inherited function as `private` (#440). Both drivers copy the
+ * inherited function table entry by entry, with the redefinition in place of the function it
+ * overrides, and keep the private one's name: an inheriting program can no longer reach the
+ * public function underneath, nor an efun of that name. FluffOS reports "Illegal to call
+ * inherited private function" (compiler.cc copy_new_function, validate_function_call); LDMud
+ * 3.6.8 reports "Undefined function" for every case below that is rejected.
+ */
+describe.each([
+    ["FluffOS", lpc.LanguageVariant.FluffOS],
+    ["LDMud", lpc.LanguageVariant.LDMud],
+] as const)("an inherited function redefined as private (%s)", (_, driverType) => {
+    const files = {
+        "base.c": `void from_base() {}\n`,
+        "mid.c": `inherit "/base";\nprivate void from_base() {}\nvoid g() { from_base(); }\n`,
+        "other.c": `void from_base() {}\n`,
+        "pefun.c": `private int strlen(string s) { return 0; }\n`,
+        "below.c": `inherit "/mid";\n`,
+    };
+
+    function diagnostics(source: string, typeChecking: lpc.TypeCheckingMode = "strict"): string[] {
+        const { ls, abs } = createTestLanguageService({ "test.c": source, ...files }, { driverType, diagnostics: true, typeChecking });
+        return allDiagnostics(ls, abs("test.c")).map(codeAndMessage);
+    }
+
+    it("hides the function it overrides from the programs that inherit it", () => {
+        expect(diagnostics(`inherit "/mid";\nvoid caller() { from_base(); }\n`)).toEqual(["2304: Cannot find name 'from_base'."]);
+        expect(diagnostics(`inherit "/mid";\nvoid caller() { from_base(); }\n`, "driver")).toEqual(["2304: Cannot find name 'from_base'."]);
+    });
+
+    it("hides it from a call that names the program, and further down the chain", () => {
+        expect(diagnostics(`inherit "/mid";\nvoid caller() { mid::from_base(); ::from_base(); }\n`)).toEqual([
+            "2304: Cannot find name 'from_base'.",
+            "2304: Cannot find name 'from_base'.",
+        ]);
+        expect(diagnostics(`inherit "/below";\nvoid caller() { below::from_base(); from_base(); }\n`)).toEqual([
+            "2304: Cannot find name 'from_base'.",
+            "2304: Cannot find name 'from_base'.",
+        ]);
+    });
+
+    // call_other cannot call a private function either, so the program's object type has no
+    // such function. Driver mode never checks a call_other's function name. (Named object
+    // types are LDMud's.)
+    it.runIf(driverType === lpc.LanguageVariant.LDMud)("leaves the function out of the program's object type", () => {
+        const source = `void caller(object "/mid" o, object "/base" b) { o->from_base(); b->from_base(); }\n`;
+        expect(diagnostics(source)).toEqual([`2339: Property 'from_base' does not exist on type 'object "/mid"'.`]);
+        expect(diagnostics(source, "driver")).toEqual([]);
+    });
+
+    it("hides an efun of the same name", () => {
+        expect(diagnostics(`inherit "/pefun";\nint caller() { return strlen("a"); }\n`)).toEqual(["2304: Cannot find name 'strlen'."]);
+    });
+
+    it("still lets another inherit provide the function, in either order", () => {
+        expect(diagnostics(`inherit "/mid";\ninherit "/other";\nvoid caller() { from_base(); }\n`)).toEqual([]);
+        expect(diagnostics(`inherit "/other";\ninherit "/mid";\nvoid caller() { from_base(); }\n`)).toEqual([]);
+    });
+
+    it("still lets the inheriting program define the function itself", () => {
+        expect(diagnostics(`inherit "/mid";\nvoid from_base() {}\nvoid caller() { from_base(); }\n`)).toEqual([]);
+    });
+
+    // Completions listed every inherited program's members, private ones included, so an
+    // inheriting program was offered names it cannot call, and the redefined name twice.
+    function completionsIn(source: string, more: Record<string, string> = {}): string[] {
+        const { ls, abs } = createTestLanguageService({ "test.c": source, ...files, ...more }, { driverType });
+        const entries = ls.getCompletionsAtPosition(abs("test.c"), source.indexOf("/*|*/"), {})?.entries ?? [];
+        return entries.map(e => e.name).filter(name => /^(from_|mid_)/.test(name)).sort();
+    }
+
+    it("is not offered as a completion to the programs that inherit it", () => {
+        const mid = `inherit "/base";\nprivate void from_base() {}\nprivate void mid_private() {}\nvoid from_mid() {}\n`;
+        expect(completionsIn(`inherit "/mid";\nvoid caller() { /*|*/ }\n`, { "mid.c": mid })).toEqual(["from_mid"]);
+    });
+
+    it("is offered once when another inherit provides the function", () => {
+        expect(completionsIn(`inherit "/mid";\ninherit "/other";\nvoid caller() { /*|*/ }\n`)).toEqual(["from_base"]);
+    });
+
+    it("is offered in the program that declares it", () => {
+        const source = `inherit "/base";\nprivate void from_base() {}\nprivate void mid_private() {}\nvoid g() { /*|*/ }\n`;
+        expect(completionsIn(source)).toEqual(["from_base", "mid_private"]);
+    });
+
+    it("is still called by the program that declares it", () => {
+        const { ls, abs } = createTestLanguageService(files, { driverType, diagnostics: true });
+        expect(allDiagnostics(ls, abs("mid.c")).map(codeAndMessage)).toEqual([]);
     });
 });
