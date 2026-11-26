@@ -216,6 +216,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var noImplicitAny = false; // Not currently used in LPC: getStrictOptionValue(compilerOptions, "noImplicitAny");
     /** `typeChecking: "driver"`: report only the type errors the driver's compiler would. */
     var driverTypeChecking = compilerOptions.typeChecking === "driver";
+    /**
+     * The call whose overload is being chosen by its arguments' types although the driver
+     * does not check them (see resolveCall). Applicability checks it for real, so the
+     * choice follows the arguments; nested calls are not affected.
+     */
+    var callChosenByArgumentTypes: CallLikeExpression | undefined;
     var driverPragmaStatesCache = new Map<SourceFile, DriverPragmaStates>();
     /** {@link getFunctionCompiledBefore}, by the file-level statement around the node; `false` for none. */
     var functionCompiledBeforeCache = new Map<Node, FunctionDeclaration | false>();
@@ -36395,7 +36401,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         containingMessageChain: (() => DiagnosticMessageChain | undefined) | undefined,
         inferenceContext: InferenceContext | undefined,
     ): readonly Diagnostic[] | undefined {
-        if (driverTypeChecking && !(getDriverCallChecks(node, signature) & DriverCallChecks.Types)) return undefined;
+        if (driverTypeChecking && callChosenByArgumentTypes !== node && !(getDriverCallChecks(node, signature) & DriverCallChecks.Types)) return undefined;
         const errorOutputContainer: { errors?: Diagnostic[]; skipLogging?: boolean; } = { errors: undefined, skipLogging: true };        
         // const thisType = getThisTypeOfSignature(signature);
         // if (thisType && thisType !== voidType && !(isNewExpression(node) || isCallExpression(node) && isSuperProperty(node.expression))) {
@@ -37203,14 +37209,25 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // Whether the call is an error is determined by assignability of the arguments. The subtype pass
         // is just important for choosing the best signature. So in the case where there is only one
         // signature, the subtype pass is useless. So skipping it is an optimization.
-        if (candidates.length > 1) {
+        // Where the driver does not check the argument types (an efun taking `...` in FluffOS,
+        // an untyped caller, a FluffOS simul-efun), every overload of the right arity is
+        // applicable, so the first one was taken whatever the arguments were: map() on a
+        // string array was typed as the mapping form in FluffOS. Choose by the argument types
+        // first, reporting nothing, and fall back to that only if none fits. This also checks
+        // the arguments themselves, which nothing did before.
+        if (driverTypeChecking && some(candidates, candidate => !(getDriverCallChecks(node, candidate) & DriverCallChecks.Types))) {
+            result = withCallChosenByArgumentTypes(() =>
+                (candidates.length > 1 ? chooseOverload(candidates, subtypeRelation, isSingleNonGenericCandidate, signatureHelpTrailingComma) : undefined)
+                ?? chooseOverload(candidates, assignableRelation, isSingleNonGenericCandidate, signatureHelpTrailingComma));
+        }
+        if (!result && candidates.length > 1) {
             result = chooseOverload(candidates, subtypeRelation, isSingleNonGenericCandidate, signatureHelpTrailingComma);
         }
         if (!result) {
             result = chooseOverload(candidates, assignableRelation, isSingleNonGenericCandidate, signatureHelpTrailingComma);
         }
         if (result) {
-            return result;
+            return candidates.length > 1 && !(checkMode & CheckMode.IsForSignatureHelp) ? widenReturnOfUndecidedOverload(result) : result;
         }
 
         result = getCandidateForOverloadFailure(node, candidates, args, !!candidatesOutArray, checkMode);
@@ -37348,6 +37365,47 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             candidatesForArgumentError = oldCandidatesForArgumentError;
             candidateForArgumentArityError = oldCandidateForArgumentArityError;
             candidateForTypeArgumentError = oldCandidateForTypeArgumentError;
+        }
+
+        /**
+         * A call whose argument is `mixed`, or a union (which driver mode accepts wherever it
+         * overlaps), may fit several overloads that return different types (#454): `map(m, cl)`
+         * with a `mixed` m fits the array, mapping and string forms. The first one was taken
+         * as the answer, so the call was typed `mixed *` whatever m holds. Which form runs
+         * depends on the value, so the call's type is `mixed`, as the driver's own func_spec
+         * types these efuns. `chosen` still gives the arguments their contextual types.
+         * Leaving out optional arguments is not undecided: `save_object()` matches both of
+         * its forms, but the first one is the right one.
+         */
+        function widenReturnOfUndecidedOverload(chosen: Signature): Signature {
+            const isUndecided = (type: Type) => !!(type.flags & (TypeFlags.Any | TypeFlags.Union));
+            // Typed as overload applicability types them (getTypeOfExpression's shortcuts
+            // resolve a callee as a value). A function literal is never what is undecided, and
+            // checking one here, ahead of its turn, can change what it infers.
+            const argumentType = (arg: Expression, index: number) => checkExpressionWithContextualType(arg, getTypeAtPosition(chosen, index), /*inferenceContext*/ undefined, CheckMode.Normal);
+            if (!args.some((arg, index) => !isContextSensitive(arg) && !isFunctionExpressionOrInlineClosure(arg) && isUndecided(argumentType(arg, index)))) return chosen;
+            const returnType = getReturnTypeOfSignature(chosen);
+            for (const candidate of candidates) {
+                if (candidate === chosen || candidate.typeParameters || !hasCorrectArity(node, args, candidate)) continue;
+                if (withCallChosenByArgumentTypes(() => getSignatureApplicabilityError(node, args, candidate, assignableRelation, CheckMode.SkipContextSensitive, /*reportErrors*/ false, /*containingMessageChain*/ undefined, /*inferenceContext*/ undefined))) continue;
+                if (!isTypeIdenticalTo(getReturnTypeOfSignature(candidate), returnType)) {
+                    const widened = cloneSignature(chosen);
+                    widened.resolvedReturnType = anyType;
+                    return widened;
+                }
+            }
+            return chosen;
+        }
+
+        function withCallChosenByArgumentTypes<T>(f: () => T): T {
+            const saved = callChosenByArgumentTypes;
+            callChosenByArgumentTypes = node;
+            try {
+                return f();
+            }
+            finally {
+                callChosenByArgumentTypes = saved;
+            }
         }
 
         function chooseOverload(candidates: Signature[], relation: Map<string, RelationComparisonResult>, isSingleNonGenericCandidate: boolean, signatureHelpTrailingComma = false) {
