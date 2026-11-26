@@ -268,6 +268,8 @@ function isLeftHandSideExpressionKind(kind: SyntaxKind): boolean {
         case SyntaxKind.CatchExpression:
         case SyntaxKind.ACatchExpression:
         case SyntaxKind.CoroutineCallExpression:
+        case SyntaxKind.LpcTypeLiteralExpression:
+        case SyntaxKind.DecltypeExpression:
         case SyntaxKind.PropertyAccessExpression:
         case SyntaxKind.ElementAccessExpression:
         case SyntaxKind.NewExpression:

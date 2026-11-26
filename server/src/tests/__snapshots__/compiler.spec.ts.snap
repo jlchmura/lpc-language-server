@@ -616,7 +616,7 @@ exports[`Compiler > compiler/mappingType1.c > Reports correct errors for compile
 
 exports[`Compiler > compiler/mappingType2.c > Reports correct errors for compiler/mappingType2.c > diags-compiler/mappingType2.c 1`] = `
 "
-Found 5 errors in the same file, starting at: server/src/tests/cases/compiler/mappingType2.c[90m:3[0m
+Found 4 errors in the same file, starting at: server/src/tests/cases/compiler/mappingType2.c[90m:3[0m
 
 "
 `;
