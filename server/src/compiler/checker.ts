@@ -4491,8 +4491,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 error(varExpr, Diagnostics.The_left_hand_side_of_a_for_each_statement_cannot_be_a_destructuring_pattern);
             }
             else if (isCommaExpression(varExpr)) {
-                checkReferenceExpression(varExpr.left, Diagnostics.The_left_hand_side_of_a_for_each_mapping_statement_must_be_a_variable_or_a_property_access, Diagnostics.The_left_hand_side_of_a_for_in_statement_may_not_be_an_optional_property_access);
-                checkReferenceExpression(varExpr.right, Diagnostics.The_left_hand_side_of_a_for_each_mapping_statement_must_be_a_variable_or_a_property_access, Diagnostics.The_left_hand_side_of_a_for_in_statement_may_not_be_an_optional_property_access);
+                // LDMud can declare some of the loop variables in place (`foreach (key, int val : m)`);
+                // a declaration is always something the loop can assign.
+                for (const side of [varExpr.left, varExpr.right]) {
+                    if (isVariableDeclaration(side as Node)) continue;
+                    checkReferenceExpression(side, Diagnostics.The_left_hand_side_of_a_for_each_mapping_statement_must_be_a_variable_or_a_property_access, Diagnostics.The_left_hand_side_of_a_for_in_statement_may_not_be_an_optional_property_access);
+                }
                 
                 // expand the types on each side of the comma expr
                 leftType = checkExpression(varExpr.left);
@@ -10277,7 +10281,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         includeOptionality: boolean,
         checkMode: CheckMode,
     ): Type | undefined {        
-        if (isVariableDeclaration(declaration) && declaration.parent.parent.kind === SyntaxKind.ForEachStatement) {
+        const loopVariable = isVariableDeclaration(declaration) ? getForEachLoopVariable(declaration) : undefined;
+        if (isVariableDeclaration(declaration) && loopVariable) {
             // An explicit `@type` on the loop variable wins, the same as it would on a plain
             // declaration. Without this the element type below is returned unconditionally and
             // the annotation is silently discarded -- `foreach(/** @type {"/a"} */ object ob in
@@ -10289,7 +10294,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 if (annotated) return annotated;
             }
 
-            const forEach = declaration.parent.parent;
+            const forEach = loopVariable.statement;
             const expressionType = getNonNullableTypeIfNeeded(checkExpression(forEach.expression, checkMode));
 
             if (isArrayType(expressionType) && expressionType.resolvedTypeArguments) {
@@ -10308,8 +10313,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 if (mappingType.flags & TypeFlags.Union) {
                     // if the maping returned a union type, then we need to determine the declarations position in a var decl list
                     // the final type is the same position in the union type
-                    const declIndex = declaration.parent.declarations.indexOf(declaration);
-                    const declType = (mappingType as UnionType).types.at(declIndex) || anyType;
+                    const declType = (mappingType as UnionType).types.at(loopVariable.index) || anyType;
 
                     // finally make sure the types are compatible, because in this situation the variable decl won't have an initializer
                     if (declaration.type) {
@@ -32470,20 +32474,49 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (node.initializer) {
             return getTypeOfInitializer(node.initializer);
         }        
-        if (node.parent.parent.kind === SyntaxKind.ForEachStatement) {
-            const iteratedType = checkRightHandSideOfForEach(node.parent.parent) || errorType;
+        const loopVariable = getForEachLoopVariable(node);
+        if (loopVariable) {
+            const iteratedType = checkRightHandSideOfForEach(loopVariable.statement) || errorType;
             // For a foreach over a mapping, checkRightHandSideOfForEach returns a union of
             // [keyType, valueType] so that the destructured key/value variables can be picked
             // by their position in the declaration list. Extract this declaration's type instead
             // of returning the whole union (which would otherwise flow into control-flow analysis
             // and get widened to `mixed*`).
-            if (iteratedType.flags & TypeFlags.Union && node.parent.declarations.length > 1) {
-                const declIndex = node.parent.declarations.indexOf(node);
-                return (iteratedType as UnionType).types.at(declIndex) || iteratedType;
+            if (iteratedType.flags & TypeFlags.Union && loopVariable.count > 1) {
+                return (iteratedType as UnionType).types.at(loopVariable.index) || iteratedType;
             }
             return iteratedType;
         }
         return errorType;
+    }
+
+    /**
+     * The foreach whose loop variables include `declaration`, with its position among them and
+     * how many there are. They are usually a declaration list, `foreach (string k, int v : m)`;
+     * LDMud also lets a loop mix variables it already has with new ones, `foreach (key, int v : m)`
+     * (test 0000537 in the driver's suite), which parses as a comma expression with the new
+     * variable's declaration as an operand.
+     */
+    function getForEachLoopVariable(declaration: VariableDeclaration): { statement: ForEachStatement; index: number; count: number } | undefined {
+        if (declaration.parent.kind === SyntaxKind.VariableDeclarationList) {
+            const list = declaration.parent;
+            return isForEachStatement(list.parent) && list.parent.initializer === list
+                ? { statement: list.parent, index: list.declarations.indexOf(declaration), count: list.declarations.length }
+                : undefined;
+        }
+        let initializer: Node = declaration;
+        while (isCommaExpression(initializer.parent as Expression)) initializer = initializer.parent;
+        if (!isForEachStatement(initializer.parent) || initializer.parent.initializer !== initializer) return undefined;
+        const operands: Node[] = [];
+        const collect = (node: Node): void => {
+            if (isCommaExpression(node as Expression)) {
+                collect((node as BinaryExpression).left);
+                collect((node as BinaryExpression).right);
+            }
+            else operands.push(node);
+        };
+        collect(initializer);
+        return { statement: initializer.parent, index: operands.indexOf(declaration), count: operands.length };
     }
 
     function checkRightHandSideOfForEach(statement: ForEachStatement): Type {

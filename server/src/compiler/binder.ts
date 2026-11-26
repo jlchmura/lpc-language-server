@@ -939,6 +939,12 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
         // }
 
         const name = getNameOfDeclaration(node);
+        // A name the parser had to make up while recovering (`[struct mixed]`, where `mixed` cannot
+        // be a struct's name) names nothing, so it gets a symbol of its own instead of one under ""
+        // in the table -- where two such declarations met and crashed declareSymbol.
+        if (name && isIdentifier(name) && nodeIsMissing(name)) {
+            return undefined;
+        }
         if (name) {
             // if (isAmbientModule(node)) {
             //     const moduleName = getTextOfIdentifierOrLiteral(name as Identifier | StringLiteral);
@@ -1001,18 +1007,10 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
                 return InternalSymbolName.Call;
                 // return (isJSDocConstructSignature(node) ? InternalSymbolName.New : InternalSymbolName.Call);
             case SyntaxKind.Parameter:
-                // Parameters with names are handled at the top of this function.  Parameters
-                // without names can only come from JSDocFunctionTypes.                
-                if (isFunctionDeclaration(node.parent)) {
-                    if (node.parent.body) createDiagnosticForNode(node, Diagnostics.Parameter_declaration_expected);    
-                    
-                    break;
-                }
-
-                Debug.assert(node.parent.kind === SyntaxKind.JSDocFunctionType, "Impossible parameter parent kind", () => `parent is: ${Debug.formatSyntaxKind(node.parent.kind)}, expected JSDocFunctionType`);
-                // const functionType = node.parent as JSDocFunctionType;
-                // const index = functionType.parameters.indexOf(node as ParameterDeclaration);
-                // return "arg" + index as string;            
+                // Parameters with names are handled at the top of this function. One without a
+                // name is LPC's `(void)`, an empty parameter list, on a function or a `function`
+                // closure alike (`function int (void) { ... }`), or one from a JSDoc function type.
+                break;
         }
     }    
 
