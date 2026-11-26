@@ -67,6 +67,7 @@ describe("missing return in LDMud driver mode", () => {
         expect(warns(`int a() { (raise_error("x")); }\n`)).toBe(false);
         expect(warns(`int a() { 0, raise_error("x"); }\n`)).toBe(false);
         expect(warns(`int a() { efun::raise_error("x"); }\n`)).toBe(false);
+        expect(warns(`int a() { ::raise_error("x"); }\n`)).toBe(true);
         expect(warns(`int a(int x) { if (x) raise_error("a"); else return 1; }\n`)).toBe(false);
         expect(warns(`int a(int x) { x ? raise_error("a") : raise_error("b"); }\n`)).toBe(true);
     });

@@ -6495,7 +6495,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (!declarations?.length || !declarations.every(declaration => getSourceFileOfNode(declaration).isDefaultLib)) return false;
             name = callee.text;
         }
-        else if (isSuperAccessExpression(callee) && isIdentifier(callee.namespace) && callee.namespace.text === "efun" && isIdentifier(callee.name)) {
+        // `::f()` has no namespace.
+        else if (isSuperAccessExpression(callee) && callee.namespace && isIdentifier(callee.namespace) && callee.namespace.text === "efun" && isIdentifier(callee.name)) {
             name = callee.name.text;
         }
         return name === "raise_error" || name === "throw";
