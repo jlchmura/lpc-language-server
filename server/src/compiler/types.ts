@@ -778,6 +778,8 @@ export const enum SyntaxKind {
     StringKeyword,
     LwObjectKeyword,            
     CoroutineKeyword,   // LDMud only
+    LpcTypeKeyword,     // LDMud only
+    DecltypeKeyword,    // LDMud only
     AnyKeyword,    
     ClosureKeyword,
     StructKeyword,
@@ -1006,6 +1008,8 @@ export const enum SyntaxKind {
     ACatchExpression,
     AwaitExpression,
     CoroutineCallExpression,
+    LpcTypeLiteralExpression,
+    DecltypeExpression,
     TimeExpression,
     BinaryExpression,
     FunctionExpression,
@@ -1434,6 +1438,7 @@ export type KeywordTypeSyntaxKind =
     | SyntaxKind.StatusKeyword
     | SyntaxKind.LwObjectKeyword
     | SyntaxKind.CoroutineKeyword
+    | SyntaxKind.LpcTypeKeyword
     | SyntaxKind.ClosureKeyword
     | SyntaxKind.SymbolKeyword
     | SyntaxKind.FunctionKeyword
@@ -1665,6 +1670,8 @@ export interface NodeFactory {
     createACatchExpression(expression: Expression | undefined, block?: Block): ACatchExpression;
     createAwaitExpression(expression: UnaryExpression): AwaitExpression;
     createCoroutineCallExpression(instruction: CoroutineInstruction, argumentsArray: readonly Expression[]): CoroutineCallExpression;
+    createLpcTypeLiteralExpression(type: TypeNode): LpcTypeLiteralExpression;
+    createDecltypeExpression(expression: Expression): DecltypeExpression;
     createTimeExpression(expression: Expression | undefined, block?: Block): TimeExpression;
     createEvaluateExpression(expression: Expression, argumentsArray: readonly Expression[] | undefined): EvaluateExpression;
     createNewExpression(expression: Expression|TypeNode|undefined, typeArguments: readonly TypeNode[] | undefined, argumentsArray: readonly NewExpressionArgument[] | undefined): NewExpression;
@@ -2310,6 +2317,8 @@ export type HasChildren =
     | ACatchExpression
     | AwaitExpression
     | CoroutineCallExpression
+    | LpcTypeLiteralExpression
+    | DecltypeExpression
     | PromiseTypeNode
     | TimeExpression
     | SpreadElement
@@ -2473,6 +2482,8 @@ export type KeywordSyntaxKind =
     | SyntaxKind.BytesKeyword
     | SyntaxKind.LwObjectKeyword
     | SyntaxKind.CoroutineKeyword
+    | SyntaxKind.LpcTypeKeyword
+    | SyntaxKind.DecltypeKeyword
     | SyntaxKind.CatchKeyword
     | SyntaxKind.TimeExpressionKeyword
     | SyntaxKind.ClosureKeyword
@@ -3862,6 +3873,24 @@ export interface CoroutineCallExpression extends PrimaryExpression {
     readonly kind: SyntaxKind.CoroutineCallExpression;
     readonly instruction: CoroutineInstruction;
     readonly arguments: NodeArray<Expression>;
+}
+
+/**
+ * `[<type>]` -- an LDMud lpctype literal (prolang.y `'[' basic_type ']'`, LDMud 3.6.7): the value
+ * is the type itself, an `lpctype`.
+ */
+export interface LpcTypeLiteralExpression extends PrimaryExpression {
+    readonly kind: SyntaxKind.LpcTypeLiteralExpression;
+    readonly type: TypeNode;
+}
+
+/**
+ * `decltype(<expr>)` -- the lpctype of an expression, which is compiled for its type and
+ * not run (LDMud 3.6.7, prolang.y L_DECLTYPE).
+ */
+export interface DecltypeExpression extends PrimaryExpression {
+    readonly kind: SyntaxKind.DecltypeExpression;
+    readonly expression: Expression;
 }
 
 /**

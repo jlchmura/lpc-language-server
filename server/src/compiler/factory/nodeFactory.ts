@@ -2,6 +2,8 @@ import {
     ACatchExpression,
     CoroutineCallExpression,
     CoroutineInstruction,
+    DecltypeExpression,
+    LpcTypeLiteralExpression,
     PromiseTypeNode,
     AmpersandToken,
     AwaitExpression,
@@ -390,6 +392,8 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
         createACatchExpression,
         createAwaitExpression,
         createCoroutineCallExpression,
+        createLpcTypeLiteralExpression,
+        createDecltypeExpression,
         createTimeExpression,
         createEvaluateExpression,
         createNewExpression,
@@ -932,6 +936,21 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
 
         node.transformFlags |= propagateChildrenFlags(node.arguments);
 
+        return node;
+    }
+
+    // @api
+    function createLpcTypeLiteralExpression(type: TypeNode): LpcTypeLiteralExpression {
+        const node = createBaseNode<LpcTypeLiteralExpression>(SyntaxKind.LpcTypeLiteralExpression);
+        node.type = type;
+        return node;
+    }
+
+    // @api
+    function createDecltypeExpression(expression: Expression): DecltypeExpression {
+        const node = createBaseNode<DecltypeExpression>(SyntaxKind.DecltypeExpression);
+        node.expression = expression;
+        node.transformFlags |= propagateChildFlags(node.expression);
         return node;
     }
 

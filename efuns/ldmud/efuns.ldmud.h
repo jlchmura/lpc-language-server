@@ -48,6 +48,7 @@
 #define __LPC_STRUCTS__             1 /* always defined */
 #define __LPC_LWOBJECTS__           1 /* always defined */
 #define __LPC_COROUTINES__          1 /* always defined */
+#define __LPC_LPCTYPES__            1 /* always defined */
 #define __LPC_INLINE_CLOSURES__     1 /* always defined */
 #define __LPC_ARRAY_CALLS__         1 /* always defined */
 #define __BOOT_TIME__               1 /* the time() the driver was started */
@@ -84,6 +85,31 @@ object __LS__Int;
 object __LS__ReadonlyArray;
 object __LS__String;
 object __LS__Closure;
+
+// MARK: ldmud global structs (src/struct_spec)
+
+/** Options for compile_string(). */
+struct compile_string_options
+{
+    mapping|closure functions;
+    mapping|closure variables;
+    mapping|closure structs;
+    int use_object_functions;
+    int use_object_variables;
+    int use_object_structs;
+    int compile_expression;
+    int compile_block;
+    int as_async;
+    int detect_end;
+};
+
+/** Options for to_type(). */
+struct to_type_options
+{
+    string source_encoding;
+    string target_encoding;
+    int keep_zero;
+};
 
 // MARK: ldmud efuns
 

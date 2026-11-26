@@ -46,11 +46,11 @@
         },
         {
             "comment": "Control flow keywords",
-            "match": "\\b(if|else|while|for|foreach|do|return|continue|break|switch|case|default|catch|acatch|await|yield|time_expression|inherit)\\b",
+            "match": "\\b(if|else|while|for|foreach|do|return|continue|break|switch|case|default|catch|acatch|await|yield|decltype|time_expression|inherit)\\b",
             "name": "keyword.control.lpc"
         },
         {
-            "match": "\\b(float|int|void|object|class|struct|mapping|string|mixed|function|ref|bytes|closure|buffer|promise|coroutine)\\b",
+            "match": "\\b(float|int|void|object|class|struct|mapping|string|mixed|function|ref|bytes|closure|buffer|promise|coroutine|lpctype)\\b",
             "name": "support.type.primitive.lpc"
         },
         {

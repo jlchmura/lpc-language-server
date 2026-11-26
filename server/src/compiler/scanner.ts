@@ -106,6 +106,11 @@ export interface Scanner {
     setScriptTarget(scriptTarget: ScriptTarget): void;
     setLanguageVariant(variant: LanguageVariant): void;
     setScriptKind(scriptKind: ScriptKind): void;
+    /**
+     * Tells the scanner when it is in a doc comment, where `([` always starts a mapping type
+     * (LDMud `([int])` is otherwise a parenthesized lpctype literal).
+     */
+    setInDocComment(inDocComment: (() => boolean) | undefined): void;
     setReportLineBreak(flag: boolean): void;
     setJSDocParsingMode(kind: JSDocParsingMode): void;    
     /** @deprecated use {@link resetTokenState} */
@@ -175,6 +180,8 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     closure: SyntaxKind.ClosureKeyword,
     continue: SyntaxKind.ContinueKeyword,                
     coroutine: SyntaxKind.CoroutineKeyword,
+    lpctype: SyntaxKind.LpcTypeKeyword,
+    decltype: SyntaxKind.DecltypeKeyword,
     default: SyntaxKind.DefaultKeyword,
     deprecated: SyntaxKind.DeprecatedKeyword,
     do: SyntaxKind.DoKeyword,
@@ -247,7 +254,9 @@ export function isKeywordInLanguageVariant(keyword: SyntaxKind, variant: Languag
         case SyntaxKind.BytesKeyword:
         case SyntaxKind.ClosureKeyword:
         case SyntaxKind.CoroutineKeyword:
+        case SyntaxKind.DecltypeKeyword:
         case SyntaxKind.DeprecatedKeyword:
+        case SyntaxKind.LpcTypeKeyword:
         case SyntaxKind.LwObjectKeyword:
         case SyntaxKind.StatusKeyword:
         case SyntaxKind.SymbolKeyword:
@@ -1065,6 +1074,8 @@ export function createScanner(
     // See: https://github.com/microsoft/TypeScript/issues/52924
     /* eslint-disable no-var */
     var text = textInitial!;
+    /** See setInDocComment. */
+    var inDocComment: (() => boolean) | undefined;
 
     var isSpeculating = false;
     var revertOnEOF = true;
@@ -1167,6 +1178,7 @@ export function createScanner(
         setScriptTarget,
         setLanguageVariant,
         setScriptKind,
+        setInDocComment,
         setJSDocParsingMode,
         setOnError,        
         setParseBracketAsStringLiteral,
@@ -2026,12 +2038,42 @@ export function createScanner(
     // Some reserved words are driver-specific: `buffer` and `class` are types, `new` is
     // the object-construction operator, and `ref` marks a by-reference parameter, only in
     // FluffOS (LDMud uses `struct` for structures, `clone_object()` to construct, and `&`
-    // for by-reference); `bytes`, `closure`, `lwobject`, `status` and `symbol` are types,
-    // and `deprecated` and `virtual` are modifiers, only in LDMud; `time_expression`
-    // is a reserved word only in FluffOS. Each is an ordinary identifier in the other
+    // for by-reference); `bytes`, `closure`, `lwobject`, `lpctype`, `status` and `symbol`
+    // are types, `decltype` is an operator, and `deprecated` and `virtual` are modifiers,
+    // only in LDMud; `time_expression` is a reserved word only in FluffOS. Each is an ordinary identifier in the other
     // driver, so demote it to an Identifier token here rather than gating it per grammar
     // position downstream.
     //
+    /** Whether the text at `start`, after any whitespace, is a type keyword of this driver (LDMud basic_type). */
+    function isTypeKeywordAt(start: number): boolean {
+        let wordStart = start;
+        while (wordStart < end && isWhiteSpaceLike(charCodeUnchecked(wordStart))) wordStart++;
+        let wordEnd = wordStart;
+        while (wordEnd < end && isIdentifierPart(charCodeUnchecked(wordEnd), languageVersion)) wordEnd++;
+        if (wordEnd === wordStart) return false;
+        const keyword = textToKeyword.get(text.substring(wordStart, wordEnd));
+        if (keyword === undefined || !isKeywordInVariant(keyword, languageVariant)) return false;
+        switch (keyword) {
+            case SyntaxKind.IntKeyword:
+            case SyntaxKind.FloatKeyword:
+            case SyntaxKind.StringKeyword:
+            case SyntaxKind.BytesKeyword:
+            case SyntaxKind.ObjectKeyword:
+            case SyntaxKind.LwObjectKeyword:
+            case SyntaxKind.MappingKeyword:
+            case SyntaxKind.MixedKeyword:
+            case SyntaxKind.ClosureKeyword:
+            case SyntaxKind.SymbolKeyword:
+            case SyntaxKind.StatusKeyword:
+            case SyntaxKind.VoidKeyword:
+            case SyntaxKind.CoroutineKeyword:
+            case SyntaxKind.LpcTypeKeyword:
+            case SyntaxKind.StructKeyword:
+                return true;
+        }
+        return false;
+    }
+
     function isKeywordInVariant(keyword: SyntaxKind, variant: LanguageVariant): boolean {
         return isKeywordInLanguageVariant(keyword, variant);
     }
@@ -2309,6 +2351,12 @@ export function createScanner(
                     }
                     
                     if (charCodeUnchecked(pos) === CharacterCodes.openBracket) {
+                        // LDMud: `([int])` is a parenthesized lpctype literal, not a mapping.
+                        // The driver's lexer returns `(` and `[` apart and its grammar tells
+                        // them apart by what follows; no mapping key starts with a type keyword.
+                        if (languageVariant === LanguageVariant.LDMud && !inDocComment?.() && isTypeKeywordAt(pos + 1)) {
+                            return token = SyntaxKind.OpenParenToken;
+                        }
                         return pos += 1, token = SyntaxKind.OpenParenBracketToken;
                     }     
                     if (charCodeUnchecked(pos) === CharacterCodes.openBrace) {
@@ -3447,6 +3495,10 @@ export function createScanner(
 
     function setScriptKind(kind: ScriptKind) {
         scriptKind = kind;
+    }
+
+    function setInDocComment(callback: (() => boolean) | undefined) {
+        inDocComment = callback;
     }
 
     function setReportLineBreak(flag: boolean) {

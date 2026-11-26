@@ -867,6 +867,21 @@ object to_object(object arg);
 lpctype to_lpctype(string type);
 
 /**
+ * to_type
+ *
+ * Converts <value> to <type>, applying any conversion recursively so that
+ * <value> conforms to <type>: for example, to_type(({ "10", "20" }), [int*])
+ * gives ({ 10, 20 }). If several conversions are possible, the first in the
+ * driver's table is used.
+ *
+ * <options> may give source_encoding (bytes to string), target_encoding
+ * (string to bytes) and keep_zero (leave a 0 as it is).
+ *
+ * @since Introduced in LDMud 3.6.8.
+ */
+mixed to_type(mixed value, lpctype type, void|struct to_type_options options);
+
+/**
  * to_int
  *
  * Floats are truncated to integer values, strings with leadings
@@ -969,7 +984,7 @@ mixed * to_array(mixed * arr);
 
 mixed * to_array(struct s arr);
 
-mixed * to_array(lpctype arr);
+lpctype * to_array(lpctype arr);
 
 
 
@@ -1620,7 +1635,7 @@ void swap(object obj, int flags = 0);
 /**
  * structp
  *
- * Return 1 if arg is a struct.
+ * @returns {arg is struct mixed} 1 if arg is a struct.
  *
  * @since Introducted in LDMud 3.3.273.
  *
@@ -5343,6 +5358,16 @@ varargs mapping m_add(mapping map, mixed key, varargs mixed data);
 int coroutinep(mixed arg);
 
 /**
+ * lpctypep
+ *
+ * @returns {arg is lpctype} 1 if the argument is an LPC type.
+ *
+ * @since Introduced in LDMud 3.6.7.
+ *
+ */
+int lpctypep(mixed arg);
+
+/**
  * lwobjectp
  *
  * @returns {arg is lwobject} 1 if arg is a lightweight object.
@@ -6806,6 +6831,30 @@ void garbage_collection(string filename, int flag);
  *
  */
 varargs mixed * functionlist(object|lwobject|string ob, int flags);
+
+/**
+ * variable_list
+ *
+ * Return an array with information about <ob>'s variables. For every
+ * variable, the values selected by <flags> are stored in this order:
+ * the name, the flags, the type (an int from <lpctypes.h> with
+ * RETURN_FUNCTION_TYPE, an lpctype with RETURN_FUNCTION_LPCTYPE) and
+ * the value (RETURN_VARIABLE_VALUE).
+ *
+ * <ob> may be given as an object or as a filename; a filename does not
+ * load the object. Asking for the value of another object's variables
+ * causes a privilege_violation("variable_list", <ob>).
+ *
+ * <flags> are bin-or'ed from <functionlist.h>: the RETURN_* flags above,
+ * and NAME_INHERITED, TYPE_MOD_STATIC (TYPE_MOD_NOSAVE),
+ * TYPE_MOD_PRIVATE, TYPE_MOD_PROTECTED and NAME_HIDDEN to leave out
+ * those variables. The default is RETURN_FUNCTION_NAME.
+ *
+ * @since Introduced in LDMud 3.2.10.
+ * @since LDMud 3.6.7 introduced RETURN_FUNCTION_LPCTYPE.
+ *
+ */
+mixed * variable_list(object|lwobject|string ob, int flags = 1);
 
 /**
  * function_exists

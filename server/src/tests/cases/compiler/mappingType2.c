@@ -8,4 +8,4 @@
  * mapping type nodes are not allowed outside of lpcdoc
  */
 
-// @errors: 5
+// @errors: 4

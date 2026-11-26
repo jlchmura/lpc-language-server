@@ -54,13 +54,12 @@ describe("LDMud driver-test crashes: types and errors still reported", () => {
         expect(codes(`void f() { mapping m = ([ "a": 1 ]); foreach (1, int val : m) { } }`)).toContain(2487);
     });
 
-    // t-efuns.c: `[struct mixed]`, an lpctype literal, which the server does not parse yet. Two of
+    // t-efuns.c: `[struct mixed]`, an lpctype literal. Before the server parsed these, two of
     // them on a line left two declarations whose name the parser had to make up; both went into
-    // the file's table under "", and the second asserted in declareSymbol. They are syntax
-    // errors here, but must not crash.
-    it("reports an lpctype literal it cannot parse instead of crashing", () => {
+    // the file's table under "", and the second asserted in declareSymbol.
+    it("parses the lpctype literals that once crashed it", () => {
         expect(() => diagnosticsFor(`mixed x = f([struct mixed]) == [struct mixed];`)).not.toThrow();
-        expect(codes(`mixed x = f([struct mixed]) == [struct mixed];`)).toContain(1359);
+        expect(codes(`mixed x = f([struct mixed]) == [struct mixed];`)).not.toContain(1359);
         expect(() => diagnosticsFor(`({ "x", 0, (: to_lpctype(to_string([struct mixed])) == [struct mixed] :) }),`)).not.toThrow();
     });
 });

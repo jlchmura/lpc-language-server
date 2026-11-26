@@ -1135,6 +1135,7 @@ export const typeKeywords: readonly SyntaxKind[] = [
     SyntaxKind.ClassKeyword,
     SyntaxKind.LwObjectKeyword,
     SyntaxKind.CoroutineKeyword,
+    SyntaxKind.LpcTypeKeyword,
     SyntaxKind.BufferKeyword,
     SyntaxKind.BytesKeyword,
     SyntaxKind.PromiseKeyword,
