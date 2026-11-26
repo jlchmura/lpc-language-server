@@ -2933,8 +2933,8 @@ string save_value(mixed value, int format);
         LDMud 3.5.0 added savefile format version 2.
  *
  */
-varargs int    save_object(string name, int format);
 varargs string save_object(int format);
+varargs int    save_object(string name, int format);
 
 /**
  * rusage
