@@ -16842,8 +16842,21 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             checkExpressionCached(node.arguments[i]);
         }
 
-        if (specifierType.flags & TypeFlags.Undefined || specifierType.flags & TypeFlags.Null || !isTypeAssignableTo(specifierType, stringType)) {
-            error(specifier, Diagnostics.Clone_object_s_specifier_must_be_of_type_string_but_here_has_type_0, typeToString(specifierType));
+        // LDMud also clones from a template object, giving another object of its program
+        // (func_spec `clone_object(string|object, ...)`); FluffOS takes only a name
+        // (core.spec `clone_object(string, ...)`). Both check the argument's type only where
+        // they check an efun's argument types: in a typed function.
+        const acceptsTemplate = languageVariant === LanguageVariant.LDMud && !isNewExpression(node);
+        const isAccepted = acceptsTemplate
+            ? everyType(specifierType, t => isTypeAssignableTo(t, stringType) || isLpcObjectType(t))
+            : isTypeAssignableTo(specifierType, stringType);
+        if ((specifierType.flags & TypeFlags.Undefined || specifierType.flags & TypeFlags.Null || !isAccepted) && isTypeCheckedByDriver(node)) {
+            error(specifier, acceptsTemplate
+                ? Diagnostics.Clone_object_s_specifier_must_be_of_type_string_or_object_but_here_has_type_0
+                : Diagnostics.Clone_object_s_specifier_must_be_of_type_string_but_here_has_type_0, typeToString(getBaseTypeOfLiteralType(specifierType)));
+        }
+        if (acceptsTemplate && isLpcObjectType(specifierType)) {
+            return specifierType;
         }
 
         // resolveExternalModuleName will return undefined if the moduleReferenceExpression is not a string literal
@@ -16859,6 +16872,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         // grammar is valid but could not find the module.
         // return anyType to keep things flowing.
         return anyType;
+    }
+
+    /**
+     * Whether `type` is an object value: `object`, `object "/path"` (a program's own type,
+     * whose symbol is its source file), or a union of those. Not a mapping or struct, which
+     * the checker's `object` also accepts in an assignment.
+     */
+    function isLpcObjectType(type: Type): boolean {
+        return everyType(type, t => t === objectType || !!(t.flags & TypeFlags.Object && t.symbol?.valueDeclaration && isSourceFile(t.symbol.valueDeclaration)));
     }
 
     function resolveExternalObjectSymbol(moduleSymbol: Symbol|undefined, referencingLocation: Node, dontResolveAlias: boolean): Symbol | undefined {
@@ -24074,6 +24096,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
     }
 
+    /** The string `expression` evaluates to, or "" when it is not a constant string (a number, say). */
+    function evaluateToString(expression: Expression): string {
+        const value = evaluate(expression)?.value;
+        return typeof value === "string" ? value : "";
+    }
+
     function resolveExternalModuleName(location: Node, moduleReferenceExpression: Expression, expressionType: Type | undefined, ignoreErrors?: boolean): Symbol | undefined {
         const errorMessage = Diagnostics.Cannot_find_object_0;
         return resolveExternalModuleNameWorker(location, moduleReferenceExpression, expressionType, ignoreErrors ? undefined : errorMessage);
@@ -24082,7 +24110,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function resolveExternalModuleNameWorker(location: Node, moduleReferenceExpression: Expression, expressionType: Type | undefined, moduleNotFoundError: DiagnosticMessage | undefined, isForAugmentation = false): Symbol | undefined {
         let moduleRef = isStringLiteral(moduleReferenceExpression) ? moduleReferenceExpression.text : 
             isCallExpression(moduleReferenceExpression) && expressionType && isStringLiteralType(expressionType) ? expressionType.value :
-            evaluate(moduleReferenceExpression)?.value as string ?? "";
+            evaluateToString(moduleReferenceExpression);
         if (moduleRef === "") {
             return anyType.getSymbol();
         } else {
