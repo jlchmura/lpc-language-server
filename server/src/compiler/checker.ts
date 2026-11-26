@@ -5193,9 +5193,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     flags |= SignatureFlags.HasLiteralTypes;
                 }
 
-                // Record a new minimum argument count if this is not an optional parameter.
-                // Only an @overload shape's parameters can be optional: `@param {T} [name]`.
-                if (!isOptionalJSDocPropertyLikeTag(param)) {
+                // Record a new minimum argument count if this is not an optional parameter:
+                // one with a default value (LDMud `int b = 0`, FluffOS `int b: (: 0 :)`; both
+                // drivers lower the function's minimum for each), or an @overload shape's
+                // `@param {T} [name]`. A varargs parameter never raises it either.
+                if (!isOptionalJSDocPropertyLikeTag(param) && !(isParameter(param) && param.initializer) && !isRestParameter(param)) {
                     minArgumentCount = parameters.length;
                 }
             }
@@ -6870,11 +6872,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             forEach(node.name.elements, checkSourceElement);
         }
 
-        // For a parameter declaration with an initializer, error and exit if the containing function doesn't have a body
-        if (node.initializer && isPartOfParameterDeclaration(node) && nodeIsMissing((getContainingFunction(node) as FunctionLikeDeclaration).body)) {
-            error(node, Diagnostics.A_parameter_initializer_is_only_allowed_in_a_function_or_constructor_implementation);
-            return;
-        }
+        // A prototype may give a parameter a default value too: LDMud and FluffOS both accept
+        // it, so TypeScript's "only allowed in a function implementation" does not apply.
         // For a binding pattern, validate the initializer and exit
         if (isBindingPattern(node.name)) {
             if (isInAmbientOrTypeNode(node)) {
@@ -10017,7 +10016,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 minArgumentCount = 0;
             } else if (signatureHasRestParameter(signature)) {
                 const restType = getTypeOfSymbol(signature.parameters[signature.parameters.length - 1]);
-                minArgumentCount = signature.parameters.length - 1;
+                // Parameters with default values may come before the varargs one.
+                minArgumentCount = Math.min(signature.parameters.length - 1, signature.minArgumentCount);
                 if (isTupleType(restType)) {
                     const firstOptionalIndex = findIndex(restType.target.elementFlags, f => !(f & ElementFlags.Required));
                     const requiredCount = firstOptionalIndex < 0 ? restType.target.fixedLength : firstOptionalIndex;
