@@ -1243,6 +1243,8 @@ export function createNameResolver({
         let propertyWithInvalidInitializer: PropertyDeclaration | undefined;
         let associatedDeclarationForContainingInitializerOrBindingName: ParameterDeclaration | BindingElement | undefined;
         let withinDeferredContext = false;
+        /** An inherited program declares the name `private`; see the SourceFile case. */
+        let hiddenByPrivate = false;
         let grandparent: Node;
         const name = isString(nameArg) ? nameArg : (nameArg as Identifier)?.text;
 
@@ -1359,11 +1361,24 @@ export function createNameResolver({
                             if (inheritedMember && !isPrivateToDeclaringFile(inheritedMember)) {
                                 result = inheritedMember;
                             }
+                            else if (inheritedMember) {
+                                // The private declaration still hides what that program inherits
+                                // under the name, and the efun or simul_efun of that name (#440).
+                                // Both drivers copy an inherited function table entry by entry, the
+                                // redefinition in place of the function it overrides, and keep the
+                                // name of a private one: FluffOS marks it DECL_HIDDEN and reports
+                                // "Illegal to call inherited private function" (compiler.cc
+                                // copy_new_function, validate_function_call); LDMud marks it
+                                // NAME_HIDDEN and reports "Undefined function". Another inherit
+                                // that has a visible function of the name still provides it.
+                                hiddenByPrivate = true;
+                                continue;
+                            }
                         }
                         if (result) {
                             break loop;
                         }
-                        
+
                         const nestedInherits = importType?.symbol?.inherits;
                         importStack.push(...(nestedInherits?.entries() ?? emptyArray));                                                  
                     }
@@ -1544,7 +1559,7 @@ export function createNameResolver({
                 Debug.assertNode(lastLocation, isSourceFile);                
             }
 
-            if (!excludeGlobals) {
+            if (!excludeGlobals && !hiddenByPrivate) {
                 result = lookup(globals, name, meaning);
             }
         }

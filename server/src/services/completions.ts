@@ -4391,7 +4391,12 @@ function getCompletionData(
                 //     type && typeChecker.getPropertiesOfType(type);
             });
             
-            symbols = concatenate(symbols, filterClassMembersList(baseSymbols, currentMembers ?? emptyArray, classElementModifierFlags));
+            // Offer only what a name here resolves to. The members tables above hold each
+            // program's private declarations too, and a private redefinition hides the
+            // inherited function under it (#440); listing both offered names the program
+            // cannot call, and the redefined name twice.
+            const reachableBaseSymbols = filter(baseSymbols, symbol => typeChecker.resolveName(symbol.name, contextToken, symbol.flags, /*excludeGlobals*/ true) === symbol);
+            symbols = concatenate(symbols, filterClassMembersList(reachableBaseSymbols, currentMembers ?? emptyArray, classElementModifierFlags));
             forEach(symbols, (symbol, index) => {
                 const declaration = symbol?.valueDeclaration;
                 if (declaration && isClassElement(declaration) && declaration.name && isComputedPropertyName(declaration.name)) {
