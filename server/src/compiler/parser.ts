@@ -5269,10 +5269,12 @@ export namespace LpcParser {
                 parseExpected(SyntaxKind.GreaterThanToken);
             }
             
-            if (hasBrace) {                        
-                // definitely a type assertion
-                parseExpected(SyntaxKind.CloseBraceToken);            
-                parseExpected(SyntaxKind.CloseParenToken);                
+            if (hasBrace) {
+                // `({ type })` is a type assertion only when the `})` is really there. An array
+                // literal can start with a type name too: `({ function int() { ... }, ... })`.
+                if (!parseOptional(SyntaxKind.CloseBraceToken) || !parseOptional(SyntaxKind.CloseParenToken)) {
+                    return false;
+                }
             } else if (!parseOptional(SyntaxKind.CloseParenToken)) {
                 // not a type assertion
                 return false;
