@@ -8,13 +8,25 @@ export interface LpcFileHandlerHost {
     readFile(fileName: string): string | undefined;
     getIncludeDirs(fileName: string): string[];
     getCompilerOptions(): CompilerOptions;
+    /** The driver's efun header (efuns.ldmud.h, efuns.fluffos.h), when it is known. */
+    getEfunHeaderFileName?(): string | undefined;
 }
 
 export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
+    let efunNames: ReadonlySet<string> | undefined;
     return {
         loadInclude,
-        loadIncludeFile
+        loadIncludeFile,
+        isEfunDefined: host.getEfunHeaderFileName ? isEfunDefined : undefined,
     };
+
+    function isEfunDefined(name: string): boolean {
+        if (!efunNames) {
+            const headerFileName = host.getEfunHeaderFileName?.();
+            efunNames = headerFileName ? collectEfunNames(headerFileName, fileName => host.readFile(fileName)) : new Set();
+        }
+        return efunNames.has(name);
+    }
 
     function loadInclude(sourceFilename: string, filename: string): LoadImportResult {
         const result = loadIncludeFile(sourceFilename, filename, false);
@@ -73,4 +85,28 @@ export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
         // });
         // return fullImportDirs;
     }
+}
+/**
+ * The names of the efuns declared in a driver's efun header and the headers it includes.
+ * LDMud's `obsolete.h` holds efuns the driver has dropped, so it is left out. The headers are
+ * declarations only, `type name(params);`, once their comments are taken out.
+ */
+export function collectEfunNames(headerFileName: string, readFile: (fileName: string) => string | undefined): ReadonlySet<string> {
+    const names = new Set<string>();
+    const seen = new Set<string>();
+    const visit = (fileName: string) => {
+        if (seen.has(fileName)) return;
+        seen.add(fileName);
+        const text = readFile(fileName);
+        if (!text) return;
+        for (const [, include] of text.matchAll(/^[ \t]*#[ \t]*include[ \t]+"([^"]+)"/gm)) {
+            if (include !== "obsolete.h") visit(combinePaths(getDirectoryPath(fileName), include));
+        }
+        const code = text.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/\/\/[^\n]*/g, "");
+        for (const [, name] of code.matchAll(/^[^;{}()=#\n]*?\b([A-Za-z_]\w*)[ \t]*\([^;{}]*\)[ \t]*;/gm)) {
+            names.add(name);
+        }
+    };
+    visit(normalizePath(headerFileName));
+    return names;
 }

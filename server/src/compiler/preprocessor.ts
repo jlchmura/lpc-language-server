@@ -14,6 +14,15 @@ export interface MacroEnvironment {
     clear(): void;
 }
 
+/**
+ * A driver's operator that tests for an efun in `#if`: LDMud's `__EFUN_DEFINED__(name)` (lex.c
+ * efun_defined) and FluffOS's `efun_defined(name)`. It is 1 when the driver has the efun.
+ */
+export interface EfunDefinedOperator {
+    readonly name: string;
+    isEfunDefined(name: string): boolean;
+}
+
 /** A raw preprocessor token: the scanner kind plus its source text (for identifiers/literals). */
 export interface PreprocessorToken {
     kind: SyntaxKind;
@@ -34,8 +43,8 @@ export interface PreprocessorToken {
  * Defensive by design: malformed input never throws -- it evaluates to whatever has
  * been parsed so far -- so a bad `#if` degrades gracefully instead of breaking parsing.
  */
-export function evaluatePreprocessorCondition(tokens: readonly PreprocessorToken[], env: MacroEnvironment): boolean {
-    const expanded = expandConditionTokens(tokens, env, new Set());
+export function evaluatePreprocessorCondition(tokens: readonly PreprocessorToken[], env: MacroEnvironment, efunDefined?: EfunDefinedOperator): boolean {
+    const expanded = expandConditionTokens(tokens, env, new Set(), efunDefined);
 
     let pos = 0;
     const peek = () => expanded[pos];
@@ -187,10 +196,18 @@ function tokenizeMacroBody(macro: Macro): PreprocessorToken[] {
  * Resolve `defined` operators and expand object-like macros, producing a token list
  * ready for constant evaluation. `expanding` guards against recursive macro bodies.
  */
-function expandConditionTokens(tokens: readonly PreprocessorToken[], env: MacroEnvironment, expanding: Set<string>): PreprocessorToken[] {
+function expandConditionTokens(tokens: readonly PreprocessorToken[], env: MacroEnvironment, expanding: Set<string>, efunDefined?: EfunDefinedOperator): PreprocessorToken[] {
     const out: PreprocessorToken[] = [];
     for (let i = 0; i < tokens.length; i++) {
         const t = tokens[i];
+
+        if (efunDefined && isIdentifierToken(t) && t.value === efunDefined.name
+            && tokens[i + 1]?.kind === SyntaxKind.OpenParenToken && tokens[i + 2] && isIdentifierToken(tokens[i + 2])
+            && tokens[i + 3]?.kind === SyntaxKind.CloseParenToken) {
+            out.push({ kind: SyntaxKind.IntLiteral, value: efunDefined.isEfunDefined(tokens[i + 2].value) ? "1" : "0" });
+            i += 3;
+            continue;
+        }
 
         if (isIdentifierToken(t) && t.value === "defined") {
             // defined X  |  defined ( X )
@@ -214,7 +231,7 @@ function expandConditionTokens(tokens: readonly PreprocessorToken[], env: MacroE
             const isObjectLike = macro && macro.disabled !== true && macro.range && macro.arguments === undefined;
             if (isObjectLike && !expanding.has(t.value)) {
                 expanding.add(t.value);
-                const body = expandConditionTokens(tokenizeMacroBody(macro!), env, expanding);
+                const body = expandConditionTokens(tokenizeMacroBody(macro!), env, expanding, efunDefined);
                 expanding.delete(t.value);
                 for (const e of body) out.push(e);
                 continue;

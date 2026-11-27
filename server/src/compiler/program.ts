@@ -168,6 +168,7 @@ export function createProgram(rootNamesOrOptions: readonly string[] | CreateProg
         getCurrentDirectory: () => sys.getCurrentDirectory(),
         getIncludeDirs,
         getCompilerOptions: () => options,
+        getEfunHeaderFileName: () => getDefaultLibraryFileName(),
     });
 
     

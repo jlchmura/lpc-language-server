@@ -7089,6 +7089,11 @@ export type LpcLoadImportResult = {
 export interface LpcFileHandler extends IFileHandler  {
     loadIncludeFile(sourceFilename: string, filename: string, localFirst: boolean, additionalSearchDirs?: string[]): LpcLoadImportResult
     loadInclude(sourceFilename: string, filename: string): LoadImportResult;
+    /**
+     * Whether the driver has an efun of this name, for LDMud's `__EFUN_DEFINED__(name)` and
+     * FluffOS's `efun_defined(name)` in `#if`. Undefined when the efun headers aren't known.
+     */
+    isEfunDefined?(name: string): boolean;
 }
 
 export interface TransformationResult<T extends Node> {
