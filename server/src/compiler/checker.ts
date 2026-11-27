@@ -16973,13 +16973,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             }
         }
 
-        // `$<identifier>` (non-numeric) and `$::foo` forms aren't currently typed; treat as mixed.
-        return anyType;
+        // `#'name` and `#'::name` are closures in LDMud; a quoted symbol, `'name`, is only a name
+        // and stays untyped, like the other forms.
+        return languageVariant === LanguageVariant.LDMud && !node.isQuotedSymbol ? globalClosureType : anyType;
     }
 
     function checkLambdaOperatorExpression(_node: LambdaOperatorExpression, _checkMode: CheckMode | undefined): Type {
-        // Operator closures (e.g. `$+`) are currently treated as untyped.
-        return anyType;
+        // An operator closure, `#'+`, is a closure. Typed as mixed, it matched the first efun
+        // overload, such as map()'s `string func` one, and lost the call's result type.
+        return languageVariant === LanguageVariant.LDMud ? globalClosureType : anyType;
     }
 
     function checkQuotedArrayExpression(node: QuotedArrayExpression, checkMode: CheckMode | undefined): Type {
