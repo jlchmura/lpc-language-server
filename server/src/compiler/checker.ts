@@ -6307,6 +6307,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             const typeNode = isJSDocTypeAlias(declaration) ? declaration.typeExpression : declaration.type;
             // If typeNode is missing, we will error in checkJSDocTypedefTag.
             let type = typeNode ? getTypeFromTypeNode(typeNode) : errorType;
+            if (isStructDeclaration(declaration) && declaration.heritageName && !isErrorType(type)) {
+                type = getStructTypeWithBase(declaration.heritageName, type);
+            }
 
             if (popTypeResolution()) {
                 const typeParameters = getLocalTypeParametersOfClassOrInterfaceOrTypeAlias(symbol);
@@ -6328,6 +6331,24 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return links.declaredType;
     }
     
+    /**
+     * An LDMud struct that inherits another, `struct B (A) { ... };`, has A's members and then
+     * its own, in that order: a positional `(<B> 1, "x")` fills A's first (prolang.y,
+     * define_struct copies the base's members ahead of the new ones).
+     */
+    function getStructTypeWithBase(heritageName: Identifier, ownType: Type): Type {
+        const baseSymbol = resolveName(heritageName, idText(heritageName), SymbolFlags.Type, Diagnostics.Cannot_find_name_0, /*isUse*/ true);
+        const baseType = baseSymbol && getDeclaredTypeOfSymbol(baseSymbol);
+        if (!baseType || isErrorType(baseType) || !(baseType.flags & TypeFlags.Object)) return ownType;
+        const members = createSymbolTable();
+        for (const prop of getPropertiesOfType(baseType)) members.set(prop.name, prop);
+        for (const prop of getPropertiesOfType(ownType)) members.set(prop.name, prop);
+        const result = createAnonymousType(ownType.symbol, members, emptyArray, emptyArray, emptyArray);
+        result.aliasSymbol = ownType.aliasSymbol;
+        result.aliasTypeArguments = ownType.aliasTypeArguments;
+        return result;
+    }
+
     function getDeclaredTypeOfAlias(symbol: Symbol): Type {
         const links = getSymbolLinks(symbol);
         return links.declaredType || (links.declaredType = getDeclaredTypeOfSymbol(resolveAlias(symbol)));
