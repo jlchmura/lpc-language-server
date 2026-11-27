@@ -19063,6 +19063,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     /** The operators whose operand types follow each driver's own rules here. */
+    function isArraySetOperator(operator: SyntaxKind) {
+        switch (operator) {
+            case SyntaxKind.BarToken:
+            case SyntaxKind.BarEqualsToken:
+            case SyntaxKind.CaretToken:
+            case SyntaxKind.CaretEqualsToken:
+                return true;
+        }
+        return false;
+    }
+
     function isDriverTypedOperator(operator: SyntaxKind) {
         switch (operator) {
             case SyntaxKind.MinusToken:
@@ -19202,6 +19213,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     if (isArrayType(leftType) && isArrayType(rightType)) {
                         //compareTypesAssignable(rightType, leftType)
                         resultType = leftType;//first(rightType.resolvedTypeArguments) ?? anyType;
+                    }
+                    // `|` and `^` on arrays are a union and a symmetric difference in both drivers,
+                    // so an array with a mixed operand gives an array, as `i |= funcall(...)` does
+                    // in LDMud's tl-rttc-assign.c.
+                    else if (isArraySetOperator(operator) && (isArrayType(leftType) && isTypeAny(rightType) || isTypeAny(leftType) && isArrayType(rightType))) {
+                        resultType = isArrayType(leftType) ? leftType : rightType;
                     }
                     // If both are any or unknown, allow operation; assume it will resolve to number
                     else if (
