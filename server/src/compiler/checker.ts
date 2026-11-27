@@ -19279,7 +19279,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                         error(errorNode, Diagnostics.This_condition_will_always_return_0_since_JavaScript_compares_objects_by_reference_not_value, eqType ? "false" : "true");
                     }
                     checkNaNEquality(errorNode, operator, left, right);
-                    reportOperatorErrorUnless((left, right) => isTypeEqualityComparableTo(left, right) || isTypeEqualityComparableTo(right, left));
+                    const comparable = (left: Type, right: Type) => isTypeEqualityComparableTo(left, right) || isTypeEqualityComparableTo(right, left);
+                    // A driver compares the operands' types, `string` with `string`, never the literal
+                    // values or a narrowed literal: `"lfun" == "inh"`, common in a macro, compiles.
+                    // A literal 0 stays itself: it is LPC's null and compares with any type.
+                    const widenForDriver = (type: Type) => mapType(type, t => isZeroLiteralType(t) ? t : getBaseTypeOfLiteralType(t));
+                    reportOperatorErrorUnless(driverTypeChecking
+                        ? (left, right) => comparable(widenForDriver(left), widenForDriver(right))
+                        : comparable);
                 }
                 return booleanType;            
             case SyntaxKind.InKeyword:
