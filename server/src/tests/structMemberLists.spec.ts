@@ -53,3 +53,11 @@ describe("struct member lists", () => {
         expect(codes(`class Foo { int one, *two; }\nint *f(class Foo v) { return v->two; }\nint g(class Foo v) { return v.one; }\n`, FluffOS)).toEqual([]);
     });
 });
+
+// t-efuns.c and tl-std-structs.c: LDMud's compile_string_options has a member named
+// `functions`, which this server scans as a (non-reserved) inherit-modifier keyword.
+describe("a struct literal's named member that is a keyword", () => {
+    it("parses `functions:` as a member name", () => {
+        expect(diagnostics(`struct S { closure functions; int as_async; };\nvoid f() {\n    struct S s = (<S> functions: #'f, as_async: 1);\n    struct S t = (<S>\n        functions: 0);\n}\n`)).toEqual([]);
+    });
+});

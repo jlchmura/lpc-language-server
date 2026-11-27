@@ -5311,7 +5311,8 @@ export namespace LpcParser {
         //   (<foo>)
         //   (<foo> 1, 2, 3)
         //   (<foo> bar: 1, baz: 2)
-        const hasNamedArgs = lookAhead(() => token() === SyntaxKind.Identifier && nextToken() === SyntaxKind.ColonToken);
+        // a member's name may be a non-reserved keyword, as in `(<compile_string_options> functions: ...)`
+        const hasNamedArgs = lookAhead(() => isIdentifier() && nextToken() === SyntaxKind.ColonToken);
         let args: NodeArray<Expression|ObjectLiteralElementLike>;
         if (hasNamedArgs) {
             args = parseDelimitedList(ParsingContext.ArgumentExpressions, parseNamedArgumentExpression);
