@@ -4474,12 +4474,38 @@ export namespace LpcParser {
     }
 
     function parseFunctionDeclaration(pos: PositionState, hasJSDoc: boolean, modifiers: NodeArray<ModifierLike> | undefined, type: TypeNode | undefined): FunctionDeclaration {                
-        const name = parseBindingIdentifier();        
+        const name = parseBindingIdentifier();
         const parameters = parseParameters();
-        const body = parseFunctionBlockOrSemicolon(SignatureFlags.None);
+        const body = languageVariant === LanguageVariant.LDMud
+            ? withFunctionNameMacro(name, () => parseFunctionBlockOrSemicolon(SignatureFlags.None))
+            : parseFunctionBlockOrSemicolon(SignatureFlags.None);
 
         const node = factory.createFunctionDeclaration(modifiers, name, parameters, type, body);
         return setDeprecated(withJSDoc(finishNode(node, pos, pos.macro ? body?.end : undefined), hasJSDoc), modifiers);
+    }
+
+    /**
+     * LDMud's `__FUNCTION__` expands to the name of the function being compiled, also inside
+     * a closure in its body (lex.c, get_current_function). It is defined only while the body
+     * is parsed; outside a function the driver reports an error, and so does this.
+     */
+    const FunctionNameMacro = "__FUNCTION__";
+
+    function withFunctionNameMacro<T>(name: Identifier, parseBody: () => T): T {
+        const saved = macroEnv.lookup(FunctionNameMacro);
+        // a user's own `#define __FUNCTION__` wins
+        if (saved && !saved.isBuiltIn) return parseBody();
+        macroEnv.define(FunctionNameMacro, createBuiltInMacro(FunctionNameMacro, `"${idText(name)}"`));
+        try {
+            return parseBody();
+        }
+        finally {
+            const current = macroEnv.lookup(FunctionNameMacro);
+            if (current?.isBuiltIn) {
+                if (saved) macroEnv.define(FunctionNameMacro, saved);
+                else macroEnv.undef(FunctionNameMacro);
+            }
+        }
     }
 
     function parseFunctionBlockOrSemicolon(flags: SignatureFlags, diagnosticMessage?: DiagnosticMessage): Block | undefined {

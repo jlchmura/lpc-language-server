@@ -11,10 +11,10 @@
 // #define __MASTER_OBJECT__           "master_object" /* the name of the master object (in compat mode without leading '/') */
 // #define __FILE__                    "compiled_file" /* the name of the compiled file (in compat mode without leading '/') */
 #define __LINE__                    1 /* the current line number */
-#define __FUNCTION__                "function" /* the current function name */
+// __FUNCTION__ (the current function name) is defined by the parser in each function body
 // #define __DIR__                     "directory_path" /* the directory path of the compiled file (in compat mode without leading '/') */
 #define __PATH__(n)                 "/path/" /* the directory path of the compiled file without the <n> trailing elements (in compat mode without leading '/') */
-// #define __VERSION__                 "version_string" /* the version string of the driver */
+#define __VERSION__                 "3.6.1" /* the version string of the driver */
 #define __VERSION_MAJOR__           3 /* the major version number of the driver */
 #define __VERSION_MINOR__           6 /* the minor version number of the driver */
 #define __VERSION_MICRO__           1 /* the micro version number of the driver */
