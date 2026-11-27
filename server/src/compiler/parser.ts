@@ -681,9 +681,12 @@ export namespace LpcParser {
      */
     function parseMacroArguments() {
         const args: MacroParameter[] = [];        
-        let parenCount = parseExpected(SyntaxKind.OpenParenToken, undefined, false) ? 1 : 0;
-        let paramText = "";
-        let pos: number = scanner.getTokenFullStart();
+        // `M(*= ...)` scans as FluffOS's `(*` (`(*f)(x)`); here it is the call's `(` and an
+        // argument that starts with `*` (t-lvalues.c's `MAKE_OP_TEST(*=, ...)`).
+        const startsWithAsterisk = token() === SyntaxKind.OpenParenAsteriskToken;
+        let parenCount = startsWithAsterisk || parseExpected(SyntaxKind.OpenParenToken, undefined, false) ? 1 : 0;
+        let paramText = startsWithAsterisk ? "*" : "";
+        let pos: number = startsWithAsterisk ? scanner.getTokenStart() + 1 : scanner.getTokenFullStart();
 
         if (parenCount === 0) {
             // missing open paren.  advance scanner (because open paren didnt) and return
