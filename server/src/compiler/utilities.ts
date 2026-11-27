@@ -1239,13 +1239,16 @@ export function createNameResolver({
         return !!initializer && !!findAncestor(reference, node => node === initializer);
     }
 
-    /** A context variable of `closure` named `name` that is declared before `pos`. */
-    function findEarlierContextVariable(closure: FunctionExpression, name: string, pos: number): Symbol | undefined {
+    /**
+     * A context variable of `closure` named `name` that is declared before the one whose
+     * initializer holds `reference`. By the tree, not by position (see isInOwnInitializer).
+     */
+    function findEarlierContextVariable(closure: FunctionExpression, name: string, reference: Node): Symbol | undefined {
         let found: Symbol | undefined;
         for (const statement of closure.body?.statements ?? emptyArray) {
             if (!(statement.flags & NodeFlags.InlineClosureContext) || !isVariableStatement(statement)) break;
             for (const declaration of statement.declarationList.declarations) {
-                if (declaration.end > pos) return found;
+                if (findAncestor(reference, node => node === declaration)) return found;
                 if (isIdentifier(declaration.name) && declaration.name.text === name) found = declaration.symbol;
             }
         }
@@ -1585,7 +1588,7 @@ export function createNameResolver({
                 // reads the outer `result`. Skip the rest of the closure's body and its parameters.
                 const closure = findAncestor(lastLocation, isFunctionExpression);
                 if (closure) {
-                    const earlier = originalLocation && findEarlierContextVariable(closure, name, originalLocation.pos);
+                    const earlier = originalLocation && findEarlierContextVariable(closure, name, originalLocation);
                     if (earlier && earlier.flags & meaning) {
                         result = earlier;
                         break loop;
