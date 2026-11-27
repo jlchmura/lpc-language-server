@@ -17141,6 +17141,23 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return path;
     }
 
+    /**
+     * LDMud compiles a program top to bottom, so a struct's members exist only from its
+     * definition on. Before it, after just a prototype (`struct F;`), `x.f` is "No such
+     * member 'f' for struct 'struct F'" (prolang.y). `x->f` is looked up when it runs, so it
+     * compiles. The server resolves the definition from anywhere in the program; this
+     * reports a `.` member read ahead of it.
+     */
+    function checkStructMemberIsDefinedAtUse(node: PropertyAccessExpression | QualifiedName, prop: Symbol, right: Identifier | ParenthesizedExpression) {
+        if (languageVariant !== LanguageVariant.LDMud || !isIdentifier(right)) return;
+        if (!isPropertyAccessExpression(node) || node.propertyAccessToken?.kind !== SyntaxKind.DotToken) return;
+        const member = prop.valueDeclaration;
+        const definition = member && findAncestor(member.parent, isStructDeclaration);
+        if (!definition?.type || getSourceFileOfNode(definition) !== getSourceFileOfNode(node)) return;
+        if (comesBeforeInCompileOrder(definition, node)) return;
+        error(right, Diagnostics.Struct_0_has_no_member_1_here_it_is_only_defined_later_in_this_program, idText(definition.name as Identifier), idText(right));
+    }
+
     function comesBeforeInCompileOrder(node: Node, other: Node): boolean {
         const nodePath = getCompileOrderPath(node);
         const otherPath = getCompileOrderPath(other);
@@ -27784,6 +27801,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 addDeprecatedSuggestion(right, targetPropSymbol.declarations, right.text as string);
             }
             //checkPropertyNotUsedBeforeDeclaration(prop, node, right);
+            checkStructMemberIsDefinedAtUse(node, prop, right);
             markPropertyAsReferenced(prop, node, isSelfTypeAccess(left, parentSymbol));
             getNodeLinks(node).resolvedSymbol = prop;
             checkPropertyAccessibility(node, left.kind === SyntaxKind.SuperKeyword, isWriteAccess(node), apparentType, prop);
