@@ -1805,6 +1805,11 @@ export interface CompilerOptions {
     configFilePath?: string;
     driverType?: LanguageVariant;
     /**
+     * LDMud only: the driver runs in compat mode (`driver.compatMode`). It then defines
+     * `COMPAT_FLAG` and `__COMPAT_MODE__`, and names the master without a leading slash.
+     */
+    driverCompatMode?: boolean;
+    /**
      * LDMud only. When true (the default), assigning to an undeclared variable
      * implicitly declares it (LDMud allows this because types are optional). Set
      * to false to instead report the assignment target as an unresolved name,

@@ -79,7 +79,7 @@
                             "type": ["string", "null"]
                         },
                         "compatMode": {
-                            "description": "Compatibility mode for the MUD driver",
+                            "description": "LDMud only. The driver runs in compat mode (its -o / --compat option). COMPAT_FLAG and __COMPAT_MODE__ are then defined, and __MASTER_OBJECT__ has no leading slash.",
                             "type": ["boolean", "null"],
                             "default": false
                         }

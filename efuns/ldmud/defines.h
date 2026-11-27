@@ -3,8 +3,7 @@
 #define LPC3                        1 /* always defined */
 #define __LDMUD__                   1 /* always defined */
 #define __EUIDS__                   1 /* always (for compatibility) */
-#define COMPAT_FLAG                 1 /* defined if the driver runs in compat mode */
-#define __COMPAT_MODE__             1 /* ditto */
+// COMPAT_FLAG and __COMPAT_MODE__ (defined if the driver runs in compat mode) come from driver.compatMode in lpc-config.json
 #define __STRICT_EUIDS__            1 /* defined if strict euid usage is enforced */
 #define __FILENAME_SPACES__         1 /* defined if filenames may contain spaces */
 
