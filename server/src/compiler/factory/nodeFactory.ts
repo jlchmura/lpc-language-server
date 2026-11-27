@@ -1,4 +1,5 @@
 import {
+    CatchModifier,
     ACatchExpression,
     CoroutineCallExpression,
     CoroutineInstruction,
@@ -388,6 +389,7 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
 
         // Expressions
         createCatchExpression,
+        createCatchModifier,
         createPromiseTypeNode,
         createACatchExpression,
         createAwaitExpression,
@@ -889,12 +891,19 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api 
-    function createCatchExpression(expression: Expression, modifier?: Identifier, modifierExpression?: Expression, block?: Block): CatchExpression {
+    function createCatchExpression(expression: Expression, catchModifiers?: readonly CatchModifier[], block?: Block): CatchExpression {
         const node = createBaseNode<CatchExpression>(SyntaxKind.CatchExpression);
         node.expression = expression;
-        node.modifier = modifier;
-        node.modifierExpression = modifierExpression;
+        node.catchModifiers = catchModifiers && createNodeArray(catchModifiers);
         node.block = block;
+        return node;
+    }
+
+    // @api
+    function createCatchModifier(name: Identifier, expression?: Expression): CatchModifier {
+        const node = createBaseNode<CatchModifier>(SyntaxKind.CatchModifier);
+        node.name = name;
+        node.expression = expression;
         return node;
     }
 
@@ -967,12 +976,11 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api
-    function createCatchStatement(expression: Expression | undefined, block: Block, modifier?: Identifier, modifierExpression?: Expression): CatchStatement {
+    function createCatchStatement(expression: Expression | undefined, block: Block, catchModifiers?: readonly CatchModifier[]): CatchStatement {
         const node = createBaseNode<CatchStatement>(SyntaxKind.CatchStatement);
         node.expression = expression;
         node.block = block;
-        node.modifier = modifier;
-        node.modifierExpression = modifierExpression;
+        node.catchModifiers = catchModifiers && createNodeArray(catchModifiers);
                 
         node.transformFlags |= propagateChildFlags(node.expression) |
             propagateChildFlags(node.block);

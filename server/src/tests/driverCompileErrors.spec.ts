@@ -136,6 +136,24 @@ describe.each([
             it("needs an expression after reserve and limit, and none after nolog and publish", () => {
                 expect(codes(driver, `void f() {\n  int i;\n  catch(i = 1; nolog 5);\n  catch(i = 1; reserve);\n}\n`)).toEqual([9075, 9076]);
             });
+
+            // prolang.y opt_catch_mod_list; the forms are t-efuns.c's
+            it("accepts a comma-separated list of modifiers", () => {
+                expect(codes(driver, `int f() {\n  int eval;\n  catch(eval = get_eval_cost(); reserve 1000, limit 4000);\n  catch(eval = 1; limit 3000, reserve 1000);\n  catch(eval = 1; nolog, publish, reserve 10);\n  return eval;\n}\n`)).toEqual([]);
+            });
+
+            it("checks each modifier in a list", () => {
+                expect(diagnostics(driver, `void f() {\n  int i;\n  catch(i = 1; nolog, bogus, limit);\n}\n`)).toEqual([
+                    "9074: Illegal modifier 'bogus' in catch(): expected 'nolog', 'publish', 'reserve <expr>' or 'limit <expr>'.",
+                    "9076: The 'limit' modifier in catch() needs an expression.",
+                ]);
+            });
+
+            it("warns on a repeated reserve or limit, as the driver does", () => {
+                expect(diagnostics(driver, `void f() {\n  int i;\n  catch(i = 1; reserve 10, reserve 20);\n}\n`)).toEqual([
+                    "9081: Multiple 'reserve' modifiers in catch(); only the first is used.",
+                ]);
+            });
         }
         else {
             it("rejects every modifier -- FluffOS has none", () => {

@@ -15783,31 +15783,38 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     /**
-     * `catch(expr; modifier)`. LDMud knows `nolog` and `publish`, which take no expression,
+     * `catch(expr; modifier, ...)`. LDMud knows `nolog` and `publish`, which take no expression,
      * and `reserve <expr>` and `limit <expr>`, which need one (prolang.y
      * opt_catch_modifier). FluffOS has no modifiers: its `catch` takes a plain
      * `( comma_expr )` (grammar.y).
      */
     function checkCatchModifier(node: CatchExpression | CatchStatement) {
-        const modifier = node.modifier;
-        if (!modifier || nodeIsMissing(modifier)) return;
-        if (node.modifierExpression) checkExpression(node.modifierExpression);
+        const modifiers = node.catchModifiers;
+        if (!modifiers?.length) return;
+        forEach(modifiers, m => m.expression && checkExpression(m.expression));
         if (languageVariant !== LanguageVariant.LDMud) {
-            error(modifier, Diagnostics.Catch_modifiers_are_only_supported_in_LDMud);
+            if (!nodeIsMissing(modifiers[0].name)) error(modifiers[0].name, Diagnostics.Catch_modifiers_are_only_supported_in_LDMud);
             return;
         }
-        const name = idText(modifier);
-        switch (name) {
-            case "nolog":
-            case "publish":
-                if (node.modifierExpression) error(node.modifierExpression, Diagnostics.The_0_modifier_in_catch_takes_no_expression, name);
-                return;
-            case "reserve":
-            case "limit":
-                if (!node.modifierExpression) error(modifier, Diagnostics.The_0_modifier_in_catch_needs_an_expression, name);
-                return;
-            default:
-                error(modifier, Diagnostics.Illegal_modifier_0_in_catch_expected_nolog_publish_reserve_expr_or_limit_expr, name);
+        const seen = new Set<string>();
+        for (const { name: modifier, expression } of modifiers) {
+            if (nodeIsMissing(modifier)) continue;
+            const name = idText(modifier);
+            switch (name) {
+                case "nolog":
+                case "publish":
+                    if (expression) error(expression, Diagnostics.The_0_modifier_in_catch_takes_no_expression, name);
+                    break;
+                case "reserve":
+                case "limit":
+                    if (!expression) error(modifier, Diagnostics.The_0_modifier_in_catch_needs_an_expression, name);
+                    // prolang.y warns and keeps the first
+                    else if (seen.has(name)) error(modifier, Diagnostics.Multiple_0_modifiers_in_catch_only_the_first_is_used, name);
+                    break;
+                default:
+                    error(modifier, Diagnostics.Illegal_modifier_0_in_catch_expected_nolog_publish_reserve_expr_or_limit_expr, name);
+            }
+            seen.add(name);
         }
     }
 

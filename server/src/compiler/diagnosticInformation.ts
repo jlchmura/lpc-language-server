@@ -63,6 +63,7 @@ export const Diagnostics = {
     The_0_modifier_in_catch_takes_no_expression: diag(9075, DiagnosticCategory.Error, "The_0_modifier_in_catch_takes_no_expression_9075", "The '{0}' modifier in catch() takes no expression."),
     The_0_modifier_in_catch_needs_an_expression: diag(9076, DiagnosticCategory.Error, "The_0_modifier_in_catch_needs_an_expression_9076", "The '{0}' modifier in catch() needs an expression."),
     Catch_modifiers_are_only_supported_in_LDMud: diag(9077, DiagnosticCategory.Error, "Catch_modifiers_are_only_supported_in_LDMud_9077", "Catch modifiers are only supported in LDMud."),
+    Multiple_0_modifiers_in_catch_only_the_first_is_used: diag(9081, DiagnosticCategory.Warning, "Multiple_0_modifiers_in_catch_only_the_first_is_used_9081", "Multiple '{0}' modifiers in catch(); only the first is used."),
     Undefined_function_0: diag(9078, DiagnosticCategory.Warning, "Undefined_function_0_9078", "Undefined function '{0}'."),
     Missing_return_value_statement: diag(9079, DiagnosticCategory.Warning, "Missing_return_value_statement_9079", "Missing 'return <value>' statement."),
     The_virtual_modifier_can_only_be_used_with_inherit: diag(9057, DiagnosticCategory.Error, "The_virtual_modifier_can_only_be_used_with_inherit_9057", "The 'virtual' modifier can only be used with 'inherit'."),
