@@ -6574,7 +6574,10 @@ export namespace LpcParser {
                 const pos = getPositionState();
                 const type = parseType();
                 const declarationList = parseVariableDeclarationList(/*inForStatementInitializer*/ false, type);
-                statements.push(finishNode(factoryCreateVariableStatement(/*modifiers*/ undefined, type, declarationList), pos));
+                const statement = finishNode(factoryCreateVariableStatement(/*modifiers*/ undefined, type, declarationList), pos);
+                // its initializers run in the enclosing function (see resolveNameHelper)
+                (statement as Mutable<VariableStatement>).flags |= NodeFlags.InlineClosureContext;
+                statements.push(statement);
                 if (!parseOptional(SyntaxKind.SemicolonToken)) break;
             }
         }

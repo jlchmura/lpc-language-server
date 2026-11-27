@@ -1549,6 +1549,16 @@ export function createNameResolver({
             location = isJSDocTemplateTag(location) ? getEffectiveContainerForJSDocTemplateTag(location) || location.parent :
                 isJSDocParameterTag(location) || isJSDocReturnTag(location) ? getHostSignatureFromJSDoc(location) || location.parent :
                 location.parent;            
+            if (lastLocation.flags & NodeFlags.InlineClosureContext) {
+                // An LDMud context variable's initializer runs in the enclosing function when the
+                // closure is created, so `: int result = result + 1` reads the outer `result`. Skip
+                // the closure's own body (its context variables) and parameters.
+                const closure = findAncestor(lastLocation, isFunctionExpression);
+                if (closure) {
+                    lastLocation = closure;
+                    location = closure.parent;
+                }
+            }
         }
 
         // We just climbed up parents looking for the name, meaning that we started in a descendant node of `lastLocation`.

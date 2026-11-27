@@ -1246,6 +1246,7 @@ export const enum NodeFlags {
     ExportContext      = 1 << 7,  // Export context (initialized by binding)
     HasImplicitReturn  = 1 << 9,  // If function implicitly returns on one of codepaths (initialized by binding)
     HasExplicitReturn  = 1 << 10,  // If function has explicit reachable return on one of codepaths (initialized by binding)
+    InlineClosureContext = 1 << 11, // A context variable statement of an LDMud inline closure: `function int() : int a = x { }`
     HasAsyncFunctions  = 1 << 12, // If the file has async (i.e. LD coroutine) functions (initialized by binding)    
     DisallowInContext  = 1 << 13, // If node was parsed in a context where 'in-expressions' are not allowed
     YieldContext       = 1 << 14, // If node was parsed in the 'yield' context created when parsing a generator
