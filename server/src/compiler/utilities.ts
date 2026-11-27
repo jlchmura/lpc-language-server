@@ -652,10 +652,10 @@ export function getTextOfNode(node: Node, includeTrivia = false): string {
 
 /** @internal */
 export function getErrorSpanForNode(sourceFile: SourceFileBase, node: Node): TextSpan {
-    // if the node came from a macro, move up the parent chain until we find a non-macro node
-    while (isInMacroContext(node) && node.parent) {
-        node = node.parent;
-    }
+    // A node from a macro expansion already spans the macro's use in the file (see finishNode
+    // in parser.ts), so its error goes there. Climbing to the first node outside any macro put
+    // the error of `CFG->fn()` on the whole enclosing block, since every node up to the
+    // statement starts at the macro.
         
     let errorNode: Node | undefined = node;
     switch (node.kind) {
@@ -1228,6 +1228,19 @@ export function createNameResolver({
     /* eslint-disable no-var */
     var emptySymbols = createSymbolTable();
     return resolveNameHelper;
+
+    /** A context variable of `closure` named `name` that is declared before `pos`. */
+    function findEarlierContextVariable(closure: FunctionExpression, name: string, pos: number): Symbol | undefined {
+        let found: Symbol | undefined;
+        for (const statement of closure.body?.statements ?? emptyArray) {
+            if (!(statement.flags & NodeFlags.InlineClosureContext) || !isVariableStatement(statement)) break;
+            for (const declaration of statement.declarationList.declarations) {
+                if (declaration.end > pos) return found;
+                if (isIdentifier(declaration.name) && declaration.name.text === name) found = declaration.symbol;
+            }
+        }
+        return found;
+    }
     function resolveNameHelper(
         location: Node | undefined,
         nameArg: string | Identifier,
@@ -1549,6 +1562,22 @@ export function createNameResolver({
             location = isJSDocTemplateTag(location) ? getEffectiveContainerForJSDocTemplateTag(location) || location.parent :
                 isJSDocParameterTag(location) || isJSDocReturnTag(location) ? getHostSignatureFromJSDoc(location) || location.parent :
                 location.parent;            
+            if (lastLocation.flags & NodeFlags.InlineClosureContext) {
+                // An LDMud context variable's initializer runs when the closure is created, in
+                // the enclosing function, after the context variables before it: in
+                // `: int b = a + 1; int c = b + 1` c's sees b, and `: int result = result + 1`
+                // reads the outer `result`. Skip the rest of the closure's body and its parameters.
+                const closure = findAncestor(lastLocation, isFunctionExpression);
+                if (closure) {
+                    const earlier = originalLocation && findEarlierContextVariable(closure, name, originalLocation.pos);
+                    if (earlier && earlier.flags & meaning) {
+                        result = earlier;
+                        break loop;
+                    }
+                    lastLocation = closure;
+                    location = closure.parent;
+                }
+            }
         }
 
         // We just climbed up parents looking for the name, meaning that we started in a descendant node of `lastLocation`.

@@ -216,6 +216,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var noImplicitAny = false; // Not currently used in LPC: getStrictOptionValue(compilerOptions, "noImplicitAny");
     /** `typeChecking: "driver"`: report only the type errors the driver's compiler would. */
     var driverTypeChecking = compilerOptions.typeChecking === "driver";
+    /** LDMud struct types whose base struct could not be resolved (see getStructTypeWithBase) */
+    var structTypesWithUnknownBase = new WeakSet<Type>();
     /**
      * The call whose overload is being chosen by its arguments' types although the driver
      * does not check them (see resolveCall). Applicability checks it for real, so the
@@ -6303,10 +6305,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return errorType;
             }
 
-            const declaration = Debug.checkDefined(symbol.declarations?.find(isTypeAlias), "Type alias symbol with no valid declaration found");
+            // a struct's definition, not a prototype before it (`struct F; struct F { ... };`)
+            const declaration = Debug.checkDefined(symbol.declarations?.find((d): d is StructDeclaration | TypeAliasDeclaration | JSDocTypedefTag | JSDocCallbackTag => isTypeAlias(d) && !(isStructDeclaration(d) && !d.type)) ?? symbol.declarations?.find(isTypeAlias), "Type alias symbol with no valid declaration found");
             const typeNode = isJSDocTypeAlias(declaration) ? declaration.typeExpression : declaration.type;
             // If typeNode is missing, we will error in checkJSDocTypedefTag.
             let type = typeNode ? getTypeFromTypeNode(typeNode) : errorType;
+            if (isStructDeclaration(declaration) && declaration.heritageName && !isErrorType(type)) {
+                type = getStructTypeWithBase(declaration.heritageName, type);
+            }
 
             if (popTypeResolution()) {
                 const typeParameters = getLocalTypeParametersOfClassOrInterfaceOrTypeAlias(symbol);
@@ -6328,6 +6334,28 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return links.declaredType;
     }
     
+    /**
+     * An LDMud struct that inherits another, `struct B (A) { ... };`, has A's members and then
+     * its own, in that order: a positional `(<B> 1, "x")` fills A's first (prolang.y,
+     * define_struct copies the base's members ahead of the new ones).
+     */
+    function getStructTypeWithBase(heritageName: Identifier, ownType: Type): Type {
+        const baseSymbol = resolveName(heritageName, idText(heritageName), SymbolFlags.Type, Diagnostics.Cannot_find_name_0, /*isUse*/ true);
+        const baseType = baseSymbol && getDeclaredTypeOfSymbol(baseSymbol);
+        if (!baseType || isErrorType(baseType) || !(baseType.flags & TypeFlags.Object)) {
+            // its members are not all known, so a literal of it is not checked against them
+            structTypesWithUnknownBase.add(ownType);
+            return ownType;
+        }
+        const members = createSymbolTable();
+        for (const prop of getPropertiesOfType(baseType)) members.set(prop.name, prop);
+        for (const prop of getPropertiesOfType(ownType)) members.set(prop.name, prop);
+        const result = createAnonymousType(ownType.symbol, members, emptyArray, emptyArray, emptyArray);
+        result.aliasSymbol = ownType.aliasSymbol;
+        result.aliasTypeArguments = ownType.aliasTypeArguments;
+        return result;
+    }
+
     function getDeclaredTypeOfAlias(symbol: Symbol): Type {
         const links = getSymbolLinks(symbol);
         return links.declaredType || (links.declaredType = getDeclaredTypeOfSymbol(resolveAlias(symbol)));
@@ -7565,9 +7593,59 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const links = getNodeLinks(node);
         // links.resolvedType = structType;
         checkSourceElement(type);
-        checkNodeDeferred(node);
         checkNewStructLiteral(node, checkMode);
-        return getTypeFromTypeNode(type);
+        const literalStructType = getTypeFromTypeNode(type);
+        checkNewStructMembers(node, literalStructType);
+        return literalStructType;
+    }
+
+    /**
+     * An LDMud struct literal's values against the struct's members (prolang.y,
+     * create_struct_literal). The driver always reports a member the struct lacks, a member
+     * initialized twice and more values than members; it compares a value's type with its
+     * member's only where it type checks (exact_types, see isTypeCheckedByDriver).
+     */
+    function checkNewStructMembers(node: NewStructExpression, structType: Type) {
+        const args = node.arguments;
+        if (!args?.length) return;
+        const checkTypes = isTypeCheckedByDriver(node);
+        const known = !isErrorType(structType) && !!(structType.flags & TypeFlags.Object) && !structTypesWithUnknownBase.has(structType);
+        const members = known ? getPropertiesOfType(structType) : emptyArray;
+        const structName = known ? typeToString(structType) : "";
+        const checkValue = (value: Expression, member: Symbol | undefined) => {
+            const valueType = checkExpressionCached(value);
+            if (member && checkTypes) {
+                checkTypeAssignableTo(valueType, getTypeOfSymbol(member), value, /*headMessage*/ undefined);
+            }
+        };
+
+        if (isPropertyAssignment(args[0])) {
+            // the values are checked with the literal (checkPropertyAssignment)
+            const seen = new Set<string>();
+            for (const arg of args) {
+                if (!isPropertyAssignment(arg) || !isIdentifier(arg.name) || !known) continue;
+                const name = idText(arg.name);
+                const member = getPropertyOfType(structType, name);
+                if (!member) {
+                    error(arg.name, Diagnostics.Property_0_does_not_exist_on_type_1, name, structName);
+                    continue;
+                }
+                if (seen.has(name)) error(arg.name, Diagnostics.Member_0_of_struct_1_is_initialized_more_than_once, name, structName);
+                seen.add(name);
+                if (checkTypes) {
+                    checkTypeAssignableTo(checkExpressionCached(arg.initializer), getTypeOfSymbol(member), arg.initializer, /*headMessage*/ undefined);
+                }
+            }
+            return;
+        }
+
+        forEach(args, (arg, i) => {
+            if (isPropertyAssignment(arg) || isShorthandPropertyAssignment(arg)) return;
+            checkValue(arg as Expression, members[i]);
+        });
+        if (known && args.length > members.length) {
+            error(args[members.length], Diagnostics.Too_many_values_for_struct_0_it_has_1_members, structName, members.length);
+        }
     }
 
 
@@ -13329,10 +13407,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 //     return undefined;
                 // }
                 switch (node.kind) {                    
+                    case SyntaxKind.StructDeclaration:
+                        // LDMud gives a struct a visibility (`private struct s { ... };`) and
+                        // rejects only static and varargs (prolang.y, define_struct). FluffOS's
+                        // class_header takes a type_modifier_list and ignores it (grammar.y).
+                        return languageVariant === LanguageVariant.LDMud
+                            ? find(node.modifiers, m => m.kind === SyntaxKind.StaticKeyword || m.kind === SyntaxKind.VarArgsKeyword)
+                            : undefined;
                     case SyntaxKind.ClassDeclaration:                                            
                     case SyntaxKind.ClassExpression:                    
                     case SyntaxKind.TypeAliasDeclaration:
-                    case SyntaxKind.StructDeclaration:
                     case SyntaxKind.InlineClosureExpression:
                         return find(node.modifiers, isModifier);                    
                     default:
@@ -15783,31 +15867,38 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     /**
-     * `catch(expr; modifier)`. LDMud knows `nolog` and `publish`, which take no expression,
+     * `catch(expr; modifier, ...)`. LDMud knows `nolog` and `publish`, which take no expression,
      * and `reserve <expr>` and `limit <expr>`, which need one (prolang.y
      * opt_catch_modifier). FluffOS has no modifiers: its `catch` takes a plain
      * `( comma_expr )` (grammar.y).
      */
     function checkCatchModifier(node: CatchExpression | CatchStatement) {
-        const modifier = node.modifier;
-        if (!modifier || nodeIsMissing(modifier)) return;
-        if (node.modifierExpression) checkExpression(node.modifierExpression);
+        const modifiers = node.catchModifiers;
+        if (!modifiers?.length) return;
+        forEach(modifiers, m => m.expression && checkExpression(m.expression));
         if (languageVariant !== LanguageVariant.LDMud) {
-            error(modifier, Diagnostics.Catch_modifiers_are_only_supported_in_LDMud);
+            if (!nodeIsMissing(modifiers[0].name)) error(modifiers[0].name, Diagnostics.Catch_modifiers_are_only_supported_in_LDMud);
             return;
         }
-        const name = idText(modifier);
-        switch (name) {
-            case "nolog":
-            case "publish":
-                if (node.modifierExpression) error(node.modifierExpression, Diagnostics.The_0_modifier_in_catch_takes_no_expression, name);
-                return;
-            case "reserve":
-            case "limit":
-                if (!node.modifierExpression) error(modifier, Diagnostics.The_0_modifier_in_catch_needs_an_expression, name);
-                return;
-            default:
-                error(modifier, Diagnostics.Illegal_modifier_0_in_catch_expected_nolog_publish_reserve_expr_or_limit_expr, name);
+        const seen = new Set<string>();
+        for (const { name: modifier, expression } of modifiers) {
+            if (nodeIsMissing(modifier)) continue;
+            const name = idText(modifier);
+            switch (name) {
+                case "nolog":
+                case "publish":
+                    if (expression) error(expression, Diagnostics.The_0_modifier_in_catch_takes_no_expression, name);
+                    break;
+                case "reserve":
+                case "limit":
+                    if (!expression) error(modifier, Diagnostics.The_0_modifier_in_catch_needs_an_expression, name);
+                    // prolang.y warns and keeps the first
+                    else if (seen.has(name)) error(modifier, Diagnostics.Multiple_0_modifiers_in_catch_only_the_first_is_used, name);
+                    break;
+                default:
+                    error(modifier, Diagnostics.Illegal_modifier_0_in_catch_expected_nolog_publish_reserve_expr_or_limit_expr, name);
+            }
+            seen.add(name);
         }
     }
 

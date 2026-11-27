@@ -838,6 +838,8 @@ export const enum SyntaxKind {
     PromiseKeyword,     // fluff only
     IsKeyword,          // use for type predicates only
     FunctionsKeyword,   // inherit modifier
+    VariablesKeyword,   // inherit modifier (LDMud)
+    StructsKeyword,     // inherit modifier (LDMud)
     VirtualKeyword,     // inherit modifier
     InKeyword,          // not a reserved word in LD (maybe fluff?)
     NewKeyword,         // LastKeyword and LastToken - everything after this will be processed by the binder
@@ -1052,6 +1054,8 @@ export const enum SyntaxKind {
     /** One `key: value` pair inside a mapping type. Deliberately past LastTypeNode: it is not
      * itself a type, and inserting inside the type-node range would renumber every kind after it. */
     MappingTypeEntry,
+    /** One `name [expr]` modifier of an LDMud `catch(expr; nolog, reserve 1000)`. */
+    CatchModifier,
 
     // Enum value count
     Count,
@@ -1246,6 +1250,7 @@ export const enum NodeFlags {
     ExportContext      = 1 << 7,  // Export context (initialized by binding)
     HasImplicitReturn  = 1 << 9,  // If function implicitly returns on one of codepaths (initialized by binding)
     HasExplicitReturn  = 1 << 10,  // If function has explicit reachable return on one of codepaths (initialized by binding)
+    InlineClosureContext = 1 << 11, // A context variable statement of an LDMud inline closure: `function int() : int a = x { }`
     HasAsyncFunctions  = 1 << 12, // If the file has async (i.e. LD coroutine) functions (initialized by binding)    
     DisallowInContext  = 1 << 13, // If node was parsed in a context where 'in-expressions' are not allowed
     YieldContext       = 1 << 14, // If node was parsed in the 'yield' context created when parsing a generator
@@ -1661,11 +1666,12 @@ export interface NodeFactory {
     createWhileStatement(statement: Statement, expression: Expression): WhileStatement;
     createParameterDeclaration(modifiers: readonly Modifier[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, ampToken?: AmpersandToken | RefToken, type?: TypeNode, initializer?: Expression): ParameterDeclaration;
     /** @internal */ createMissingDeclaration(): MissingDeclaration;
-    createCatchStatement(expression: Expression | undefined, block: Block, modifier?: Identifier, modifierExpression?: Expression): CatchStatement;
+    createCatchStatement(expression: Expression | undefined, block: Block, catchModifiers?: readonly CatchModifier[]): CatchStatement;
 
     // Expressions
     createExpressionWithTypeArguments(expression: Expression, typeArguments: readonly TypeNode[] | undefined): ExpressionWithTypeArguments;
-    createCatchExpression(expression: Expression, modifier?: Identifier, modifierExpression?: Expression, block?: Block): CatchExpression;
+    createCatchExpression(expression: Expression, catchModifiers?: readonly CatchModifier[], block?: Block): CatchExpression;
+    createCatchModifier(name: Identifier, expression?: Expression): CatchModifier;
     createPromiseTypeNode(typeArgument?: TypeNode): PromiseTypeNode;
     createACatchExpression(expression: Expression | undefined, block?: Block): ACatchExpression;
     createAwaitExpression(expression: UnaryExpression): AwaitExpression;
@@ -2036,6 +2042,7 @@ export type IsContainer =
     | FunctionExpression
     | InlineClosureExpression
     | NewExpression
+    | NewStructExpression
     | ArrowFunction;
 
 /**
@@ -2314,6 +2321,7 @@ export type HasChildren =
     | ByRefElement
     | EvaluateExpression
     | CatchExpression
+    | CatchModifier
     | ACatchExpression
     | AwaitExpression
     | CoroutineCallExpression
@@ -2475,6 +2483,8 @@ export type KeywordSyntaxKind =
     | SyntaxKind.TrueKeyword
     | SyntaxKind.FalseKeyword
     | SyntaxKind.FunctionsKeyword
+    | SyntaxKind.VariablesKeyword
+    | SyntaxKind.StructsKeyword
     | SyntaxKind.VirtualKeyword
     | SyntaxKind.IsKeyword
     | SyntaxKind.RefKeyword
@@ -3812,16 +3822,24 @@ export interface CatchStatement extends Statement, LocalsContainer {
     readonly parent: Block;
     readonly expression?: Expression;
     readonly block: Block;
-    readonly modifier?: Identifier;
-    readonly modifierExpression?: Expression;
+    /** LDMud's `; nolog, reserve 1000` (prolang.y, opt_catch_mod_list) */
+    readonly catchModifiers?: NodeArray<CatchModifier>;
 }
 
 export interface CatchExpression extends PrimaryExpression {
     readonly kind: SyntaxKind.CatchExpression;
     readonly expression?: Expression;
-    readonly modifier?: Identifier;
-    readonly modifierExpression?: Expression;
+    /** LDMud's `; nolog, reserve 1000` (prolang.y, opt_catch_mod_list) */
+    readonly catchModifiers?: NodeArray<CatchModifier>;
     readonly block?: Block;
+}
+
+/** One modifier of an LDMud catch: `nolog`, `publish`, `reserve <expr>` or `limit <expr>`. */
+export interface CatchModifier extends Node {
+    readonly kind: SyntaxKind.CatchModifier;
+    readonly parent: CatchExpression | CatchStatement;
+    readonly name: Identifier;
+    readonly expression?: Expression;
 }
 
 /**
@@ -4820,7 +4838,7 @@ export interface EmitTextWriter extends SymbolWriter {
     nonEscapingWrite?(text: string): void;
 }
 
-export interface NewStructExpression extends PrimaryExpression, Declaration {
+export interface NewStructExpression extends PrimaryExpression, Declaration, LocalsContainer {
     readonly kind: SyntaxKind.NewStructExpression
     readonly type: StructTypeNode;
     readonly arguments: NodeArray<Expression | ObjectLiteralElementLike>;

@@ -6948,7 +6948,7 @@ mixed function_exists(string str, object|lwobject ob, int flags);
         introduced with 3.2.1.
  *
  */
-mixed funcall(closure cl, varargs mixed arg );
+mixed funcall(closure|mixed cl, varargs mixed arg );
 
 /**
  * floor
@@ -10289,7 +10289,7 @@ float asin(float n);
         LDMud 3.3.266 added support for structs.
  *
  */
-mixed apply(closure cl, varargs mixed *args);
+mixed apply(closure|mixed cl, varargs mixed *args);
 
 /**
  * and_bits
