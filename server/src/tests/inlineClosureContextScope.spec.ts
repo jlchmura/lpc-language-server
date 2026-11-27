@@ -46,4 +46,24 @@ describe("an inline closure's context variable initializer", () => {
             "2322: Type 'string' is not assignable to type 'int'.",
         ]);
     });
+
+    // t-mantis.c, 0000631-6 and 0000631-10: context variables are initialized in order
+    it("sees the context variables declared before it", () => {
+        expect(diagnosticsFor(`int f() {\n    int a = 1;\n    return funcall(function int () : int b = a + 1; int c = b + 1 { return c; });\n}`)).toEqual([]);
+        expect(diagnosticsFor(`int f() { return funcall(function int () : int b = 1, c = b + 1 { return c; }); }`)).toEqual([]);
+        expect(diagnosticsFor(`mixed f() { return funcall(function : mixed i = 1; mixed j = function { return i; } { return j; }); }`)).toEqual([]);
+    });
+
+    it("does not see the context variables declared after it", () => {
+        expect(diagnosticsFor(`int f() { return funcall(function int () : int b = c; int c = 1 { return b; }); }`)).toEqual([
+            "2304: Cannot find name 'c'.",
+        ]);
+    });
+
+    it("resolves an earlier context variable to its declaration", () => {
+        const source = `int f() { int b = 5; return funcall(function int () : int b = 1; int c = b + 1 { return c; }); }`;
+        const { ls, abs } = service(source);
+        const [def] = ls.getDefinitionAtPosition(abs("test.c"), source.indexOf("b + 1")) ?? [];
+        expect(def?.textSpan.start).toBe(source.indexOf("b = 1"));
+    });
 });

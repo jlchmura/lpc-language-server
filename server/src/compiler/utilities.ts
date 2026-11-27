@@ -1228,6 +1228,19 @@ export function createNameResolver({
     /* eslint-disable no-var */
     var emptySymbols = createSymbolTable();
     return resolveNameHelper;
+
+    /** A context variable of `closure` named `name` that is declared before `pos`. */
+    function findEarlierContextVariable(closure: FunctionExpression, name: string, pos: number): Symbol | undefined {
+        let found: Symbol | undefined;
+        for (const statement of closure.body?.statements ?? emptyArray) {
+            if (!(statement.flags & NodeFlags.InlineClosureContext) || !isVariableStatement(statement)) break;
+            for (const declaration of statement.declarationList.declarations) {
+                if (declaration.end > pos) return found;
+                if (isIdentifier(declaration.name) && declaration.name.text === name) found = declaration.symbol;
+            }
+        }
+        return found;
+    }
     function resolveNameHelper(
         location: Node | undefined,
         nameArg: string | Identifier,
@@ -1550,11 +1563,17 @@ export function createNameResolver({
                 isJSDocParameterTag(location) || isJSDocReturnTag(location) ? getHostSignatureFromJSDoc(location) || location.parent :
                 location.parent;            
             if (lastLocation.flags & NodeFlags.InlineClosureContext) {
-                // An LDMud context variable's initializer runs in the enclosing function when the
-                // closure is created, so `: int result = result + 1` reads the outer `result`. Skip
-                // the closure's own body (its context variables) and parameters.
+                // An LDMud context variable's initializer runs when the closure is created, in
+                // the enclosing function, after the context variables before it: in
+                // `: int b = a + 1; int c = b + 1` c's sees b, and `: int result = result + 1`
+                // reads the outer `result`. Skip the rest of the closure's body and its parameters.
                 const closure = findAncestor(lastLocation, isFunctionExpression);
                 if (closure) {
+                    const earlier = originalLocation && findEarlierContextVariable(closure, name, originalLocation.pos);
+                    if (earlier && earlier.flags & meaning) {
+                        result = earlier;
+                        break loop;
+                    }
                     lastLocation = closure;
                     location = closure.parent;
                 }
