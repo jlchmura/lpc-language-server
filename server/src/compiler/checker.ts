@@ -216,6 +216,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     var noImplicitAny = false; // Not currently used in LPC: getStrictOptionValue(compilerOptions, "noImplicitAny");
     /** `typeChecking: "driver"`: report only the type errors the driver's compiler would. */
     var driverTypeChecking = compilerOptions.typeChecking === "driver";
+    /** LDMud struct types whose base struct could not be resolved (see getStructTypeWithBase) */
+    var structTypesWithUnknownBase = new WeakSet<Type>();
     /**
      * The call whose overload is being chosen by its arguments' types although the driver
      * does not check them (see resolveCall). Applicability checks it for real, so the
@@ -6340,7 +6342,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function getStructTypeWithBase(heritageName: Identifier, ownType: Type): Type {
         const baseSymbol = resolveName(heritageName, idText(heritageName), SymbolFlags.Type, Diagnostics.Cannot_find_name_0, /*isUse*/ true);
         const baseType = baseSymbol && getDeclaredTypeOfSymbol(baseSymbol);
-        if (!baseType || isErrorType(baseType) || !(baseType.flags & TypeFlags.Object)) return ownType;
+        if (!baseType || isErrorType(baseType) || !(baseType.flags & TypeFlags.Object)) {
+            // its members are not all known, so a literal of it is not checked against them
+            structTypesWithUnknownBase.add(ownType);
+            return ownType;
+        }
         const members = createSymbolTable();
         for (const prop of getPropertiesOfType(baseType)) members.set(prop.name, prop);
         for (const prop of getPropertiesOfType(ownType)) members.set(prop.name, prop);
@@ -7603,7 +7609,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const args = node.arguments;
         if (!args?.length) return;
         const checkTypes = isTypeCheckedByDriver(node);
-        const known = !isErrorType(structType) && !!(structType.flags & TypeFlags.Object);
+        const known = !isErrorType(structType) && !!(structType.flags & TypeFlags.Object) && !structTypesWithUnknownBase.has(structType);
         const members = known ? getPropertiesOfType(structType) : emptyArray;
         const structName = known ? typeToString(structType) : "";
         const checkValue = (value: Expression, member: Symbol | undefined) => {

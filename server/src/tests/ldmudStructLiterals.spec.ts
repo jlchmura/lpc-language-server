@@ -81,3 +81,11 @@ describe("LDMud struct literals in driver mode", () => {
         ]);
     });
 });
+
+describe("a literal of a struct whose base is unknown", () => {
+    it("is not checked against the members it may have", () => {
+        expect(diagnosticsFor(`struct MyStruct (SomeStruct) { int number; };\nstruct MyStruct v = (<MyStruct> "Test2", 12);\nstruct MyStruct w = (<MyStruct> text: "Test1", number: 11);\n`)).toEqual([
+            "2552: Cannot find name 'SomeStruct'. Did you mean 'MyStruct'?",
+        ]);
+    });
+});
