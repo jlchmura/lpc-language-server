@@ -6237,6 +6237,17 @@ export namespace LpcParser {
         return withJSDoc(finishNode(factory.createInlineClosure(expression), pos), hasJSDoc);
     }
 
+    /** LDMud's empty inline closure, `(::)`, which returns 0 (t-efuns.c's `input_to((::), ...)`). */
+    function parseEmptyInlineClosureExpression(): InlineClosureExpression {
+        const pos = getPositionState();
+        nextToken(); // (
+        // The body is an empty expression list, as in `(: :)`.
+        const body = createNodeArray<Expression>([], getPositionState());
+        nextToken(); // ::
+        parseExpected(SyntaxKind.CloseParenToken);
+        return finishNode(factory.createInlineClosure(body), pos);
+    }
+
     function isStartOfExpressionStatement(): boolean {
         // As per the grammar, none of '{' or 'function' or 'class' can start an expression statement.
         return token() !== SyntaxKind.OpenBraceToken &&
@@ -6489,6 +6500,8 @@ export namespace LpcParser {
                 const peekNext = lookAhead(()=>nextToken());
                 if (peekNext === SyntaxKind.ColonToken) {
                     return parseInlineClosureExpression(true);
+                } else if (peekNext === SyntaxKind.ColonColonToken && languageVariant === LanguageVariant.LDMud && lookAhead(() => (nextToken(), nextToken() === SyntaxKind.CloseParenToken))) {
+                    return parseEmptyInlineClosureExpression();
                 } else if (peekNext === SyntaxKind.LessThanToken) {                
                     return parseNewStructExpression();
                 }                
