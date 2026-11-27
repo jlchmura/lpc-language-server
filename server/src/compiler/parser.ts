@@ -5877,6 +5877,22 @@ export namespace LpcParser {
         return finishNode(factory.createPrefixUnaryExpression(SyntaxKind.GreaterThanToken as PrefixUnaryOperator, parseBound()), pos);
     }
 
+    /**
+     * LDMud: each index of a multi-value mapping element, `m[key, i]`, may carry its own `>`
+     * bound, as in `m["b", >-3]` (t-lvalues.c).
+     */
+    function parseIndexBoundList(): Expression {
+        return allowCommaInAnd(() => {
+            const pos = getPositionState();
+            let expr = parseIndexBound(() => parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true));
+            let operatorToken: BinaryOperatorToken | undefined;
+            while ((operatorToken = parseOptionalToken(SyntaxKind.CommaToken))) {
+                expr = makeBinaryExpression(expr, operatorToken, parseIndexBound(() => parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true)), pos);
+            }
+            return expr;
+        });
+    }
+
     function parseMaybeRangeExpression(rangeTerminatorToken:PunctuationSyntaxKind): RangeExpression | Expression {        
         const pos = getPositionState();
         let left: Expression, right: Expression;
@@ -5921,7 +5937,7 @@ export namespace LpcParser {
                 right = parseIndexBound(() => allowCommaInAnd(parseExpression));
             } else {
                 // leftOp = parseOptionalToken(SyntaxKind.LessThanToken);
-                left = parseIndexBound(() => allowCommaInAnd(parseExpression));
+                left = languageVariant === LanguageVariant.LDMud ? parseIndexBoundList() : parseIndexBound(() => allowCommaInAnd(parseExpression));
                 if (parseOptional(SyntaxKind.DotDotToken)) {
                     sawDotDot = true;
                     if (token() !== SyntaxKind.CloseBracketToken) {
