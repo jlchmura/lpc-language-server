@@ -1101,6 +1101,7 @@ export function isModifierKind(token: SyntaxKind): token is Modifier["kind"] {
         case SyntaxKind.PrivateKeyword:
         case SyntaxKind.ProtectedKeyword:
         case SyntaxKind.StaticKeyword:
+        case SyntaxKind.VisibleKeyword:
         case SyntaxKind.VarArgsKeyword:  
         case SyntaxKind.NoMaskKeyword:
         case SyntaxKind.NoShadowKeyword:

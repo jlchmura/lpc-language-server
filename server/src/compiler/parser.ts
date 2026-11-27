@@ -1668,6 +1668,7 @@ export namespace LpcParser {
 
             // case SyntaxKind.AccessorKeyword:
             case SyntaxKind.PublicKeyword:
+            case SyntaxKind.VisibleKeyword:
             case SyntaxKind.PrivateKeyword:
             case SyntaxKind.ProtectedKeyword:
             case SyntaxKind.StaticKeyword:
@@ -1739,6 +1740,7 @@ export namespace LpcParser {
                 case SyntaxKind.PrivateKeyword:
                 case SyntaxKind.ProtectedKeyword:
                 case SyntaxKind.PublicKeyword:
+                case SyntaxKind.VisibleKeyword:
                 case SyntaxKind.StaticKeyword:
                 case SyntaxKind.NoMaskKeyword:
                 case SyntaxKind.DeprecatedKeyword:
@@ -2134,6 +2136,7 @@ export namespace LpcParser {
             case SyntaxKind.PrivateKeyword:
             case SyntaxKind.ProtectedKeyword:
             case SyntaxKind.PublicKeyword:            
+            case SyntaxKind.VisibleKeyword:
             case SyntaxKind.StaticKeyword:    
             case SyntaxKind.NoMaskKeyword:
             case SyntaxKind.DeprecatedKeyword:

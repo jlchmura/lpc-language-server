@@ -226,6 +226,7 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     unknown: SyntaxKind.UnknownKeyword,
     varargs: SyntaxKind.VarArgsKeyword,
     virtual: SyntaxKind.VirtualKeyword,
+    visible: SyntaxKind.VisibleKeyword,
     void: SyntaxKind.VoidKeyword,    
     while: SyntaxKind.WhileKeyword,
     async: SyntaxKind.AsyncKeyword,
@@ -263,6 +264,7 @@ export function isKeywordInLanguageVariant(keyword: SyntaxKind, variant: Languag
         case SyntaxKind.StatusKeyword:
         case SyntaxKind.SymbolKeyword:
         case SyntaxKind.VirtualKeyword:
+        case SyntaxKind.VisibleKeyword: // lex.c L_VISIBLE: a public that inheritance can make private
         case SyntaxKind.YieldKeyword:
         // LDMud's inheritance qualifiers: plain identifiers its grammar reads in
         // `private functions inherit` and `default private functions;` (prolang.y)
