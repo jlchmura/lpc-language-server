@@ -76,9 +76,6 @@ If you would rather see only the type errors your driver would report, set [`typ
 
 See [CHANGELOG.md](CHANGELOG.md).
 
-**Attention v1.0 Users**
-If you are updating from the 1.0.x version, please see [config-changes.md](config-changes.md) for required changes to your `lpc-config.json` file.
-
 ## Example
 
 For an example mudlib, pre-configured to work with LPC Language Services, see the [Nightmare Residuum mudlib](https://github.com/michaelprograms/nightmare-residuum).
