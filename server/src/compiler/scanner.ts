@@ -2078,6 +2078,12 @@ export function createScanner(
     // position downstream.
     //
     /** Whether the text at `start`, after any whitespace, is a type keyword of this driver (LDMud basic_type). */
+    function isStartOfLpcTypeAt(start: number): boolean {
+        let typeStart = start;
+        while (typeStart < end && isWhiteSpaceLike(charCodeUnchecked(typeStart))) typeStart++;
+        return (charCodeUnchecked(typeStart) === CharacterCodes.lessThan && charCodeUnchecked(typeStart + 1) !== CharacterCodes.lessThan) || isTypeKeywordAt(typeStart);
+    }
+
     function isTypeKeywordAt(start: number): boolean {
         let wordStart = start;
         while (wordStart < end && isWhiteSpaceLike(charCodeUnchecked(wordStart))) wordStart++;
@@ -2386,10 +2392,11 @@ export function createScanner(
                     }
                     
                     if (charCodeUnchecked(pos) === CharacterCodes.openBracket) {
-                        // LDMud: `([int])` is a parenthesized lpctype literal, not a mapping.
-                        // The driver's lexer returns `(` and `[` apart and its grammar tells
-                        // them apart by what follows; no mapping key starts with a type keyword.
-                        if (languageVariant === LanguageVariant.LDMud && !inDocComment?.() && isTypeKeywordAt(pos + 1)) {
+                        // LDMud: `([int])` and `f([<int|string>*])` hold an lpctype literal, not a
+                        // mapping. The driver's lexer returns `(` and `[` apart and its grammar
+                        // tells them apart by what follows; no mapping key starts with a type
+                        // keyword or a union's `<`.
+                        if (languageVariant === LanguageVariant.LDMud && !inDocComment?.() && isStartOfLpcTypeAt(pos + 1)) {
                             return token = SyntaxKind.OpenParenToken;
                         }
                         return pos += 1, token = SyntaxKind.OpenParenBracketToken;
