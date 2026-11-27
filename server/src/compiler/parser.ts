@@ -762,7 +762,26 @@ export namespace LpcParser {
         }
 
         if (terminator !== SyntaxKind.NewLineTrivia && terminator !== SyntaxKind.EndOfFileToken) {
-            parseErrorAtPosition(scanner.getTokenStart(), scanner.getTokenEnd() - scanner.getTokenStart(), scanner.getFileName(), Diagnostics.Expected_newline_after_directive);
+            // Text after `#else` or `#endif` (`#endif DEBUG`). Neither driver reads it: FluffOS
+            // says nothing (lex.cc handle_else, handle_endif), LDMud warns of "trailing
+            // characters" (lex.c warn_trailing_chars; an error only under #pragma pedantic).
+            if (languageVariant !== LanguageVariant.FluffOS) {
+                const textStart = scanner.getTokenStart();
+                let textEnd = scanner.getTokenEnd();
+                while (terminator !== SyntaxKind.NewLineTrivia && terminator !== SyntaxKind.EndOfFileToken) {
+                    textEnd = scanner.getTokenEnd();
+                    terminator = scanner.scan();
+                }
+                // a warning: the node finished next has no error for it
+                const saveParseErrorBeforeNextFinishedNode = parseErrorBeforeNextFinishedNode;
+                parseErrorAtPosition(textStart, textEnd - textStart, scanner.getFileName(), Diagnostics.Text_after_0_is_ignored,
+                    directive === SyntaxKind.ElseDirective ? "#else" : "#endif");
+                parseErrorBeforeNextFinishedNode = saveParseErrorBeforeNextFinishedNode;
+            }
+            // the rest of the line is no code
+            while (terminator !== SyntaxKind.NewLineTrivia && terminator !== SyntaxKind.EndOfFileToken) {
+                terminator = scanner.scan();
+            }
         }
 
         scanner.setReportLineBreak(false);

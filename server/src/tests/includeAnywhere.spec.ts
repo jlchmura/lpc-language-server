@@ -250,6 +250,29 @@ describe.each([
         }, driverType)).toEqual([]);
     });
 
+    // `#endif DEBUG` names the condition it ends, an old C habit. Neither driver reads the text:
+    // FluffOS says nothing (lex.cc handle_else, handle_endif), LDMud warns of "trailing
+    // characters" (lex.c warn_trailing_chars).
+    it("does not read text after #else or #endif", () => {
+        const source = `#define DEBUG 1\n#if DEBUG\nint a;\n#else DEBUG is off\nint b;\n#endif DEBUG\n#if 0\nint c;\n#endif 0 x y\nint d = a;\n`;
+        const { ls, abs } = service({ "lib/test.c": source }, driverType);
+        const diagnostics = allDiagnostics(ls, abs("lib/test.c"));
+        if (driverType === lpc.LanguageVariant.FluffOS) {
+            expect(diagnostics.map(codeAndMessage)).toEqual([]);
+        }
+        else {
+            expect(diagnostics.map(d => [codeAndMessage(d), d.category, source.substr(d.start!, d.length!)])).toEqual([
+                ["9086: Text after #else is ignored.", lpc.DiagnosticCategory.Warning, "DEBUG is off"],
+                ["9086: Text after #endif is ignored.", lpc.DiagnosticCategory.Warning, "DEBUG"],
+                ["9086: Text after #endif is ignored.", lpc.DiagnosticCategory.Warning, "0 x y"],
+            ]);
+        }
+    });
+
+    it("allows a comment after #else and #endif", () => {
+        expect(diagnosticsFor({ "lib/test.c": `#if 1\nint a;\n#else // not this\nint b;\n#endif /* 1 */\nint d = a;\n` }, driverType)).toEqual([]);
+    });
+
     it("keeps the text of a #define as it is written", () => {
         const source = `#define A   1 + /* one */ 2   // sum\n#define B "a // b"\n#define C(x) (x) \\\n    + 1\n#define EMPTY\nint a = A;\nstring b = B;\nint c = C(2) EMPTY;\n`;
         const { ls, abs } = service({ "lib/test.c": source }, driverType);
