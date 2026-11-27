@@ -13329,10 +13329,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 //     return undefined;
                 // }
                 switch (node.kind) {                    
+                    case SyntaxKind.StructDeclaration:
+                        // LDMud gives a struct a visibility (`private struct s { ... };`) and
+                        // rejects only static and varargs (prolang.y, define_struct). FluffOS's
+                        // class_header takes a type_modifier_list and ignores it (grammar.y).
+                        return languageVariant === LanguageVariant.LDMud
+                            ? find(node.modifiers, m => m.kind === SyntaxKind.StaticKeyword || m.kind === SyntaxKind.VarArgsKeyword)
+                            : undefined;
                     case SyntaxKind.ClassDeclaration:                                            
                     case SyntaxKind.ClassExpression:                    
                     case SyntaxKind.TypeAliasDeclaration:
-                    case SyntaxKind.StructDeclaration:
                     case SyntaxKind.InlineClosureExpression:
                         return find(node.modifiers, isModifier);                    
                     default:
