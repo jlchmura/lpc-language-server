@@ -11,6 +11,13 @@ export function getDefinitionAtPosition(program: Program, sourceFile: SourceFile
             return fileReferenceDefinition;
         }
 
+        // An include in the middle of an expression is in no list of statements, so no node of
+        // the tree is at its line.
+        const floatingInclude = forEach(sourceFile.includes, include => include.isFloating && !include.includedFrom && include.fileName && include.pos <= position && position <= include.end ? include : undefined);
+        if (floatingInclude) {
+            return [getDefinitionInfoForFileReference(floatingInclude.fileName, floatingInclude.fileName, false)];
+        }
+
         const node = getTouchingPropertyName(sourceFile, position);
         if (node === sourceFile) {
             return undefined;

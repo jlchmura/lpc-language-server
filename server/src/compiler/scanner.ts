@@ -92,6 +92,30 @@ export interface Scanner {
     /** @internal */
     scanJSDocCommentTextToken(inBackticks: boolean): JSDocSyntaxKind | SyntaxKind.JSDocCommentTextToken;
     scan(): SyntaxKind;
+    /**
+     * Skips whole lines of an inactive `#if` region, as the drivers do (lex.c skip_to): nothing
+     * in them is a token, only a line that starts with a conditional directive ends the skip.
+     * The scanner is left at the start of that line (or at the end of the text), so the next
+     * `scan()` returns the directive.
+     * @internal
+     */
+    skipInactiveLines(): void;
+    /**
+     * Reads the rest of a `#define` line without making tokens of it, the current token being
+     * the first one of the body. Returns the end of the last token of the body and leaves the
+     * scanner on the line break (or end of text) that ends the directive; returns -1, with
+     * nothing changed, if the line has text only `scan()` can read.
+     * @internal
+     */
+    scanRestOfDefineLine(): number;
+    /**
+     * Where the text read by the last successful scanRestOfDefineLine() starts: its first
+     * character that is not white space or a comment, or the end of the line if there is none.
+     * @internal
+     */
+    getDefineBodyStart(): number;
+    /** The next token scanned counts as the first one on its line. @internal */
+    setPrecedingLineBreak(): void;
 
     switchStream(newFileName: string, newText: string, start: number, length: number, revertOnEOF?: boolean, onRelease?: ()=>boolean): RestoreStateFn;
 
@@ -1132,6 +1156,13 @@ export function createScanner(
     var asteriskSeen = false;
     var reportLineBreak = false;
     var parseBracketAsStringLiteral = false;
+    /** Where the text read by the last scanRestOfDefineLine() starts. */
+    var defineBodyStart = 0;
+    /** Flags the next `scan()` starts with (see setPrecedingLineBreak). */
+    var pendingTokenFlags = TokenFlags.None;
+    /** The text last tested for a carriage return, and the result (see skipInactiveLines). */
+    var crCheckedText: string | undefined;
+    var crCheckedResult = false;
 
     var scriptKind = ScriptKind.Unknown;
     var jsDocParsingMode = JSDocParsingMode.ParseAll;
@@ -1177,6 +1208,10 @@ export function createScanner(
         scanJsDocToken,
         scanJSDocCommentTextToken,
         scan,
+        skipInactiveLines,
+        scanRestOfDefineLine,
+        getDefineBodyStart: () => defineBodyStart,
+        setPrecedingLineBreak: () => { pendingTokenFlags = TokenFlags.PrecedingLineBreak; },
 
         switchStream,
 
@@ -2119,7 +2154,7 @@ export function createScanner(
 
     function getDirectiveToken(firstNonWhitespaceOffset: number): DirectiveSyntaxKind | SyntaxKind.Identifier {
         // Reserved words are between 2 and 12 characters long and start with a lowercase letter
-        const trimmedValue = "#" + tokenValue.substring(firstNonWhitespaceOffset);
+        const trimmedValue = firstNonWhitespaceOffset === 1 ? tokenValue : "#" + tokenValue.substring(firstNonWhitespaceOffset);
         const len = trimmedValue.length;
         if (len >= 3 && len <= 12) {
             const ch = trimmedValue.charCodeAt(1); // 0 is the hash
@@ -2206,13 +2241,222 @@ export function createScanner(
     //     return SyntaxKind.StringLiteral;
     // }
 
+    /**
+     * Records how far the current stream has been consumed. This runs for every token, so
+     * outside of speculation -- where nothing can ask for the previous value back -- the
+     * slot's record is updated in place instead of being replaced.
+     */
+    function markStateConsumed() {
+        const current = stateEndings[stateId];
+        if (speculationDepth === 0 && current !== undefined && current.fileName === fileName) {
+            current.end = pos;
+            current.isSpeculative = false;
+        }
+        else {
+            setStateEnding(stateId, createPosState(pos, fileName));
+        }
+    }
+
+    function skipInactiveLines(): void {
+        // A directive starts its line, so first get to the start of one.
+        if (pos > 0 && pos < end && !isLineBreak(charCodeUnchecked(pos - 1))) {
+            skipToNextLine();
+        }
+        while (pos < end) {
+            if (charCodeUnchecked(pos) === CharacterCodes.hash) {
+                const lineStart = pos;
+                tokenStart = pos;
+                pos++;
+                const directive = scanDirective(charCodeUnchecked(pos), languageVersion);
+                switch (directive) {
+                    case SyntaxKind.IfDirective:
+                    case SyntaxKind.IfDefDirective:
+                    case SyntaxKind.IfNDefDirective:
+                    case SyntaxKind.ElseIfDirective:
+                    case SyntaxKind.ElseDirective:
+                    case SyntaxKind.EndIfDirective:
+                        pos = lineStart;
+                        return;
+                }
+            }
+            skipToNextLine();
+        }
+    }
+
+    /**
+     * Whether a line feed is the only line break in the text, so that the engine's string
+     * search can find the end of a line. (A line or paragraph separator, U+2028 or U+2029,
+     * is not looked for: it is no line break to either driver.)
+     */
+    function textHasOnlyLineFeeds(): boolean {
+        if (crCheckedText !== text) {
+            crCheckedText = text;
+            crCheckedResult = text.indexOf("\r") >= 0;
+        }
+        return !crCheckedResult;
+    }
+
+    /** Moves to the start of the next line, or to the end of the text. */
+    function skipToNextLine(): void {
+        if (textHasOnlyLineFeeds()) {
+            // only line feeds end a line here, and the engine finds those faster than a loop
+            const lineFeed = text.indexOf("\n", pos);
+            pos = lineFeed < 0 || lineFeed >= end ? end : lineFeed + 1;
+            return;
+        }
+        while (pos < end) {
+            const ch = charCodeUnchecked(pos++);
+            if (ch === CharacterCodes.lineFeed) return;
+            if (ch === CharacterCodes.carriageReturn) {
+                if (pos < end && charCodeUnchecked(pos) === CharacterCodes.lineFeed) pos++;
+                return;
+            }
+        }
+    }
+
+    function scanRestOfDefineLine(): number {
+        let p = pos;
+        let lastEnd = pos;
+        let firstStart = -1;
+        while (true) {
+            if (p >= end) {
+                break;
+            }
+            const ch = text.charCodeAt(p);
+            if (ch === CharacterCodes.lineFeed || ch === CharacterCodes.carriageReturn) {
+                break;
+            }
+            if (ch === CharacterCodes.space || ch === CharacterCodes.tab) {
+                p++;
+                continue;
+            }
+            if (ch > CharacterCodes.maxAsciiCharacter) {
+                return -1;
+            }
+            if (firstStart < 0 && ch !== CharacterCodes.backslash &&
+                !(ch === CharacterCodes.slash && (text.charCodeAt(p + 1) === CharacterCodes.slash || text.charCodeAt(p + 1) === CharacterCodes.asterisk))) {
+                firstStart = p;
+            }
+            switch (ch) {
+                case CharacterCodes.slash: {
+                    const next = text.charCodeAt(p + 1);
+                    if (next === CharacterCodes.slash) {
+                        // a line comment runs to the end of the line, which ends the directive
+                        p += 2;
+                        while (p < end) {
+                            const c = text.charCodeAt(p);
+                            if (c === CharacterCodes.lineFeed || c === CharacterCodes.carriageReturn) break;
+                            p++;
+                        }
+                        continue;
+                    }
+                    if (next === CharacterCodes.asterisk) {
+                        // a block comment is trivia, also when it runs over several lines
+                        const close = text.indexOf("*/", p + 2);
+                        if (close < 0 || close + 2 > end) return -1;
+                        p = close + 2;
+                        continue;
+                    }
+                    lastEnd = ++p;
+                    continue;
+                }
+                case CharacterCodes.backslash: {
+                    const next = text.charCodeAt(p + 1);
+                    if (next === CharacterCodes.lineFeed) {
+                        p += 2;
+                        continue;
+                    }
+                    if (next === CharacterCodes.carriageReturn) {
+                        p += p + 2 < end && text.charCodeAt(p + 2) === CharacterCodes.lineFeed ? 3 : 2;
+                        continue;
+                    }
+                    return -1;
+                }
+                case CharacterCodes.doubleQuote: {
+                    p++;
+                    while (true) {
+                        if (p >= end) return -1;
+                        const c = text.charCodeAt(p);
+                        if (c === CharacterCodes.doubleQuote) {
+                            p++;
+                            break;
+                        }
+                        if (c === CharacterCodes.backslash) {
+                            const escaped = text.charCodeAt(p + 1);
+                            // a string carried over a line break is left to scan()
+                            if (escaped === CharacterCodes.lineFeed || escaped === CharacterCodes.carriageReturn) return -1;
+                            p += 2;
+                            continue;
+                        }
+                        if (c === CharacterCodes.lineFeed || c === CharacterCodes.carriageReturn || c > CharacterCodes.maxAsciiCharacter) return -1;
+                        p++;
+                    }
+                    lastEnd = p;
+                    continue;
+                }
+                case CharacterCodes.singleQuote: {
+                    // 'x' and '\x'; a quoted symbol or array ('sym, '({ ... })) is left to scan()
+                    const next = text.charCodeAt(p + 1);
+                    if (next !== CharacterCodes.backslash && next !== CharacterCodes.singleQuote && next >= CharacterCodes.space &&
+                        next <= CharacterCodes.maxAsciiCharacter && text.charCodeAt(p + 2) === CharacterCodes.singleQuote) {
+                        lastEnd = p += 3;
+                        continue;
+                    }
+                    if (next === CharacterCodes.backslash && p + 3 < end) {
+                        let q = p + 3;
+                        const limit = Math.min(end, p + 8);
+                        while (q < limit && text.charCodeAt(q) !== CharacterCodes.singleQuote && !isLineBreak(text.charCodeAt(q))) q++;
+                        if (q < limit && text.charCodeAt(q) === CharacterCodes.singleQuote) {
+                            lastEnd = p = q + 1;
+                            continue;
+                        }
+                    }
+                    return -1;
+                }
+                case CharacterCodes.hash:
+                    // #'name and #'+ are closures: the quote after the hash starts no character literal
+                    if (text.charCodeAt(p + 1) === CharacterCodes.singleQuote) {
+                        lastEnd = p += 2;
+                        continue;
+                    }
+                    lastEnd = ++p;
+                    continue;
+                case CharacterCodes.backtick:
+                case CharacterCodes.at:
+                    return -1;
+                default:
+                    if (ch < CharacterCodes.space) return -1;
+                    lastEnd = ++p;
+                    continue;
+            }
+        }
+
+        // Leave the scanner as scan() would after reading the line break that ends the directive.
+        defineBodyStart = firstStart < 0 ? p : firstStart;
+        // the stream is consumed up to the last token of the line, as when scan() reads its line break
+        pos = lastEnd;
+        markStateConsumed();
+        fullStartPos = lastEnd;
+        tokenStart = p;
+        tokenFlags = TokenFlags.None;
+        if (p >= end) {
+            pos = p;
+            token = SyntaxKind.EndOfFileToken;
+        }
+        else {
+            pos = text.charCodeAt(p) === CharacterCodes.carriageReturn && p + 1 < end && text.charCodeAt(p + 1) === CharacterCodes.lineFeed ? p + 2 : p + 1;
+            token = SyntaxKind.NewLineTrivia;
+        }
+        return lastEnd;
+    }
+
     function scan(): SyntaxKind {
         fullStartPos = pos;
-        tokenFlags = TokenFlags.None;
+        tokenFlags = pendingTokenFlags;
+        pendingTokenFlags = TokenFlags.None;
         asteriskSeen = false;
 
-        // Debug.assert(!stateEndings[stateId] || stateEndings[stateId].end <= pos, "State ending cannot be after the current position");
-        setStateEnding(stateId, createPosState(pos, fileName));
+        markStateConsumed();
 
         while (true) {
             tokenStart = pos;
@@ -2299,6 +2543,12 @@ export function createScanner(
                 case CharacterCodes.byteOrderMark:
                     if (shouldSkipTrivia) {
                         pos++;
+                        // indentation comes in runs of spaces and tabs
+                        while (pos < end) {
+                            const next = charCodeUnchecked(pos);
+                            if (next !== CharacterCodes.space && next !== CharacterCodes.tab) break;
+                            pos++;
+                        }
                         continue;
                     }
                     else {
@@ -2468,19 +2718,31 @@ export function createScanner(
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.slash) {
                         pos += 2;
 
-                        while (pos < end) {
-                            if (isLineBreak(charCodeUnchecked(pos))) {
-                                break;
+                        if (textHasOnlyLineFeeds()) {
+                            const lineFeed = text.indexOf("\n", pos);
+                            pos = lineFeed < 0 || lineFeed > end ? end : lineFeed;
+                        }
+                        else {
+                            while (pos < end) {
+                                if (isLineBreak(charCodeUnchecked(pos))) {
+                                    break;
+                                }
+                                pos++;
                             }
-                            pos++;
                         }
 
-                        commentDirectives = appendIfCommentDirective(
-                            commentDirectives,
-                            text.slice(tokenStart, pos),
-                            commentDirectiveRegExSingleLine,
-                            tokenStart,
-                        );
+                        // a comment directive has an `@` after the slashes; no other comment needs the test
+                        let directiveStart = tokenStart + 2;
+                        if (charCodeUnchecked(directiveStart) === CharacterCodes.slash) directiveStart++;
+                        while (directiveStart < pos && isWhiteSpaceSingleLine(charCodeUnchecked(directiveStart))) directiveStart++;
+                        if (charCodeUnchecked(directiveStart) === CharacterCodes.at) {
+                            commentDirectives = appendIfCommentDirective(
+                                commentDirectives,
+                                text.slice(tokenStart, pos),
+                                commentDirectiveRegExSingleLine,
+                                tokenStart,
+                            );
+                        }
 
                         if (shouldSkipTrivia) {
                             continue;
@@ -2496,20 +2758,33 @@ export function createScanner(
 
                         let commentClosed = false;
                         let lastLineStart = tokenStart;
-                        while (pos < end) {
-                            const ch = charCodeUnchecked(pos);
-
-                            if (ch === CharacterCodes.asterisk && charCodeUnchecked(pos + 1) === CharacterCodes.slash) {
-                                pos += 2;
-                                commentClosed = true;
-                                break;
-                            }
-
-                            pos++;
-
-                            if (isLineBreak(ch)) {
-                                lastLineStart = pos;
+                        const close = textHasOnlyLineFeeds() ? text.indexOf("*/", pos) : -1;
+                        if (close >= 0 && close + 2 <= end) {
+                            // the engine finds the end of the comment, and its last line, faster than a loop
+                            const lineFeed = text.lastIndexOf("\n", close);
+                            if (lineFeed >= pos) {
+                                lastLineStart = lineFeed + 1;
                                 tokenFlags |= TokenFlags.PrecedingLineBreak;
+                            }
+                            pos = close + 2;
+                            commentClosed = true;
+                        }
+                        else {
+                            while (pos < end) {
+                                const ch = charCodeUnchecked(pos);
+
+                                if (ch === CharacterCodes.asterisk && charCodeUnchecked(pos + 1) === CharacterCodes.slash) {
+                                    pos += 2;
+                                    commentClosed = true;
+                                    break;
+                                }
+
+                                pos++;
+
+                                if (isLineBreak(ch)) {
+                                    lastLineStart = pos;
+                                    tokenFlags |= TokenFlags.PrecedingLineBreak;
+                                }
                             }
                         }
 
@@ -2517,7 +2792,13 @@ export function createScanner(
                             tokenFlags |= TokenFlags.PrecedingJSDocComment;
                         }
 
-                        commentDirectives = appendIfCommentDirective(commentDirectives, text.slice(lastLineStart, pos), commentDirectiveRegExMultiLine, lastLineStart);
+                        // only a last line with an `@` can hold a comment directive
+                        for (let i = lastLineStart; i < pos; i++) {
+                            if (charCodeUnchecked(i) === CharacterCodes.at) {
+                                commentDirectives = appendIfCommentDirective(commentDirectives, text.slice(lastLineStart, pos), commentDirectiveRegExMultiLine, lastLineStart);
+                                break;
+                            }
+                        }
 
                         if (!commentClosed) {
                             error(Diagnostics.Asterisk_Slash_expected);

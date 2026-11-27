@@ -14,10 +14,14 @@ export interface LpcFileHandlerHost {
 
 export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
     let efunNames: ReadonlySet<string> | undefined;
+    /** Per including file: the result for each include name (prefixed with a quote for the "local first" form). */
+    const resolvedIncludes = new Map<string, Map<string, LpcLoadImportResult>>();
+    const includeTexts = new Map<string, string | undefined>();
     return {
         loadInclude,
         loadIncludeFile,
         isEfunDefined: host.getEfunHeaderFileName ? isEfunDefined : undefined,
+        getDefaultPragmas: () => host.getCompilerOptions()?.defaultPragmas,
     };
 
     function isEfunDefined(name: string): boolean {
@@ -33,7 +37,37 @@ export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
         return { uri: result.filename, source: result.source, error: result.error };
     }
 
+    /**
+     * A translation unit reads the same headers as the next one, and a header's own includes
+     * resolve the same way each time it is read, so both the resolved path and the text are
+     * kept for the life of the handler. A handler belongs to one program, which is a snapshot
+     * of the files: a change to a header makes a new program, and with it a new handler.
+     */
     function loadIncludeFile(sourceFilename: string, includeFilename: string, localFirst: boolean, additionalSearchDirs?: string[]): LpcLoadImportResult {
+        if (additionalSearchDirs?.length) {
+            return resolveIncludeFile(sourceFilename, includeFilename, localFirst, additionalSearchDirs);
+        }
+        let forSource = resolvedIncludes.get(sourceFilename);
+        if (forSource === undefined) {
+            resolvedIncludes.set(sourceFilename, forSource = new Map());
+        }
+        const key = localFirst ? "\"" + includeFilename : includeFilename;
+        let result = forSource.get(key);
+        if (result === undefined) {
+            forSource.set(key, result = resolveIncludeFile(sourceFilename, includeFilename, localFirst, /*additionalSearchDirs*/ undefined));
+        }
+        return result;
+    }
+
+    function readIncludeFile(fileName: string): string | undefined {
+        let text = includeTexts.get(fileName);
+        if (text === undefined && !includeTexts.has(fileName)) {
+            includeTexts.set(fileName, text = host.readFile(fileName));
+        }
+        return text;
+    }
+
+    function resolveIncludeFile(sourceFilename: string, includeFilename: string, localFirst: boolean, additionalSearchDirs: string[] | undefined): LpcLoadImportResult {
         const sourcePath = normalizePath(sourceFilename);
         const sourceDir = getDirectoryPath(sourcePath);
         const includePath = normalizePath(includeFilename);
@@ -72,9 +106,7 @@ export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
             return { filename: includePath, error: `Include file ${includeFilename} not found` };
         }
 
-        const result = host.readFile(searchPath);
-        // console.debug(`Include Loaded [${sourceFilename}] -> [${includeFilename}]`);
-        return { filename: searchPath, source: result };
+        return { filename: searchPath, source: readIncludeFile(searchPath) };
     }
 
     function getIncludeDirs(fileName: string) {        

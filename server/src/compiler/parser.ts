@@ -37,10 +37,47 @@ function Macro(this: Macro, name: string, fileName: string, getText: () => strin
     this.endInOrigin = undefined;
 }
 
-type IncludeGraph = Map<string, Set<string>>;
+/**
+ * One `#include` whose text is being read.
+ *
+ * Both drivers preprocess as C does: an `#include` may start any line, and the text of the
+ * file takes the place of that line. So an include is a stream of tokens, not a list of
+ * statements. Its frame is pushed when the directive is read and popped when the scanner
+ * runs off the end of its text, wherever the parser happens to be at either moment.
+ * Frames are never changed once made (the `eof*` fields are write-once facts about the
+ * text), so speculation saves and restores the whole include state as one reference.
+ */
+interface IncludeFrame {
+    readonly directive: IncludeDirective;
+    readonly parent: IncludeFrame | undefined;
+    /** The `#include` of the root file that led to this one. */
+    readonly root: IncludeDirective;
+    readonly fileName: string;
+    readonly text: string;
+    /** Puts the scanner back on the including stream. */
+    readonly release: () => boolean | undefined;
+    /** Conditional nesting when the include was entered; one left open is closed at its end. */
+    readonly condTop: CondFrame | undefined;
+    /** Nesting of statement lists when the include was entered. */
+    readonly listDepth: number;
+    /** Where the end-of-file token starts (after the last token), once the text was read to its end. */
+    eofFullStart: number;
+    eofHasJSDoc: boolean;
+}
+
+/** An `#include` read since the current token was scanned, which a statement list may still adopt. */
+interface PendingInclude {
+    readonly directive: IncludeDirective;
+    /** Undefined when the file was not entered (not found, empty, or already being read). */
+    readonly frame: IncludeFrame | undefined;
+    /** The include whose text holds the directive. */
+    readonly parent: IncludeFrame | undefined;
+}
 
 /**
- * One level of `#if`/`#ifdef`/`#elif`/`#else`/`#endif` nesting.
+ * One level of `#if`/`#ifdef`/`#elif`/`#else`/`#endif` nesting. Frames are immutable and
+ * linked to the enclosing one, so a lookahead that reads a conditional directive is undone
+ * by restoring one reference.
  * - `parentActive`: whether the enclosing region emits code (a nested conditional
  *    inside a disabled block never activates).
  * - `taken`: whether any arm of this chain has already been active -- once true, no
@@ -49,10 +86,11 @@ type IncludeGraph = Map<string, Set<string>>;
  * - `seenElse`: guards against arms after `#else`.
  */
 interface CondFrame {
-    parentActive: boolean;
-    taken: boolean;
-    active: boolean;
-    seenElse: boolean;
+    readonly parent: CondFrame | undefined;
+    readonly parentActive: boolean;
+    readonly taken: boolean;
+    readonly active: boolean;
+    readonly seenElse: boolean;
 }
 
 
@@ -61,8 +99,64 @@ export namespace LpcParser {
     // up by avoiding the cost of creating/compiling scanners over and over again.
     var scanner = createScanner(ScriptTarget.Latest, /*skipTrivia*/ true, /*shouldSkipNonParsableDirectives*/ false);
 
-    // when parsing a chain of includes, this will always be the top-level include
-    var currentTopLevelIncludeDirective: IncludeDirective | undefined;    
+    /** The include whose text is being scanned (innermost), if any. */
+    var includeTop: IncludeFrame | undefined;
+    /** Includes read by the scan that produced the current token (see PendingInclude). Replaced, never changed in place. */
+    var pendingIncludes: readonly PendingInclude[] | undefined;
+    /** Every `#include` of this parse, in the order read. */
+    var includeDirectives: IncludeDirective[];
+    /** The includes a statement list took in as a statement. The others float (see finishIncludes). */
+    var adoptedIncludes: Set<IncludeDirective>;
+    /** The frame last made for each included file, to tie a position in that file to a directive. */
+    var includeFramesByFile: Map<string, IncludeFrame>;
+    /** Global includes from the config, read before the file's first token; and how many were. */
+    var globalIncludeDirectives: IncludeDirective[];
+    var globalIncludeIndex: number;
+    /**
+     * Greater than 0 while a directive line is read or an include is entered or left. The
+     * end of an include's text then ends the line (as the end of a file does) instead of
+     * being scanned over, and no include is entered.
+     */
+    var preprocessorDepth = 0;
+    /**
+     * Whether LDMud's `#pragma pedantic` is in force where the scanner is (`sloppy` turns it
+     * off). The driver's lexer applies a pragma when it reads the line and keeps it in one
+     * global that an `#include` does not save or restore, so it is tracked the same way here,
+     * for what the preprocessor itself reports. (The checker works out the pragmas in force
+     * at a node on its own, see computeDriverPragmaStates.)
+     */
+    var pedantic = false;
+    /** Greater than 0 while a macro use is being replaced by its text, which consumes no token. */
+    var macroScanDepth = 0;
+    /**
+     * The file whose coordinates a node has by its place in the tree: that of the include whose
+     * statements are being collected, or the root file. A node that starts in another file
+     * (include text spliced into an expression, or a statement that runs past the end of its
+     * include) is recorded in `nodeOrigins`.
+     */
+    var structuralFileName: string;
+    var nodeOrigins: Map<Node, IncludeDirective | undefined> | undefined;
+    /** Nesting of statement lists (source elements, blocks, switch clauses). */
+    var statementListDepth = 0;
+    /**
+     * At least 0 after an include ended in the middle of a statement that it did not start:
+     * a node of the include may still be open, so each node finished is recorded until a
+     * statement starts at this list depth or above.
+     */
+    var originTaintDepth = -1;
+    /**
+     * Modifiers that are followed by a directive line instead of their declaration:
+     *     public
+     *     #include "defs.h"
+     *     reset(arg) { ... }
+     * To the driver the directive is no part of the program text, so the modifiers go with
+     * the next declaration. They are kept here while the directives are read as statements.
+     */
+    var carriedModifiers: { modifiers: NodeArray<ModifierLike>; pos: PositionState; hasJSDoc: boolean; fileName: string; } | undefined;
+    var lastFinishedNode: Node | undefined;
+    var lastFinishedOrigin: string | undefined;
+    /** Set while a doc comment is parsed: whether its owner came from an include. */
+    var explicitIncludeContext: boolean | undefined;
     /**
      * Origin of every parse diagnostic raised while reading an `#include`, keyed by the
      * diagnostic itself: the top-level directive to report it on, and the directive whose
@@ -77,8 +171,6 @@ export namespace LpcParser {
     /** Texts of macro literals rescanned after parameter substitution (LDMud). */
     var macroLiteralTexts: Set<string>;
     var includeDiagnosticOrigins: Map<DiagnosticWithDetachedLocation, IncludeDiagnosticOrigin>;
-    // the current include directive being processed
-    var currentIncludeDirective: IncludeDirective | undefined;
 
     var disallowInAndDecoratorContext = NodeFlags.DisallowInContext;//| NodeFlags.DecoratorContext;
             
@@ -98,7 +190,6 @@ export namespace LpcParser {
     var scriptKind: ScriptKind;
     var languageVariant: LanguageVariant;
 
-    var includeFileStack: IncludeDirective[] = [];
     var macroEnv: MacroEnvironment;
     var currentMacro: Macro;
     var allowMacroProcessing: boolean = true;    
@@ -109,7 +200,7 @@ export namespace LpcParser {
      */
     var pendingMacroCallEnds: readonly { stateId: number; end: number; }[] | undefined;
 
-    var condFrames: CondFrame[];
+    var condTop: CondFrame | undefined;
     var isCodeExecutable: Ternary = Ternary.Unknown;
 
     var topLevel: boolean = true;
@@ -137,11 +228,9 @@ export namespace LpcParser {
     var identifiers: Map<string, string>;    
     var identifierCount: number;
     var includeFileCache: Map<string, string>;
-    var includeGraph: IncludeGraph;
     var inherits: InheritDeclaration[];    
     var inactiveRanges: TextRange[];
     var importCandidates: ImportCandidateNode[];
-    var nodeFileMap: Map<Node, string>;
     var nodeMacroMap: Map<Node, string>;
 
     // TODO(jakebailey): This type is a lie; this value actually contains the result
@@ -230,18 +319,8 @@ export namespace LpcParser {
             macroEnv.define(key, createBuiltInMacro(key, value));
         });
 
-        // create a fake include directive for each global include and put them on the include stack
-        includeFileStack = [];
-        forEach(_globalIncludes, include => {            
-            const includeLiteral = factory.createStringLiteral(include);
-            setTextRangePosEnd(includeLiteral, 0, 0);
-            const syntheticInclude = factory.createIncludeDirective([includeLiteral], false);
-            setNodeFlags(syntheticInclude, NodeFlags.Synthesized);
-            const includeDirective = finishNode(syntheticInclude, 0, 0);
-            includeFileStack.push(includeDirective);
-        });
-
-        condFrames = [];
+        condTop = undefined;
+        isCodeExecutable = Ternary.Unknown;
         currentMacro = undefined!;
         pendingMacroCallEnds = undefined;
                 
@@ -249,9 +328,35 @@ export namespace LpcParser {
         macroLiteralTexts = new Set();
         includeFileCache = new Map<string, string>();
         includeFileCache.set(fileName, sourceText);
-        includeGraph = new Map();
-        currentTopLevelIncludeDirective = undefined!;        
-        currentIncludeDirective = undefined!;
+        includeTop = undefined;
+        pendingIncludes = undefined;
+        includeDirectives = [];
+        adoptedIncludes = new Set();
+        includeFramesByFile = new Map();
+        globalIncludeIndex = 0;
+        preprocessorDepth = 0;
+        macroScanDepth = 0;
+        pedantic = false;
+        // `defaultPragmas` act as `#pragma` lines at the very top of the file
+        forEach(languageVariant === LanguageVariant.LDMud ? fileHandler?.getDefaultPragmas?.() : undefined, applyPedanticPragma);
+        structuralFileName = fileName;
+        nodeOrigins = undefined;
+        statementListDepth = 0;
+        originTaintDepth = -1;
+        carriedModifiers = undefined;
+        lastFinishedNode = undefined;
+        lastFinishedOrigin = undefined;
+        explicitIncludeContext = undefined;
+
+        // A global include is read as if an `#include` line for it came before the file's first line.
+        globalIncludeDirectives = [];
+        forEach(_globalIncludes, include => {            
+            const includeLiteral = factory.createStringLiteral(include);
+            setTextRangePosEnd(includeLiteral, 0, 0);
+            const syntheticInclude = factory.createIncludeDirective([includeLiteral], false);
+            setNodeFlags(syntheticInclude, NodeFlags.Synthesized);
+            globalIncludeDirectives.push(finishNode(syntheticInclude, 0, 0));
+        });
 
         parseDiagnostics = [];
         nodeCount = 0;
@@ -263,7 +368,6 @@ export namespace LpcParser {
         inherits = [];
         inactiveRanges = [];
         importCandidates = [];
-        nodeFileMap = new Map<Node, string>();
 
         // Initialize and prime the scanner before parsing the source elements.        
         scanner.resetSavedStates();
@@ -303,18 +407,27 @@ export namespace LpcParser {
         topLevel = true;   
         suppressSemicolonInsertion = false;
         includeFileCache = undefined!;                
-        includeDiagnosticOrigins = undefined!;
+ includeDiagnosticOrigins = undefined!;
         macroLiteralTexts = undefined!;
-        includeGraph.clear();
-        includeGraph = undefined!;
-        condFrames = undefined!;
+        condTop = undefined;
         isCodeExecutable = Ternary.Unknown;
         inactiveRanges = undefined!;
         importCandidates = undefined!;
-        nodeFileMap = undefined!;
         
-        currentTopLevelIncludeDirective = undefined!;
-        currentIncludeDirective = undefined!;
+        includeTop = undefined;
+        pendingIncludes = undefined;
+        includeDirectives = undefined!;
+        adoptedIncludes = undefined!;
+        includeFramesByFile = undefined!;
+        globalIncludeDirectives = undefined!;
+        preprocessorDepth = 0;
+        structuralFileName = undefined!;
+        nodeOrigins = undefined;
+        statementListDepth = 0;
+        originTaintDepth = -1;
+        lastFinishedNode = undefined;
+        lastFinishedOrigin = undefined;
+        explicitIncludeContext = undefined;
         
         // clear macro data       
         nodeMacroMap = undefined!;
@@ -509,14 +622,14 @@ export namespace LpcParser {
 
     /** whether the region enclosing the current conditional emits code */
     function conditionalParentActive(): boolean {
-        return condFrames.length === 0 || condFrames[condFrames.length - 1].active;
+        return condTop === undefined || condTop.active;
     }
 
     /** derive the legacy `isCodeExecutable` signal from the conditional frame stack */
     function syncConditionalState() {
-        isCodeExecutable = condFrames.length === 0
+        isCodeExecutable = condTop === undefined
             ? Ternary.Unknown
-            : (condFrames[condFrames.length - 1].active ? Ternary.True : Ternary.False);
+            : (condTop.active ? Ternary.True : Ternary.False);
     }
 
     /**
@@ -602,11 +715,11 @@ export namespace LpcParser {
                 }
 
                 const active = parentActive && condition;
-                condFrames.push({ parentActive, taken: active, active, seenElse: false });
+                condTop = { parent: condTop, parentActive, taken: active, active, seenElse: false };
                 break;
             }
             case SyntaxKind.ElseIfDirective: {
-                const frame = lastOrUndefined(condFrames);
+                const frame = condTop;
                 const collected = collectConditionTokens();
                 terminator = collected.terminator;
 
@@ -616,34 +729,32 @@ export namespace LpcParser {
                 else if (frame.parentActive && !frame.taken && !frame.seenElse) {
                     // this chain has not yet taken a branch -- evaluate this arm
                     const condition = evaluatePreprocessorCondition(collected.tokens, macroEnv, getEfunDefinedOperator());
-                    frame.active = condition;
-                    if (condition) frame.taken = true;
+                    condTop = { parent: frame.parent, parentActive: frame.parentActive, taken: condition, active: condition, seenElse: false };
                 }
-                else {
+                else if (frame.active) {
                     // parent disabled, an earlier arm was taken, or after #else
-                    frame.active = false;
+                    condTop = { parent: frame.parent, parentActive: frame.parentActive, taken: frame.taken, active: false, seenElse: frame.seenElse };
                 }
                 break;
             }
             case SyntaxKind.ElseDirective: {
-                const frame = lastOrUndefined(condFrames);
+                const frame = condTop;
                 terminator = scanner.scan();
 
                 if (!frame) {
                     parseErrorAtCurrentToken(Diagnostics.Else_directive_without_if);
                 }
                 else {
-                    frame.active = frame.parentActive && !frame.taken && !frame.seenElse;
-                    frame.seenElse = true;
-                    if (frame.active) frame.taken = true;
+                    const active = frame.parentActive && !frame.taken && !frame.seenElse;
+                    condTop = { parent: frame.parent, parentActive: frame.parentActive, taken: frame.taken || active, active, seenElse: true };
                 }
                 break;
             }
             case SyntaxKind.EndIfDirective:
             default: {
                 terminator = scanner.scan();
-                if (condFrames.length > 0) {
-                    condFrames.pop();
+                if (condTop !== undefined) {
+                    condTop = condTop.parent;
                 }
                 break;
             }
@@ -662,7 +773,27 @@ export namespace LpcParser {
         }
 
         if (terminator !== SyntaxKind.NewLineTrivia && terminator !== SyntaxKind.EndOfFileToken) {
-            parseErrorAtPosition(scanner.getTokenStart(), scanner.getTokenEnd() - scanner.getTokenStart(), scanner.getFileName(), Diagnostics.Expected_newline_after_directive);
+            // Text after `#else` or `#endif` (`#endif DEBUG`). Neither driver reads it: FluffOS
+            // says nothing (lex.cc handle_else, handle_endif), LDMud warns of "trailing
+            // characters", which is an error under #pragma pedantic (lex.c warn_trailing_chars).
+            if (languageVariant !== LanguageVariant.FluffOS) {
+                const textStart = scanner.getTokenStart();
+                let textEnd = scanner.getTokenEnd();
+                while (terminator !== SyntaxKind.NewLineTrivia && terminator !== SyntaxKind.EndOfFileToken) {
+                    textEnd = scanner.getTokenEnd();
+                    terminator = scanner.scan();
+                }
+                // the node finished next has no error for it
+                const saveParseErrorBeforeNextFinishedNode = parseErrorBeforeNextFinishedNode;
+                parseErrorAtPosition(textStart, textEnd - textStart, scanner.getFileName(),
+                    pedantic ? Diagnostics.Text_after_0_is_not_allowed_under_pragma_pedantic : Diagnostics.Text_after_0_is_ignored,
+                    directive === SyntaxKind.ElseDirective ? "#else" : "#endif");
+                parseErrorBeforeNextFinishedNode = saveParseErrorBeforeNextFinishedNode;
+            }
+            // the rest of the line is no code
+            while (terminator !== SyntaxKind.NewLineTrivia && terminator !== SyntaxKind.EndOfFileToken) {
+                terminator = scanner.scan();
+            }
         }
 
         scanner.setReportLineBreak(false);
@@ -701,7 +832,9 @@ export namespace LpcParser {
             const kind = nextToken();
             switch (kind) {
                 case SyntaxKind.EndOfFileToken:
-                    if (parenCount > 0 && scanner.getStateId() > 1) {
+                    // The arguments go on in the stream the macro's text was used in. The end of
+                    // an include's text is not such a stream's end: only leaveInclude() pops it.
+                    if (parenCount > 0 && scanner.getStateId() > 1 && !(includeTop !== undefined && scanner.getText() === includeTop.text)) {
                         scanner.releaseState();
                         continue;
                     }
@@ -780,10 +913,11 @@ export namespace LpcParser {
 
     function endInactiveRange(end?: number) {
         if (scanner.getFileName() === fileName) {
-            Debug.assert(inactiveRanges.length > 0);
-            const range = last(inactiveRanges);
-            Debug.assert(range.end === 0);
-            range.end = end || scanner.getTokenFullStart();
+            // The region may have been opened by a directive in an include, which has no range here.
+            const range = lastOrUndefined(inactiveRanges);
+            if (range && range.end === 0) {
+                range.end = end || scanner.getTokenFullStart();
+            }
         }
     }
     
@@ -794,7 +928,16 @@ export namespace LpcParser {
             for (const { stateId, end } of pendingMacroCallEnds) scanner.setStateEnd(stateId, end);
             pendingMacroCallEnds = undefined;
         }
+        // An include read just before the token now being consumed was not taken in by a
+        // statement list: its text is part of whatever is being parsed.
+        if (pendingIncludes !== undefined && preprocessorDepth === 0 && macroScanDepth === 0) {
+            pendingIncludes = undefined;
+        }
+        return scanNextToken();
+    }
 
+    /** Scans the next token the parser gets to see, running the preprocessor on the way. */
+    function scanNextToken(): SyntaxKind {
         let incomingToken = scanner.scan();
 
         // Drive preprocessor conditionals and skip over disabled regions. A conditional
@@ -809,9 +952,29 @@ export namespace LpcParser {
         // and reporting an unterminated string plus an unmatched conditional directive.
         let templateBraceDepths: number[] | undefined;
         let braceDepth = 0;
-        while (incomingToken !== SyntaxKind.EndOfFileToken) {
+        while (true) {
+            if (incomingToken === SyntaxKind.EndOfFileToken) {
+                // The end of an include's text: the including file goes on where its `#include` line ended.
+                if (includeTop !== undefined && preprocessorDepth === 0 && scanner.getText() === includeTop.text && scanner.getTokenEnd() >= includeTop.text.length) {
+                    leaveInclude(includeTop);
+                    incomingToken = scanner.scan();
+                    continue;
+                }
+                break;
+            }
             if (isConditionalDirective(incomingToken)) {
                 processConditionalDirective(incomingToken);
+                // An inactive region of a file is skipped a line at a time, as the drivers do
+                // (lex.c skip_to): nothing in it is a token, and only a conditional directive
+                // at the start of a line ends it.
+                if (isCodeExecutable === Ternary.False && !currentMacro) {
+                    scanner.skipInactiveLines();
+                }
+                incomingToken = scanner.scan();
+                continue;
+            }
+            if (isCodeExecutable !== Ternary.False && incomingToken === SyntaxKind.IncludeDirective && preprocessorDepth === 0 && scriptKind !== ScriptKind.JSON && !inContext(NodeFlags.JSDoc)) {
+                processIncludeLine();
                 incomingToken = scanner.scan();
                 continue;
             }
@@ -876,7 +1039,7 @@ export namespace LpcParser {
                     if (substituted !== literalText) {
                         macroLiteralTexts.add(substituted);
                         scanner.switchStream("", substituted, 0, substituted.length, /*revertOnEOF*/ true, () => false);
-                        return nextTokenWithoutCheck();
+                        return scanMacroText();
                     }
                 }
                 break;
@@ -903,6 +1066,251 @@ export namespace LpcParser {
         return currentToken = incomingToken;
     }
 
+    /**
+     * Reads an `#include` line, the scanner being on its directive token, and switches the
+     * scanner to the text of the file. The caller scans on: the next token is the first one
+     * of the include, or of the line after the directive if the file is not entered.
+     */
+    function processIncludeLine(): void {
+        preprocessorDepth++;
+        const saveContextFlags = contextFlags;
+        const saveParseErrorBeforeNextFinishedNode = parseErrorBeforeNextFinishedNode;
+        contextFlags = NodeFlags.None;
+        currentToken = SyntaxKind.IncludeDirective;
+        // The nodes of the line are in the file being read. Where the directive ends up in the
+        // tree is not known yet (see parseAdoptedInclude and finishIncludes).
+        const saveStructuralFileName = structuralFileName;
+        const saveOriginTaintDepth = originTaintDepth;
+        structuralFileName = getCurrentFileName();
+        originTaintDepth = -1;
+
+        scanner.setReportLineBreak(true);
+        const directive = parseIncludeDirective();
+        if (token() !== SyntaxKind.NewLineTrivia && token() !== SyntaxKind.EndOfFileToken) {
+            parseErrorAtCurrentToken(Diagnostics.Expected_newline_after_directive);
+            while (token() !== SyntaxKind.NewLineTrivia && token() !== SyntaxKind.EndOfFileToken) {
+                currentToken = scanner.scan();
+            }
+        }
+        scanner.setReportLineBreak(false);
+
+        structuralFileName = saveStructuralFileName;
+        originTaintDepth = saveOriginTaintDepth;
+        contextFlags = saveContextFlags;
+        parseErrorBeforeNextFinishedNode = saveParseErrorBeforeNextFinishedNode;
+
+        const parent = includeTop;
+        const frame = enterInclude(directive);
+        includeDirectives.push(directive);
+        pendingIncludes = pendingIncludes === undefined ? [{ directive, frame, parent }] : [...pendingIncludes, { directive, frame, parent }];
+        // the token after an `#include` line, in either file, is the first one on its line
+        scanner.setPrecedingLineBreak();
+        preprocessorDepth--;
+    }
+
+    /**
+     * Resolves the file of an `#include` and switches the scanner to its text. Returns
+     * undefined if there is nothing to read: the file was not found (the checker reports
+     * that), is empty, or is being read already. The drivers have no check for the last
+     * one, only a depth limit; a header that is being read is skipped here as its include
+     * guard would have it skipped.
+     */
+    function enterInclude(directive: IncludeDirective): IncludeFrame | undefined {
+        const localFilename = directive.content.length === 1 ? directive.content[0].text : directive.content.map(literal => literal.text).join("");
+        const includeFile = fileHandler.loadIncludeFile(includeTop !== undefined ? includeTop.fileName : fileName, localFilename, directive.localFirst);
+        const resolvedFilename = internIdentifier(includeFile.filename);
+
+        if (resolvedFilename === fileName) {
+            return undefined;
+        }
+
+        // store the resolved filename; the checker reports a file that was not found
+        (directive as Mutable<IncludeDirective>).fileName = resolvedFilename;
+        if (includeTop !== undefined) {
+            (directive as Mutable<IncludeDirective>).includedFrom = includeTop.directive;
+        }
+
+        const source = includeFile.source;
+        if (!(source?.length > 0)) {
+            return undefined;
+        }
+
+        // store the text inside the node, which stands in for a source file
+        (directive as Mutable<IncludeDirective>).text = source;
+
+        for (let frame = includeTop; frame !== undefined; frame = frame.parent) {
+            if (frame.fileName === resolvedFilename) {
+                return undefined;
+            }
+        }
+
+        addImportCandidate(directive);
+        includeFileCache.set(resolvedFilename, source);
+
+        const release = scanner.switchStream(resolvedFilename, source, 0, source.length, /*revertOnEOF*/ false);
+        const frame: IncludeFrame = {
+            directive,
+            parent: includeTop,
+            root: includeTop !== undefined ? includeTop.root : directive,
+            fileName: resolvedFilename,
+            text: source,
+            release,
+            condTop,
+            listDepth: statementListDepth,
+            eofFullStart: -1,
+            eofHasJSDoc: false,
+        };
+        includeFramesByFile.set(resolvedFilename, frame);
+        return includeTop = frame;
+    }
+
+    /** The scanner ran off the end of the innermost include: go back to the stream that included it. */
+    function leaveInclude(frame: IncludeFrame): void {
+        frame.eofFullStart = scanner.getTokenFullStart();
+        frame.eofHasJSDoc = scanner.hasPrecedingJSDocComment();
+
+        // A conditional the include left open ends with it (the drivers report it as missing its #endif).
+        if (condTop !== frame.condTop) {
+            let open = condTop;
+            while (open !== undefined && open !== frame.condTop) open = open.parent;
+            if (open === frame.condTop) {
+                condTop = frame.condTop;
+                syncConditionalState();
+            }
+        }
+
+        // If the include ends inside a statement that started outside of it, a node that
+        // started in the include can still be open. Nodes of the including file that end up
+        // under it are recorded with their own file (see finishNode).
+        if (structuralFileName !== frame.fileName) {
+            originTaintDepth = originTaintDepth < 0 ? frame.listDepth : Math.min(originTaintDepth, frame.listDepth);
+        }
+
+        frame.release();
+        includeTop = frame.parent;
+        scanner.setPrecedingLineBreak();
+
+        if (includeTop === undefined && globalIncludeIndex < globalIncludeDirectives.length) {
+            enterNextGlobalInclude();
+        }
+    }
+
+    /** Enters the next global include that has text to read. */
+    function enterNextGlobalInclude(): void {
+        while (globalIncludeIndex < globalIncludeDirectives.length) {
+            const directive = globalIncludeDirectives[globalIncludeIndex++];
+            const frame = enterInclude(directive);
+            includeDirectives.push(directive);
+            pendingIncludes = pendingIncludes === undefined ? [{ directive, frame, parent: undefined }] : [...pendingIncludes, { directive, frame, parent: undefined }];
+            if (frame !== undefined) {
+                return;
+            }
+        }
+    }
+
+    function isStatementListContext(kind: ParsingContext): boolean {
+        return kind === ParsingContext.SourceElements || kind === ParsingContext.BlockStatements || kind === ParsingContext.SwitchClauseStatements;
+    }
+
+    function isIncludeActive(frame: IncludeFrame): boolean {
+        for (let current = includeTop; current !== undefined; current = current.parent) {
+            if (current === frame) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Takes the first pending include into a statement list as a statement. The statements
+     * that start in its text, and the includes read in it, become its children, so the
+     * directive stands for the included file in the tree as a source file does for its own.
+     * A statement that runs past the end of the include is still a statement of the include.
+     */
+    function parseAdoptedInclude<T extends Node>(kind: ParsingContext, parseElement: () => T): IncludeDirective {
+        const entry = pendingIncludes![0];
+        pendingIncludes = pendingIncludes!.length === 1 ? undefined : pendingIncludes!.slice(1);
+
+        const { directive, frame } = entry;
+        adoptedIncludes.add(directive);
+        // the list may belong to another file than the one that holds the directive
+        const directiveFileName = entry.parent !== undefined ? entry.parent.fileName : fileName;
+        if (directiveFileName !== structuralFileName || originTaintDepth >= 0) {
+            recordNodeOrigin(directive, directiveFileName);
+        }
+        if (frame === undefined) {
+            return directive;
+        }
+
+        const saveStructuralFileName = structuralFileName;
+        structuralFileName = frame.fileName;
+
+        const statements: T[] = [];
+        while (true) {
+            if (pendingIncludes !== undefined) {
+                if (pendingIncludes[0].parent !== frame) break;
+                statements.push(parseAdoptedInclude(kind, parseElement) as Node as T);
+                continue;
+            }
+            if (!isIncludeActive(frame) || isListTerminator(kind)) {
+                break;
+            }
+            if (originTaintDepth >= statementListDepth) originTaintDepth = -1;
+            if (isListElement(kind, /*inErrorRecovery*/ false)) {
+                const startPos = scanner.getTokenFullStart();
+                const startStream = scanner.getStateId();
+                statements.push(parseListElement(kind, parseElement));
+                // see parseList
+                if (scanner.getTokenFullStart() === startPos && scanner.getStateId() === startStream) {
+                    parseErrorAtCurrentToken(Diagnostics.Unexpected_token);
+                    nextToken();
+                }
+                continue;
+            }
+            if (abortParsingListOrMoveToNextToken(kind)) {
+                break;
+            }
+        }
+
+        (directive as Mutable<IncludeDirective>).statements = factory.createNodeArray(statements as Node[] as Statement[]);
+        if (frame.eofFullStart >= 0 && !isIncludeActive(frame)) {
+            // The end-of-file token holds the doc comments after the last statement of the file.
+            const endOfFileToken = factoryCreateToken(SyntaxKind.EndOfFileToken) as Mutable<EndOfFileToken>;
+            setTextRangePosEnd(endOfFileToken, frame.eofFullStart, frame.text.length);
+            endOfFileToken.flags |= NodeFlags.IncludeContext;
+            lastFinishedNode = endOfFileToken;
+            lastFinishedOrigin = frame.fileName;
+            (directive as Mutable<IncludeDirective>).endOfFileToken = withJSDoc(endOfFileToken as EndOfFileToken, frame.eofHasJSDoc);
+        }
+
+        structuralFileName = saveStructuralFileName;
+        return directive;
+    }
+
+    /**
+     * Ties up the includes once the file is parsed. One that no statement list took in
+     * floats: its text was read in the middle of an expression or a declaration, so its
+     * directive is in no list of statements. It is given a parent and an empty statement
+     * list, so that it can stand for its file as any other include does.
+     */
+    function finishIncludes(sourceFile: SourceFile): void {
+        if (!includeDirectives.length) return;
+        sourceFile.includes = includeDirectives;
+        for (const directive of includeDirectives) {
+            if (adoptedIncludes.has(directive)) {
+                if (directive.text !== undefined && directive.statements === undefined) {
+                    (directive as Mutable<IncludeDirective>).statements = factory.createNodeArray<Statement>([]);
+                }
+                continue;
+            }
+            (directive as Mutable<IncludeDirective>).isFloating = true;
+            if (directive.text !== undefined) {
+                (directive as Mutable<IncludeDirective>).statements = factory.createNodeArray<Statement>([]);
+            }
+            setParent(directive, directive.includedFrom ?? sourceFile);
+            forEach(directive.content, literal => { setParent(literal, directive); });
+        }
+        sourceFile.nodeOrigins = nodeOrigins;
+    }
+
     function processMacroParamSubstitution(incomingToken: SyntaxKind, tokenValue: string, macro: Macro): SyntaxKind {
         // this is a macro parameter
         const arg = macro.argsIn[tokenValue];                
@@ -919,7 +1327,15 @@ export namespace LpcParser {
             }
         );                               
 
-        return nextTokenWithoutCheck();// currentToken = scanner.scan();
+        return scanMacroText();
+    }
+
+    /** Scans the first token of a macro's or an argument's text. The parser has not consumed a token by this. */
+    function scanMacroText(): SyntaxKind {
+        macroScanDepth++;
+        const result = nextTokenWithoutCheck();
+        macroScanDepth--;
+        return result;
     }
 
     function processMacroSubstitution(incomingToken: SyntaxKind, tokenValue: string, macro: Macro): SyntaxKind {
@@ -940,9 +1356,11 @@ export namespace LpcParser {
         // a function-like macro, also one without parameters (`#define f() ...`), consumes its arguments
         if (macroArgsDef !== undefined) {
             // scan the next token, which should be an open paren.. parseArg wil check it.
+            macroScanDepth++;
             currentToken = nextTokenWithoutCheck();
             
             const values = parseMacroArguments();
+            macroScanDepth--;
             const valuesEndPos = scanner.getTokenFullStart();                    
 
             // now organize macro params by name
@@ -1002,7 +1420,7 @@ export namespace LpcParser {
         currentMacro = macro;                
                                       
         // scan again using the new scanner
-        const firstToken = nextTokenWithoutCheck();
+        const firstToken = scanMacroText();
         if (isWholeCallInStream) {
             pendingMacroCallEnds = [...(pendingMacroCallEnds ?? []), { stateId: callStateId, end: callEnd }];
         }
@@ -1095,23 +1513,13 @@ export namespace LpcParser {
         // is tied to the original file
         const pos = getPositionState();
 
-        // remove the first element from the include stack and process it 
-        const includeDir = includeFileStack.shift()!;
-        if (includeDir) {
-            if (!processIncludeDirective(includeDir)) {
-                // if the include could not be loaded for some reason, then prime the scanner
-                nextToken();
-            }
-        } else {        
-            // prime the scanner
-            nextToken();        
-        }
-        
+        // The global includes come before the first line of the file.
+        enterNextGlobalInclude();
+
+        // prime the scanner
+        currentToken = scanNextToken();
+
         const statements = parseList(ParsingContext.SourceElements, parseStatement, pos);
-        if (includeDir) {
-            // if a global include was passed in, then we need to add it back to the stack
-            (statements as MutableNodeArray<Statement>).unshift(includeDir);
-        }
 
         Debug.assert(token() === SyntaxKind.EndOfFileToken);
         // Debug.assert(!currentMacro);                
@@ -1147,6 +1555,7 @@ export namespace LpcParser {
         }        
 
         sourceFile.nodeMacroMap = nodeMacroMap;
+        finishIncludes(sourceFile);
         
         if (reportParsedDefines) {
             // store parsed macros 
@@ -1222,15 +1631,23 @@ export namespace LpcParser {
             // by attachFileToDiagnostics(), because its position indexes the INCLUDED
             // file's text rather than this one's. Remember where it came from so the
             // checker can surface it on the top-level directive that pulled the file in.
-            if (currentTopLevelIncludeDirective) {
-                includeDiagnosticOrigins.set(result, {
-                    include: currentTopLevelIncludeDirective,
-                    // The innermost directive carries the text of the file the position
-                    // indexes, which makes it usable as that file's SourceFileBase -- and
-                    // that is what lets the editor navigate to the error instead of
-                    // printing it as inert text.
-                    file: currentIncludeDirective?.fileName === fileName ? currentIncludeDirective : undefined,
-                });
+            // The file is taken from the position, not from where the scanner is: an
+            // error in a statement that runs past the end of its include can be raised
+            // after the include was left, or in the including file while inside of it.
+            if (!isRootFileName(fileName)) {
+                // (An error in the text of a macro from a header, raised where the root
+                // file uses the macro, is not an error of that header.)
+                const frame = includeTop !== undefined || !currentMacro ? includeFramesByFile.get(fileName) : undefined;
+                if (frame !== undefined) {
+                    // The directive carries the text of the file the position indexes,
+                    // which makes it usable as that file's SourceFileBase -- and that is
+                    // what lets the editor navigate to the error instead of printing it
+                    // as inert text.
+                    includeDiagnosticOrigins.set(result, { include: frame.root, file: frame.directive });
+                }
+                else if (includeTop !== undefined) {
+                    includeDiagnosticOrigins.set(result, { include: includeTop.root, file: undefined });
+                }
             }
         }
 
@@ -1240,6 +1657,10 @@ export namespace LpcParser {
         return result;
     }
     
+    function isRootFileName(name: string): boolean {
+        return name === fileName;
+    }
+
     function parseErrorAt(start: number, end: number, fileName: string, message: DiagnosticMessage, ...args: DiagnosticArguments): DiagnosticWithDetachedLocation | undefined {
         return parseErrorAtPosition(start, end - start, fileName, message, ...args);
     }
@@ -1315,7 +1736,7 @@ export namespace LpcParser {
             pos: getNodePos(),
             tokenStart: scanner.getTokenStart(),
             fileName: scanner.getFileName(),
-            include: currentTopLevelIncludeDirective,
+            include: includeTop === undefined ? undefined! : includeTop.root,
             // Snapshot only the macro fields that are read back (see
             // MacroPositionSnapshot). Cloning the whole Macro here was ~30% of parse
             // time on macro-heavy files, since this runs for every parse function.
@@ -1345,7 +1766,19 @@ export namespace LpcParser {
         const list = [];        
         start ??= getPositionState();
 
-        while (!isListTerminator(kind)) {
+        // A list of statements takes in the includes read at the start of one of its statements.
+        const isStatementList = isStatementListContext(kind);
+        if (isStatementList) statementListDepth++;
+
+        while (true) {
+            if (isStatementList) {
+                if (originTaintDepth >= statementListDepth) originTaintDepth = -1;
+                if (pendingIncludes !== undefined) {
+                    list.push(parseAdoptedInclude(kind, parseElement));
+                    continue;
+                }
+            }
+            if (isListTerminator(kind)) break;
             if (isListElement(kind, /*inErrorRecovery*/ false)) {
                 const startPos = scanner.getTokenFullStart();
                 const startStream = scanner.getStateId();
@@ -1386,6 +1819,7 @@ export namespace LpcParser {
             }
         }
 
+        if (isStatementList) statementListDepth--;
         parsingContext = saveParsingContext;
         currentParsingContext = saveCurrentParsingContext;
         return createNodeArray(list, start);
@@ -2188,6 +2622,8 @@ export namespace LpcParser {
             return parseDirective();
         }
 
+        // modifiers with no declaration after them are dropped
+        carriedModifiers = undefined;
         return parseExpressionOrLabeledStatement();
     }
 
@@ -2228,6 +2664,8 @@ export namespace LpcParser {
 
     function parseDirective(): PreprocessorDirective {
         scanner.setReportLineBreak(true);
+        // the line ends where the text of its file does
+        preprocessorDepth++;
 
         let directive: PreprocessorDirective | undefined;
         switch (token()) {
@@ -2249,182 +2687,25 @@ export namespace LpcParser {
             default:                
                 nextToken();
                 const directiveContent = [];
-                while (token() !== SyntaxKind.NewLineTrivia) {
+                while (token() !== SyntaxKind.NewLineTrivia && token() !== SyntaxKind.EndOfFileToken) {
                     directiveContent.push(token());
                     nextToken();            
                 }
         }
         
-        let scanNextToken = parseValidDirectiveEnd();
+        const advance = parseValidDirectiveEnd();
         scanner.setReportLineBreak(false);
-        
-        if (directive?.kind === SyntaxKind.IncludeDirective) {
-            // if include file is resolved, (i.e. process return false)
-            // then turn off the scan next token
-            scanNextToken &&= !processIncludeDirective(directive as IncludeDirective);
-        }
+        preprocessorDepth--;
 
         if (!directive) {
             directive = createMissingNode(SyntaxKind.IncludeDirective, /*reportAtCurrentPosition*/ true, Diagnostics.Unexpected_keyword_or_identifier);
         }
         
-        if (scanNextToken) {
+        if (advance) {
             nextToken(); // advance past newline
         }
 
         return directive;
-    }
-
-    function resolveIncludeFilename(includeDirective: IncludeDirective): LpcLoadImportResult {
-        const localFilename = includeDirective.content.map((literal) => literal.text).join("");            
-        const includeFile = fileHandler.loadIncludeFile(scanner.getFileName(), localFilename, includeDirective.localFirst);
-        return includeFile;
-    }
-
-    /**
-     * @param advanceAfter when the include is consumed, advance past the directive's
-     * trailing newline so the INCLUDING file's parse resumes on a real token. Only the
-     * outermost call in a chain of global includes does this -- the siblings drained off
-     * `includeFileStack` all return with the same stream on the same boundary token, and
-     * advancing once per sibling would eat real tokens.
-     */
-    function processIncludeDirective(includeDirective: IncludeDirective, advanceAfter = true): boolean {                
-        const currentFile = scanner.getFileName() ?? fileName;        
-        const includeFile = resolveIncludeFilename(includeDirective);
-        const resolvedFilename = internIdentifier(includeFile.filename);        
-        let includeResult = false;
-                
-        if (resolvedFilename === fileName) {             
-            // skip            
-            return false;
-        }
-        
-        // store resolved filename and add as an import candidate node
-        (includeDirective as Mutable<IncludeDirective>).fileName = resolvedFilename;
-        
-        // if the include file was not found, that will be reported by the checker as part of semantic analysis
-        if (includeFile?.source?.length > 0) {
-            if (!includeGraph.has(currentFile)) {
-                includeGraph.set(currentFile, new Set());
-            }
-        
-            const includes = includeGraph.get(currentFile)!;
-            includes.add(resolvedFilename);
-        
-            // Check for circular includes            
-            if (hasCircularDependency(includeGraph, currentFile)) {
-                console.info(`Circular include ignored: ${currentFile} -> ${resolvedFilename}`);
-                // the drivers will ignore these, so we don't need to report an error
-                // parseErrorAtRange(currentTopLevelIncludeDirective ?? includeDirective, fileName, Diagnostics.Circular_include_detected_0_to_1, currentFile, resolvedFilename);
-                return false;
-            }
-            
-            const saveInactiveRanges = inactiveRanges;
-
-            // store the text inside the sourcefile node
-            (includeDirective as Mutable<IncludeDirective>).text = includeFile.source;
-            
-            // TODO do we need to set .path?
-
-            doInsideOfContext(NodeFlags.IncludeContext, () => {
-                addImportCandidate(includeDirective);                
-
-                // cache source text                
-                const includeSourceText = includeFile.source;
-                includeFileCache.set(resolvedFilename, includeFile.source);
-
-                // create scanner for include            
-                const saveTopDirective = currentTopLevelIncludeDirective;
-                const saveDirective = currentIncludeDirective;
-
-                const revertStream = scanner.switchStream(
-                    resolvedFilename, includeSourceText, 0, includeSourceText.length, false /* revertOnEOF */,
-                    ()=>{
-                        includes.delete(resolvedFilename);
-
-                        currentTopLevelIncludeDirective = saveTopDirective!;
-                        currentIncludeDirective = saveDirective;
-                        currentToken = scanner.getToken();
-
-                        return false;
-                    }
-                );            
-                
-                currentTopLevelIncludeDirective ??= includeDirective;
-                currentIncludeDirective = includeDirective;
-
-                // prime the scanner
-                nextToken();
-
-                // parse statements and store them on the node
-                // this is similar to parseSourceFileWorker                
-                const pos = getPositionState();
-                const statements = parseList(ParsingContext.SourceElements, parseStatement, pos);
-                
-                Debug.assert(token() === SyntaxKind.EndOfFileToken);                
-                const endHasJSDoc = hasPrecedingJSDocComment();
-                const endOfFileToken = withJSDoc(parseTokenNode<EndOfFileToken>(), endHasJSDoc);
-
-                (includeDirective as Mutable<IncludeDirective>).statements = factory.createNodeArray(statements);
-                (includeDirective as Mutable<IncludeDirective>).endOfFileToken = endOfFileToken;                
-                
-                revertStream();
-                                
-                includeResult = true;
-            });
-
-            includeDirective.inactiveCodeRanges = inactiveRanges;
-            inactiveRanges = saveInactiveRanges;
-        } 
-
-        // if there are more include files in the stack, process the next one 
-        const nextIncludeDirective = includeFileStack.shift();
-        if (nextIncludeDirective) {
-            includeResult ||= processIncludeDirective(nextIncludeDirective, /*advanceAfter*/ false);
-        }
-
-        if (includeResult && advanceAfter) {
-            // revertStream() put `currentToken` back on the newline that ended the
-            // `#include` line, so the including file's parse must step off it. This is
-            // needed at EVERY depth: an `#include` inside an included header used to skip
-            // this (it was gated on not being in IncludeContext, which a nested include
-            // always is), leaving parseList() looking at a newline it has no production
-            // for -- the header then aborted with a bogus "Declaration or statement
-            // expected" that its own standalone parse never produced.
-            nextToken();
-        }
-
-        return includeResult;
-    }
-
-    function hasCircularDependency(includeGraph: IncludeGraph, startFile: string): boolean {
-        const visited = new Set<string>();
-        const stack = new Set<string>();
-    
-        function visit(file: string): boolean {
-            if (stack.has(file)) {
-                return true; // Circular dependency detected
-            }
-    
-            if (visited.has(file)) {
-                return false;
-            }
-    
-            visited.add(file);
-            stack.add(file);
-    
-            const includes = includeGraph.get(file) || new Set();
-            for (const include of includes) {
-                if (visit(include)) {
-                    return true;
-                }
-            }
-    
-            stack.delete(file);
-            return false;
-        }
-    
-        return visit(startFile);
     }
 
     function parsePragmaDirective(): PragmaDirective {
@@ -2439,8 +2720,16 @@ export namespace LpcParser {
         }
 
         // TODO: validate pragma arguments here, similar to modifiers
+        if (languageVariant === LanguageVariant.LDMud) {
+            forEach(pragmaArgs, arg => applyPedanticPragma(arg.text));
+        }
 
         return finishNode(factory.createPragmaDirective(pragmaArgs), pos);
+    }
+
+    function applyPedanticPragma(name: string): void {
+        if (name === "pedantic") pedantic = true;
+        else if (name === "sloppy") pedantic = false;
     }
 
     function parseIncludeDirective(): IncludeDirective {
@@ -2490,42 +2779,71 @@ export namespace LpcParser {
         const posIdentifier = getPositionState();
         const identifierStart = scanner.getTokenStart();        
         const identifierText = internIdentifier(scanner.getTokenValue());
-        let identifier = token() === SyntaxKind.EndOfFileToken ? createMissingNode(SyntaxKind.Identifier, true, Diagnostics.Identifier_expected) as Identifier :
-            token() === SyntaxKind.Identifier ? parseIdentifier() : 
-            // To the preprocessor a keyword is a name like any other: `#define bytes string`.
-            isKeyword(token()) ? createIdentifier(true, Diagnostics.Identifier_expected) : 
-            createMissingNode(SyntaxKind.Identifier, true, Diagnostics.Identifier_expected) as Identifier
-
-        if ((identifier as Node).kind === SyntaxKind.NewLineTrivia) {
-            parseErrorAtPosition(posIdentifier.pos, posIdentifier.pos, pos.fileName, Diagnostics.Identifier_expected);
-            identifier = createMissingNode(SyntaxKind.Identifier, false);
-        }
-
-        let args: NodeArray<ParameterDeclaration> | undefined;
-                
-        const identifierEnd = identifierStart + identifierText.length;
-        if (identifierEnd === scanner.getTokenStart() && token() === SyntaxKind.OpenParenToken) {
-            args = disallowTypes(parseParameters);
-        }
-        
-        let tokenCount = 0;
-        const contentStart = scanner.getTokenStart();
         const macroTextFilename = scanner.getFileName().length > 0 ? scanner.getFileName() : fileName;
-        let endPos = contentStart;
-        while (token() !== SyntaxKind.NewLineTrivia && token() !== SyntaxKind.EndOfFileToken) {
-            tokenCount++;
-            endPos = scanner.getTokenEnd();
-            nextToken();                      
-        }        
-        let range: TextRange | undefined;
-        if (tokenCount > 0) {
-            // create a fake node to store the range so that v8 doesn't deoptimize the Node object
-            const tempNode = setTextRangePosEnd(factory.createBlock([], /*multiLine*/ false), contentStart, endPos);
-            range = tempNode;
-        } else {
-            // an empty body (`#define debug(x)`, `#define FOO`) expands to nothing
-            range = setTextRangePosEnd(factory.createBlock([], /*multiLine*/ false), contentStart, contentStart);
+
+        let identifier: Identifier;
+        let args: NodeArray<ParameterDeclaration> | undefined;
+        let contentStart = -1;
+        let endPos = -1;
+
+        // The body of a macro is kept as text and scanned where the macro is used, so the
+        // line is only searched for its end. Most defines are a plain name and its text,
+        // and for those not even the first token of the body is made. Text the fast scan
+        // does not know (see scanRestOfDefineLine) is read as tokens instead.
+        const nameEnd = scanner.getTokenEnd();
+        if (token() === SyntaxKind.Identifier && !currentMacro && identifierStart + identifierText.length === nameEnd &&
+            scanner.getText().charCodeAt(nameEnd) !== CharacterCodes.openParen) {
+            identifierCount++;
+            identifier = finishNode(factoryCreateIdentifier(identifierText), posIdentifier, nameEnd);
+            const fastEnd = scanner.scanRestOfDefineLine();
+            if (fastEnd >= 0) {
+                // an empty body (`#define FOO`) expands to nothing
+                contentStart = scanner.getDefineBodyStart();
+                endPos = Math.max(contentStart, fastEnd);
+                currentToken = scanner.getToken();
+            }
+            else {
+                nextToken();
+            }
         }
+        else {
+            identifier = token() === SyntaxKind.EndOfFileToken ? createMissingNode(SyntaxKind.Identifier, true, Diagnostics.Identifier_expected) as Identifier :
+                token() === SyntaxKind.Identifier ? parseIdentifier() : 
+                // To the preprocessor a keyword is a name like any other: `#define bytes string`.
+                isKeyword(token()) ? createIdentifier(true, Diagnostics.Identifier_expected) : 
+                createMissingNode(SyntaxKind.Identifier, true, Diagnostics.Identifier_expected) as Identifier
+
+            if ((identifier as Node).kind === SyntaxKind.NewLineTrivia) {
+                parseErrorAtPosition(posIdentifier.pos, posIdentifier.pos, pos.fileName, Diagnostics.Identifier_expected);
+                identifier = createMissingNode(SyntaxKind.Identifier, false);
+            }
+
+            const identifierEnd = identifierStart + identifierText.length;
+            if (identifierEnd === scanner.getTokenStart() && token() === SyntaxKind.OpenParenToken) {
+                args = disallowTypes(parseParameters);
+            }
+        }
+
+        if (contentStart < 0) {
+            contentStart = scanner.getTokenStart();
+            // an empty body (`#define debug(x)`) expands to nothing
+            endPos = contentStart;
+            if (token() !== SyntaxKind.NewLineTrivia && token() !== SyntaxKind.EndOfFileToken) {
+                const fastEnd = currentMacro ? -1 : scanner.scanRestOfDefineLine();
+                if (fastEnd >= 0) {
+                    endPos = fastEnd;
+                    currentToken = scanner.getToken();
+                }
+                else {
+                    while (token() !== SyntaxKind.NewLineTrivia && token() !== SyntaxKind.EndOfFileToken) {
+                        endPos = scanner.getTokenEnd();
+                        nextToken();                      
+                    }
+                }
+            }
+        }
+        // the range is kept in a token object, so that every text range the parser hands out is a node
+        const range: TextRange = new TokenConstructor(SyntaxKind.Unknown, contentStart, endPos);
 
         // Add to macro table here
         const macroNode = withJSDoc(finishNode(factory.createDefineDirective(identifier, args, range), pos), hasJSDoc);
@@ -3032,11 +3350,22 @@ export namespace LpcParser {
             const scannerState = scanner.getState(pos.stateId);            
             Debug.assertIsDefined(scannerState, "Scanner state must be defined");
             Debug.assert(scannerState.fileName == pos.fileName, "Scanner state filename does not match position state filename");
-            
-            nodeFileMap.set(node, scannerState.fileName?.length > 0 ? scannerState.fileName : fileName);
 
             const rootMacro = pos.macro ? getRootMacro(pos.macro) : undefined;            
             const macroState = rootMacro?.pos;
+
+            // A node belongs to the file its first token is in; for a node from a macro, that
+            // is where the outermost macro is used, as the node gets its position from there.
+            const startState = macroState ?? pos;
+            const origin = startState.fileName?.length > 0 ? startState.fileName : fileName;
+            if (startState.include !== undefined) {
+                (node as Mutable<T>).flags |= NodeFlags.IncludeContext;
+            }
+            if (origin !== structuralFileName || originTaintDepth >= 0) {
+                recordNodeOrigin(node, origin);
+            }
+            lastFinishedNode = node;
+            lastFinishedOrigin = origin;
             
             if (rootMacro) {
                 // always store a link to the root macro
@@ -3055,6 +3384,15 @@ export namespace LpcParser {
             }                                 
         } else {
             setTextRangePosEnd(node, pos, end!);
+            if (explicitIncludeContext ?? includeTop !== undefined) {
+                (node as Mutable<T>).flags |= NodeFlags.IncludeContext;
+            }
+            if (includeTop !== undefined || structuralFileName !== fileName || originTaintDepth >= 0) {
+                const origin = getCurrentFileName();
+                if (explicitIncludeContext === undefined && (origin !== structuralFileName || originTaintDepth >= 0)) {
+                    recordNodeOrigin(node, origin);
+                }
+            }
         }
                 
         if (contextFlags) {
@@ -3070,6 +3408,11 @@ export namespace LpcParser {
         }
 
         return node;
+    }
+
+    /** Records the file of a node that its place in the tree does not give (see `structuralFileName`). */
+    function recordNodeOrigin(node: Node, origin: string): void {
+        (nodeOrigins ??= new Map()).set(node, origin === fileName ? undefined : includeFramesByFile.get(origin)?.directive);
     }
 
     // Ignore strict mode flag because we will report an error in type checker instead.
@@ -3371,8 +3714,19 @@ export namespace LpcParser {
         const saveParseErrorBeforeNextFinishedNode = parseErrorBeforeNextFinishedNode;        
         const saveCurrentMaco = currentMacro;
         const savePendingMacroCallEnds = pendingMacroCallEnds;
-        const saveTopInclude = currentTopLevelIncludeDirective;        
-        const saveInclude = currentIncludeDirective;
+        // The preprocessor runs as tokens are scanned, so looking ahead can read directives:
+        // enter or leave an include, open or close a conditional.
+        const saveIncludeTop = includeTop;
+        const savePendingIncludes = pendingIncludes;
+        const saveIncludeCount = includeDirectives.length;
+        const saveGlobalIncludeIndex = globalIncludeIndex;
+        const saveImportCandidateCount = importCandidates.length;
+        const saveCondTop = condTop;
+        const saveIsCodeExecutable = isCodeExecutable;
+        const saveInactiveRangeCount = inactiveRanges.length;
+        const saveLastInactiveRange = saveInactiveRangeCount > 0 ? inactiveRanges[saveInactiveRangeCount - 1] : undefined;
+        const saveLastInactiveRangeEnd = saveLastInactiveRange !== undefined ? saveLastInactiveRange.end : 0;
+        const saveOriginTaintDepth = originTaintDepth;
 
         // Note: it is not actually necessary to save/restore the context flags here.  That's
         // because the saving/restoring of these flags happens naturally through the recursive
@@ -3401,8 +3755,16 @@ export namespace LpcParser {
             parseErrorBeforeNextFinishedNode = saveParseErrorBeforeNextFinishedNode;            
             currentMacro = saveCurrentMaco;
             pendingMacroCallEnds = savePendingMacroCallEnds;
-            currentTopLevelIncludeDirective = saveTopInclude;            
-            currentIncludeDirective = saveInclude;
+            includeTop = saveIncludeTop;
+            pendingIncludes = savePendingIncludes;
+            includeDirectives.length = saveIncludeCount;
+            globalIncludeIndex = saveGlobalIncludeIndex;
+            importCandidates.length = saveImportCandidateCount;
+            condTop = saveCondTop;
+            isCodeExecutable = saveIsCodeExecutable;
+            inactiveRanges.length = saveInactiveRangeCount;
+            if (saveLastInactiveRange !== undefined) saveLastInactiveRange.end = saveLastInactiveRangeEnd;
+            originTaintDepth = saveOriginTaintDepth;
         }
 
         isSpeculating = saveIsSpeculating;
@@ -3577,7 +3939,15 @@ export namespace LpcParser {
         if (scanner.getFileName() != nodeFileName) {            
             restoreScannerState = scanner.switchStream(nodeFileName, sourceText, node.pos, node.end);
         }
+        // The comment's nodes belong to the owner's file, wherever the scanner is by now.
+        const saveExplicitIncludeContext = explicitIncludeContext;
+        const saveLastFinishedNode = lastFinishedNode;
+        const saveLastFinishedOrigin = lastFinishedOrigin;
+        explicitIncludeContext = (node.flags & NodeFlags.IncludeContext) !== 0;
         const jsDoc = mapDefined(getJSDocCommentRanges(node, sourceText), comment => JSDocParser.parseJSDocComment(node, comment.pos, comment.end - comment.pos));
+        explicitIncludeContext = saveExplicitIncludeContext;
+        lastFinishedNode = saveLastFinishedNode;
+        lastFinishedOrigin = saveLastFinishedOrigin;
         if (jsDoc.length) node.jsDoc = jsDoc;
         if (hasDeprecatedTag) {
             hasDeprecatedTag = false;
@@ -4349,12 +4719,32 @@ export namespace LpcParser {
         // `parseListElement` attempted to get the reused node at this position,
         // but the ambient context flag was not yet set, so the node appeared
         // not reusable in that context.
-        const pos = getPositionState();
-        const hasJSDoc = hasPrecedingJSDocComment();
+        let pos = getPositionState();
+        let hasJSDoc = hasPrecedingJSDocComment();
         if (languageVariant === LanguageVariant.LDMud && token() === SyntaxKind.DefaultKeyword) {
             return parseDefaultVisibilityStatement(pos, hasJSDoc);
         }
-        const modifiers = parseModifiers(/*allowDecorators*/ true);
+        let modifiers = parseModifiers(/*allowDecorators*/ true);
+
+        // Modifiers that directive lines stand between and their declaration (see carriedModifiers).
+        const carried = carriedModifiers;
+        if (carried !== undefined) {
+            carriedModifiers = undefined;
+            if (carried.fileName === structuralFileName) {
+                // the declaration starts where its first modifier does
+                pos = carried.pos;
+                hasJSDoc = carried.hasJSDoc;
+            }
+            else {
+                // the declaration is in an include: its first modifiers are in the file that includes it
+                forEach(carried.modifiers, modifier => recordNodeOrigin(modifier, carried.fileName));
+            }
+            modifiers = modifiers ? createNodeArray([...carried.modifiers, ...modifiers], carried.modifiers.pos, modifiers.end) : carried.modifiers;
+        }
+        if (modifiers && (pendingIncludes !== undefined || isDirective()) && isStatementListContext(currentParsingContext)) {
+            carriedModifiers = { modifiers, pos, hasJSDoc, fileName: carried !== undefined ? carried.fileName : structuralFileName };
+            return pendingIncludes !== undefined ? parseAdoptedInclude(currentParsingContext, parseStatement) : parseDirective();
+        }
         
         if (token() == SyntaxKind.InheritKeyword) {
             // Register the import as parseInheritStatement does, so `private inherit` / `virtual inherit` resolve.
@@ -6953,9 +7343,13 @@ export namespace LpcParser {
      * @returns 
      */
     function getNodeOriginFileName(node: Node) {
-        const f = nodeFileMap.get(node);
-        Debug.assertIsDefined(f, "node should have a filename");  
-        return f;        
+        if (node === lastFinishedNode) {
+            return lastFinishedOrigin!;
+        }
+        if (nodeOrigins !== undefined && nodeOrigins.has(node)) {
+            return nodeOrigins.get(node)?.fileName ?? fileName;
+        }
+        return structuralFileName;
     }
 
     /**
@@ -6963,7 +7357,7 @@ export namespace LpcParser {
      * if we are not inside an include directive
      */
     function getCurrentFileName() {
-        return currentIncludeDirective?.fileName || fileName;
+        return includeTop !== undefined ? includeTop.fileName : fileName;
     }
     
     export namespace JSDocParser {

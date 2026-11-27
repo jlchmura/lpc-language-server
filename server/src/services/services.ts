@@ -182,6 +182,12 @@ import {
     isPropertyAccessExpression,
     isPropertyName,
     isIncludeDirective,
+    isInIncludeContext,
+    isInMacroContext,
+    some,
+    filter,
+    factory,
+    setTextRangePosEnd,
     Classifications,
     SignatureHelpItemsOptions,
     SignatureHelpItems,
@@ -557,7 +563,12 @@ function createChildren(
     scanner.setLanguageVariant((scanSourceFile as SourceFile).languageVariant ?? LanguageVariant.LDMud);
     let pos = node.pos;
     Debug.assertIsDefined(pos);
+    // A node made from the text of an include that was read in the middle of this node has
+    // its position in that file. It is no child by position: the `#include` line is.
+    const isSplicedIn = !isInIncludeContext(node) && node.kind !== SyntaxKind.IncludeDirective
+        ? (child: Node) => isInIncludeContext(child) && !isInMacroContext(child) : undefined;
     const processNode = (child: Node) => {
+        if (isSplicedIn?.(child)) return;
         addSyntheticNodes(children, pos, child.pos, node, sourceFile.inactiveCodeRanges);
         children.push(child);        
         pos = child.end;
@@ -581,6 +592,11 @@ function createChildren(
         //         Debug.assert(n.pos >= node.pos);
         //     }
         // });
+        if (isSplicedIn && some(nodes, isSplicedIn)) {
+            const own = factory.createNodeArray(filter(nodes, n => !isSplicedIn(n)), nodes.hasTrailingComma);
+            setTextRangePosEnd(own, nodes.pos, nodes.end);
+            nodes = own;
+        }
         addSyntheticNodes(children, pos, nodes.pos, node, sourceFile.inactiveCodeRanges);
         pushIfDefined(children, createSyntaxList(nodes, node, sourceFile.inactiveCodeRanges));
         pos = nodes.end ?? 0;

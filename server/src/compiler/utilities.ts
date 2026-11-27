@@ -360,7 +360,33 @@ export function getSourceFileOrIncludeOfNode(node: Node | undefined, topLevelInc
             break;
         }
         node = node.parent;
-    }    
+    }
+    if (!node || !origNode) {
+        return node as unknown as SourceFileBase;
+    }
+
+    // The tree gives the file of nearly every node. The exceptions are recorded by the parser,
+    // and only a file that has an include in an unusual place has any.
+    let sourceFile = node;
+    while (sourceFile.kind !== SyntaxKind.SourceFile) {
+        if (!sourceFile.parent) return node as unknown as SourceFileBase;
+        sourceFile = sourceFile.parent;
+    }
+    const nodeOrigins = (sourceFile as SourceFile).nodeOrigins;
+    if (nodeOrigins) {
+        for (let current: Node = origNode; current && current !== node; current = current.parent) {
+            if (nodeOrigins.has(current)) {
+                let origin: Node = nodeOrigins.get(current) ?? sourceFile;
+                if (origin === origNode) continue;
+                if (topLevelInclude) {
+                    while (origin.kind === SyntaxKind.IncludeDirective && (origin as IncludeDirective).includedFrom) {
+                        origin = (origin as IncludeDirective).includedFrom!;
+                    }
+                }
+                return origin as unknown as SourceFileBase;
+            }
+        }
+    }
     return node as unknown as SourceFileBase;
 }
 

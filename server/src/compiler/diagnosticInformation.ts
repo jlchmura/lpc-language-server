@@ -14,6 +14,8 @@ export const Diagnostics = {
     Elseif_directive_without_if: diag(9007, DiagnosticCategory.Error, "Elseif_directive_without_if_9007", "#elseif directive without #if."),
     Unterminated_directive: diag(9006, DiagnosticCategory.Error, "Unterminated_directive_9006", "Unterminated directive."),
     Expected_newline_after_directive: diag(9008, DiagnosticCategory.Error, "Expected_newline_after_directive_9008", "Expected newline after directive."),
+    Text_after_0_is_ignored: diag(9086, DiagnosticCategory.Warning, "Text_after_0_is_ignored_9086", "Text after {0} is ignored."),
+    Text_after_0_is_not_allowed_under_pragma_pedantic: diag(9087, DiagnosticCategory.Error, "Text_after_0_is_not_allowed_under_pragma_pedantic_9087", "Text after {0} is not allowed under '#pragma pedantic'."),
     Pragma_directive_requires_at_least_one_argument: diag(9009, DiagnosticCategory.Error, "Pragma_directive_requires_at_least_one_argument_9009", "#pragma directive requires at least one argument."),
     Unexpected_endIf_directive: diag(9010, DiagnosticCategory.Error, "Unexpected_endIf_directive_9010", "Unexpected #endIf directive."),
     Catch_expression_modifier_expected: diag(9011, DiagnosticCategory.Error, "Catch_expression_modifier_expected_9011", "Catch expression modifier expected."),

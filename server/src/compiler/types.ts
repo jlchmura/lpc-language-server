@@ -3324,6 +3324,15 @@ export interface SourceFile extends Declaration, LocalsContainer, HasHeritageCon
     /** When a node is parsed as a result of a macro expansion, a link from the node 
      * to the original macro definition is stored here. */     
     nodeMacroMap?: ReadonlyMap<Node, string>;
+    /** Every `#include` read for this file, in the order read, also those nested in other includes. @internal */
+    includes?: readonly IncludeDirective[];
+    /**
+     * The file of each node that is not in the file its place in the tree gives: a node
+     * made from include text spliced into an expression, or one of a statement that runs
+     * past the end of its include. Undefined stands for this file. See getSourceFileOrIncludeOfNode.
+     * @internal
+     */
+    nodeOrigins?: ReadonlyMap<Node, IncludeDirective | undefined>;
 }
 
 export interface JsonSourceFile extends SourceFile {
@@ -7105,6 +7114,8 @@ export interface LpcFileHandler extends IFileHandler  {
      * FluffOS's `efun_defined(name)` in `#if`. Undefined when the efun headers aren't known.
      */
     isEfunDefined?(name: string): boolean;
+    /** The config's `defaultPragmas`: pragmas in force at the start of every file. */
+    getDefaultPragmas?(): readonly string[] | undefined;
 }
 
 export interface TransformationResult<T extends Node> {
@@ -7592,6 +7603,14 @@ export interface IncludeDirective extends PreprocessorDirective, SourceFileBase 
     // some sourcefile-like properties
     readonly text: string;
     inactiveCodeRanges?: readonly TextRange[];
+    /** The `#include` whose file holds this directive; undefined for a directive of the root file. @internal */
+    readonly includedFrom?: IncludeDirective;
+    /**
+     * True if the directive is in no list of statements: its file was read in the middle of
+     * an expression or a declaration, so the nodes made from its text are spread over the
+     * tree. Its parent is the directive (or file) that included it. @internal
+     */
+    readonly isFloating?: boolean;
 }
 
 
