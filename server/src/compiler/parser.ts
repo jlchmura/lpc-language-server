@@ -872,7 +872,8 @@ export namespace LpcParser {
                 // `object`, `function`, ...) and must win over same-named macros (e.g. a
                 // mudlib's `#define undefined ([])[0]`); plain identifiers still expand so
                 // macro-valued doc types like `{STD_BODY}` keep resolving.
-                if (allowMacroProcessing && (incomingToken == SyntaxKind.Identifier || (isNonReservedKeyword(incomingToken) && !inContext(NodeFlags.JSDoc)))) {
+                // A keyword expands too, when a macro has its name (`#define bytes string`).
+                if (allowMacroProcessing && (incomingToken == SyntaxKind.Identifier || (isKeyword(incomingToken) && !inContext(NodeFlags.JSDoc)))) {
                     const tokenValue = scanner.getTokenValue();
                     let macro: Macro;
         
@@ -2478,7 +2479,8 @@ export namespace LpcParser {
         const identifierText = internIdentifier(scanner.getTokenValue());
         let identifier = token() === SyntaxKind.EndOfFileToken ? createMissingNode(SyntaxKind.Identifier, true, Diagnostics.Identifier_expected) as Identifier :
             token() === SyntaxKind.Identifier ? parseIdentifier() : 
-            isNonReservedKeyword(token()) ? createIdentifier(true, Diagnostics.Identifier_expected) : 
+            // To the preprocessor a keyword is a name like any other: `#define bytes string`.
+            isKeyword(token()) ? createIdentifier(true, Diagnostics.Identifier_expected) : 
             createMissingNode(SyntaxKind.Identifier, true, Diagnostics.Identifier_expected) as Identifier
 
         if ((identifier as Node).kind === SyntaxKind.NewLineTrivia) {
