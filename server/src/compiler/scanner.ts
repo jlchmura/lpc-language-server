@@ -1882,6 +1882,30 @@ export function createScanner(
                 }
                 return escapedValueString;
 
+            case CharacterCodes.U:
+                // '\UDDDDDDDD', a code point in 8 hex digits (LDMud lex.c, FluffOS lexer.l)
+                for (; pos < start + 10; pos++) {
+                    if (!(pos < end && isHexDigit(charCodeUnchecked(pos)))) {
+                        tokenFlags |= TokenFlags.ContainsInvalidEscape;
+                        if (flags & EscapeSequenceScanningFlags.ReportInvalidEscapeErrors) {
+                            error(Diagnostics.Hexadecimal_digit_expected);
+                        }
+                        return text.substring(start, pos);
+                    }
+                }
+                tokenFlags |= TokenFlags.UnicodeEscape;
+                {
+                    const codePoint = parseInt(text.substring(start + 2, pos), 16);
+                    if (codePoint > 0x10FFFF) {
+                        tokenFlags |= TokenFlags.ContainsInvalidEscape;
+                        if (flags & EscapeSequenceScanningFlags.ReportInvalidEscapeErrors) {
+                            error(Diagnostics.An_extended_Unicode_escape_value_must_be_between_0x0_and_0x10FFFF_inclusive, start, pos - start);
+                        }
+                        return text.substring(start, pos);
+                    }
+                    return String.fromCodePoint(codePoint);
+                }
+
             case CharacterCodes.x:
                 // '\xDD'
                 for (; pos < start + 4; pos++) {
@@ -2307,10 +2331,12 @@ export function createScanner(
                         return token = SyntaxKind.LambdaToken;
                     }                    
                     tokenValue = scanString(false);            
-                    if (tokenValue.length > 1) {
+                    // one character is one code point: '😉' and '\U0001f609' are 0x1f609, though
+                    // each is two UTF-16 units here
+                    if ([...tokenValue].length > 1) {
                         error(Diagnostics.Character_literal_must_be_one_character, tokenStart, tokenValue.length + 2);
                     }        
-                    tokenValue = "" + tokenValue.charCodeAt(0);                    
+                    tokenValue = "" + (tokenValue.codePointAt(0) ?? NaN);                    
                     tokenFlags |= TokenFlags.Char;                    
                     return token = SyntaxKind.CharLiteral;                    
                 case CharacterCodes.doubleQuote:                
