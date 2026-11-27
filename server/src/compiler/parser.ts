@@ -118,6 +118,14 @@ export namespace LpcParser {
      * being scanned over, and no include is entered.
      */
     var preprocessorDepth = 0;
+    /**
+     * Whether LDMud's `#pragma pedantic` is in force where the scanner is (`sloppy` turns it
+     * off). The driver's lexer applies a pragma when it reads the line and keeps it in one
+     * global that an `#include` does not save or restore, so it is tracked the same way here,
+     * for what the preprocessor itself reports. (The checker works out the pragmas in force
+     * at a node on its own, see computeDriverPragmaStates.)
+     */
+    var pedantic = false;
     /** Greater than 0 while a macro use is being replaced by its text, which consumes no token. */
     var macroScanDepth = 0;
     /**
@@ -328,6 +336,9 @@ export namespace LpcParser {
         globalIncludeIndex = 0;
         preprocessorDepth = 0;
         macroScanDepth = 0;
+        pedantic = false;
+        // `defaultPragmas` act as `#pragma` lines at the very top of the file
+        forEach(languageVariant === LanguageVariant.LDMud ? fileHandler?.getDefaultPragmas?.() : undefined, applyPedanticPragma);
         structuralFileName = fileName;
         nodeOrigins = undefined;
         statementListDepth = 0;
@@ -764,7 +775,7 @@ export namespace LpcParser {
         if (terminator !== SyntaxKind.NewLineTrivia && terminator !== SyntaxKind.EndOfFileToken) {
             // Text after `#else` or `#endif` (`#endif DEBUG`). Neither driver reads it: FluffOS
             // says nothing (lex.cc handle_else, handle_endif), LDMud warns of "trailing
-            // characters" (lex.c warn_trailing_chars; an error only under #pragma pedantic).
+            // characters", which is an error under #pragma pedantic (lex.c warn_trailing_chars).
             if (languageVariant !== LanguageVariant.FluffOS) {
                 const textStart = scanner.getTokenStart();
                 let textEnd = scanner.getTokenEnd();
@@ -772,9 +783,10 @@ export namespace LpcParser {
                     textEnd = scanner.getTokenEnd();
                     terminator = scanner.scan();
                 }
-                // a warning: the node finished next has no error for it
+                // the node finished next has no error for it
                 const saveParseErrorBeforeNextFinishedNode = parseErrorBeforeNextFinishedNode;
-                parseErrorAtPosition(textStart, textEnd - textStart, scanner.getFileName(), Diagnostics.Text_after_0_is_ignored,
+                parseErrorAtPosition(textStart, textEnd - textStart, scanner.getFileName(),
+                    pedantic ? Diagnostics.Text_after_0_is_not_allowed_under_pragma_pedantic : Diagnostics.Text_after_0_is_ignored,
                     directive === SyntaxKind.ElseDirective ? "#else" : "#endif");
                 parseErrorBeforeNextFinishedNode = saveParseErrorBeforeNextFinishedNode;
             }
@@ -2708,8 +2720,16 @@ export namespace LpcParser {
         }
 
         // TODO: validate pragma arguments here, similar to modifiers
+        if (languageVariant === LanguageVariant.LDMud) {
+            forEach(pragmaArgs, arg => applyPedanticPragma(arg.text));
+        }
 
         return finishNode(factory.createPragmaDirective(pragmaArgs), pos);
+    }
+
+    function applyPedanticPragma(name: string): void {
+        if (name === "pedantic") pedantic = true;
+        else if (name === "sloppy") pedantic = false;
     }
 
     function parseIncludeDirective(): IncludeDirective {

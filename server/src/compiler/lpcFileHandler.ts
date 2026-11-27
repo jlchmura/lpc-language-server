@@ -21,6 +21,7 @@ export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
         loadInclude,
         loadIncludeFile,
         isEfunDefined: host.getEfunHeaderFileName ? isEfunDefined : undefined,
+        getDefaultPragmas: () => host.getCompilerOptions()?.defaultPragmas,
     };
 
     function isEfunDefined(name: string): boolean {

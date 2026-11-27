@@ -7114,6 +7114,8 @@ export interface LpcFileHandler extends IFileHandler  {
      * FluffOS's `efun_defined(name)` in `#if`. Undefined when the efun headers aren't known.
      */
     isEfunDefined?(name: string): boolean;
+    /** The config's `defaultPragmas`: pragmas in force at the start of every file. */
+    getDefaultPragmas?(): readonly string[] | undefined;
 }
 
 export interface TransformationResult<T extends Node> {

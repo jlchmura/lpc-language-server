@@ -269,6 +269,29 @@ describe.each([
         }
     });
 
+    // LDMud's lexer applies a pragma when it reads the line, and an #include does not save or
+    // restore it. `sloppy` turns `pedantic` off. FluffOS has neither.
+    it("makes text after #endif an error under LDMud's #pragma pedantic", () => {
+        const files = {
+            "lib/test.c": `#if 1\n#endif A\n#include "/strict.h"\n#if 1\n#endif B\n#pragma sloppy\n#if 1\n#else C\n#endif\n`,
+            "lib/strict.h": `#pragma pedantic\n`,
+        };
+        const { ls, abs } = service(files, driverType);
+        const found = allDiagnostics(ls, abs("lib/test.c")).map(d => [d.code, d.category, files["lib/test.c"].substr(d.start!, d.length!)]);
+        expect(found).toEqual(driverType === lpc.LanguageVariant.FluffOS ? [] : [
+            [9086, lpc.DiagnosticCategory.Warning, "A"],
+            [9087, lpc.DiagnosticCategory.Error, "B"],
+            [9086, lpc.DiagnosticCategory.Warning, "C"],
+        ]);
+    });
+
+    it("takes pedantic from the config's defaultPragmas", () => {
+        const source = `#if 1\n#endif A\n#pragma sloppy\n#if 1\n#endif B\n`;
+        const { ls, abs } = createTestLanguageService({ "lib/test.c": source }, { driverType, diagnostics: true, rootDir: LIB_ROOT, defaultPragmas: ["pedantic"] });
+        const found = allDiagnostics(ls, abs("lib/test.c")).map(d => [d.code, source.substr(d.start!, d.length!)]);
+        expect(found).toEqual(driverType === lpc.LanguageVariant.FluffOS ? [] : [[9087, "A"], [9086, "B"]]);
+    });
+
     it("allows a comment after #else and #endif", () => {
         expect(diagnosticsFor({ "lib/test.c": `#if 1\nint a;\n#else // not this\nint b;\n#endif /* 1 */\nint d = a;\n` }, driverType)).toEqual([]);
     });
