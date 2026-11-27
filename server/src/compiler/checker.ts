@@ -6303,7 +6303,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 return errorType;
             }
 
-            const declaration = Debug.checkDefined(symbol.declarations?.find(isTypeAlias), "Type alias symbol with no valid declaration found");
+            // a struct's definition, not a prototype before it (`struct F; struct F { ... };`)
+            const declaration = Debug.checkDefined(symbol.declarations?.find((d): d is StructDeclaration | TypeAliasDeclaration | JSDocTypedefTag | JSDocCallbackTag => isTypeAlias(d) && !(isStructDeclaration(d) && !d.type)) ?? symbol.declarations?.find(isTypeAlias), "Type alias symbol with no valid declaration found");
             const typeNode = isJSDocTypeAlias(declaration) ? declaration.typeExpression : declaration.type;
             // If typeNode is missing, we will error in checkJSDocTypedefTag.
             let type = typeNode ? getTypeFromTypeNode(typeNode) : errorType;
