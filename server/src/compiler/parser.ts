@@ -1696,6 +1696,9 @@ export namespace LpcParser {
                 // When these don't start a declaration, they may be the start of a class member if an identifier
                 // immediately follows. Otherwise they're an identifier in an expression statement.
                 return isStartOfDeclaration() || !lookAhead(nextTokenIsIdentifierOrKeywordOnSameLine);
+            case SyntaxKind.DefaultKeyword:
+                // LDMud's `default private functions;` (see isDeclaration)
+                return isStartOfDeclaration();
             case SyntaxKind.AtToken:
                 return inContext(NodeFlags.JSDoc);
             default:
@@ -1729,6 +1732,9 @@ export namespace LpcParser {
                 //     return isUsingDeclaration();
                 // case SyntaxKind.AwaitKeyword:
                 //     return isAwaitUsingDeclaration();                                
+                case SyntaxKind.DefaultKeyword:
+                    // LDMud's default visibility, `default private functions;`; `default:` is a switch label
+                    return languageVariant === LanguageVariant.LDMud && lookAhead(() => nextToken() !== SyntaxKind.ColonToken);
                 case SyntaxKind.AsyncKeyword:                
                 case SyntaxKind.PrivateKeyword:
                 case SyntaxKind.ProtectedKeyword:
@@ -2111,6 +2117,12 @@ export namespace LpcParser {
             case SyntaxKind.CatchKeyword:
                 return parseCatchStatement();                   
             case SyntaxKind.ClassKeyword:
+            case SyntaxKind.DefaultKeyword:
+                // LDMud's `default private functions;` (see isDeclaration)
+                if (isStartOfDeclaration()) {
+                    return parseDeclaration();
+                }
+                break;
             case SyntaxKind.StructKeyword:
                 if (isStartOfDeclaration()) {
                     return parseDeclaration();
@@ -4158,6 +4170,12 @@ export namespace LpcParser {
     
     function nextTokenCanFollowModifier() {
         switch (token()) {
+            case SyntaxKind.FunctionsKeyword:
+            case SyntaxKind.VariablesKeyword:
+            case SyntaxKind.StructsKeyword:
+                // an inheritance qualifier also ends LDMud's `default private functions;`
+                nextToken();
+                return token() === SyntaxKind.SemicolonToken || canFollowModifier();
             // case SyntaxKind.ConstKeyword:
             //     // 'const' is only a modifier if followed by 'enum'.
             //     return nextToken() === SyntaxKind.EnumKeyword;                        
@@ -4273,6 +4291,14 @@ export namespace LpcParser {
         const hasJSDoc = hasPrecedingJSDocComment();
         const modifiers = parseModifiers(/*allowDecorators*/ true);
         
+        if (languageVariant === LanguageVariant.LDMud && (modifiers?.[0].kind as SyntaxKind) === SyntaxKind.DefaultKeyword && token() === SyntaxKind.SemicolonToken) {
+            // LDMud's default visibility, `default private functions, public variables;`
+            // (prolang.y, default_visibility). It sets the visibility of the declarations after
+            // it, which this server does not apply.
+            parseExpected(SyntaxKind.SemicolonToken);
+            return withJSDoc(finishNode(factory.createEmptyStatement(), pos), hasJSDoc);
+        }
+
         if (token() == SyntaxKind.InheritKeyword) {
             // Register the import as parseInheritStatement does, so `private inherit` / `virtual inherit` resolve.
             return addImportCandidate(parseInheritStatementWorker(pos, hasJSDoc, modifiers));

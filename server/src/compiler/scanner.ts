@@ -191,6 +191,8 @@ export const textToKeywordObj: MapLike<KeywordSyntaxKind> = {
     foreach: SyntaxKind.ForEachKeyword,
     for: SyntaxKind.ForKeyword,    
     functions: SyntaxKind.FunctionsKeyword,
+    variables: SyntaxKind.VariablesKeyword,
+    structs: SyntaxKind.StructsKeyword,
     function: SyntaxKind.FunctionKeyword,    
     if: SyntaxKind.IfKeyword,    
     in: SyntaxKind.InKeyword,        
@@ -262,6 +264,11 @@ export function isKeywordInLanguageVariant(keyword: SyntaxKind, variant: Languag
         case SyntaxKind.SymbolKeyword:
         case SyntaxKind.VirtualKeyword:
         case SyntaxKind.YieldKeyword:
+        // LDMud's inheritance qualifiers: plain identifiers its grammar reads in
+        // `private functions inherit` and `default private functions;` (prolang.y)
+        case SyntaxKind.FunctionsKeyword:
+        case SyntaxKind.VariablesKeyword:
+        case SyntaxKind.StructsKeyword:
             return variant === LanguageVariant.LDMud;
         case SyntaxKind.AnyKeyword:
         case SyntaxKind.UnknownKeyword:

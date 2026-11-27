@@ -838,6 +838,8 @@ export const enum SyntaxKind {
     PromiseKeyword,     // fluff only
     IsKeyword,          // use for type predicates only
     FunctionsKeyword,   // inherit modifier
+    VariablesKeyword,   // inherit modifier (LDMud)
+    StructsKeyword,     // inherit modifier (LDMud)
     VirtualKeyword,     // inherit modifier
     InKeyword,          // not a reserved word in LD (maybe fluff?)
     NewKeyword,         // LastKeyword and LastToken - everything after this will be processed by the binder
@@ -2480,6 +2482,8 @@ export type KeywordSyntaxKind =
     | SyntaxKind.TrueKeyword
     | SyntaxKind.FalseKeyword
     | SyntaxKind.FunctionsKeyword
+    | SyntaxKind.VariablesKeyword
+    | SyntaxKind.StructsKeyword
     | SyntaxKind.VirtualKeyword
     | SyntaxKind.IsKeyword
     | SyntaxKind.RefKeyword

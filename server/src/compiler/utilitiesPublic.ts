@@ -1107,6 +1107,8 @@ export function isModifierKind(token: SyntaxKind): token is Modifier["kind"] {
         case SyntaxKind.NoSaveKeyword:
         case SyntaxKind.DeprecatedKeyword:
         case SyntaxKind.FunctionsKeyword:
+        case SyntaxKind.VariablesKeyword:
+        case SyntaxKind.StructsKeyword:
         case SyntaxKind.VirtualKeyword:
             return true;
     }
