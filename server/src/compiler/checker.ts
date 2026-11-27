@@ -2883,6 +2883,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return undefined;
         }
 
+        // An LPC foreach visits a string's characters, which are ints, in both drivers, and
+        // so a bytes value's. LDMud also counts through an int (`foreach (i : 6)` is 0..5) and
+        // visits a struct's members, which have no one type (doc/LPC/foreach).
+        const stringElementType = use & IterationUse.ForOfFlag ? intType : stringType;
+        if (use & IterationUse.ForOfFlag) {
+            const elementType = getLpcForEachElementType(inputType);
+            if (elementType) return elementType;
+        }
+
         const uplevelIteration = true;//languageVersion >= ScriptTarget.ES2015;
         const downlevelIteration = !uplevelIteration;// && compilerOptions.downlevelIteration;
         const possibleOutOfBounds = compilerOptions.noUncheckedIndexedAccess && !!(use & IterationUse.PossiblyOutOfBounds);
@@ -2935,7 +2944,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // Now that we've removed all the StringLike types, if no constituents remain, then the entire
                 // arrayOrStringType was a string.
                 if (arrayType.flags & TypeFlags.Never) {
-                    return possibleOutOfBounds ? includeUndefinedInIndexSignature(stringType) : stringType;
+                    return possibleOutOfBounds ? includeUndefinedInIndexSignature(stringElementType) : stringElementType;
                 }
             }
         }
@@ -2962,17 +2971,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     typeToString(arrayType),
                 );
             }
-            return hasStringConstituent ? possibleOutOfBounds ? includeUndefinedInIndexSignature(stringType) : stringType : undefined;
+            return hasStringConstituent ? possibleOutOfBounds ? includeUndefinedInIndexSignature(stringElementType) : stringElementType : undefined;
         }
 
         const arrayElementType = isArrayType(arrayType) && arrayType.resolvedTypeArguments ? first(arrayType.resolvedTypeArguments) : getIndexTypeOfType(arrayType, numberType);
         if (hasStringConstituent && arrayElementType) {
             // This is just an optimization for the case where arrayOrStringType is string | string[]
-            if (arrayElementType.flags & TypeFlags.StringLike && !compilerOptions.noUncheckedIndexedAccess) {
+            if (arrayElementType.flags & TypeFlags.StringLike && stringElementType === stringType && !compilerOptions.noUncheckedIndexedAccess) {
                 return stringType;
             }
 
-            return getUnionType(possibleOutOfBounds ? [arrayElementType, stringType, undefinedType] : [arrayElementType, stringType], UnionReduction.Subtype);
+            return getUnionType(possibleOutOfBounds ? [arrayElementType, stringElementType, undefinedType] : [arrayElementType, stringElementType], UnionReduction.Subtype);
         }
 
         if (isMappingType(arrayType)) {
@@ -2994,6 +3003,24 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
     }
     
+    /**
+     * The element type of a foreach over a string, bytes, an LDMud int or an LDMud struct, or
+     * undefined when the value is something else (an array, a mapping, a union with one).
+     */
+    function getLpcForEachElementType(type: Type): Type | undefined {
+        const isLDMud = languageVariant === LanguageVariant.LDMud;
+        let elementTypes: Type[] | undefined;
+        for (const t of type.flags & TypeFlags.Union ? (type as UnionType).types : [type]) {
+            const elementType = t.flags & (TypeFlags.StringLike | TypeFlags.BytesLike) ? intType :
+                isLDMud && t.flags & (TypeFlags.Number | TypeFlags.IntLiteral) ? intType :
+                isLDMud && isStructOrClassType(t) ? anyType :
+                undefined;
+            if (!elementType) return undefined;
+            (elementTypes ??= []).push(elementType);
+        }
+        return elementTypes && getUnionType(elementTypes);
+    }
+
     function checkPropertyAccessExpression(node: PropertyAccessExpression, checkMode: CheckMode | undefined, writeOnly?: boolean) {
         return node.flags & NodeFlags.OptionalChain ? checkPropertyAccessChain(node as PropertyAccessChain, checkMode) :
             checkPropertyAccessExpressionOrQualifiedName(node, node.expression, tryResolveExpressionToObject(node.expression, node, checkMode) ?? checkNonNullExpression(node.expression, checkMode), node.name, checkMode, writeOnly);
@@ -4533,6 +4560,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     Diagnostics.The_left_hand_side_of_a_for_in_statement_may_not_be_an_optional_property_access
                 );
             }
+            else if (getLpcForEachElementType(rightType)) {
+                // A string's characters, an LDMud int's count or struct's members: the
+                // iterated type, checked below, is the element.
+                checkReferenceExpression(
+                    varExpr,
+                    Diagnostics.The_left_hand_side_of_a_for_each_mapping_statement_must_be_a_variable_or_a_property_access,
+                    Diagnostics.The_left_hand_side_of_a_for_in_statement_may_not_be_an_optional_property_access
+                );
+            }
             else if (isArrayType(rightType)) {
                 // A single-variable foreach over an array binds the element, so compare
                 // against the element type. getIndexTypeOrString() answers with the index
@@ -5526,11 +5562,35 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (!name) {
             return unknownSymbol;
         }
+        const qualified = isStructTypeNode(typeReference) && isIdentifier(name) ? resolveQualifiedStructName(typeReference, name, meaning, ignoreErrors) : undefined;
+        if (qualified) {
+            return qualified;
+        }
         const symbol = resolveEntityName(name, meaning, ignoreErrors);
         return symbol && symbol !== unknownSymbol ? symbol :
             ignoreErrors ? unknownSymbol : getUnresolvedSymbolForEntityName(name);
     }
     
+    /**
+     * LDMud `struct sefun::S` and `struct efun::S` name the simul-efun object's or the driver's
+     * struct, even where the program has its own S. `::S` is the program's own, which is how a
+     * plain name already resolves, so it needs nothing here.
+     */
+    function resolveQualifiedStructName(node: StructTypeNode, name: Identifier, meaning: SymbolFlags, ignoreErrors?: boolean): Symbol | undefined {
+        if (node.qualifier !== "sefun" && node.qualifier !== "efun") {
+            return undefined;
+        }
+        // Never the program's own struct, also when there is no simul-efun file to look in.
+        const table = node.qualifier === "sefun" ? host.getSourceFile(compilerOptions.sefunFile)?.locals : globals.get(InternalSymbolName.EfunNamespace)?.members;
+        const symbol = table && getSymbol(table, name.text, meaning);
+        if (!symbol) {
+            if (!ignoreErrors) error(name, Diagnostics.Cannot_find_name_0, name.text);
+            return ignoreErrors ? undefined : unknownSymbol;
+        }
+        getNodeLinks(name).resolvedSymbol = symbol;
+        return symbol;
+    }
+
     function getUnresolvedSymbolForEntityName(name: EntityNameOrEntityNameExpression) {
         const identifier = name.kind === SyntaxKind.QualifiedName ? name.right :
             name.kind === SyntaxKind.PropertyAccessExpression ? name.name :
@@ -5985,6 +6045,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return createPromiseType(payloadType);
     }
 
+    /** LDMud: a `string` written under `#pragma no_bytes_type` is `<string|bytes>`. */
+    function isStringOrBytesTypeNode(node: TypeNode): boolean {
+        return languageVariant === LanguageVariant.LDMud && !!node.parent && !nodeIsSynthesized(node) && getDriverPragmaStateAt(node).noBytesType;
+    }
+
     function getTypeFromTypeNodeWorker(node: TypeNode): Type {
         Debug.assertIsDefined(node);
         switch (node.kind) {
@@ -5995,7 +6060,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.UnknownKeyword:
                 return unknownType;
             case SyntaxKind.StringKeyword:
-                return stringType;
+                return isStringOrBytesTypeNode(node) ? getUnionType([stringType, bytesType]) : stringType;
             case SyntaxKind.StatusKeyword:
             case SyntaxKind.IntKeyword:
                 return intType;
@@ -18998,6 +19063,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     /** The operators whose operand types follow each driver's own rules here. */
+    function isArraySetOperator(operator: SyntaxKind) {
+        switch (operator) {
+            case SyntaxKind.BarToken:
+            case SyntaxKind.BarEqualsToken:
+            case SyntaxKind.CaretToken:
+            case SyntaxKind.CaretEqualsToken:
+                return true;
+        }
+        return false;
+    }
+
     function isDriverTypedOperator(operator: SyntaxKind) {
         switch (operator) {
             case SyntaxKind.MinusToken:
@@ -19137,6 +19213,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     if (isArrayType(leftType) && isArrayType(rightType)) {
                         //compareTypesAssignable(rightType, leftType)
                         resultType = leftType;//first(rightType.resolvedTypeArguments) ?? anyType;
+                    }
+                    // `|` and `^` on arrays are a union and a symmetric difference in both drivers,
+                    // so an array with a mixed operand gives an array, as `i |= funcall(...)` does
+                    // in LDMud's tl-rttc-assign.c.
+                    else if (isArraySetOperator(operator) && (isArrayType(leftType) && isTypeAny(rightType) || isTypeAny(leftType) && isArrayType(rightType))) {
+                        resultType = isArrayType(leftType) ? leftType : rightType;
                     }
                     // If both are any or unknown, allow operation; assume it will resolve to number
                     else if (
@@ -34938,7 +35020,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return symbol && symbol !== unknownSymbol ? symbol : getUnresolvedSymbolForEntityName(name as EntityName);
         }
         else if (isStructTypeNode(name.parent)) {
-            const symbol = resolveEntityName(name as EntityName, SymbolFlags.Type, /*ignoreErrors*/ false, /*dontResolveAlias*/ true);
+            const symbol = (isIdentifier(name) && resolveQualifiedStructName(name.parent, name, SymbolFlags.Type, /*ignoreErrors*/ true))
+                || resolveEntityName(name as EntityName, SymbolFlags.Type, /*ignoreErrors*/ false, /*dontResolveAlias*/ true);
             return symbol && symbol !== unknownSymbol ? symbol : getUnresolvedSymbolForEntityName(name as EntityName);
         }
         if (name.parent.kind === SyntaxKind.TypePredicate) {

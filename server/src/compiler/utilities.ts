@@ -272,6 +272,7 @@ function getJSDocModifierFlagsNoCache(node: Node): ModifierFlags {
  */
 export function getSyntacticModifierFlagsNoCache(node: Node): ModifierFlags {
     let flags = canHaveModifiers(node) ? modifiersToFlags(node.modifiers) : ModifierFlags.None;
+    if (node.defaultVisibility) flags |= node.defaultVisibility;
     // if (node.flags & NodeFlags.NestedNamespace || node.kind === SyntaxKind.Identifier && node.flags & NodeFlags.IdentifierIsInJSDocNamespace) {
     //     flags |= ModifierFlags.Export;
     // }

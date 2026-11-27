@@ -35,6 +35,9 @@ describe.each(["strict", "driver"] as const)("LDMud lpctypes (%s mode)", mode =>
         ok(`int f() { return typeof([int]) + intp([int]); }\nmixed g() { return ([int]); }\n`);
         ok(`mixed f() { return ([int] in [int|float]) + ([int] == [int]); }\n`);
         ok(`mixed f(int int_x) { return ([ "a": [int] ]) + ([ ]) + ([ int_x: 2 ]) + ([:2]); }\n`);
+        // a union's `<` can't start a mapping key either (t-efuns.c)
+        ok(`mixed f() { return to_array([<int|string>*]) + ({ to_lpctype(to_string([<int*|string>*])) == [<int*|string>*] }); }\n`);
+        ok(`lpctype f() { return ([ < int|string>]); }\n`);
     });
 
     it("gives decltype() the lpctype of its operand, which is checked", () => {

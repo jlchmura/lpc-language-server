@@ -67,6 +67,7 @@ export const Diagnostics = {
     Member_0_of_struct_1_is_initialized_more_than_once: diag(9082, DiagnosticCategory.Error, "Member_0_of_struct_1_is_initialized_more_than_once_9082", "Member '{0}' of struct '{1}' is initialized more than once."),
     Too_many_values_for_struct_0_it_has_1_members: diag(9083, DiagnosticCategory.Error, "Too_many_values_for_struct_0_it_has_1_members_9083", "Too many values for struct '{0}': it has {1} members."),
     Struct_0_has_no_member_1_here_it_is_only_defined_later_in_this_program: diag(9084, DiagnosticCategory.Error, "Struct_0_has_no_member_1_here_it_is_only_defined_later_in_this_program_9084", "Struct '{0}' has no member '{1}' here: it is only defined later in this program."),
+    Illegal_struct_name_qualifier_0: diag(9085, DiagnosticCategory.Error, "Illegal_struct_name_qualifier_0_9085", "Illegal struct name qualifier '{0}'."),
     Undefined_function_0: diag(9078, DiagnosticCategory.Warning, "Undefined_function_0_9078", "Undefined function '{0}'."),
     Missing_return_value_statement: diag(9079, DiagnosticCategory.Warning, "Missing_return_value_statement_9079", "Missing 'return <value>' statement."),
     The_virtual_modifier_can_only_be_used_with_inherit: diag(9057, DiagnosticCategory.Error, "The_virtual_modifier_can_only_be_used_with_inherit_9057", "The 'virtual' modifier can only be used with 'inherit'."),

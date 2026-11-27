@@ -1,4 +1,4 @@
-import { ACatchExpression, CatchModifier, AwaitExpression, CoroutineCallExpression, DecltypeExpression, LpcTypeLiteralExpression, CoroutineInstruction, PromiseTypeNode, AmpersandToken, ArrayLiteralExpression, ArrayTypeNode, BaseNodeFactory, BinaryExpression, BinaryOperatorToken, BindingPattern, Block, BooleanLiteral, BreakOrContinueStatement, BreakStatement, ByRefElement, CallExpression, CaseBlock, CaseClause, CaseOrDefaultClause, CastExpression, CatchExpression, CatchStatement, TimeExpression, CharacterCodes, CloneObjectExpression, CommaListExpression, CommentRange, ConditionalExpression, ContinueStatement, Debug, DefaultClause, DefineDirective, Diagnostic, DiagnosticArguments, DiagnosticMessage, DiagnosticWithDetachedLocation, Diagnostics, DoWhileStatement, ElementAccessExpression, EndOfFileToken, EntityName, EvaluateExpression, Expression, ExpressionStatement, ExpressionWithTypeArguments, Extension, ForEachChildNodes, ForEachStatement, ForStatement, FunctionDeclaration, FunctionExpression, HasJSDoc, Identifier, IfStatement, ImpliedStringConcatExpression, ImportCandidateNode, IncludeDirective, IncludeDiagnosticOrigin, IncludeParseDiagnostic, InferTypeNode, InheritClauseNodeType, InheritDeclaration, InlineClosureExpression, IntersectionTypeNode, IterationStatement, JSDoc, JSDocAugmentsTag, JSDocAuthorTag, JSDocCallbackTag, JSDocClassTag, JSDocComment, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocOverrideTag, JSDocParameterTag, JSDocParsingMode, JSDocPrivateTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocProtectedTag, JSDocPublicTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocTypedefTag, JSDocUnknownTag, JSDocVariableTag, JSDocVariadicType, JsonMinusNumericLiteral, JsonObjectExpressionStatement, JsonSourceFile, KeywordSyntaxKind, LabeledStatement, LambdaExpression, LambdaIdentifierExpression, LambdaOperatorExpression, LambdaOperatorToken, QuotedArrayExpression, LanguageVariant, LeftHandSideExpression, LiteralExpression, LiteralLikeNode, LiteralTypeNode, createMacroEnvironment, MacroEnvironment, MacroPositionSnapshot, evaluatePreprocessorCondition, PreprocessorToken, LpcFileHandler, LpcLoadImportResult, Macro, MacroParameter, MapLike, MappingEntryExpression, MappingLiteralExpression, MappingTypeNode, MappingTypeEntryNode, MemberExpression, MethodSignature, MissingDeclaration, Modifier, ModifierLike, Mutable, MutableNodeArray, NamedObjectTypeNode, NewExpression, NewExpressionArgument, NewStructExpression, Node, NodeArray, NodeFactory, NodeFactoryFlags, NodeFlags, NullLiteral, NumericLiteral, ObjectLiteralElementLike, ObjectLiteralExpression, OperatorPrecedence, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PositionState, PostfixUnaryExpression, PostfixUnaryOperator, PragmaContext, PragmaDefinition, PragmaDirective, PragmaKindFlags, PragmaMap, PragmaPseudoMap, PragmaPseudoMapEntry, PrefixUnaryExpression, PrefixUnaryOperator, PreprocessorDirective, PrimaryExpression, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAccessToken, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, QualifiedName, QuestionDotToken, RangeExpression, RefToken, ResolutionMode, ReturnStatement, ScriptKind, ScriptTarget, ShorthandPropertyAssignment, SourceFile, SpreadElement, Statement, StringLiteral, StructDeclaration, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, TemplateExpression, TemplateSpan, Ternary, TextChangeRange, TextRange, Token, TupleTypeNode, TypeAssertion, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnaryExpression, UndefDirective, UnionTypeNode, UpdateExpression, VariableDeclaration, VariableDeclarationList, VariableStatement, WhileStatement, addRange, addRelatedInfo, append, attachFileToDiagnostics, canHaveJSDoc, commentPragmas, concatenate, containsParseError, createDetachedDiagnostic, createNodeFactory, createScanner, emptyArray, emptyMap, fileExtensionIs, first, firstOrUndefined, flatten, forEach, forEachEntry, getAnyExtensionFromPath, getBaseFileName, getBinaryOperatorPrecedence, getDirectoryPath, getFullWidth, getJSDocCommentRanges, getLeadingCommentRanges, getSpellingSuggestion, idText, identity, isArray, isArrayTypeNode, isAssignmentOperator, isBinaryExpression, isIdentifier as isIdentifierNode, isIdentifierText, isJSDocReturnTag, isJSDocTypeTag, isKeyword, isKeywordOrPunctuation, isLeftHandSideExpression, isLiteralKind, isModifierKind, isNonReservedKeyword, isParenthesizedExpression, isStringLiteral, isStringOrNumericLiteralLike, isStructTypeNode, isTemplateExpression, isTypeReferenceNode, last, lastOrUndefined, map, mapDefined, nodeIsMissing, nodeIsPresent, objectAllocator, performance, setNodeFlags, setParent, setParentRecursive, setTextRangePos, setTextRangePosEnd, setTextRangePosWidth, skipTrivia, some, startsWith, supportedDeclarationExtensions, textToKeywordObj, toArray, tokenIsIdentifierOrKeyword, tokenToString, tracing } from "./_namespaces/lpc";
+import { ACatchExpression, CatchModifier, AwaitExpression, CoroutineCallExpression, DecltypeExpression, LpcTypeLiteralExpression, CoroutineInstruction, PromiseTypeNode, AmpersandToken, ArrayLiteralExpression, ArrayTypeNode, BaseNodeFactory, BinaryExpression, BinaryOperatorToken, BindingPattern, Block, BooleanLiteral, BreakOrContinueStatement, BreakStatement, ByRefElement, CallExpression, CaseBlock, CaseClause, CaseOrDefaultClause, CastExpression, CatchExpression, CatchStatement, TimeExpression, CharacterCodes, CloneObjectExpression, CommaListExpression, CommentRange, ConditionalExpression, ContinueStatement, Debug, DefaultClause, DefineDirective, Diagnostic, DiagnosticArguments, DiagnosticMessage, DiagnosticWithDetachedLocation, Diagnostics, DoWhileStatement, ElementAccessExpression, EndOfFileToken, EntityName, EvaluateExpression, Expression, ExpressionStatement, ExpressionWithTypeArguments, Extension, ForEachChildNodes, ForEachStatement, ForStatement, FunctionDeclaration, FunctionExpression, HasJSDoc, Identifier, IfStatement, ImpliedStringConcatExpression, ImportCandidateNode, IncludeDirective, IncludeDiagnosticOrigin, IncludeParseDiagnostic, InferTypeNode, InheritClauseNodeType, InheritDeclaration, InlineClosureExpression, IntersectionTypeNode, IterationStatement, JSDoc, JSDocAugmentsTag, JSDocAuthorTag, JSDocCallbackTag, JSDocClassTag, JSDocComment, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocOverrideTag, JSDocParameterTag, JSDocParsingMode, JSDocPrivateTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocProtectedTag, JSDocPublicTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocTypedefTag, JSDocUnknownTag, JSDocVariableTag, JSDocVariadicType, JsonMinusNumericLiteral, JsonObjectExpressionStatement, JsonSourceFile, KeywordSyntaxKind, LabeledStatement, LambdaExpression, LambdaIdentifierExpression, LambdaOperatorExpression, LambdaOperatorToken, QuotedArrayExpression, LanguageVariant, LeftHandSideExpression, LiteralExpression, LiteralLikeNode, LiteralTypeNode, createMacroEnvironment, MacroEnvironment, MacroPositionSnapshot, evaluatePreprocessorCondition, EfunDefinedOperator, PreprocessorToken, LpcFileHandler, LpcLoadImportResult, Macro, MacroParameter, MapLike, MappingEntryExpression, MappingLiteralExpression, MappingTypeNode, MappingTypeEntryNode, MemberExpression, MethodSignature, MissingDeclaration, Modifier, ModifierFlags, ModifierLike, Mutable, modifierToFlag, modifiersToFlags, isModifier, MutableNodeArray, NamedObjectTypeNode, NewExpression, NewExpressionArgument, NewStructExpression, Node, NodeArray, NodeFactory, NodeFactoryFlags, NodeFlags, NullLiteral, NumericLiteral, ObjectLiteralElementLike, ObjectLiteralExpression, OperatorPrecedence, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PositionState, PostfixUnaryExpression, PostfixUnaryOperator, PragmaContext, PragmaDefinition, PragmaDirective, PragmaKindFlags, PragmaMap, PragmaPseudoMap, PragmaPseudoMapEntry, PrefixUnaryExpression, PrefixUnaryOperator, PreprocessorDirective, PrimaryExpression, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAccessToken, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, QualifiedName, QuestionDotToken, RangeExpression, RefToken, ResolutionMode, ReturnStatement, ScriptKind, ScriptTarget, ShorthandPropertyAssignment, SourceFile, SpreadElement, Statement, StringLiteral, StructDeclaration, StructNameQualifier, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, TemplateExpression, TemplateSpan, Ternary, TextChangeRange, TextRange, Token, TupleTypeNode, TypeAssertion, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnaryExpression, UndefDirective, UnionTypeNode, UpdateExpression, VariableDeclaration, VariableDeclarationList, VariableStatement, WhileStatement, addRange, addRelatedInfo, append, attachFileToDiagnostics, canHaveJSDoc, commentPragmas, concatenate, containsParseError, createDetachedDiagnostic, createNodeFactory, createScanner, emptyArray, emptyMap, fileExtensionIs, first, firstOrUndefined, flatten, forEach, forEachEntry, getAnyExtensionFromPath, getBaseFileName, getBinaryOperatorPrecedence, getDirectoryPath, getFullWidth, getJSDocCommentRanges, getLeadingCommentRanges, getSpellingSuggestion, idText, identity, isArray, isArrayTypeNode, isAssignmentOperator, isBinaryExpression, isIdentifier as isIdentifierNode, isIdentifierText, isJSDocReturnTag, isJSDocTypeTag, isKeyword, isKeywordOrPunctuation, isLeftHandSideExpression, isLiteralKind, isModifierKind, isNonReservedKeyword, isParenthesizedExpression, isStringLiteral, isStringOrNumericLiteralLike, isStructTypeNode, isTemplateExpression, isTypeReferenceNode, last, lastOrUndefined, map, mapDefined, nodeIsMissing, nodeIsPresent, objectAllocator, performance, setNodeFlags, setParent, setParentRecursive, setTextRangePos, setTextRangePosEnd, setTextRangePosWidth, skipTrivia, some, startsWith, supportedDeclarationExtensions, textToKeywordObj, toArray, tokenIsIdentifierOrKeyword, tokenToString, tracing } from "./_namespaces/lpc";
 
 const enum SpeculationKind {
     TryParse,
@@ -113,6 +113,8 @@ export namespace LpcParser {
     var isCodeExecutable: Ternary = Ternary.Unknown;
 
     var topLevel: boolean = true;
+    /** LDMud's `default` visibility (prolang.y default_funmod, default_varmod, default_structmod). */
+    var defaultVisibility: { functions: ModifierFlags; variables: ModifierFlags; structs: ModifierFlags } = { functions: 0, variables: 0, structs: 0 };
     /**
      * When true, a statement must be terminated by a real `;` -- automatic semicolon
      * insertion is suppressed. Only set while parsing the body of a `time_expression`
@@ -254,6 +256,7 @@ export namespace LpcParser {
         parseDiagnostics = [];
         nodeCount = 0;
         topLevel = true;
+        defaultVisibility = { functions: 0, variables: 0, structs: 0 };
         suppressSemicolonInsertion = false;
         identifiers = new Map<string, string>();        
         identifierCount = 0;                
@@ -586,7 +589,7 @@ export namespace LpcParser {
                         if (collected.tokens.length === 0) {
                             parseErrorAt(scanner.getTokenStart(), scanner.getTokenEnd(), scanner.getFileName(), Diagnostics.Expression_expected);
                         }
-                        condition = evaluatePreprocessorCondition(collected.tokens, macroEnv);
+                        condition = evaluatePreprocessorCondition(collected.tokens, macroEnv, getEfunDefinedOperator());
                     }
                     else {
                         const nameTok = firstConditionName(collected.tokens);
@@ -612,7 +615,7 @@ export namespace LpcParser {
                 }
                 else if (frame.parentActive && !frame.taken && !frame.seenElse) {
                     // this chain has not yet taken a branch -- evaluate this arm
-                    const condition = evaluatePreprocessorCondition(collected.tokens, macroEnv);
+                    const condition = evaluatePreprocessorCondition(collected.tokens, macroEnv, getEfunDefinedOperator());
                     frame.active = condition;
                     if (condition) frame.taken = true;
                 }
@@ -681,9 +684,12 @@ export namespace LpcParser {
      */
     function parseMacroArguments() {
         const args: MacroParameter[] = [];        
-        let parenCount = parseExpected(SyntaxKind.OpenParenToken, undefined, false) ? 1 : 0;
-        let paramText = "";
-        let pos: number = scanner.getTokenFullStart();
+        // `M(*= ...)` scans as FluffOS's `(*` (`(*f)(x)`); here it is the call's `(` and an
+        // argument that starts with `*` (t-lvalues.c's `MAKE_OP_TEST(*=, ...)`).
+        const startsWithAsterisk = token() === SyntaxKind.OpenParenAsteriskToken;
+        let parenCount = startsWithAsterisk || parseExpected(SyntaxKind.OpenParenToken, undefined, false) ? 1 : 0;
+        let paramText = startsWithAsterisk ? "*" : "";
+        let pos: number = startsWithAsterisk ? scanner.getTokenStart() + 1 : scanner.getTokenFullStart();
 
         if (parenCount === 0) {
             // missing open paren.  advance scanner (because open paren didnt) and return
@@ -757,6 +763,13 @@ export namespace LpcParser {
         parseExpected(SyntaxKind.CloseParenToken, undefined, false);
 
         return args;
+    }
+
+    function getEfunDefinedOperator(): EfunDefinedOperator | undefined {
+        const isEfunDefined = fileHandler?.isEfunDefined;
+        if (!isEfunDefined) return undefined;
+        const name = languageVariant === LanguageVariant.LDMud ? "__EFUN_DEFINED__" : languageVariant === LanguageVariant.FluffOS ? "efun_defined" : undefined;
+        return name ? { name, isEfunDefined: n => isEfunDefined.call(fileHandler, n) } : undefined;
     }
 
     function startInactiveRange() {
@@ -872,7 +885,8 @@ export namespace LpcParser {
                 // `object`, `function`, ...) and must win over same-named macros (e.g. a
                 // mudlib's `#define undefined ([])[0]`); plain identifiers still expand so
                 // macro-valued doc types like `{STD_BODY}` keep resolving.
-                if (allowMacroProcessing && (incomingToken == SyntaxKind.Identifier || (isNonReservedKeyword(incomingToken) && !inContext(NodeFlags.JSDoc)))) {
+                // A keyword expands too, when a macro has its name (`#define bytes string`).
+                if (allowMacroProcessing && (incomingToken == SyntaxKind.Identifier || (isKeyword(incomingToken) && !inContext(NodeFlags.JSDoc)))) {
                     const tokenValue = scanner.getTokenValue();
                     let macro: Macro;
         
@@ -2478,7 +2492,8 @@ export namespace LpcParser {
         const identifierText = internIdentifier(scanner.getTokenValue());
         let identifier = token() === SyntaxKind.EndOfFileToken ? createMissingNode(SyntaxKind.Identifier, true, Diagnostics.Identifier_expected) as Identifier :
             token() === SyntaxKind.Identifier ? parseIdentifier() : 
-            isNonReservedKeyword(token()) ? createIdentifier(true, Diagnostics.Identifier_expected) : 
+            // To the preprocessor a keyword is a name like any other: `#define bytes string`.
+            isKeyword(token()) ? createIdentifier(true, Diagnostics.Identifier_expected) : 
             createMissingNode(SyntaxKind.Identifier, true, Diagnostics.Identifier_expected) as Identifier
 
         if ((identifier as Node).kind === SyntaxKind.NewLineTrivia) {
@@ -3697,23 +3712,10 @@ export namespace LpcParser {
     ): TypeNode {
         const pos = getPositionState();
 
-        if (parseOptional(SyntaxKind.LessThanToken)) {
-            const type = parseUnionOrIntersectionType(operator, parseConstituentType, createTypeNode);
-            parseExpected(SyntaxKind.GreaterThanToken);
-            
-            if (parseOptional(SyntaxKind.AsteriskToken)) {
-                return finishNode(factory.createArrayTypeNode(type), pos);
-            }
-            if (parseOptional(SyntaxKind.AsteriskAsteriskToken)) {
-                // `<object|lwobject>** unique_array(...)`: an array of arrays
-                return finishNode(factory.createArrayTypeNode(finishNode(factory.createArrayTypeNode(type), pos)), pos);
-            }
-
-            return type;
-        }
-        
-        const hasLeadingOperator = parseOptional(operator);
-        let type = parseConstituentType();        
+        // A bracketed union may itself be one member of a union: `< <int|string>* | symbol>*`.
+        const isBracketed = token() === SyntaxKind.LessThanToken;
+        const hasLeadingOperator = !isBracketed && parseOptional(operator);
+        let type = isBracketed ? parseBracketedUnionOrIntersectionType(operator, parseConstituentType, createTypeNode) : parseConstituentType();
         if (token() === operator || hasLeadingOperator) {
             const types = [type];
             while (parseOptional(operator)) {                
@@ -3729,6 +3731,28 @@ export namespace LpcParser {
             type = finishNode(createTypeNode(createNodeArray(types, pos, endPos)), pos, endPos);
         }
         
+        return type;
+    }
+
+    /** `<int|string>`, `<int|string>*` or `<object|lwobject>**`. */
+    function parseBracketedUnionOrIntersectionType(
+        operator: SyntaxKind.BarToken | SyntaxKind.AmpersandToken,
+        parseConstituentType: () => TypeNode,
+        createTypeNode: (types: NodeArray<TypeNode>) => UnionTypeNode | IntersectionTypeNode,
+    ): TypeNode {
+        const pos = getPositionState();
+        parseExpected(SyntaxKind.LessThanToken);
+        const type = parseUnionOrIntersectionType(operator, parseConstituentType, createTypeNode);
+        parseExpected(SyntaxKind.GreaterThanToken);
+
+        if (parseOptional(SyntaxKind.AsteriskToken)) {
+            return finishNode(factory.createArrayTypeNode(type), pos);
+        }
+        if (parseOptional(SyntaxKind.AsteriskAsteriskToken)) {
+            // `<object|lwobject>** unique_array(...)`: an array of arrays
+            return finishNode(factory.createArrayTypeNode(finishNode(factory.createArrayTypeNode(type), pos)), pos);
+        }
+
         return type;
     }
 
@@ -4011,9 +4035,29 @@ export namespace LpcParser {
         }
         
         // LDMud `struct mixed`: a struct of any type (prolang.y `L_STRUCT L_MIXED`).
-        const name = languageVariant === LanguageVariant.LDMud && token() === SyntaxKind.MixedKeyword ? parseIdentifierName() : parseIdentifier();
+        const qualifier = parseStructNameQualifier();
+        const name = languageVariant === LanguageVariant.LDMud && !qualifier && token() === SyntaxKind.MixedKeyword ? parseIdentifierName() : parseIdentifier();
         Debug.assert(structTypeKeyword === SyntaxKind.StructKeyword || structTypeKeyword === SyntaxKind.ClassKeyword);
-        return finishNode(factory.createStructTypeNode(name, structTypeKeyword), pos);
+        return finishNode(factory.createStructTypeNode(name, structTypeKeyword, qualifier), pos);
+    }
+
+    /**
+     * LDMud's struct_name may be qualified: `::S` is the program's own struct, `sefun::S` the
+     * simul-efun object's and `efun::S` the driver's. Any other qualifier is an error there.
+     */
+    function parseStructNameQualifier(): StructNameQualifier | undefined {
+        if (languageVariant !== LanguageVariant.LDMud) return undefined;
+        if (token() === SyntaxKind.ColonColonToken) {
+            nextToken();
+            return "lfun";
+        }
+        if (!isIdentifier() || !lookAhead(() => nextToken() === SyntaxKind.ColonColonToken)) return undefined;
+        const text = scanner.getTokenValue();
+        const qualifier = text === "efun" || text === "sefun" ? text : undefined;
+        if (!qualifier) parseErrorAtCurrentToken(Diagnostics.Illegal_struct_name_qualifier_0, text);
+        nextToken(); // the qualifier
+        nextToken(); // ::
+        return qualifier;
     }
 
     function parseLiteralTypeNode(negative?: boolean): LiteralTypeNode {
@@ -4307,16 +4351,11 @@ export namespace LpcParser {
         // not reusable in that context.
         const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
+        if (languageVariant === LanguageVariant.LDMud && token() === SyntaxKind.DefaultKeyword) {
+            return parseDefaultVisibilityStatement(pos, hasJSDoc);
+        }
         const modifiers = parseModifiers(/*allowDecorators*/ true);
         
-        if (languageVariant === LanguageVariant.LDMud && (modifiers?.[0].kind as SyntaxKind) === SyntaxKind.DefaultKeyword && token() === SyntaxKind.SemicolonToken) {
-            // LDMud's default visibility, `default private functions, public variables;`
-            // (prolang.y, default_visibility). It sets the visibility of the declarations after
-            // it, which this server does not apply.
-            parseExpected(SyntaxKind.SemicolonToken);
-            return withJSDoc(finishNode(factory.createEmptyStatement(), pos), hasJSDoc);
-        }
-
         if (token() == SyntaxKind.InheritKeyword) {
             // Register the import as parseInheritStatement does, so `private inherit` / `virtual inherit` resolve.
             return addImportCandidate(parseInheritStatementWorker(pos, hasJSDoc, modifiers));
@@ -4327,7 +4366,67 @@ export namespace LpcParser {
         // } 
 
         const type = parseType();           
-        return parseDeclarationWorker(pos, hasJSDoc, modifiers, type);                
+        const declaration = parseDeclarationWorker(pos, hasJSDoc, modifiers, type);
+        if (languageVariant === LanguageVariant.LDMud && topLevel) applyDefaultVisibility(declaration, modifiers);
+        return declaration;
+    }
+
+    /**
+     * LDMud's default visibility, `default private functions public variables;` (prolang.y
+     * default_visibility). It sets the visibility of the declarations after it that have none
+     * of their own.
+     */
+    function parseDefaultVisibilityStatement(pos: PositionState, hasJSDoc: boolean): Statement {
+        nextToken(); // default
+        const words: SyntaxKind[] = [];
+        while (token() !== SyntaxKind.SemicolonToken && token() !== SyntaxKind.EndOfFileToken && (isModifierKind(token()) || token() === SyntaxKind.FunctionsKeyword || token() === SyntaxKind.VariablesKeyword || token() === SyntaxKind.StructsKeyword)) {
+            words.push(token());
+            nextToken();
+        }
+        defaultVisibility = getDefaultVisibility(words);
+        parseExpected(SyntaxKind.SemicolonToken);
+        return withJSDoc(finishNode(factory.createEmptyStatement(), pos), hasJSDoc);
+    }
+
+    /**
+     * The visibilities a `default` statement sets. Each modifier list applies to the
+     * `functions`, `variables` or `structs` after it, a kind with none repeats the list before
+     * it, and a statement with no kind sets all three. A kind it doesn't name gets none.
+     */
+    function getDefaultVisibility(words: readonly SyntaxKind[]): typeof defaultVisibility {
+        const result = { functions: 0, variables: 0, structs: 0 };
+        let current = ModifierFlags.None;
+        let last = ModifierFlags.None;
+        let sawKind = false;
+        for (const kind of words) {
+            const target = kind === SyntaxKind.FunctionsKeyword ? "functions" : kind === SyntaxKind.VariablesKeyword ? "variables" : kind === SyntaxKind.StructsKeyword ? "structs" : undefined;
+            if (target) {
+                sawKind = true;
+                result[target] = current || last;
+                last = current || last;
+                current = ModifierFlags.None;
+            }
+            else {
+                current |= modifierToFlag(kind) & (ModifierFlags.Private | ModifierFlags.Protected | ModifierFlags.Public | ModifierFlags.Visible | ModifierFlags.Static);
+            }
+        }
+        if (!sawKind) {
+            result.functions = current;
+            result.variables = result.structs = current & ~ModifierFlags.Static;
+        }
+        return result;
+    }
+
+    /** Gives a program-level declaration with no visibility of its own the `default` one. */
+    function applyDefaultVisibility(declaration: Statement, modifiers: NodeArray<ModifierLike> | undefined) {
+        const visibility = declaration.kind === SyntaxKind.FunctionDeclaration ? defaultVisibility.functions :
+            declaration.kind === SyntaxKind.VariableStatement ? defaultVisibility.variables :
+            declaration.kind === SyntaxKind.StructDeclaration ? defaultVisibility.structs :
+            ModifierFlags.None;
+        if (!visibility) return;
+        const own = modifiersToFlags(modifiers?.filter(isModifier)) & (ModifierFlags.Private | ModifierFlags.Protected | ModifierFlags.Public | ModifierFlags.Visible
+            | (declaration.kind === SyntaxKind.FunctionDeclaration ? ModifierFlags.Static : ModifierFlags.None));
+        if (!own) (declaration as Mutable<Statement>).defaultVisibility = visibility;
     }
     
     function parseDeclarationWorker(pos: PositionState, hasJSDoc: boolean, modifiersIn: NodeArray<ModifierLike> | undefined, typeIn: TypeNode | undefined): Statement {
@@ -5800,7 +5899,9 @@ export namespace LpcParser {
 
     function tryParseImpliedStringConcatExpression(expression: LeftHandSideExpression, pos: PositionState): LeftHandSideExpression {
         let tempBinaryExpression: Expression | undefined;
-        while (canImplyStringConcat(expression) && isStartOfImpliedStringConcat()) {
+        // LDMud joins adjacent bytes literals as it does strings (lex.c): `b"\x00" b"\x01"`.
+        const isBytes = expression.kind === SyntaxKind.BytesLiteral;
+        while (isBytes ? token() === SyntaxKind.BytesLiteral : canImplyStringConcat(expression) && isStartOfImpliedStringConcat()) {
             const tokenNode = finishNode(factoryCreateToken(SyntaxKind.PlusToken), getPositionState());
             tempBinaryExpression = makeBinaryExpression(tempBinaryExpression ?? expression, tokenNode, parsePrimaryExpression(), pos);
         }
@@ -5832,6 +5933,22 @@ export namespace LpcParser {
         const pos = getPositionState();
         nextToken();
         return finishNode(factory.createPrefixUnaryExpression(SyntaxKind.GreaterThanToken as PrefixUnaryOperator, parseBound()), pos);
+    }
+
+    /**
+     * LDMud: each index of a multi-value mapping element, `m[key, i]`, may carry its own `>`
+     * bound, as in `m["b", >-3]` (t-lvalues.c).
+     */
+    function parseIndexBoundList(): Expression {
+        return allowCommaInAnd(() => {
+            const pos = getPositionState();
+            let expr = parseIndexBound(() => parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true));
+            let operatorToken: BinaryOperatorToken | undefined;
+            while ((operatorToken = parseOptionalToken(SyntaxKind.CommaToken))) {
+                expr = makeBinaryExpression(expr, operatorToken, parseIndexBound(() => parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ true)), pos);
+            }
+            return expr;
+        });
     }
 
     function parseMaybeRangeExpression(rangeTerminatorToken:PunctuationSyntaxKind): RangeExpression | Expression {        
@@ -5878,7 +5995,7 @@ export namespace LpcParser {
                 right = parseIndexBound(() => allowCommaInAnd(parseExpression));
             } else {
                 // leftOp = parseOptionalToken(SyntaxKind.LessThanToken);
-                left = parseIndexBound(() => allowCommaInAnd(parseExpression));
+                left = languageVariant === LanguageVariant.LDMud ? parseIndexBoundList() : parseIndexBound(() => allowCommaInAnd(parseExpression));
                 if (parseOptional(SyntaxKind.DotDotToken)) {
                     sawDotDot = true;
                     if (token() !== SyntaxKind.CloseBracketToken) {
@@ -5912,6 +6029,15 @@ export namespace LpcParser {
 
         if (token() === SyntaxKind.OpenParenToken) {
             name = parseParenthesizedExpression();
+        } else if (languageVariant === LanguageVariant.LDMud && token() === SyntaxKind.StringLiteral) {
+            // LDMud's call_other_name and struct_member_name take a string too: `ob->"fn"()`,
+            // `s."b"` and `s->"b"` name the member as `ob->fn()` and `s.b` do. It is read as
+            // that name, so it resolves like one.
+            const namePos = getPositionState();
+            const text = internIdentifier(scanner.getTokenValue());
+            identifierCount++;
+            nextToken();
+            name = finishNode(factoryCreateIdentifier(text), namePos);
         } else {
             name = parseRightSideOfDot(/*allowIdentifierNames*/ true, /*allowPrivateIdentifiers*/ true, /*allowUnicodeEscapeSequenceInIdentifierName*/ true);
         }
@@ -6188,6 +6314,17 @@ export namespace LpcParser {
         return withJSDoc(finishNode(factory.createInlineClosure(expression), pos), hasJSDoc);
     }
 
+    /** LDMud's empty inline closure, `(::)`, which returns 0 (t-efuns.c's `input_to((::), ...)`). */
+    function parseEmptyInlineClosureExpression(): InlineClosureExpression {
+        const pos = getPositionState();
+        nextToken(); // (
+        // The body is an empty expression list, as in `(: :)`.
+        const body = createNodeArray<Expression>([], getPositionState());
+        nextToken(); // ::
+        parseExpected(SyntaxKind.CloseParenToken);
+        return finishNode(factory.createInlineClosure(body), pos);
+    }
+
     function isStartOfExpressionStatement(): boolean {
         // As per the grammar, none of '{' or 'function' or 'class' can start an expression statement.
         return token() !== SyntaxKind.OpenBraceToken &&
@@ -6440,6 +6577,8 @@ export namespace LpcParser {
                 const peekNext = lookAhead(()=>nextToken());
                 if (peekNext === SyntaxKind.ColonToken) {
                     return parseInlineClosureExpression(true);
+                } else if (peekNext === SyntaxKind.ColonColonToken && languageVariant === LanguageVariant.LDMud && lookAhead(() => (nextToken(), nextToken() === SyntaxKind.CloseParenToken))) {
+                    return parseEmptyInlineClosureExpression();
                 } else if (peekNext === SyntaxKind.LessThanToken) {                
                     return parseNewStructExpression();
                 }                

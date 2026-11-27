@@ -40,6 +40,12 @@ export interface Node extends ReadonlyTextRange {
     readonly kind: SyntaxKind;
     readonly flags: NodeFlags;
     /** @internal */ modifierFlagsCache: ModifierFlags;
+    /**
+     * LDMud: the visibility a `default private;` statement gives this declaration, which has
+     * none of its own. Set only on program-level declarations.
+     * @internal
+     */
+    defaultVisibility?: ModifierFlags;
     /** @internal */ readonly transformFlags: TransformFlags; // Flags for transforms
     /** @internal */ id?: NodeId; // Unique id (used to look up NodeLinks)
     readonly parent: Node; // Parent node (initialized by binding)
@@ -1635,7 +1641,7 @@ export interface NodeFactory {
     createParenthesizedType(type: TypeNode): ParenthesizedTypeNode;
     createLiteralTypeNode(literal: LiteralTypeNode["literal"]): LiteralTypeNode;
     createTypeLiteralNode(members: readonly TypeElement[] | undefined): TypeLiteralNode;
-    createStructTypeNode(name: Identifier, keyword: StructKeywordSyntaxKind): StructTypeNode;
+    createStructTypeNode(name: Identifier, keyword: StructKeywordSyntaxKind, qualifier?: StructNameQualifier): StructTypeNode;
     createPropertySignature(modifiers: readonly Modifier[] | undefined, name: PropertyName | string, type: TypeNode | undefined): PropertySignature;
     createStructDeclarationNode(
         modifiers: readonly Modifier[] | undefined,
@@ -1804,6 +1810,11 @@ export interface CompilerOptions {
     getCompilationSettings?: any;
     configFilePath?: string;
     driverType?: LanguageVariant;
+    /**
+     * LDMud only: the driver runs in compat mode (`driver.compatMode`). It then defines
+     * `COMPAT_FLAG` and `__COMPAT_MODE__`, and names the master without a leading slash.
+     */
+    driverCompatMode?: boolean;
     /**
      * LDMud only. When true (the default), assigning to an undeclared variable
      * implicitly declares it (LDMud allows this because types are optional). Set
@@ -5180,7 +5191,14 @@ export interface StructTypeNode extends TypeNode {
     readonly kind: SyntaxKind.StructType;
     readonly keyword: StructKeywordSyntaxKind;
     readonly typeName: EntityName;
+    /**
+     * LDMud's qualified struct name (prolang.y struct_name): `::S` is the program's own struct,
+     * `sefun::S` the simul-efun object's, `efun::S` the driver's.
+     */
+    readonly qualifier?: StructNameQualifier;
 }
+
+export type StructNameQualifier = "lfun" | "efun" | "sefun";
 
 export const enum SymbolFormatFlags {
     None                                    = 0,
@@ -7082,6 +7100,11 @@ export type LpcLoadImportResult = {
 export interface LpcFileHandler extends IFileHandler  {
     loadIncludeFile(sourceFilename: string, filename: string, localFirst: boolean, additionalSearchDirs?: string[]): LpcLoadImportResult
     loadInclude(sourceFilename: string, filename: string): LoadImportResult;
+    /**
+     * Whether the driver has an efun of this name, for LDMud's `__EFUN_DEFINED__(name)` and
+     * FluffOS's `efun_defined(name)` in `#if`. Undefined when the efun headers aren't known.
+     */
+    isEfunDefined?(name: string): boolean;
 }
 
 export interface TransformationResult<T extends Node> {

@@ -44,6 +44,11 @@ export interface DriverPragmaState {
      * {@link DriverPragmaStates.final} that matters.
      */
     readonly lightweight: boolean;
+    /**
+     * LDMud's `no_bytes_type` (`bytes_type` turns it off): `string` then means
+     * `<string|bytes>` (doc/LPC/pragma). It applies to the types written while it is on.
+     */
+    readonly noBytesType: boolean;
 }
 
 export interface DriverPragmaStates {
@@ -64,7 +69,7 @@ export interface DriverPragmaStates {
  * lexer resets to weak types with nothing saved for every compile (lex.c `start_lex`).
  */
 function getInitialDriverPragmaState(variant: LanguageVariant): DriverPragmaState {
-    return { types: DriverTypesPragma.Weak, saveTypes: variant === LanguageVariant.FluffOS, pedantic: false, warnMissingReturn: variant === LanguageVariant.LDMud, lightweight: false };
+    return { types: DriverTypesPragma.Weak, saveTypes: variant === LanguageVariant.FluffOS, pedantic: false, warnMissingReturn: variant === LanguageVariant.LDMud, lightweight: false, noBytesType: false };
 }
 
 /** Applies one pragma name to `state`, the way the driver's lexer would. */
@@ -106,6 +111,10 @@ export function applyDriverPragma(state: DriverPragmaState, name: string, varian
             return { ...state, lightweight: true };
         case "no_lightweight":
             return { ...state, lightweight: false };
+        case "no_bytes_type":
+            return { ...state, noBytesType: true };
+        case "bytes_type":
+            return { ...state, noBytesType: false };
     }
     return state;
 }

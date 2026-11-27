@@ -50,6 +50,23 @@ int other() { return __FUNCTION__ == "x"; }`;
         expect(diagnosticsFor(`#define __FUNCTION__ 42\nint f() { return __FUNCTION__; }`)).toEqual([]);
     });
 
+    it("defines COMPAT_FLAG and __COMPAT_MODE__ only in compat mode, which drops the master's leading slash", () => {
+        const source = `#ifdef COMPAT_FLAG
+int a = "compat";
+#endif
+#if defined(__COMPAT_MODE__)
+int b = "compat";
+#endif
+int m = __MASTER_OBJECT__ == "x";
+`;
+        expect(diagnosticsFor(source)).toEqual([noOverlap("/obj/master")]);
+        expect(diagnosticsFor(source, { driverCompatMode: true })).toEqual([
+            "2322: Type 'string' is not assignable to type 'int'.",
+            "2322: Type 'string' is not assignable to type 'int'.",
+            noOverlap("obj/master"),
+        ]);
+    });
+
     it("defines __VERSION__ as a string", () => {
         expect(diagnosticsFor(`string version() { return __VERSION__; }`)).toEqual([]);
     });

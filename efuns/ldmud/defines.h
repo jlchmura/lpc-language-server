@@ -3,8 +3,7 @@
 #define LPC3                        1 /* always defined */
 #define __LDMUD__                   1 /* always defined */
 #define __EUIDS__                   1 /* always (for compatibility) */
-#define COMPAT_FLAG                 1 /* defined if the driver runs in compat mode */
-#define __COMPAT_MODE__             1 /* ditto */
+// COMPAT_FLAG and __COMPAT_MODE__ (defined if the driver runs in compat mode) come from driver.compatMode in lpc-config.json
 #define __STRICT_EUIDS__            1 /* defined if strict euid usage is enforced */
 #define __FILENAME_SPACES__         1 /* defined if filenames may contain spaces */
 
@@ -33,7 +32,7 @@
 #define __HEART_BEAT_INTERVAL__     1 /* the configured heartbeat time */
 #define __SYNCHRONOUS_HEART_BEAT__  1 /* defined if synchronous heartbeats are enabled */
 #define __MAX_COMMAND_LENGTH__      1 /* the maximum length a command from command(), execute_command() or H_MODIFY_COMMAND can have */
-#define __EFUN_DEFINED__(name)      0 /* if the efun 'name' exists, this macro evaluates to " 1 ", else to " 0 " */
+#define __EFUN_DEFINED__(name)      0 /* if the efun 'name' exists, this macro evaluates to " 1 ", else to " 0 " (the server tests the efun table in #if; elsewhere this is 0) */
 #define __DRIVER_LOG__              "driver_log" /* the name of the default debug.log file (within the mudlib); undefined if a different name has been specified on the commandline */
 #define __WIZLIST__                 "wizlist" /* the name of the (mudlib) file from where the driver read the initial WIZLIST information. It is undefined if the driver was configured to not read the information */
 

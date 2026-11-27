@@ -2078,6 +2078,12 @@ export function createScanner(
     // position downstream.
     //
     /** Whether the text at `start`, after any whitespace, is a type keyword of this driver (LDMud basic_type). */
+    function isStartOfLpcTypeAt(start: number): boolean {
+        let typeStart = start;
+        while (typeStart < end && isWhiteSpaceLike(charCodeUnchecked(typeStart))) typeStart++;
+        return (charCodeUnchecked(typeStart) === CharacterCodes.lessThan && charCodeUnchecked(typeStart + 1) !== CharacterCodes.lessThan) || isTypeKeywordAt(typeStart);
+    }
+
     function isTypeKeywordAt(start: number): boolean {
         let wordStart = start;
         while (wordStart < end && isWhiteSpaceLike(charCodeUnchecked(wordStart))) wordStart++;
@@ -2386,10 +2392,11 @@ export function createScanner(
                     }
                     
                     if (charCodeUnchecked(pos) === CharacterCodes.openBracket) {
-                        // LDMud: `([int])` is a parenthesized lpctype literal, not a mapping.
-                        // The driver's lexer returns `(` and `[` apart and its grammar tells
-                        // them apart by what follows; no mapping key starts with a type keyword.
-                        if (languageVariant === LanguageVariant.LDMud && !inDocComment?.() && isTypeKeywordAt(pos + 1)) {
+                        // LDMud: `([int])` and `f([<int|string>*])` hold an lpctype literal, not a
+                        // mapping. The driver's lexer returns `(` and `[` apart and its grammar
+                        // tells them apart by what follows; no mapping key starts with a type
+                        // keyword or a union's `<`.
+                        if (languageVariant === LanguageVariant.LDMud && !inDocComment?.() && isStartOfLpcTypeAt(pos + 1)) {
                             return token = SyntaxKind.OpenParenToken;
                         }
                         return pos += 1, token = SyntaxKind.OpenParenBracketToken;
@@ -2795,6 +2802,14 @@ export function createScanner(
                         pos++;
                         // could be a directive
                         token = scanDirective(charCodeUnchecked(pos), languageVersion);
+
+                        // `#line` (a line number for the driver's messages) and `#echo` (text on
+                        // its console) change nothing the server models, so their line is skipped
+                        // like a comment. Both drivers have them.
+                        if (token === SyntaxKind.Identifier && isSkippedDirective(tokenValue.substring(1).trim())) {
+                            while (pos < end && !isLineBreak(charCodeUnchecked(pos))) pos++;
+                            continue;
+                        }
                         
                         // TODO: skip past these directives since they aren't parsed (for now)
                         if (shouldSkipNonParsableDirectives) {
@@ -2941,6 +2956,20 @@ export function createScanner(
             
             return getIdentifierToken();
         }
+    }
+
+    /**
+     * Whether the directive whose name was just scanned is one to skip. `#line` takes only a
+     * number (LDMud lex.c; FluffOS also a file name after it). A malformed one is left to be read
+     * as code, so that it is still an error where it is compiled.
+     */
+    function isSkippedDirective(name: string): boolean {
+        if (name === "echo") return true;
+        if (name !== "line") return false;
+        let lineEnd = pos;
+        while (lineEnd < end && !isLineBreak(charCodeUnchecked(lineEnd))) lineEnd++;
+        const rest = text.substring(pos, lineEnd).replace(/\/\*.*?\*\//g, " ").replace(/\/\/.*$/, "").trim();
+        return languageVariant === LanguageVariant.FluffOS ? /^\d+(\s+"[^"]*")?$/.test(rest) : /^(0[xX][0-9a-fA-F]+|\d+)$/.test(rest);
     }
 
     function scanDirective(startCharacter: number, languageVersion: ScriptTarget) {
