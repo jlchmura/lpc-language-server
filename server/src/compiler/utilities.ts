@@ -652,10 +652,10 @@ export function getTextOfNode(node: Node, includeTrivia = false): string {
 
 /** @internal */
 export function getErrorSpanForNode(sourceFile: SourceFileBase, node: Node): TextSpan {
-    // if the node came from a macro, move up the parent chain until we find a non-macro node
-    while (isInMacroContext(node) && node.parent) {
-        node = node.parent;
-    }
+    // A node from a macro expansion already spans the macro's use in the file (see finishNode
+    // in parser.ts), so its error goes there. Climbing to the first node outside any macro put
+    // the error of `CFG->fn()` on the whole enclosing block, since every node up to the
+    // statement starts at the macro.
         
     let errorNode: Node | undefined = node;
     switch (node.kind) {
