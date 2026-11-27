@@ -6009,6 +6009,11 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return createPromiseType(payloadType);
     }
 
+    /** LDMud: a `string` written under `#pragma no_bytes_type` is `<string|bytes>`. */
+    function isStringOrBytesTypeNode(node: TypeNode): boolean {
+        return languageVariant === LanguageVariant.LDMud && !!node.parent && !nodeIsSynthesized(node) && getDriverPragmaStateAt(node).noBytesType;
+    }
+
     function getTypeFromTypeNodeWorker(node: TypeNode): Type {
         Debug.assertIsDefined(node);
         switch (node.kind) {
@@ -6019,7 +6024,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             case SyntaxKind.UnknownKeyword:
                 return unknownType;
             case SyntaxKind.StringKeyword:
-                return stringType;
+                return isStringOrBytesTypeNode(node) ? getUnionType([stringType, bytesType]) : stringType;
             case SyntaxKind.StatusKeyword:
             case SyntaxKind.IntKeyword:
                 return intType;
