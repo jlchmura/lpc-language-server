@@ -2197,6 +2197,21 @@ export namespace LpcParser {
         }            
     }
 
+    /**
+     * Both drivers preprocess as C does: a `#define` or `#undef` may start any line, also one in
+     * the middle of an expression or a list, as in
+     *     ({ 1,
+     *     #define X 2
+     *        X })
+     * (t-0000432/master.c). A statement-level directive is a statement (see parseStatement); one
+     * here only changes the macro table, and is not kept in the tree.
+     */
+    function parseDirectivesInExpression(): void {
+        while (token() === SyntaxKind.DefineDirective || token() === SyntaxKind.UndefDirective) {
+            parseDirective();
+        }
+    }
+
     function parseDirective(): PreprocessorDirective {
         scanner.setReportLineBreak(true);
 
@@ -4856,6 +4871,7 @@ export namespace LpcParser {
 
         let commaStart = -1; // Meaning the previous token was not a comma
         while (true) {
+            parseDirectivesInExpression();
             if (isListElement(kind, /*inErrorRecovery*/ false)) {
                 const startPos = scanner.getTokenFullStart();
                 const startStream = scanner.getStateId();
@@ -4865,6 +4881,7 @@ export namespace LpcParser {
                     return undefined;
                 }
                 list.push(result);
+                parseDirectivesInExpression();
                 commaStart = scanner.getTokenStart();
 
                 if (parseOptional(SyntaxKind.CommaToken)) {
@@ -6401,6 +6418,7 @@ export namespace LpcParser {
     }
 
     function parsePrimaryExpression(): PrimaryExpression {
+        parseDirectivesInExpression();
         switch (token()) {
             case SyntaxKind.NoSubstitutionTemplateLiteral:
                 return parseTemplateLiteralLikeString();
