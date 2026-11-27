@@ -40,6 +40,12 @@ export interface Node extends ReadonlyTextRange {
     readonly kind: SyntaxKind;
     readonly flags: NodeFlags;
     /** @internal */ modifierFlagsCache: ModifierFlags;
+    /**
+     * LDMud: the visibility a `default private;` statement gives this declaration, which has
+     * none of its own. Set only on program-level declarations.
+     * @internal
+     */
+    defaultVisibility?: ModifierFlags;
     /** @internal */ readonly transformFlags: TransformFlags; // Flags for transforms
     /** @internal */ id?: NodeId; // Unique id (used to look up NodeLinks)
     readonly parent: Node; // Parent node (initialized by binding)

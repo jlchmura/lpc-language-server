@@ -1,4 +1,4 @@
-import { ACatchExpression, CatchModifier, AwaitExpression, CoroutineCallExpression, DecltypeExpression, LpcTypeLiteralExpression, CoroutineInstruction, PromiseTypeNode, AmpersandToken, ArrayLiteralExpression, ArrayTypeNode, BaseNodeFactory, BinaryExpression, BinaryOperatorToken, BindingPattern, Block, BooleanLiteral, BreakOrContinueStatement, BreakStatement, ByRefElement, CallExpression, CaseBlock, CaseClause, CaseOrDefaultClause, CastExpression, CatchExpression, CatchStatement, TimeExpression, CharacterCodes, CloneObjectExpression, CommaListExpression, CommentRange, ConditionalExpression, ContinueStatement, Debug, DefaultClause, DefineDirective, Diagnostic, DiagnosticArguments, DiagnosticMessage, DiagnosticWithDetachedLocation, Diagnostics, DoWhileStatement, ElementAccessExpression, EndOfFileToken, EntityName, EvaluateExpression, Expression, ExpressionStatement, ExpressionWithTypeArguments, Extension, ForEachChildNodes, ForEachStatement, ForStatement, FunctionDeclaration, FunctionExpression, HasJSDoc, Identifier, IfStatement, ImpliedStringConcatExpression, ImportCandidateNode, IncludeDirective, IncludeDiagnosticOrigin, IncludeParseDiagnostic, InferTypeNode, InheritClauseNodeType, InheritDeclaration, InlineClosureExpression, IntersectionTypeNode, IterationStatement, JSDoc, JSDocAugmentsTag, JSDocAuthorTag, JSDocCallbackTag, JSDocClassTag, JSDocComment, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocOverrideTag, JSDocParameterTag, JSDocParsingMode, JSDocPrivateTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocProtectedTag, JSDocPublicTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocTypedefTag, JSDocUnknownTag, JSDocVariableTag, JSDocVariadicType, JsonMinusNumericLiteral, JsonObjectExpressionStatement, JsonSourceFile, KeywordSyntaxKind, LabeledStatement, LambdaExpression, LambdaIdentifierExpression, LambdaOperatorExpression, LambdaOperatorToken, QuotedArrayExpression, LanguageVariant, LeftHandSideExpression, LiteralExpression, LiteralLikeNode, LiteralTypeNode, createMacroEnvironment, MacroEnvironment, MacroPositionSnapshot, evaluatePreprocessorCondition, EfunDefinedOperator, PreprocessorToken, LpcFileHandler, LpcLoadImportResult, Macro, MacroParameter, MapLike, MappingEntryExpression, MappingLiteralExpression, MappingTypeNode, MappingTypeEntryNode, MemberExpression, MethodSignature, MissingDeclaration, Modifier, ModifierLike, Mutable, MutableNodeArray, NamedObjectTypeNode, NewExpression, NewExpressionArgument, NewStructExpression, Node, NodeArray, NodeFactory, NodeFactoryFlags, NodeFlags, NullLiteral, NumericLiteral, ObjectLiteralElementLike, ObjectLiteralExpression, OperatorPrecedence, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PositionState, PostfixUnaryExpression, PostfixUnaryOperator, PragmaContext, PragmaDefinition, PragmaDirective, PragmaKindFlags, PragmaMap, PragmaPseudoMap, PragmaPseudoMapEntry, PrefixUnaryExpression, PrefixUnaryOperator, PreprocessorDirective, PrimaryExpression, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAccessToken, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, QualifiedName, QuestionDotToken, RangeExpression, RefToken, ResolutionMode, ReturnStatement, ScriptKind, ScriptTarget, ShorthandPropertyAssignment, SourceFile, SpreadElement, Statement, StringLiteral, StructDeclaration, StructNameQualifier, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, TemplateExpression, TemplateSpan, Ternary, TextChangeRange, TextRange, Token, TupleTypeNode, TypeAssertion, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnaryExpression, UndefDirective, UnionTypeNode, UpdateExpression, VariableDeclaration, VariableDeclarationList, VariableStatement, WhileStatement, addRange, addRelatedInfo, append, attachFileToDiagnostics, canHaveJSDoc, commentPragmas, concatenate, containsParseError, createDetachedDiagnostic, createNodeFactory, createScanner, emptyArray, emptyMap, fileExtensionIs, first, firstOrUndefined, flatten, forEach, forEachEntry, getAnyExtensionFromPath, getBaseFileName, getBinaryOperatorPrecedence, getDirectoryPath, getFullWidth, getJSDocCommentRanges, getLeadingCommentRanges, getSpellingSuggestion, idText, identity, isArray, isArrayTypeNode, isAssignmentOperator, isBinaryExpression, isIdentifier as isIdentifierNode, isIdentifierText, isJSDocReturnTag, isJSDocTypeTag, isKeyword, isKeywordOrPunctuation, isLeftHandSideExpression, isLiteralKind, isModifierKind, isNonReservedKeyword, isParenthesizedExpression, isStringLiteral, isStringOrNumericLiteralLike, isStructTypeNode, isTemplateExpression, isTypeReferenceNode, last, lastOrUndefined, map, mapDefined, nodeIsMissing, nodeIsPresent, objectAllocator, performance, setNodeFlags, setParent, setParentRecursive, setTextRangePos, setTextRangePosEnd, setTextRangePosWidth, skipTrivia, some, startsWith, supportedDeclarationExtensions, textToKeywordObj, toArray, tokenIsIdentifierOrKeyword, tokenToString, tracing } from "./_namespaces/lpc";
+import { ACatchExpression, CatchModifier, AwaitExpression, CoroutineCallExpression, DecltypeExpression, LpcTypeLiteralExpression, CoroutineInstruction, PromiseTypeNode, AmpersandToken, ArrayLiteralExpression, ArrayTypeNode, BaseNodeFactory, BinaryExpression, BinaryOperatorToken, BindingPattern, Block, BooleanLiteral, BreakOrContinueStatement, BreakStatement, ByRefElement, CallExpression, CaseBlock, CaseClause, CaseOrDefaultClause, CastExpression, CatchExpression, CatchStatement, TimeExpression, CharacterCodes, CloneObjectExpression, CommaListExpression, CommentRange, ConditionalExpression, ContinueStatement, Debug, DefaultClause, DefineDirective, Diagnostic, DiagnosticArguments, DiagnosticMessage, DiagnosticWithDetachedLocation, Diagnostics, DoWhileStatement, ElementAccessExpression, EndOfFileToken, EntityName, EvaluateExpression, Expression, ExpressionStatement, ExpressionWithTypeArguments, Extension, ForEachChildNodes, ForEachStatement, ForStatement, FunctionDeclaration, FunctionExpression, HasJSDoc, Identifier, IfStatement, ImpliedStringConcatExpression, ImportCandidateNode, IncludeDirective, IncludeDiagnosticOrigin, IncludeParseDiagnostic, InferTypeNode, InheritClauseNodeType, InheritDeclaration, InlineClosureExpression, IntersectionTypeNode, IterationStatement, JSDoc, JSDocAugmentsTag, JSDocAuthorTag, JSDocCallbackTag, JSDocClassTag, JSDocComment, JSDocDeprecatedTag, JSDocImplementsTag, JSDocLink, JSDocLinkCode, JSDocLinkPlain, JSDocMemberName, JSDocNameReference, JSDocOverloadTag, JSDocOverrideTag, JSDocParameterTag, JSDocParsingMode, JSDocPrivateTag, JSDocPropertyLikeTag, JSDocPropertyTag, JSDocProtectedTag, JSDocPublicTag, JSDocReturnTag, JSDocSatisfiesTag, JSDocSeeTag, JSDocSignature, JSDocSyntaxKind, JSDocTag, JSDocTemplateTag, JSDocText, JSDocThisTag, JSDocThrowsTag, JSDocTypeExpression, JSDocTypeLiteral, JSDocTypeTag, JSDocTypedefTag, JSDocUnknownTag, JSDocVariableTag, JSDocVariadicType, JsonMinusNumericLiteral, JsonObjectExpressionStatement, JsonSourceFile, KeywordSyntaxKind, LabeledStatement, LambdaExpression, LambdaIdentifierExpression, LambdaOperatorExpression, LambdaOperatorToken, QuotedArrayExpression, LanguageVariant, LeftHandSideExpression, LiteralExpression, LiteralLikeNode, LiteralTypeNode, createMacroEnvironment, MacroEnvironment, MacroPositionSnapshot, evaluatePreprocessorCondition, EfunDefinedOperator, PreprocessorToken, LpcFileHandler, LpcLoadImportResult, Macro, MacroParameter, MapLike, MappingEntryExpression, MappingLiteralExpression, MappingTypeNode, MappingTypeEntryNode, MemberExpression, MethodSignature, MissingDeclaration, Modifier, ModifierFlags, ModifierLike, Mutable, modifierToFlag, modifiersToFlags, isModifier, MutableNodeArray, NamedObjectTypeNode, NewExpression, NewExpressionArgument, NewStructExpression, Node, NodeArray, NodeFactory, NodeFactoryFlags, NodeFlags, NullLiteral, NumericLiteral, ObjectLiteralElementLike, ObjectLiteralExpression, OperatorPrecedence, ParameterDeclaration, ParenthesizedExpression, ParenthesizedTypeNode, PositionState, PostfixUnaryExpression, PostfixUnaryOperator, PragmaContext, PragmaDefinition, PragmaDirective, PragmaKindFlags, PragmaMap, PragmaPseudoMap, PragmaPseudoMapEntry, PrefixUnaryExpression, PrefixUnaryOperator, PreprocessorDirective, PrimaryExpression, PropertyAccessEntityNameExpression, PropertyAccessExpression, PropertyAccessToken, PropertyAssignment, PropertyDeclaration, PropertyName, PropertySignature, PunctuationOrKeywordSyntaxKind, PunctuationSyntaxKind, QualifiedName, QuestionDotToken, RangeExpression, RefToken, ResolutionMode, ReturnStatement, ScriptKind, ScriptTarget, ShorthandPropertyAssignment, SourceFile, SpreadElement, Statement, StringLiteral, StructDeclaration, StructNameQualifier, StructTypeNode, SuperAccessExpression, SwitchStatement, SyntaxKind, TemplateExpression, TemplateSpan, Ternary, TextChangeRange, TextRange, Token, TupleTypeNode, TypeAssertion, TypeElement, TypeLiteralNode, TypeNode, TypeParameterDeclaration, TypePredicateNode, TypeReferenceNode, UnaryExpression, UndefDirective, UnionTypeNode, UpdateExpression, VariableDeclaration, VariableDeclarationList, VariableStatement, WhileStatement, addRange, addRelatedInfo, append, attachFileToDiagnostics, canHaveJSDoc, commentPragmas, concatenate, containsParseError, createDetachedDiagnostic, createNodeFactory, createScanner, emptyArray, emptyMap, fileExtensionIs, first, firstOrUndefined, flatten, forEach, forEachEntry, getAnyExtensionFromPath, getBaseFileName, getBinaryOperatorPrecedence, getDirectoryPath, getFullWidth, getJSDocCommentRanges, getLeadingCommentRanges, getSpellingSuggestion, idText, identity, isArray, isArrayTypeNode, isAssignmentOperator, isBinaryExpression, isIdentifier as isIdentifierNode, isIdentifierText, isJSDocReturnTag, isJSDocTypeTag, isKeyword, isKeywordOrPunctuation, isLeftHandSideExpression, isLiteralKind, isModifierKind, isNonReservedKeyword, isParenthesizedExpression, isStringLiteral, isStringOrNumericLiteralLike, isStructTypeNode, isTemplateExpression, isTypeReferenceNode, last, lastOrUndefined, map, mapDefined, nodeIsMissing, nodeIsPresent, objectAllocator, performance, setNodeFlags, setParent, setParentRecursive, setTextRangePos, setTextRangePosEnd, setTextRangePosWidth, skipTrivia, some, startsWith, supportedDeclarationExtensions, textToKeywordObj, toArray, tokenIsIdentifierOrKeyword, tokenToString, tracing } from "./_namespaces/lpc";
 
 const enum SpeculationKind {
     TryParse,
@@ -113,6 +113,8 @@ export namespace LpcParser {
     var isCodeExecutable: Ternary = Ternary.Unknown;
 
     var topLevel: boolean = true;
+    /** LDMud's `default` visibility (prolang.y default_funmod, default_varmod, default_structmod). */
+    var defaultVisibility: { functions: ModifierFlags; variables: ModifierFlags; structs: ModifierFlags } = { functions: 0, variables: 0, structs: 0 };
     /**
      * When true, a statement must be terminated by a real `;` -- automatic semicolon
      * insertion is suppressed. Only set while parsing the body of a `time_expression`
@@ -254,6 +256,7 @@ export namespace LpcParser {
         parseDiagnostics = [];
         nodeCount = 0;
         topLevel = true;
+        defaultVisibility = { functions: 0, variables: 0, structs: 0 };
         suppressSemicolonInsertion = false;
         identifiers = new Map<string, string>();        
         identifierCount = 0;                
@@ -4348,16 +4351,11 @@ export namespace LpcParser {
         // not reusable in that context.
         const pos = getPositionState();
         const hasJSDoc = hasPrecedingJSDocComment();
+        if (languageVariant === LanguageVariant.LDMud && token() === SyntaxKind.DefaultKeyword) {
+            return parseDefaultVisibilityStatement(pos, hasJSDoc);
+        }
         const modifiers = parseModifiers(/*allowDecorators*/ true);
         
-        if (languageVariant === LanguageVariant.LDMud && (modifiers?.[0].kind as SyntaxKind) === SyntaxKind.DefaultKeyword && token() === SyntaxKind.SemicolonToken) {
-            // LDMud's default visibility, `default private functions, public variables;`
-            // (prolang.y, default_visibility). It sets the visibility of the declarations after
-            // it, which this server does not apply.
-            parseExpected(SyntaxKind.SemicolonToken);
-            return withJSDoc(finishNode(factory.createEmptyStatement(), pos), hasJSDoc);
-        }
-
         if (token() == SyntaxKind.InheritKeyword) {
             // Register the import as parseInheritStatement does, so `private inherit` / `virtual inherit` resolve.
             return addImportCandidate(parseInheritStatementWorker(pos, hasJSDoc, modifiers));
@@ -4368,7 +4366,67 @@ export namespace LpcParser {
         // } 
 
         const type = parseType();           
-        return parseDeclarationWorker(pos, hasJSDoc, modifiers, type);                
+        const declaration = parseDeclarationWorker(pos, hasJSDoc, modifiers, type);
+        if (languageVariant === LanguageVariant.LDMud && topLevel) applyDefaultVisibility(declaration, modifiers);
+        return declaration;
+    }
+
+    /**
+     * LDMud's default visibility, `default private functions public variables;` (prolang.y
+     * default_visibility). It sets the visibility of the declarations after it that have none
+     * of their own.
+     */
+    function parseDefaultVisibilityStatement(pos: PositionState, hasJSDoc: boolean): Statement {
+        nextToken(); // default
+        const words: SyntaxKind[] = [];
+        while (token() !== SyntaxKind.SemicolonToken && token() !== SyntaxKind.EndOfFileToken && (isModifierKind(token()) || token() === SyntaxKind.FunctionsKeyword || token() === SyntaxKind.VariablesKeyword || token() === SyntaxKind.StructsKeyword)) {
+            words.push(token());
+            nextToken();
+        }
+        defaultVisibility = getDefaultVisibility(words);
+        parseExpected(SyntaxKind.SemicolonToken);
+        return withJSDoc(finishNode(factory.createEmptyStatement(), pos), hasJSDoc);
+    }
+
+    /**
+     * The visibilities a `default` statement sets. Each modifier list applies to the
+     * `functions`, `variables` or `structs` after it, a kind with none repeats the list before
+     * it, and a statement with no kind sets all three. A kind it doesn't name gets none.
+     */
+    function getDefaultVisibility(words: readonly SyntaxKind[]): typeof defaultVisibility {
+        const result = { functions: 0, variables: 0, structs: 0 };
+        let current = ModifierFlags.None;
+        let last = ModifierFlags.None;
+        let sawKind = false;
+        for (const kind of words) {
+            const target = kind === SyntaxKind.FunctionsKeyword ? "functions" : kind === SyntaxKind.VariablesKeyword ? "variables" : kind === SyntaxKind.StructsKeyword ? "structs" : undefined;
+            if (target) {
+                sawKind = true;
+                result[target] = current || last;
+                last = current || last;
+                current = ModifierFlags.None;
+            }
+            else {
+                current |= modifierToFlag(kind) & (ModifierFlags.Private | ModifierFlags.Protected | ModifierFlags.Public | ModifierFlags.Visible | ModifierFlags.Static);
+            }
+        }
+        if (!sawKind) {
+            result.functions = current;
+            result.variables = result.structs = current & ~ModifierFlags.Static;
+        }
+        return result;
+    }
+
+    /** Gives a program-level declaration with no visibility of its own the `default` one. */
+    function applyDefaultVisibility(declaration: Statement, modifiers: NodeArray<ModifierLike> | undefined) {
+        const visibility = declaration.kind === SyntaxKind.FunctionDeclaration ? defaultVisibility.functions :
+            declaration.kind === SyntaxKind.VariableStatement ? defaultVisibility.variables :
+            declaration.kind === SyntaxKind.StructDeclaration ? defaultVisibility.structs :
+            ModifierFlags.None;
+        if (!visibility) return;
+        const own = modifiersToFlags(modifiers?.filter(isModifier)) & (ModifierFlags.Private | ModifierFlags.Protected | ModifierFlags.Public | ModifierFlags.Visible
+            | (declaration.kind === SyntaxKind.FunctionDeclaration ? ModifierFlags.Static : ModifierFlags.None));
+        if (!own) (declaration as Mutable<Statement>).defaultVisibility = visibility;
     }
     
     function parseDeclarationWorker(pos: PositionState, hasJSDoc: boolean, modifiersIn: NodeArray<ModifierLike> | undefined, typeIn: TypeNode | undefined): Statement {
