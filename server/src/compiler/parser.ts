@@ -2711,40 +2711,66 @@ export namespace LpcParser {
         const posIdentifier = getPositionState();
         const identifierStart = scanner.getTokenStart();        
         const identifierText = internIdentifier(scanner.getTokenValue());
-        let identifier = token() === SyntaxKind.EndOfFileToken ? createMissingNode(SyntaxKind.Identifier, true, Diagnostics.Identifier_expected) as Identifier :
-            token() === SyntaxKind.Identifier ? parseIdentifier() : 
-            // To the preprocessor a keyword is a name like any other: `#define bytes string`.
-            isKeyword(token()) ? createIdentifier(true, Diagnostics.Identifier_expected) : 
-            createMissingNode(SyntaxKind.Identifier, true, Diagnostics.Identifier_expected) as Identifier
-
-        if ((identifier as Node).kind === SyntaxKind.NewLineTrivia) {
-            parseErrorAtPosition(posIdentifier.pos, posIdentifier.pos, pos.fileName, Diagnostics.Identifier_expected);
-            identifier = createMissingNode(SyntaxKind.Identifier, false);
-        }
-
-        let args: NodeArray<ParameterDeclaration> | undefined;
-                
-        const identifierEnd = identifierStart + identifierText.length;
-        if (identifierEnd === scanner.getTokenStart() && token() === SyntaxKind.OpenParenToken) {
-            args = disallowTypes(parseParameters);
-        }
-        
-        const contentStart = scanner.getTokenStart();
         const macroTextFilename = scanner.getFileName().length > 0 ? scanner.getFileName() : fileName;
-        // an empty body (`#define debug(x)`, `#define FOO`) expands to nothing
-        let endPos = contentStart;
-        if (token() !== SyntaxKind.NewLineTrivia && token() !== SyntaxKind.EndOfFileToken) {
-            // The body is kept as text and scanned where the macro is used, so the line is
-            // only searched for its end. Text the fast scan does not know is read as tokens.
-            const fastEnd = currentMacro ? -1 : scanner.scanRestOfDefineLine();
+
+        let identifier: Identifier;
+        let args: NodeArray<ParameterDeclaration> | undefined;
+        let contentStart = -1;
+        let endPos = -1;
+
+        // The body of a macro is kept as text and scanned where the macro is used, so the
+        // line is only searched for its end. Most defines are a plain name and its text,
+        // and for those not even the first token of the body is made. Text the fast scan
+        // does not know (see scanRestOfDefineLine) is read as tokens instead.
+        const nameEnd = scanner.getTokenEnd();
+        if (token() === SyntaxKind.Identifier && !currentMacro && identifierStart + identifierText.length === nameEnd &&
+            scanner.getText().charCodeAt(nameEnd) !== CharacterCodes.openParen) {
+            identifierCount++;
+            identifier = finishNode(factoryCreateIdentifier(identifierText), posIdentifier, nameEnd);
+            const fastEnd = scanner.scanRestOfDefineLine();
             if (fastEnd >= 0) {
-                endPos = fastEnd;
+                // an empty body (`#define FOO`) expands to nothing
+                contentStart = scanner.getDefineBodyStart();
+                endPos = Math.max(contentStart, fastEnd);
                 currentToken = scanner.getToken();
             }
             else {
-                while (token() !== SyntaxKind.NewLineTrivia && token() !== SyntaxKind.EndOfFileToken) {
-                    endPos = scanner.getTokenEnd();
-                    nextToken();                      
+                nextToken();
+            }
+        }
+        else {
+            identifier = token() === SyntaxKind.EndOfFileToken ? createMissingNode(SyntaxKind.Identifier, true, Diagnostics.Identifier_expected) as Identifier :
+                token() === SyntaxKind.Identifier ? parseIdentifier() : 
+                // To the preprocessor a keyword is a name like any other: `#define bytes string`.
+                isKeyword(token()) ? createIdentifier(true, Diagnostics.Identifier_expected) : 
+                createMissingNode(SyntaxKind.Identifier, true, Diagnostics.Identifier_expected) as Identifier
+
+            if ((identifier as Node).kind === SyntaxKind.NewLineTrivia) {
+                parseErrorAtPosition(posIdentifier.pos, posIdentifier.pos, pos.fileName, Diagnostics.Identifier_expected);
+                identifier = createMissingNode(SyntaxKind.Identifier, false);
+            }
+
+            const identifierEnd = identifierStart + identifierText.length;
+            if (identifierEnd === scanner.getTokenStart() && token() === SyntaxKind.OpenParenToken) {
+                args = disallowTypes(parseParameters);
+            }
+        }
+
+        if (contentStart < 0) {
+            contentStart = scanner.getTokenStart();
+            // an empty body (`#define debug(x)`) expands to nothing
+            endPos = contentStart;
+            if (token() !== SyntaxKind.NewLineTrivia && token() !== SyntaxKind.EndOfFileToken) {
+                const fastEnd = currentMacro ? -1 : scanner.scanRestOfDefineLine();
+                if (fastEnd >= 0) {
+                    endPos = fastEnd;
+                    currentToken = scanner.getToken();
+                }
+                else {
+                    while (token() !== SyntaxKind.NewLineTrivia && token() !== SyntaxKind.EndOfFileToken) {
+                        endPos = scanner.getTokenEnd();
+                        nextToken();                      
+                    }
                 }
             }
         }

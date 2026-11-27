@@ -108,6 +108,12 @@ export interface Scanner {
      * @internal
      */
     scanRestOfDefineLine(): number;
+    /**
+     * Where the text read by the last successful scanRestOfDefineLine() starts: its first
+     * character that is not white space or a comment, or the end of the line if there is none.
+     * @internal
+     */
+    getDefineBodyStart(): number;
     /** The next token scanned counts as the first one on its line. @internal */
     setPrecedingLineBreak(): void;
 
@@ -1150,6 +1156,8 @@ export function createScanner(
     var asteriskSeen = false;
     var reportLineBreak = false;
     var parseBracketAsStringLiteral = false;
+    /** Where the text read by the last scanRestOfDefineLine() starts. */
+    var defineBodyStart = 0;
     /** Flags the next `scan()` starts with (see setPrecedingLineBreak). */
     var pendingTokenFlags = TokenFlags.None;
     /** The text last tested for a carriage return, and the result (see skipInactiveLines). */
@@ -1202,6 +1210,7 @@ export function createScanner(
         scan,
         skipInactiveLines,
         scanRestOfDefineLine,
+        getDefineBodyStart: () => defineBodyStart,
         setPrecedingLineBreak: () => { pendingTokenFlags = TokenFlags.PrecedingLineBreak; },
 
         switchStream,
@@ -2145,7 +2154,7 @@ export function createScanner(
 
     function getDirectiveToken(firstNonWhitespaceOffset: number): DirectiveSyntaxKind | SyntaxKind.Identifier {
         // Reserved words are between 2 and 12 characters long and start with a lowercase letter
-        const trimmedValue = "#" + tokenValue.substring(firstNonWhitespaceOffset);
+        const trimmedValue = firstNonWhitespaceOffset === 1 ? tokenValue : "#" + tokenValue.substring(firstNonWhitespaceOffset);
         const len = trimmedValue.length;
         if (len >= 3 && len <= 12) {
             const ch = trimmedValue.charCodeAt(1); // 0 is the hash
@@ -2274,13 +2283,22 @@ export function createScanner(
         }
     }
 
-    /** Moves to the start of the next line, or to the end of the text. */
-    function skipToNextLine(): void {
+    /**
+     * Whether a line feed is the only line break in the text, so that the engine's string
+     * search can find the end of a line. (A line or paragraph separator, U+2028 or U+2029,
+     * is not looked for: it is no line break to either driver.)
+     */
+    function textHasOnlyLineFeeds(): boolean {
         if (crCheckedText !== text) {
             crCheckedText = text;
             crCheckedResult = text.indexOf("\r") >= 0;
         }
-        if (!crCheckedResult) {
+        return !crCheckedResult;
+    }
+
+    /** Moves to the start of the next line, or to the end of the text. */
+    function skipToNextLine(): void {
+        if (textHasOnlyLineFeeds()) {
             // only line feeds end a line here, and the engine finds those faster than a loop
             const lineFeed = text.indexOf("\n", pos);
             pos = lineFeed < 0 || lineFeed >= end ? end : lineFeed + 1;
@@ -2299,6 +2317,7 @@ export function createScanner(
     function scanRestOfDefineLine(): number {
         let p = pos;
         let lastEnd = pos;
+        let firstStart = -1;
         while (true) {
             if (p >= end) {
                 break;
@@ -2313,6 +2332,10 @@ export function createScanner(
             }
             if (ch > CharacterCodes.maxAsciiCharacter) {
                 return -1;
+            }
+            if (firstStart < 0 && ch !== CharacterCodes.backslash &&
+                !(ch === CharacterCodes.slash && (charCodeUnchecked(p + 1) === CharacterCodes.slash || charCodeUnchecked(p + 1) === CharacterCodes.asterisk))) {
+                firstStart = p;
             }
             switch (ch) {
                 case CharacterCodes.slash: {
@@ -2409,6 +2432,10 @@ export function createScanner(
         }
 
         // Leave the scanner as scan() would after reading the line break that ends the directive.
+        defineBodyStart = firstStart < 0 ? p : firstStart;
+        // the stream is consumed up to the last token of the line, as when scan() reads its line break
+        pos = lastEnd;
+        markStateConsumed();
         fullStartPos = lastEnd;
         tokenStart = p;
         tokenFlags = TokenFlags.None;
@@ -2516,6 +2543,12 @@ export function createScanner(
                 case CharacterCodes.byteOrderMark:
                     if (shouldSkipTrivia) {
                         pos++;
+                        // indentation comes in runs of spaces and tabs
+                        while (pos < end) {
+                            const next = charCodeUnchecked(pos);
+                            if (next !== CharacterCodes.space && next !== CharacterCodes.tab) break;
+                            pos++;
+                        }
                         continue;
                     }
                     else {
@@ -2685,19 +2718,31 @@ export function createScanner(
                     if (charCodeUnchecked(pos + 1) === CharacterCodes.slash) {
                         pos += 2;
 
-                        while (pos < end) {
-                            if (isLineBreak(charCodeUnchecked(pos))) {
-                                break;
+                        if (textHasOnlyLineFeeds()) {
+                            const lineFeed = text.indexOf("\n", pos);
+                            pos = lineFeed < 0 || lineFeed > end ? end : lineFeed;
+                        }
+                        else {
+                            while (pos < end) {
+                                if (isLineBreak(charCodeUnchecked(pos))) {
+                                    break;
+                                }
+                                pos++;
                             }
-                            pos++;
                         }
 
-                        commentDirectives = appendIfCommentDirective(
-                            commentDirectives,
-                            text.slice(tokenStart, pos),
-                            commentDirectiveRegExSingleLine,
-                            tokenStart,
-                        );
+                        // a comment directive has an `@` after the slashes; no other comment needs the test
+                        let directiveStart = tokenStart + 2;
+                        if (charCodeUnchecked(directiveStart) === CharacterCodes.slash) directiveStart++;
+                        while (directiveStart < pos && isWhiteSpaceSingleLine(charCodeUnchecked(directiveStart))) directiveStart++;
+                        if (charCodeUnchecked(directiveStart) === CharacterCodes.at) {
+                            commentDirectives = appendIfCommentDirective(
+                                commentDirectives,
+                                text.slice(tokenStart, pos),
+                                commentDirectiveRegExSingleLine,
+                                tokenStart,
+                            );
+                        }
 
                         if (shouldSkipTrivia) {
                             continue;
@@ -2713,20 +2758,33 @@ export function createScanner(
 
                         let commentClosed = false;
                         let lastLineStart = tokenStart;
-                        while (pos < end) {
-                            const ch = charCodeUnchecked(pos);
-
-                            if (ch === CharacterCodes.asterisk && charCodeUnchecked(pos + 1) === CharacterCodes.slash) {
-                                pos += 2;
-                                commentClosed = true;
-                                break;
-                            }
-
-                            pos++;
-
-                            if (isLineBreak(ch)) {
-                                lastLineStart = pos;
+                        const close = textHasOnlyLineFeeds() ? text.indexOf("*/", pos) : -1;
+                        if (close >= 0 && close + 2 <= end) {
+                            // the engine finds the end of the comment, and its last line, faster than a loop
+                            const lineFeed = text.lastIndexOf("\n", close);
+                            if (lineFeed >= pos) {
+                                lastLineStart = lineFeed + 1;
                                 tokenFlags |= TokenFlags.PrecedingLineBreak;
+                            }
+                            pos = close + 2;
+                            commentClosed = true;
+                        }
+                        else {
+                            while (pos < end) {
+                                const ch = charCodeUnchecked(pos);
+
+                                if (ch === CharacterCodes.asterisk && charCodeUnchecked(pos + 1) === CharacterCodes.slash) {
+                                    pos += 2;
+                                    commentClosed = true;
+                                    break;
+                                }
+
+                                pos++;
+
+                                if (isLineBreak(ch)) {
+                                    lastLineStart = pos;
+                                    tokenFlags |= TokenFlags.PrecedingLineBreak;
+                                }
                             }
                         }
 
@@ -2734,7 +2792,13 @@ export function createScanner(
                             tokenFlags |= TokenFlags.PrecedingJSDocComment;
                         }
 
-                        commentDirectives = appendIfCommentDirective(commentDirectives, text.slice(lastLineStart, pos), commentDirectiveRegExMultiLine, lastLineStart);
+                        // only a last line with an `@` can hold a comment directive
+                        for (let i = lastLineStart; i < pos; i++) {
+                            if (charCodeUnchecked(i) === CharacterCodes.at) {
+                                commentDirectives = appendIfCommentDirective(commentDirectives, text.slice(lastLineStart, pos), commentDirectiveRegExMultiLine, lastLineStart);
+                                break;
+                            }
+                        }
 
                         if (!commentClosed) {
                             error(Diagnostics.Asterisk_Slash_expected);
