@@ -3607,7 +3607,7 @@ export namespace LpcParser {
             case SyntaxKind.StringizedIdentifier:
             case SyntaxKind.AwaitKeyword:
             // case SyntaxKind.YieldKeyword:
-            // case SyntaxKind.PrivateIdentifier:            
+            // case SyntaxKind.PrivateIdentifier:
                 // Yield/await always starts an expression.  Either it is an identifier (in which case
                 // it is definitely an expression).  Or it's a keyword (either because we're in
                 // a generator or async function, or in strict mode (or both)) and it started a yield or await expression.
@@ -5258,6 +5258,13 @@ export namespace LpcParser {
                     return parseAwaitExpression();
                 }
                 return parseUpdateExpression();
+            case SyntaxKind.AmpersandToken:
+                // LDMud 3.6: a reference is an expression of its own, not only a call argument
+                // (prolang.y, lvalue_reference under expr0). FluffOS has `&` only on an argument.
+                if (languageVariant === LanguageVariant.LDMud) {
+                    return parseLvalueReference();
+                }
+                return parseUpdateExpression();
             case SyntaxKind.TimeExpressionKeyword:
                 // FluffOS lists `time_expression` under `expr`, not `primary_expr`, so it
                 // parses here rather than in parsePrimaryExpression (where `catch` lives)
@@ -5399,7 +5406,24 @@ export namespace LpcParser {
         }
         return finishNode(factory.createPrefixUnaryExpression(operator, expr), pos);
     }
-    
+
+    /**
+     * LDMud's `lvalue_reference`: `&name`, `&(lvalue)` or `&(function_call)`, as in
+     * `mixed r = &x;`, `return &a;` or `&(arr[2..<4])`. `&x = expr` assigns through the
+     * reference (`lvalue_reference L_ASSIGN expr0`); it is kept as `&(x = expr)`, whose type is
+     * the assignment's.
+     */
+    function parseLvalueReference(): UnaryExpression {
+        const pos = getPositionState();
+        const ampToken = parseExpectedToken(SyntaxKind.AmpersandToken);
+        const operandPos = getPositionState();
+        let expr: Expression = parseLeftHandSideExpressionOrHigher();
+        if (isLeftHandSideExpression(expr) && isAssignmentOperator(reScanGreaterToken())) {
+            expr = makeBinaryExpression(expr, parseTokenNode<BinaryOperatorToken>(), parseAssignmentExpressionOrHigher(/*allowReturnTypeInArrowFunction*/ false), operandPos);
+        }
+        return finishNode(factory.createByRefElement(ampToken, expr), pos) as Expression as UnaryExpression;
+    }
+
     /**
      * Check if the current token can possibly be an ES7 increment expression.
      *
@@ -5423,6 +5447,9 @@ export namespace LpcParser {
             case SyntaxKind.OpenParenBraceToken: // ambiguous, so let simple unary try first
             case SyntaxKind.TimeExpressionKeyword: // a UnaryExpression, not an LHS expression
                 return false;
+            case SyntaxKind.AmpersandToken:
+                // an LDMud reference, `&x`, is a unary expression (see parseLvalueReference)
+                return languageVariant !== LanguageVariant.LDMud;
             case SyntaxKind.AwaitKeyword:
                 // a UnaryExpression in FluffOS; LDMud's call-shaped `await(cr)` is a primary
                 return languageVariant === LanguageVariant.LDMud;
