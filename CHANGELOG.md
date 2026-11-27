@@ -1,5 +1,43 @@
 # LPC Language Services Changelog
 
+## 1.1.60
+
+- New: a `"driver"` type-checking mode (`typeChecking` in `lpc-config.json`) that reports only the type errors your driver's compiler would, and `defaultPragmas` to mirror FluffOS's `DEFAULT_PRAGMAS` or an LDMud auto-include - #441
+- New: an `#include` can now appear anywhere the drivers allow it - inside an array or mapping literal, an argument list or a function body - and its diagnostics and go-to-definition work there too - #489
+- New: faster parsing of headers: each header is read once per program, and inactive `#if` regions and `#define` bodies are skipped instead of tokenized - #489
+- New: LDMud - lpctypes: the `lpctype` type, `[type]` literals, `decltype()`, their operators and efuns, and `struct mixed` - #477
+- New: LDMud - named lightweight object types, `lwobject "/path"` - #478
+- New: LDMud - a reference (`&x`, `&(arr[1..2])`) is an expression of its own, a list of `catch()` modifiers, the `visible` modifier, `variables`/`structs` inherit qualifiers and `default` visibility - #483, #488
+- New: LDMud - struct inheritance (`struct B (A)`), struct literal values checked against the struct's members, qualified struct names (`::S`, `sefun::S`), and visibility modifiers on a struct - #483, #488
+- New: report compile errors the drivers raise: duplicate `case` labels, string labels mixed with number labels, redefining a `nomask` function, a bare `return;` in a typed function, `void` variables and parameters, and invalid `catch()` modifiers - #462
+- New: `\U` escapes, and a character literal is one code point - #484
+- Fix: LDMud - a closure `#'fn` of a function not declared yet is reported, as the driver does - #442
+- Fix: LDMud - `#'+` and `#'fn` closures are typed as closures, so efun overloads like `map()` keep their result type - #486
+- Fix: LDMud - a struct has no members before its definition, and a struct prototype is not a duplicate of its definition - #483, #486
+- Fix: LDMud - a wildcarded super call (`"*"::fn()`) returns an array and may match no inherit - #484
+- Fix: LDMud - `__MASTER_OBJECT__`, `__VERSION__` and `__FUNCTION__` are defined; `COMPAT_FLAG`/`__COMPAT_MODE__` only with `driver.compatMode` - #483, #488
+- Fix: LDMud - `funcall()`/`apply()` take a non-closure, `map()`/`filter()` on bytes return bytes, `save_object()` with no file returns the save string, `clone_object()` accepts a template object, and the efun arguments the driver makes optional are optional - #472, #471, #475, #483, #484
+- Fix: LDMud - an inline closure's last expression without `;` is its value, the empty inline closure `(::)`, and closure context variables read the enclosing scope - #469, #483, #484, #488
+- Fix: LDMud - a quoted symbol at the end of a macro body is read - #461
+- Fix: LDMud - `#pragma no_warn_missing_return` is honoured, and missing returns follow the driver's rule - #466
+- Fix: LDMud - `string` means `string|bytes` under `#pragma no_bytes_type`, and adjacent bytes literals are joined - #488
+- Fix: a local's initializer reads the outer variable of the same name, as in both drivers - #484
+- Fix: a spread argument (`f(args...)`) may go to a parameter that is not a rest parameter - #484
+- Fix: in driver mode, comparing two different literals of the same type is not an error - #484
+- Fix: a `#define` or `#undef` in the middle of an expression, `#line` and `#echo`, a macro named after a keyword, and a macro argument starting with `*` - #484, #488
+- Fix: an error from a macro expansion is reported on the macro's use - #484
+- Fix: `foreach` over a string, an LDMud int or an LDMud struct is typed - #488
+- Fix: a parameter with a default value is optional, including on a prototype - #476
+- Fix: a private redefinition hides the inherited function from inheriting programs - #480
+- Fix: completions no longer offer an inherited program's `#define` - #481
+- Fix: a call above a redefinition is checked against what the driver binds there, and a call to a redeclared inherited function with no LDMud argument types is left unchecked - #470, #474
+- Fix: in driver mode, an efun call with an undecided argument is `mixed`, overloads are chosen by argument types, and a call to an undefined function in untyped code is accepted - #465, #473
+- Fix: file-scope code is checked under the function compiled before it - #460
+- Fix: an `#include`'s diagnostics are reported from the includer's own check, and its warnings as warnings - #467
+- Fix: `int one, *two;` in a struct member list - #463
+- Fix: crashes on a bare `catch`, a missing include, and four more found by running over LDMud's own test suite - #464, #468
+- Releases are also published to Open VSX - #444
+
 ## 1.1.59
 
 - New: LDMud - coroutines: `async`, `await()`, `yield()`, the `coroutine` type, and `foreach` over a coroutine - #422
