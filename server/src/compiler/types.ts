@@ -2042,6 +2042,7 @@ export type IsContainer =
     | FunctionExpression
     | InlineClosureExpression
     | NewExpression
+    | NewStructExpression
     | ArrowFunction;
 
 /**
@@ -4837,7 +4838,7 @@ export interface EmitTextWriter extends SymbolWriter {
     nonEscapingWrite?(text: string): void;
 }
 
-export interface NewStructExpression extends PrimaryExpression, Declaration {
+export interface NewStructExpression extends PrimaryExpression, Declaration, LocalsContainer {
     readonly kind: SyntaxKind.NewStructExpression
     readonly type: StructTypeNode;
     readonly arguments: NodeArray<Expression | ObjectLiteralElementLike>;

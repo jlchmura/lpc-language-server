@@ -7586,9 +7586,59 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const links = getNodeLinks(node);
         // links.resolvedType = structType;
         checkSourceElement(type);
-        checkNodeDeferred(node);
         checkNewStructLiteral(node, checkMode);
-        return getTypeFromTypeNode(type);
+        const literalStructType = getTypeFromTypeNode(type);
+        checkNewStructMembers(node, literalStructType);
+        return literalStructType;
+    }
+
+    /**
+     * An LDMud struct literal's values against the struct's members (prolang.y,
+     * create_struct_literal). The driver always reports a member the struct lacks, a member
+     * initialized twice and more values than members; it compares a value's type with its
+     * member's only where it type checks (exact_types, see isTypeCheckedByDriver).
+     */
+    function checkNewStructMembers(node: NewStructExpression, structType: Type) {
+        const args = node.arguments;
+        if (!args?.length) return;
+        const checkTypes = isTypeCheckedByDriver(node);
+        const known = !isErrorType(structType) && !!(structType.flags & TypeFlags.Object);
+        const members = known ? getPropertiesOfType(structType) : emptyArray;
+        const structName = known ? typeToString(structType) : "";
+        const checkValue = (value: Expression, member: Symbol | undefined) => {
+            const valueType = checkExpressionCached(value);
+            if (member && checkTypes) {
+                checkTypeAssignableTo(valueType, getTypeOfSymbol(member), value, /*headMessage*/ undefined);
+            }
+        };
+
+        if (isPropertyAssignment(args[0])) {
+            // the values are checked with the literal (checkPropertyAssignment)
+            const seen = new Set<string>();
+            for (const arg of args) {
+                if (!isPropertyAssignment(arg) || !isIdentifier(arg.name) || !known) continue;
+                const name = idText(arg.name);
+                const member = getPropertyOfType(structType, name);
+                if (!member) {
+                    error(arg.name, Diagnostics.Property_0_does_not_exist_on_type_1, name, structName);
+                    continue;
+                }
+                if (seen.has(name)) error(arg.name, Diagnostics.Member_0_of_struct_1_is_initialized_more_than_once, name, structName);
+                seen.add(name);
+                if (checkTypes) {
+                    checkTypeAssignableTo(checkExpressionCached(arg.initializer), getTypeOfSymbol(member), arg.initializer, /*headMessage*/ undefined);
+                }
+            }
+            return;
+        }
+
+        forEach(args, (arg, i) => {
+            if (isPropertyAssignment(arg) || isShorthandPropertyAssignment(arg)) return;
+            checkValue(arg as Expression, members[i]);
+        });
+        if (known && args.length > members.length) {
+            error(args[members.length], Diagnostics.Too_many_values_for_struct_0_it_has_1_members, structName, members.length);
+        }
     }
 
 

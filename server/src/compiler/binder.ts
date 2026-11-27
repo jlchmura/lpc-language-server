@@ -1369,6 +1369,7 @@ function createBinder(): (file: SourceFile, options: CompilerOptions) => void {
             case SyntaxKind.TypeAliasDeclaration:
             case SyntaxKind.MappedType:
             case SyntaxKind.NewExpression:
+            case SyntaxKind.NewStructExpression:
                 // All the children of these container types are never visible through another
                 // symbol (i.e. through another symbol's 'exports' or 'members').  Instead,
                 // they're only accessed 'lexically' (i.e. from code that exists underneath
@@ -2593,6 +2594,8 @@ export function getContainerFlags(node: Node): ContainerFlags {
         case SyntaxKind.DefaultClause:
             return isCaseClauseScope(node) ? ContainerFlags.IsBlockScopedContainer | ContainerFlags.HasLocals : ContainerFlags.None;
         case SyntaxKind.NewExpression:
+        // `(<S> a: 1)`: a named member belongs to the literal, not to the enclosing function
+        case SyntaxKind.NewStructExpression:
             return ContainerFlags.IsContainer | ContainerFlags.HasLocals;
         case SyntaxKind.Block:
             // do not treat blocks directly inside a function as a block-scoped-container.
