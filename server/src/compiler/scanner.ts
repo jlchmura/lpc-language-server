@@ -2322,7 +2322,7 @@ export function createScanner(
             if (p >= end) {
                 break;
             }
-            const ch = charCodeUnchecked(p);
+            const ch = text.charCodeAt(p);
             if (ch === CharacterCodes.lineFeed || ch === CharacterCodes.carriageReturn) {
                 break;
             }
@@ -2334,17 +2334,17 @@ export function createScanner(
                 return -1;
             }
             if (firstStart < 0 && ch !== CharacterCodes.backslash &&
-                !(ch === CharacterCodes.slash && (charCodeUnchecked(p + 1) === CharacterCodes.slash || charCodeUnchecked(p + 1) === CharacterCodes.asterisk))) {
+                !(ch === CharacterCodes.slash && (text.charCodeAt(p + 1) === CharacterCodes.slash || text.charCodeAt(p + 1) === CharacterCodes.asterisk))) {
                 firstStart = p;
             }
             switch (ch) {
                 case CharacterCodes.slash: {
-                    const next = charCodeUnchecked(p + 1);
+                    const next = text.charCodeAt(p + 1);
                     if (next === CharacterCodes.slash) {
                         // a line comment runs to the end of the line, which ends the directive
                         p += 2;
                         while (p < end) {
-                            const c = charCodeUnchecked(p);
+                            const c = text.charCodeAt(p);
                             if (c === CharacterCodes.lineFeed || c === CharacterCodes.carriageReturn) break;
                             p++;
                         }
@@ -2361,13 +2361,13 @@ export function createScanner(
                     continue;
                 }
                 case CharacterCodes.backslash: {
-                    const next = charCodeUnchecked(p + 1);
+                    const next = text.charCodeAt(p + 1);
                     if (next === CharacterCodes.lineFeed) {
                         p += 2;
                         continue;
                     }
                     if (next === CharacterCodes.carriageReturn) {
-                        p += p + 2 < end && charCodeUnchecked(p + 2) === CharacterCodes.lineFeed ? 3 : 2;
+                        p += p + 2 < end && text.charCodeAt(p + 2) === CharacterCodes.lineFeed ? 3 : 2;
                         continue;
                     }
                     return -1;
@@ -2376,13 +2376,13 @@ export function createScanner(
                     p++;
                     while (true) {
                         if (p >= end) return -1;
-                        const c = charCodeUnchecked(p);
+                        const c = text.charCodeAt(p);
                         if (c === CharacterCodes.doubleQuote) {
                             p++;
                             break;
                         }
                         if (c === CharacterCodes.backslash) {
-                            const escaped = charCodeUnchecked(p + 1);
+                            const escaped = text.charCodeAt(p + 1);
                             // a string carried over a line break is left to scan()
                             if (escaped === CharacterCodes.lineFeed || escaped === CharacterCodes.carriageReturn) return -1;
                             p += 2;
@@ -2396,17 +2396,17 @@ export function createScanner(
                 }
                 case CharacterCodes.singleQuote: {
                     // 'x' and '\x'; a quoted symbol or array ('sym, '({ ... })) is left to scan()
-                    const next = charCodeUnchecked(p + 1);
+                    const next = text.charCodeAt(p + 1);
                     if (next !== CharacterCodes.backslash && next !== CharacterCodes.singleQuote && next >= CharacterCodes.space &&
-                        next <= CharacterCodes.maxAsciiCharacter && charCodeUnchecked(p + 2) === CharacterCodes.singleQuote) {
+                        next <= CharacterCodes.maxAsciiCharacter && text.charCodeAt(p + 2) === CharacterCodes.singleQuote) {
                         lastEnd = p += 3;
                         continue;
                     }
                     if (next === CharacterCodes.backslash && p + 3 < end) {
                         let q = p + 3;
                         const limit = Math.min(end, p + 8);
-                        while (q < limit && charCodeUnchecked(q) !== CharacterCodes.singleQuote && !isLineBreak(charCodeUnchecked(q))) q++;
-                        if (q < limit && charCodeUnchecked(q) === CharacterCodes.singleQuote) {
+                        while (q < limit && text.charCodeAt(q) !== CharacterCodes.singleQuote && !isLineBreak(text.charCodeAt(q))) q++;
+                        if (q < limit && text.charCodeAt(q) === CharacterCodes.singleQuote) {
                             lastEnd = p = q + 1;
                             continue;
                         }
@@ -2415,7 +2415,7 @@ export function createScanner(
                 }
                 case CharacterCodes.hash:
                     // #'name and #'+ are closures: the quote after the hash starts no character literal
-                    if (charCodeUnchecked(p + 1) === CharacterCodes.singleQuote) {
+                    if (text.charCodeAt(p + 1) === CharacterCodes.singleQuote) {
                         lastEnd = p += 2;
                         continue;
                     }
@@ -2444,7 +2444,7 @@ export function createScanner(
             token = SyntaxKind.EndOfFileToken;
         }
         else {
-            pos = charCodeUnchecked(p) === CharacterCodes.carriageReturn && p + 1 < end && charCodeUnchecked(p + 1) === CharacterCodes.lineFeed ? p + 2 : p + 1;
+            pos = text.charCodeAt(p) === CharacterCodes.carriageReturn && p + 1 < end && text.charCodeAt(p + 1) === CharacterCodes.lineFeed ? p + 2 : p + 1;
             token = SyntaxKind.NewLineTrivia;
         }
         return lastEnd;
