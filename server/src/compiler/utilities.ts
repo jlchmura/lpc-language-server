@@ -1229,13 +1229,26 @@ export function createNameResolver({
     var emptySymbols = createSymbolTable();
     return resolveNameHelper;
 
-    /** A context variable of `closure` named `name` that is declared before `pos`. */
-    function findEarlierContextVariable(closure: FunctionExpression, name: string, pos: number): Symbol | undefined {
+    /**
+     * Whether `reference` is in the initializer of `symbol`'s own variable declaration. By the
+     * tree, not by position: every node from one macro use spans that use.
+     */
+    function isInOwnInitializer(symbol: Symbol, reference: Node): boolean {
+        const declaration = symbol.valueDeclaration;
+        const initializer = declaration && isVariableDeclaration(declaration) ? declaration.initializer : undefined;
+        return !!initializer && !!findAncestor(reference, node => node === initializer);
+    }
+
+    /**
+     * A context variable of `closure` named `name` that is declared before the one whose
+     * initializer holds `reference`. By the tree, not by position (see isInOwnInitializer).
+     */
+    function findEarlierContextVariable(closure: FunctionExpression, name: string, reference: Node): Symbol | undefined {
         let found: Symbol | undefined;
         for (const statement of closure.body?.statements ?? emptyArray) {
             if (!(statement.flags & NodeFlags.InlineClosureContext) || !isVariableStatement(statement)) break;
             for (const declaration of statement.declarationList.declarations) {
-                if (declaration.end > pos) return found;
+                if (findAncestor(reference, node => node === declaration)) return found;
                 if (isIdentifier(declaration.name) && declaration.name.text === name) found = declaration.symbol;
             }
         }
@@ -1326,6 +1339,12 @@ export function createNameResolver({
                         }
                     }
                     
+                    // A local is in scope only once its initializer is compiled (LDMud and FluffOS both
+                    // declare it after), so in `int x = x - 1;` the initializer reads the outer x.
+                    if (useResult && originalLocation && !isSourceFile(location) && result.flags & SymbolFlags.Variable && isInOwnInitializer(result, originalLocation)) {
+                        useResult = false;
+                    }
+
                     if (useResult) {
                         break loop;
                     }
@@ -1569,7 +1588,7 @@ export function createNameResolver({
                 // reads the outer `result`. Skip the rest of the closure's body and its parameters.
                 const closure = findAncestor(lastLocation, isFunctionExpression);
                 if (closure) {
-                    const earlier = originalLocation && findEarlierContextVariable(closure, name, originalLocation.pos);
+                    const earlier = originalLocation && findEarlierContextVariable(closure, name, originalLocation);
                     if (earlier && earlier.flags & meaning) {
                         result = earlier;
                         break loop;

@@ -67,3 +67,10 @@ describe("an inline closure's context variable initializer", () => {
         expect(def?.textSpan.start).toBe(source.indexOf("b = 1"));
     });
 });
+
+describe("an inline closure's context variables in a macro", () => {
+    it("are initialized in order", () => {
+        expect(diagnosticsFor(`#define CL(a) funcall(function int () : int b = a + 1; int c = b + 1 { return c; })\nint f() { return CL(1); }\n`)).toEqual([]);
+        expect(diagnosticsFor(`#define CL funcall(function int () : int b = c; int c = 1 { return b; })\nint f() { return CL; }\n`)).toEqual(["2304: Cannot find name 'c'."]);
+    });
+});
