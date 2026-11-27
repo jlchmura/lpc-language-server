@@ -1229,6 +1229,16 @@ export function createNameResolver({
     var emptySymbols = createSymbolTable();
     return resolveNameHelper;
 
+    /**
+     * Whether `reference` is in the initializer of `symbol`'s own variable declaration. By the
+     * tree, not by position: every node from one macro use spans that use.
+     */
+    function isInOwnInitializer(symbol: Symbol, reference: Node): boolean {
+        const declaration = symbol.valueDeclaration;
+        const initializer = declaration && isVariableDeclaration(declaration) ? declaration.initializer : undefined;
+        return !!initializer && !!findAncestor(reference, node => node === initializer);
+    }
+
     /** A context variable of `closure` named `name` that is declared before `pos`. */
     function findEarlierContextVariable(closure: FunctionExpression, name: string, pos: number): Symbol | undefined {
         let found: Symbol | undefined;
@@ -1326,6 +1336,12 @@ export function createNameResolver({
                         }
                     }
                     
+                    // A local is in scope only once its initializer is compiled (LDMud and FluffOS both
+                    // declare it after), so in `int x = x - 1;` the initializer reads the outer x.
+                    if (useResult && originalLocation && !isSourceFile(location) && result.flags & SymbolFlags.Variable && isInOwnInitializer(result, originalLocation)) {
+                        useResult = false;
+                    }
+
                     if (useResult) {
                         break loop;
                     }
