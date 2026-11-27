@@ -5526,11 +5526,35 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (!name) {
             return unknownSymbol;
         }
+        const qualified = isStructTypeNode(typeReference) && isIdentifier(name) ? resolveQualifiedStructName(typeReference, name, meaning, ignoreErrors) : undefined;
+        if (qualified) {
+            return qualified;
+        }
         const symbol = resolveEntityName(name, meaning, ignoreErrors);
         return symbol && symbol !== unknownSymbol ? symbol :
             ignoreErrors ? unknownSymbol : getUnresolvedSymbolForEntityName(name);
     }
     
+    /**
+     * LDMud `struct sefun::S` and `struct efun::S` name the simul-efun object's or the driver's
+     * struct, even where the program has its own S. `::S` is the program's own, which is how a
+     * plain name already resolves, so it needs nothing here.
+     */
+    function resolveQualifiedStructName(node: StructTypeNode, name: Identifier, meaning: SymbolFlags, ignoreErrors?: boolean): Symbol | undefined {
+        if (node.qualifier !== "sefun" && node.qualifier !== "efun") {
+            return undefined;
+        }
+        // Never the program's own struct, also when there is no simul-efun file to look in.
+        const table = node.qualifier === "sefun" ? host.getSourceFile(compilerOptions.sefunFile)?.locals : globals.get(InternalSymbolName.EfunNamespace)?.members;
+        const symbol = table && getSymbol(table, name.text, meaning);
+        if (!symbol) {
+            if (!ignoreErrors) error(name, Diagnostics.Cannot_find_name_0, name.text);
+            return ignoreErrors ? undefined : unknownSymbol;
+        }
+        getNodeLinks(name).resolvedSymbol = symbol;
+        return symbol;
+    }
+
     function getUnresolvedSymbolForEntityName(name: EntityNameOrEntityNameExpression) {
         const identifier = name.kind === SyntaxKind.QualifiedName ? name.right :
             name.kind === SyntaxKind.PropertyAccessExpression ? name.name :
@@ -34938,7 +34962,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return symbol && symbol !== unknownSymbol ? symbol : getUnresolvedSymbolForEntityName(name as EntityName);
         }
         else if (isStructTypeNode(name.parent)) {
-            const symbol = resolveEntityName(name as EntityName, SymbolFlags.Type, /*ignoreErrors*/ false, /*dontResolveAlias*/ true);
+            const symbol = (isIdentifier(name) && resolveQualifiedStructName(name.parent, name, SymbolFlags.Type, /*ignoreErrors*/ true))
+                || resolveEntityName(name as EntityName, SymbolFlags.Type, /*ignoreErrors*/ false, /*dontResolveAlias*/ true);
             return symbol && symbol !== unknownSymbol ? symbol : getUnresolvedSymbolForEntityName(name as EntityName);
         }
         if (name.parent.kind === SyntaxKind.TypePredicate) {

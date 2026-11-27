@@ -1635,7 +1635,7 @@ export interface NodeFactory {
     createParenthesizedType(type: TypeNode): ParenthesizedTypeNode;
     createLiteralTypeNode(literal: LiteralTypeNode["literal"]): LiteralTypeNode;
     createTypeLiteralNode(members: readonly TypeElement[] | undefined): TypeLiteralNode;
-    createStructTypeNode(name: Identifier, keyword: StructKeywordSyntaxKind): StructTypeNode;
+    createStructTypeNode(name: Identifier, keyword: StructKeywordSyntaxKind, qualifier?: StructNameQualifier): StructTypeNode;
     createPropertySignature(modifiers: readonly Modifier[] | undefined, name: PropertyName | string, type: TypeNode | undefined): PropertySignature;
     createStructDeclarationNode(
         modifiers: readonly Modifier[] | undefined,
@@ -5180,7 +5180,14 @@ export interface StructTypeNode extends TypeNode {
     readonly kind: SyntaxKind.StructType;
     readonly keyword: StructKeywordSyntaxKind;
     readonly typeName: EntityName;
+    /**
+     * LDMud's qualified struct name (prolang.y struct_name): `::S` is the program's own struct,
+     * `sefun::S` the simul-efun object's, `efun::S` the driver's.
+     */
+    readonly qualifier?: StructNameQualifier;
 }
+
+export type StructNameQualifier = "lfun" | "efun" | "sefun";
 
 export const enum SymbolFormatFlags {
     None                                    = 0,

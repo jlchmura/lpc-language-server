@@ -218,6 +218,7 @@ import {
     stringToToken,
     StructDeclaration,
     StructKeywordSyntaxKind,
+    StructNameQualifier,
     StructTypeNode,
     SuperAccessExpression,
     SwitchStatement,
@@ -1103,10 +1104,11 @@ export function createNodeFactory(flags: NodeFactoryFlags, baseFactory: BaseNode
     }
 
     // @api 
-    function createStructTypeNode(name: Identifier, keyword: StructKeywordSyntaxKind): StructTypeNode {
+    function createStructTypeNode(name: Identifier, keyword: StructKeywordSyntaxKind, qualifier?: StructNameQualifier): StructTypeNode {
         const node = createBaseNode<StructTypeNode>(SyntaxKind.StructType);
         node.keyword = keyword;
         node.typeName = name;
+        node.qualifier = qualifier;
         return node;
     }  
 
