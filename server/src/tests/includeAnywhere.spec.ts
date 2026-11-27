@@ -188,6 +188,31 @@ describe.each([
         expect(statementKinds(sourceFileOf(files, driverType).statements)).toEqual([lpc.SyntaxKind.DefineDirective, lpc.SyntaxKind.IncludeDirective, lpc.SyntaxKind.UndefDirective, lpc.SyntaxKind.VariableStatement]);
     });
 
+    it("may stand between modifiers and their declaration", () => {
+        const files = {
+            "lib/test.c": `private\n\nint door,\n    lock;\n\npublic\n\n#include "/defs.h"\n\n#define HOOK 1\n\ncontrol(arg)\n{\n    return HOOK + BASE + door + lock;\n}\n`,
+            "lib/defs.h": `#define BASE 2\n`,
+        };
+        expect(diagnosticsFor(files, driverType)).toEqual([]);
+        const file = sourceFileOf(files, driverType);
+        expect(statementKinds(file.statements)).toEqual([lpc.SyntaxKind.VariableStatement, lpc.SyntaxKind.IncludeDirective, lpc.SyntaxKind.DefineDirective, lpc.SyntaxKind.FunctionDeclaration]);
+        const control = file.statements[3] as lpc.FunctionDeclaration;
+        expect(control.modifiers?.map(m => m.kind)).toEqual([lpc.SyntaxKind.PublicKeyword]);
+        expect(control.pos).toBe(files["lib/test.c"].indexOf("public") - 2);
+    });
+
+    it("gives modifiers before it to the first declaration of its file", () => {
+        const files = {
+            "lib/test.c": `nomask\n#include "/decl.h"\nint z = f();\n`,
+            "lib/decl.h": `int f() { return 1; }\n`,
+        };
+        expect(diagnosticsFor(files, driverType)).toEqual([]);
+        const f = (sourceFileOf(files, driverType).statements[0] as lpc.IncludeDirective).statements[0] as lpc.FunctionDeclaration;
+        expect(f.modifiers?.map(m => m.kind)).toEqual([lpc.SyntaxKind.NoMaskKeyword]);
+        expect(name(lpc.getSourceFileOrIncludeOfNode(f.modifiers![0]))).toBe("test.c");
+        expect(name(lpc.getSourceFileOrIncludeOfNode(f.name!))).toBe("decl.h");
+    });
+
     it("is read when stray text follows the file name", () => {
         expect(diagnosticsFor({
             "lib/test.c": `#include "/a.h";\nint z = A;\n`,

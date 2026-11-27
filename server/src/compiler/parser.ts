@@ -136,6 +136,15 @@ export namespace LpcParser {
      * statement starts at this list depth or above.
      */
     var originTaintDepth = -1;
+    /**
+     * Modifiers that are followed by a directive line instead of their declaration:
+     *     public
+     *     #include "defs.h"
+     *     reset(arg) { ... }
+     * To the driver the directive is no part of the program text, so the modifiers go with
+     * the next declaration. They are kept here while the directives are read as statements.
+     */
+    var carriedModifiers: { modifiers: NodeArray<ModifierLike>; pos: PositionState; hasJSDoc: boolean; fileName: string; } | undefined;
     var lastFinishedNode: Node | undefined;
     var lastFinishedOrigin: string | undefined;
     /** Set while a doc comment is parsed: whether its owner came from an include. */
@@ -323,6 +332,7 @@ export namespace LpcParser {
         nodeOrigins = undefined;
         statementListDepth = 0;
         originTaintDepth = -1;
+        carriedModifiers = undefined;
         lastFinishedNode = undefined;
         lastFinishedOrigin = undefined;
         explicitIncludeContext = undefined;
@@ -1167,6 +1177,10 @@ export namespace LpcParser {
         }
     }
 
+    function isStatementListContext(kind: ParsingContext): boolean {
+        return kind === ParsingContext.SourceElements || kind === ParsingContext.BlockStatements || kind === ParsingContext.SwitchClauseStatements;
+    }
+
     function isIncludeActive(frame: IncludeFrame): boolean {
         for (let current = includeTop; current !== undefined; current = current.parent) {
             if (current === frame) return true;
@@ -1722,7 +1736,7 @@ export namespace LpcParser {
         start ??= getPositionState();
 
         // A list of statements takes in the includes read at the start of one of its statements.
-        const isStatementList = kind === ParsingContext.SourceElements || kind === ParsingContext.BlockStatements || kind === ParsingContext.SwitchClauseStatements;
+        const isStatementList = isStatementListContext(kind);
         if (isStatementList) statementListDepth++;
 
         while (true) {
@@ -2577,6 +2591,8 @@ export namespace LpcParser {
             return parseDirective();
         }
 
+        // modifiers with no declaration after them are dropped
+        carriedModifiers = undefined;
         return parseExpressionOrLabeledStatement();
     }
 
@@ -4664,12 +4680,32 @@ export namespace LpcParser {
         // `parseListElement` attempted to get the reused node at this position,
         // but the ambient context flag was not yet set, so the node appeared
         // not reusable in that context.
-        const pos = getPositionState();
-        const hasJSDoc = hasPrecedingJSDocComment();
+        let pos = getPositionState();
+        let hasJSDoc = hasPrecedingJSDocComment();
         if (languageVariant === LanguageVariant.LDMud && token() === SyntaxKind.DefaultKeyword) {
             return parseDefaultVisibilityStatement(pos, hasJSDoc);
         }
-        const modifiers = parseModifiers(/*allowDecorators*/ true);
+        let modifiers = parseModifiers(/*allowDecorators*/ true);
+
+        // Modifiers that directive lines stand between and their declaration (see carriedModifiers).
+        const carried = carriedModifiers;
+        if (carried !== undefined) {
+            carriedModifiers = undefined;
+            if (carried.fileName === structuralFileName) {
+                // the declaration starts where its first modifier does
+                pos = carried.pos;
+                hasJSDoc = carried.hasJSDoc;
+            }
+            else {
+                // the declaration is in an include: its first modifiers are in the file that includes it
+                forEach(carried.modifiers, modifier => recordNodeOrigin(modifier, carried.fileName));
+            }
+            modifiers = modifiers ? createNodeArray([...carried.modifiers, ...modifiers], carried.modifiers.pos, modifiers.end) : carried.modifiers;
+        }
+        if (modifiers && (pendingIncludes !== undefined || isDirective()) && isStatementListContext(currentParsingContext)) {
+            carriedModifiers = { modifiers, pos, hasJSDoc, fileName: carried !== undefined ? carried.fileName : structuralFileName };
+            return pendingIncludes !== undefined ? parseAdoptedInclude(currentParsingContext, parseStatement) : parseDirective();
+        }
         
         if (token() == SyntaxKind.InheritKeyword) {
             // Register the import as parseInheritStatement does, so `private inherit` / `virtual inherit` resolve.
