@@ -36872,9 +36872,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     function getArgumentArityError(node: CallLikeExpression, signatures: readonly Signature[], args: readonly Expression[], headMessage?: DiagnosticMessage) {                        
-        const spreadIndex = getSpreadArgumentIndex(args);
-        if (spreadIndex > -1) {
-            return createDiagnosticForNode(args[spreadIndex], Diagnostics.A_spread_argument_must_either_have_a_tuple_type_or_be_passed_to_a_rest_parameter);
+        if (getSpreadArgumentIndex(args) > -1) {
+            // A spread supplies any number of arguments (see hasCorrectArity), so the error is
+            // the fixed arguments that are too many.
+            args = filter(args, arg => !isSpreadArgument(arg));
         }
         let min = Number.POSITIVE_INFINITY; // smallest parameter count
         let max = Number.NEGATIVE_INFINITY; // largest parameter count
@@ -37076,9 +37077,16 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             callIsIncomplete = !node.arguments.isComplete;//node.arguments.end === node.end - 1;
 
             // If a spread argument is present, check that it corresponds to a rest parameter or at least that it's in the valid range.
+            // In LPC an array spread, `f(args...)`, supplies however many arguments the array holds,
+            // none included, so only more fixed arguments than parameters is a sure arity error:
+            // `this_object(({})...)` and `sscanf(s, fmt, vars...)` compile in both drivers.
             const spreadArgIndex = getSpreadArgumentIndex(args);
             if (spreadArgIndex >= 0) {
-                return spreadArgIndex >= getMinArgumentCount(signature) && (hasEffectiveRestParameter(signature) || signatureAcceptsExtraArguments(signature) || spreadArgIndex < getParameterCount(signature));
+                // LDMud does not count the arguments of a call with a spread at all: one(1, 2, a...)
+                // compiles, and the extra arguments are dropped when it runs.
+                if (driverTypeChecking && languageVariant === LanguageVariant.LDMud) return true;
+                const fixedArgCount = countWhere(args, arg => !isSpreadArgument(arg));
+                return hasEffectiveRestParameter(signature) || signatureAcceptsExtraArguments(signature) || fixedArgCount <= getParameterCount(signature);
             }
         }
 
