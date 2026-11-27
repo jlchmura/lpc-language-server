@@ -15,31 +15,55 @@
 
 </div>
 
-Language server and VSCode extension that provides rich language support for LPC (Lars Pensjö C) - an object-oriented programming language derived from C and developed originally by Lars Pensjö to facilitate MUD building on LPMuds.
+**LPC Language Services** is a full language server, compiler front end and type checker for LPC, with a VS Code extension, for the [FluffOS](https://www.fluffos.info/) and [LDMud](https://www.ldmud.eu/) drivers. It is built on the architecture of the TypeScript compiler and language server, adapted for LPC, so it understands your whole mudlib: inherits, `#include`s, macros, `clone_object()` targets and `->` calls across files.
 
-This extension supports the LPC syntax used by both the [LDMud](https://www.ldmud.eu/) and [FluffOS](https://www.fluffos.info/) branch of [LPmud drivers](https://en.wikipedia.org/wiki/LPMud).
+-   **VS Code Marketplace:** [jlchmura.lpc](https://marketplace.visualstudio.com/items?itemName=jlchmura.lpc)
+-   **Open VSX** (VSCodium, Cursor, Windsurf and other editors): [jlchmura/lpc](https://open-vsx.org/extension/jlchmura/lpc)
+-   **npm:** the compiler and checker as a library, [`@lpc-lang/core`](https://www.npmjs.com/package/@lpc-lang/core)
 
-Install from the VS Code Marketplace: https://marketplace.visualstudio.com/items?itemName=jlchmura.lpc
-
-For VSCodium, Cursor, Windsurf and other editors that use Open VSX: https://open-vsx.org/extension/jlchmura/lpc
+LPC (Lars Pensjö C) is the object-oriented, C-like language of [LPMud drivers](https://en.wikipedia.org/wiki/LPMud), created by Lars Pensjö for building MUDs.
 
 ## Features
 
--   Code Completion / IntelliSense - Results appear for symbols as you type, including lfuns.
--   Diagnostics
--   Hover info
--   Signature help, with type info
--   Code navigation - Jump to or peek at a symbol's declaration
-    -   Go to definitions (f12)
-    -   Go to implementations (ctrl/cmd+f12)
-    -   Go to symbol (cltr/cmd+o)
--   Workspace Symbols (ctrl/cmd+T)
--   Symbol rename (f2)
--   Code outline
--   Code navigation
--   Folding (with support for `// #region` blocks)
--   Build task
--   Project-wide problem check (`LPC: Check Project for Problems`)
+-   **IntelliSense / code completion** for local symbols, inherited functions, efuns, simul_efuns and lfuns as you type.
+-   **Type checking** in two modes: a strict mode that checks more than your driver (like TypeScript checks JavaScript), or a [driver mode](#type-checking---typechecking) that reports only what FluffOS or LDMud would report. Includes type narrowing (`if (stringp(x))`) and checking that the target of a `->` call has the function.
+-   **LPCDoc type annotations**: JSDoc-style comments that give the checker object and parameter types (see [LPCDoc Comments](#lpcdoc-comments)).
+-   **Diagnostics**: syntax and preprocessor errors, type errors, unknown functions and wrong argument counts, as you type.
+-   **Full preprocessor**: `#include`, `#define` and function-like macros, conditional compilation, `#pragma`, and your driver's predefined macros.
+-   **Driver-aware**: efun signatures and syntax for each driver (FluffOS or LDMud), selected in `lpc-config.json`.
+-   **Hover info** and **signature help**, with types and doc comments.
+-   **Code navigation**:
+    -   Go to definition (F12), including across inherits, includes and `->` calls
+    -   Go to implementations (Ctrl/Cmd+F12)
+    -   Find all references (Shift+F12)
+    -   Go to symbol in file (Ctrl/Cmd+Shift+O)
+    -   Workspace symbols (Ctrl/Cmd+T)
+-   **Rename** a symbol across files (F2).
+-   **Semantic highlighting**, code outline, and folding (with support for `// #region` blocks).
+-   **Project-wide check**: `LPC: Check Project for Problems` checks the whole mudlib, not just the open files.
+-   **Build task** to check a project from VS Code's task runner.
+-   **No setup for `.c` and `.h` files**: the extension associates `.c`, `.h` and `.lpc` files with LPC, so you don't need a `files.associations` setting. (If another extension, such as a C/C++ extension, claims `.c` files in your workspace, add `"files.associations": { "*.c": "lpc", "*.h": "lpc" }` to `.vscode/settings.json`.)
+
+## Using with FluffOS
+
+1. Install the extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=jlchmura.lpc) or [Open VSX](https://open-vsx.org/extension/jlchmura/lpc).
+2. Add an `lpc-config.json` file to your workspace root or your mudlib root. The driver type defaults to LDMud, so set it to `fluffos`:
+
+```json
+{
+  "driver": { "type": "fluffos" },
+  "libFiles": {
+    "master": "/adm/obj/master.c",
+    "simul_efun": "/adm/obj/simul_efun.c"
+  },
+  "libInclude": ["/include"],
+  "diagnostics": "on"
+}
+```
+
+Change the paths to match your mudlib. To mirror your driver's `DEFAULT_PRAGMAS` and see only the type errors FluffOS would report, add `"typeChecking": "driver"` and [`defaultPragmas`](#default-pragmas---defaultpragmas). See [Setting up your workspace](#setting-up-your-workspace) for every option.
+
+For LDMud, use `"type": "ldmud"` and the same settings for your mudlib's paths.
 
 ## A note about type checking
 

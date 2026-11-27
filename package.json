@@ -6,7 +6,7 @@
         "color": "#000000",
         "theme": "dark"
     },
-    "description": "Rich language support for LPC (LDMud/FluffOS branch of LPMud drivers)",
+    "description": "LPC language server and type checker for FluffOS and LDMud: IntelliSense, diagnostics, go to definition, find references, rename and more",
     "main": "out/client/src/extension.js",
     "publisher": "jlchmura",
     "icon": "lpc-icon.png",
@@ -259,16 +259,20 @@
     },
     "keywords": [
         "LPC",
-        "language",
-        "server",
-        "Lars Pensjö",
-        "C",
-        "MUD",
-        "LPMUD",
-        "LDMUD",
         "FluffOS",
+        "LDMud",
         "MudOS",
-        "VSCode"
+        "LPMud",
+        "MUD",
+        "mudlib",
+        "Lars Pensjö",
+        "language server",
+        "LSP",
+        "IntelliSense",
+        "type checker",
+        "linter",
+        "diagnostics",
+        "LPCDoc"
     ],
     "author": {
         "name": "jlchmura"
