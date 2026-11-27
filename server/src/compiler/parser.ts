@@ -3697,23 +3697,10 @@ export namespace LpcParser {
     ): TypeNode {
         const pos = getPositionState();
 
-        if (parseOptional(SyntaxKind.LessThanToken)) {
-            const type = parseUnionOrIntersectionType(operator, parseConstituentType, createTypeNode);
-            parseExpected(SyntaxKind.GreaterThanToken);
-            
-            if (parseOptional(SyntaxKind.AsteriskToken)) {
-                return finishNode(factory.createArrayTypeNode(type), pos);
-            }
-            if (parseOptional(SyntaxKind.AsteriskAsteriskToken)) {
-                // `<object|lwobject>** unique_array(...)`: an array of arrays
-                return finishNode(factory.createArrayTypeNode(finishNode(factory.createArrayTypeNode(type), pos)), pos);
-            }
-
-            return type;
-        }
-        
-        const hasLeadingOperator = parseOptional(operator);
-        let type = parseConstituentType();        
+        // A bracketed union may itself be one member of a union: `< <int|string>* | symbol>*`.
+        const isBracketed = token() === SyntaxKind.LessThanToken;
+        const hasLeadingOperator = !isBracketed && parseOptional(operator);
+        let type = isBracketed ? parseBracketedUnionOrIntersectionType(operator, parseConstituentType, createTypeNode) : parseConstituentType();
         if (token() === operator || hasLeadingOperator) {
             const types = [type];
             while (parseOptional(operator)) {                
@@ -3729,6 +3716,28 @@ export namespace LpcParser {
             type = finishNode(createTypeNode(createNodeArray(types, pos, endPos)), pos, endPos);
         }
         
+        return type;
+    }
+
+    /** `<int|string>`, `<int|string>*` or `<object|lwobject>**`. */
+    function parseBracketedUnionOrIntersectionType(
+        operator: SyntaxKind.BarToken | SyntaxKind.AmpersandToken,
+        parseConstituentType: () => TypeNode,
+        createTypeNode: (types: NodeArray<TypeNode>) => UnionTypeNode | IntersectionTypeNode,
+    ): TypeNode {
+        const pos = getPositionState();
+        parseExpected(SyntaxKind.LessThanToken);
+        const type = parseUnionOrIntersectionType(operator, parseConstituentType, createTypeNode);
+        parseExpected(SyntaxKind.GreaterThanToken);
+
+        if (parseOptional(SyntaxKind.AsteriskToken)) {
+            return finishNode(factory.createArrayTypeNode(type), pos);
+        }
+        if (parseOptional(SyntaxKind.AsteriskAsteriskToken)) {
+            // `<object|lwobject>** unique_array(...)`: an array of arrays
+            return finishNode(factory.createArrayTypeNode(finishNode(factory.createArrayTypeNode(type), pos)), pos);
+        }
+
         return type;
     }
 
