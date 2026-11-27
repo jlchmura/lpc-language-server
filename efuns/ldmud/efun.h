@@ -5139,15 +5139,21 @@ mapping map(mapping arg, closure cl, varargs mixed extra);
 string map(string arg, string func, string|object ob, varargs mixed extra);
 string map(string arg, closure cl, varargs mixed extra);
 varargs string map(string arg, mapping m , int idx);
+// func_spec: map() also takes bytes, and maps each byte (an int) to a byte
+bytes map(bytes arg, string func, string|object ob, varargs mixed extra);
+bytes map(bytes arg, closure cl, varargs mixed extra);
+varargs bytes map(bytes arg, mapping m , int idx);
 mixed * map(struct arg s, string func, string|object ob, varargs mixed extra);
 mixed * map(struct arg s, closure cl, varargs mixed extra);
 varargs mixed * map(struct arg s, mapping m , int idx);
 // A function name alone, or followed by arguments that aren't an object, calls it in this_object().
 mixed * map(mixed *arg, string func);
 string  map(string arg, string func);
+bytes   map(bytes arg, string func);
 mapping map(mapping arg, string func);
 mixed * map(mixed *arg, string func, mixed extra, varargs mixed extras);
 string  map(string arg, string func, mixed extra, varargs mixed extras);
+bytes   map(bytes arg, string func, mixed extra, varargs mixed extras);
 mapping map(mapping arg, string func, mixed extra, varargs mixed extras);
 
 /**
@@ -7179,11 +7185,16 @@ mixed * filter(mixed *arg, mapping map, varargs mixed extra);
 string  filter(string arg, string fun, string|object ob, varargs mixed extra);
 string  filter(string arg, closure cl, varargs mixed extra);
 string  filter(string arg, mapping map, varargs mixed extra);
+// func_spec: filter() also takes bytes, and keeps the bytes (ints) the test accepts
+bytes   filter(bytes arg, string fun, string|object ob, varargs mixed extra);
+bytes   filter(bytes arg, closure cl, varargs mixed extra);
+bytes   filter(bytes arg, mapping map, varargs mixed extra);
 mapping filter(mapping arg, string func, string|object ob, varargs mixed extra);
 mapping filter(mapping arg, closure cl, varargs mixed extra);
 // A function name alone, or followed by arguments that aren't an object, calls it in this_object().
 mixed * filter(mixed *arg, string fun);
 string  filter(string arg, string fun);
+bytes   filter(bytes arg, string fun);
 mapping filter(mapping arg, string fun);
 mixed * filter(mixed *arg, string fun, mixed extra, varargs mixed extras);
 mapping filter(mapping arg, string fun, mixed extra, varargs mixed extras);
