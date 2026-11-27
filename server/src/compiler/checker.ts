@@ -2175,8 +2175,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // A copy: the include summaries below are pushed onto it, and must not end up in the collection.
             const semanticDiagnostics = diagnostics.getDiagnostics(sourceFile.fileName).slice();
 
-            // now loop through the files top-level include statements and add related diagnostics for each
-            const includes = filter(sourceFile.statements, isIncludeDirective);
+            // now loop through the file's own include directives and add related diagnostics for each.
+            // (Not only the ones among its statements: an include may be in a function body, or
+            // in the middle of an expression.)
+            const includes = filter(sourceFile.includes, include => !include.includedFrom);
             forEach(includes, include => {
                 const includeSemanticDiags = getDiagnosticsOfInclude(include);
 
@@ -2269,12 +2271,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
     /** The diagnostics this check reported inside `include` and the includes nested in it. */
     function getDiagnosticsOfInclude(include: IncludeDirective): DiagnosticWithLocation[] {
-        const result: DiagnosticWithLocation[] = [];
-        const visit = (directive: IncludeDirective) => {
-            result.push(...diagnostics.getDiagnosticsOfDirective(directive));
-            forEach(directive.statements, s => isIncludeDirective(s) && visit(s));
-        };
-        visit(include);
+        const result: DiagnosticWithLocation[] = [...diagnostics.getDiagnosticsOfDirective(include)];
+        // The includes of a file are listed in the order read, so the ones `include` led to follow it.
+        const includes = getSourceFileOfNode(include)?.includes;
+        if (includes) {
+            for (let i = includes.indexOf(include) + 1; i < includes.length && includes[i].includedFrom; i++) {
+                result.push(...diagnostics.getDiagnosticsOfDirective(includes[i]));
+            }
+        }
         return result;
     }
 
@@ -14513,6 +14517,8 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                         
             forEach(node.statements, checkSourceElement);
             checkSourceElement(node.endOfFileToken);
+            // An include read in the middle of an expression is in no list of statements.
+            forEach(node.includes, include => include.isFloating ? checkIncludeDirective(include) : undefined);
 
             const symbol = getSymbolOfNode(node);
             // const type = getDeclaredTypeOfSymbol(symbol);
@@ -24953,6 +24959,31 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             || (n === stopAt || isFunctionLike(n) && (!getImmediatelyInvokedFunctionExpression(n) || (getFunctionFlags(n) & FunctionFlags.AsyncGenerator)) ? "quit" : false));
     }
 
+    /**
+     * Whether `a` comes before `b` in the text the driver compiles, or at the same place. A
+     * node's position is one in its own file, so for a node from an `#include` the places of
+     * the directives that led to it come first.
+     */
+    function isPositionedBeforeOrAt(a: Node, b: Node, sourceFile: SourceFile): boolean {
+        if (!((a.flags | b.flags) & NodeFlags.IncludeContext) && !sourceFile.nodeOrigins) {
+            return a.pos <= b.pos;
+        }
+        const pathOf = (node: Node) => {
+            const path = [node.pos];
+            let file = getSourceFileOrIncludeOfNode(node) as unknown as Node;
+            while (file && file.kind === SyntaxKind.IncludeDirective) {
+                path.unshift(file.pos);
+                file = getSourceFileOrIncludeOfNode(file) as unknown as Node;
+            }
+            return path;
+        };
+        const pathA = pathOf(a), pathB = pathOf(b);
+        for (let i = 0; i < pathA.length && i < pathB.length; i++) {
+            if (pathA[i] !== pathB[i]) return pathA[i] < pathB[i];
+        }
+        return pathA.length <= pathB.length;
+    }
+
     function isBlockScopedNameDeclaredBeforeUse(declaration: Declaration, usage: Node): boolean {        
         const declarationFile = getSourceFileOfNode(declaration);
         const useFile = getSourceFileOfNode(usage);
@@ -24981,7 +25012,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return true;
         }
 
-        if (declaration.pos <= usage.pos) {// && !(isPropertyDeclaration(declaration) && isThisProperty(usage.parent) && !declaration.initializer && !declaration.exclamationToken)) {
+        if (isPositionedBeforeOrAt(declaration, usage, declarationFile)) {// && !(isPropertyDeclaration(declaration) && isThisProperty(usage.parent) && !declaration.initializer && !declaration.exclamationToken)) {
             // declaration is before usage
             if (declaration.kind === SyntaxKind.BindingElement) {
                 // still might be illegal if declaration and usage are both binding elements (eg var [a = b, b = b] = [1, 2])

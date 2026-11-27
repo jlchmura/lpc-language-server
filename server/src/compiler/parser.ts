@@ -1036,6 +1036,12 @@ export namespace LpcParser {
         const saveParseErrorBeforeNextFinishedNode = parseErrorBeforeNextFinishedNode;
         contextFlags = NodeFlags.None;
         currentToken = SyntaxKind.IncludeDirective;
+        // The nodes of the line are in the file being read. Where the directive ends up in the
+        // tree is not known yet (see parseAdoptedInclude and finishIncludes).
+        const saveStructuralFileName = structuralFileName;
+        const saveOriginTaintDepth = originTaintDepth;
+        structuralFileName = getCurrentFileName();
+        originTaintDepth = -1;
 
         scanner.setReportLineBreak(true);
         const directive = parseIncludeDirective();
@@ -1047,6 +1053,8 @@ export namespace LpcParser {
         }
         scanner.setReportLineBreak(false);
 
+        structuralFileName = saveStructuralFileName;
+        originTaintDepth = saveOriginTaintDepth;
         contextFlags = saveContextFlags;
         parseErrorBeforeNextFinishedNode = saveParseErrorBeforeNextFinishedNode;
 
@@ -1178,6 +1186,11 @@ export namespace LpcParser {
 
         const { directive, frame } = entry;
         adoptedIncludes.add(directive);
+        // the list may belong to another file than the one that holds the directive
+        const directiveFileName = entry.parent !== undefined ? entry.parent.fileName : fileName;
+        if (directiveFileName !== structuralFileName || originTaintDepth >= 0) {
+            recordNodeOrigin(directive, directiveFileName);
+        }
         if (frame === undefined) {
             return directive;
         }
