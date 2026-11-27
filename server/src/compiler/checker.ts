@@ -2883,6 +2883,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             return undefined;
         }
 
+        // An LPC foreach visits a string's characters, which are ints, in both drivers, and
+        // so a bytes value's. LDMud also counts through an int (`foreach (i : 6)` is 0..5) and
+        // visits a struct's members, which have no one type (doc/LPC/foreach).
+        const stringElementType = use & IterationUse.ForOfFlag ? intType : stringType;
+        if (use & IterationUse.ForOfFlag) {
+            const elementType = getLpcForEachElementType(inputType);
+            if (elementType) return elementType;
+        }
+
         const uplevelIteration = true;//languageVersion >= ScriptTarget.ES2015;
         const downlevelIteration = !uplevelIteration;// && compilerOptions.downlevelIteration;
         const possibleOutOfBounds = compilerOptions.noUncheckedIndexedAccess && !!(use & IterationUse.PossiblyOutOfBounds);
@@ -2935,7 +2944,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // Now that we've removed all the StringLike types, if no constituents remain, then the entire
                 // arrayOrStringType was a string.
                 if (arrayType.flags & TypeFlags.Never) {
-                    return possibleOutOfBounds ? includeUndefinedInIndexSignature(stringType) : stringType;
+                    return possibleOutOfBounds ? includeUndefinedInIndexSignature(stringElementType) : stringElementType;
                 }
             }
         }
@@ -2962,17 +2971,17 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     typeToString(arrayType),
                 );
             }
-            return hasStringConstituent ? possibleOutOfBounds ? includeUndefinedInIndexSignature(stringType) : stringType : undefined;
+            return hasStringConstituent ? possibleOutOfBounds ? includeUndefinedInIndexSignature(stringElementType) : stringElementType : undefined;
         }
 
         const arrayElementType = isArrayType(arrayType) && arrayType.resolvedTypeArguments ? first(arrayType.resolvedTypeArguments) : getIndexTypeOfType(arrayType, numberType);
         if (hasStringConstituent && arrayElementType) {
             // This is just an optimization for the case where arrayOrStringType is string | string[]
-            if (arrayElementType.flags & TypeFlags.StringLike && !compilerOptions.noUncheckedIndexedAccess) {
+            if (arrayElementType.flags & TypeFlags.StringLike && stringElementType === stringType && !compilerOptions.noUncheckedIndexedAccess) {
                 return stringType;
             }
 
-            return getUnionType(possibleOutOfBounds ? [arrayElementType, stringType, undefinedType] : [arrayElementType, stringType], UnionReduction.Subtype);
+            return getUnionType(possibleOutOfBounds ? [arrayElementType, stringElementType, undefinedType] : [arrayElementType, stringElementType], UnionReduction.Subtype);
         }
 
         if (isMappingType(arrayType)) {
@@ -2994,6 +3003,24 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         }
     }
     
+    /**
+     * The element type of a foreach over a string, bytes, an LDMud int or an LDMud struct, or
+     * undefined when the value is something else (an array, a mapping, a union with one).
+     */
+    function getLpcForEachElementType(type: Type): Type | undefined {
+        const isLDMud = languageVariant === LanguageVariant.LDMud;
+        let elementTypes: Type[] | undefined;
+        for (const t of type.flags & TypeFlags.Union ? (type as UnionType).types : [type]) {
+            const elementType = t.flags & (TypeFlags.StringLike | TypeFlags.BytesLike) ? intType :
+                isLDMud && t.flags & (TypeFlags.Number | TypeFlags.IntLiteral) ? intType :
+                isLDMud && isStructOrClassType(t) ? anyType :
+                undefined;
+            if (!elementType) return undefined;
+            (elementTypes ??= []).push(elementType);
+        }
+        return elementTypes && getUnionType(elementTypes);
+    }
+
     function checkPropertyAccessExpression(node: PropertyAccessExpression, checkMode: CheckMode | undefined, writeOnly?: boolean) {
         return node.flags & NodeFlags.OptionalChain ? checkPropertyAccessChain(node as PropertyAccessChain, checkMode) :
             checkPropertyAccessExpressionOrQualifiedName(node, node.expression, tryResolveExpressionToObject(node.expression, node, checkMode) ?? checkNonNullExpression(node.expression, checkMode), node.name, checkMode, writeOnly);
@@ -4527,6 +4554,15 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             } 
             else if (someType(rightType, t => t === coroutineType)) {
                 // LDMud: a foreach over a coroutine binds each value it yields, untyped.
+                checkReferenceExpression(
+                    varExpr,
+                    Diagnostics.The_left_hand_side_of_a_for_each_mapping_statement_must_be_a_variable_or_a_property_access,
+                    Diagnostics.The_left_hand_side_of_a_for_in_statement_may_not_be_an_optional_property_access
+                );
+            }
+            else if (getLpcForEachElementType(rightType)) {
+                // A string's characters, an LDMud int's count or struct's members: the
+                // iterated type, checked below, is the element.
                 checkReferenceExpression(
                     varExpr,
                     Diagnostics.The_left_hand_side_of_a_for_each_mapping_statement_must_be_a_variable_or_a_property_access,
