@@ -2795,6 +2795,14 @@ export function createScanner(
                         pos++;
                         // could be a directive
                         token = scanDirective(charCodeUnchecked(pos), languageVersion);
+
+                        // `#line` (a line number for the driver's messages) and `#echo` (text on
+                        // its console) change nothing the server models, so their line is skipped
+                        // like a comment. Both drivers have them.
+                        if (token === SyntaxKind.Identifier && isSkippedDirective(tokenValue.substring(1).trim())) {
+                            while (pos < end && !isLineBreak(charCodeUnchecked(pos))) pos++;
+                            continue;
+                        }
                         
                         // TODO: skip past these directives since they aren't parsed (for now)
                         if (shouldSkipNonParsableDirectives) {
@@ -2941,6 +2949,20 @@ export function createScanner(
             
             return getIdentifierToken();
         }
+    }
+
+    /**
+     * Whether the directive whose name was just scanned is one to skip. `#line` takes only a
+     * number (LDMud lex.c; FluffOS also a file name after it). A malformed one is left to be read
+     * as code, so that it is still an error where it is compiled.
+     */
+    function isSkippedDirective(name: string): boolean {
+        if (name === "echo") return true;
+        if (name !== "line") return false;
+        let lineEnd = pos;
+        while (lineEnd < end && !isLineBreak(charCodeUnchecked(lineEnd))) lineEnd++;
+        const rest = text.substring(pos, lineEnd).replace(/\/\*.*?\*\//g, " ").replace(/\/\/.*$/, "").trim();
+        return languageVariant === LanguageVariant.FluffOS ? /^\d+(\s+"[^"]*")?$/.test(rest) : /^(0[xX][0-9a-fA-F]+|\d+)$/.test(rest);
     }
 
     function scanDirective(startCharacter: number, languageVersion: ScriptTarget) {
