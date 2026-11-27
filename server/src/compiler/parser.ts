@@ -5800,7 +5800,9 @@ export namespace LpcParser {
 
     function tryParseImpliedStringConcatExpression(expression: LeftHandSideExpression, pos: PositionState): LeftHandSideExpression {
         let tempBinaryExpression: Expression | undefined;
-        while (canImplyStringConcat(expression) && isStartOfImpliedStringConcat()) {
+        // LDMud joins adjacent bytes literals as it does strings (lex.c): `b"\x00" b"\x01"`.
+        const isBytes = expression.kind === SyntaxKind.BytesLiteral;
+        while (isBytes ? token() === SyntaxKind.BytesLiteral : canImplyStringConcat(expression) && isStartOfImpliedStringConcat()) {
             const tokenNode = finishNode(factoryCreateToken(SyntaxKind.PlusToken), getPositionState());
             tempBinaryExpression = makeBinaryExpression(tempBinaryExpression ?? expression, tokenNode, parsePrimaryExpression(), pos);
         }
