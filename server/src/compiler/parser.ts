@@ -5912,6 +5912,15 @@ export namespace LpcParser {
 
         if (token() === SyntaxKind.OpenParenToken) {
             name = parseParenthesizedExpression();
+        } else if (languageVariant === LanguageVariant.LDMud && token() === SyntaxKind.StringLiteral) {
+            // LDMud's call_other_name and struct_member_name take a string too: `ob->"fn"()`,
+            // `s."b"` and `s->"b"` name the member as `ob->fn()` and `s.b` do. It is read as
+            // that name, so it resolves like one.
+            const namePos = getPositionState();
+            const text = internIdentifier(scanner.getTokenValue());
+            identifierCount++;
+            nextToken();
+            name = finishNode(factoryCreateIdentifier(text), namePos);
         } else {
             name = parseRightSideOfDot(/*allowIdentifierNames*/ true, /*allowPrivateIdentifiers*/ true, /*allowUnicodeEscapeSequenceInIdentifierName*/ true);
         }
