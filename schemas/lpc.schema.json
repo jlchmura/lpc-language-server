@@ -79,7 +79,12 @@
                             "type": ["string", "null"]
                         },
                         "compatMode": {
-                            "description": "LDMud only. The driver runs in compat mode (its -o / --compat option). COMPAT_FLAG and __COMPAT_MODE__ are then defined, and __MASTER_OBJECT__ has no leading slash.",
+                            "description": "LDMud only. The driver runs in compat mode (its -o / --compat option). COMPAT_FLAG and __COMPAT_MODE__ are then defined, and __FILE__, __DIR__ and __MASTER_OBJECT__ have no leading slash.",
+                            "type": ["boolean", "null"],
+                            "default": false
+                        },
+                        "keywordIn": {
+                            "description": "LDMud only. The driver was built with --enable-keyword-in, so 'in' is a reserved word and using it as a name is an error. Otherwise 'in' is a name, with a deprecation warning.",
                             "type": ["boolean", "null"],
                             "default": false
                         }

@@ -284,5 +284,5 @@ promise call_out( int | float delay );
  * users()->quit();
  *
  */
-mixed call_other( object|object* ob, string|mixed * funcArgs... );
+mixed call_other( object|string|object* ob, string|mixed * funcArgs... );
 

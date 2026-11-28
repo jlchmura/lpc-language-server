@@ -1816,6 +1816,11 @@ export interface CompilerOptions {
      */
     driverCompatMode?: boolean;
     /**
+     * LDMud only: the driver was built with `--enable-keyword-in` (`driver.keywordIn`), so
+     * `in` is a reserved word. Otherwise LDMud reads it as a name, with a deprecation warning.
+     */
+    driverKeywordIn?: boolean;
+    /**
      * LDMud only. When true (the default), assigning to an undeclared variable
      * implicitly declares it (LDMud allows this because types are optional). Set
      * to false to instead report the assignment target as an unresolved name,
@@ -3333,6 +3338,11 @@ export interface SourceFile extends Declaration, LocalsContainer, HasHeritageCon
      * @internal
      */
     nodeOrigins?: ReadonlyMap<Node, IncludeDirective | undefined>;
+    /**
+     * Each identifier the parser made from the word `in`, which LDMud warns about (or, built
+     * with `--enable-keyword-in`, rejects) and FluffOS reserves. @internal
+     */
+    inKeywordIdentifiers?: readonly Identifier[];
 }
 
 export interface JsonSourceFile extends SourceFile {
@@ -7116,6 +7126,11 @@ export interface LpcFileHandler extends IFileHandler  {
     isEfunDefined?(name: string): boolean;
     /** The config's `defaultPragmas`: pragmas in force at the start of every file. */
     getDefaultPragmas?(): readonly string[] | undefined;
+    /**
+     * The name the driver gives a file, for `__FILE__` and `__DIR__`: its path from the mudlib
+     * root, with a leading slash except in LDMud's compat mode.
+     */
+    getDriverFileName?(fileName: string): string;
 }
 
 export interface TransformationResult<T extends Node> {

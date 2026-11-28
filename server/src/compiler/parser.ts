@@ -136,6 +136,8 @@ export namespace LpcParser {
      */
     var structuralFileName: string;
     var nodeOrigins: Map<Node, IncludeDirective | undefined> | undefined;
+    /** Every identifier made from the word `in`, including any a lookahead discarded. */
+    var inKeywordIdentifiers: Identifier[] | undefined;
     /** Nesting of statement lists (source elements, blocks, switch clauses). */
     var statementListDepth = 0;
     /**
@@ -307,13 +309,17 @@ export namespace LpcParser {
         scriptKind = _scriptKind;
         languageVariant = _languageVariant;
 
-        let fileDir = getDirectoryPath(fileName);
-        if (!fileDir.endsWith("/")) fileDir = fileDir + "/";
-        
+        // __FILE__ and __DIR__ name the file as the driver does, from the mudlib root
+        // ("/obj/sefun.c" and "/obj/"), not by its path on disk, so `#include __DIR__"x.c"`
+        // resolves (LDMud lex.c get_current_file/get_current_dir, FluffOS lex.cc start_new_file).
+        const driverFileName = fileHandler?.getDriverFileName?.(fileName) ?? fileName;
+        let fileDir = getDirectoryPath(driverFileName);
+        if (fileDir && !fileDir.endsWith("/")) fileDir = fileDir + "/";
+
         nodeMacroMap = new Map<Node, string>();
         macroEnv = createMacroEnvironment();
         macroEnv.define("__DIR__", createBuiltInMacro("__DIR__", `"${fileDir}"`));
-        macroEnv.define("__FILE__", createBuiltInMacro("__FILE__", `"${fileName}"`));
+        macroEnv.define("__FILE__", createBuiltInMacro("__FILE__", `"${driverFileName}"`));
 
         forEachEntry(_configDefines || emptyMap, (value, key) => {
             macroEnv.define(key, createBuiltInMacro(key, value));
@@ -341,6 +347,7 @@ export namespace LpcParser {
         forEach(languageVariant === LanguageVariant.LDMud ? fileHandler?.getDefaultPragmas?.() : undefined, applyPedanticPragma);
         structuralFileName = fileName;
         nodeOrigins = undefined;
+        inKeywordIdentifiers = undefined;
         statementListDepth = 0;
         originTaintDepth = -1;
         carriedModifiers = undefined;
@@ -423,6 +430,7 @@ export namespace LpcParser {
         preprocessorDepth = 0;
         structuralFileName = undefined!;
         nodeOrigins = undefined;
+        inKeywordIdentifiers = undefined;
         statementListDepth = 0;
         originTaintDepth = -1;
         lastFinishedNode = undefined;
@@ -1556,6 +1564,7 @@ export namespace LpcParser {
 
         sourceFile.nodeMacroMap = nodeMacroMap;
         finishIncludes(sourceFile);
+        sourceFile.inKeywordIdentifiers = inKeywordIdentifiers;
         
         if (reportParsedDefines) {
             // store parsed macros 
@@ -3116,7 +3125,9 @@ export namespace LpcParser {
     function parseLpcTypeLiteralExpression(): LpcTypeLiteralExpression {
         const pos = getPositionState();
         parseExpected(SyntaxKind.OpenBracketToken);
-        const type = parseType();
+        // `[]` or `[name ...]` -- prose in a header read as code, say -- has no type to parse,
+        // and a literal without one crashed the checker.
+        const type = parseType() ?? createMissingNode<TypeNode>(SyntaxKind.MixedKeyword, /*reportAtCurrentPosition*/ true, Diagnostics.Type_expected);
         parseExpected(SyntaxKind.CloseBracketToken);
         return finishNode(factory.createLpcTypeLiteralExpression(type), pos);
     }
@@ -3721,6 +3732,7 @@ export namespace LpcParser {
         const saveIncludeCount = includeDirectives.length;
         const saveGlobalIncludeIndex = globalIncludeIndex;
         const saveImportCandidateCount = importCandidates.length;
+        const saveInKeywordIdentifierCount = inKeywordIdentifiers?.length ?? 0;
         const saveCondTop = condTop;
         const saveIsCodeExecutable = isCodeExecutable;
         const saveInactiveRangeCount = inactiveRanges.length;
@@ -3760,6 +3772,7 @@ export namespace LpcParser {
             includeDirectives.length = saveIncludeCount;
             globalIncludeIndex = saveGlobalIncludeIndex;
             importCandidates.length = saveImportCandidateCount;
+            if (inKeywordIdentifiers) inKeywordIdentifiers.length = saveInKeywordIdentifierCount;
             condTop = saveCondTop;
             isCodeExecutable = saveIsCodeExecutable;
             inactiveRanges.length = saveInactiveRangeCount;
@@ -5323,7 +5336,9 @@ export namespace LpcParser {
             const text = internIdentifier(scanner.getTokenValue());            
             const hasExtendedUnicodeEscape = scanner.hasExtendedUnicodeEscape();
             nextTokenWithoutCheck();
-            return finishNode(factoryCreateIdentifier(text, originalKeywordKind, hasExtendedUnicodeEscape), pos);
+            const identifier = finishNode(factoryCreateIdentifier(text, originalKeywordKind, hasExtendedUnicodeEscape), pos);
+            if (originalKeywordKind === SyntaxKind.InKeyword) (inKeywordIdentifiers ??= []).push(identifier);
+            return identifier;
         }
         
         if (token() === SyntaxKind.Unknown && scanner.tryScan(() => scanner.reScanInvalidIdentifier() === SyntaxKind.Identifier)) {

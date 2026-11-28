@@ -7197,6 +7197,8 @@ string  filter(string arg, string fun);
 bytes   filter(bytes arg, string fun);
 mapping filter(mapping arg, string fun);
 mixed * filter(mixed *arg, string fun, mixed extra, varargs mixed extras);
+string  filter(string arg, string fun, mixed extra, varargs mixed extras);
+bytes   filter(bytes arg, string fun, mixed extra, varargs mixed extras);
 mapping filter(mapping arg, string fun, mixed extra, varargs mixed extras);
 
 /**

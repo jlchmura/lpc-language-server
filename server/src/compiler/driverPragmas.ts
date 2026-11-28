@@ -49,6 +49,11 @@ export interface DriverPragmaState {
      * `<string|bytes>` (doc/LPC/pragma). It applies to the types written while it is on.
      */
     readonly noBytesType: boolean;
+    /**
+     * LDMud's `warn_deprecated`, on by default (lex.c): warn about deprecated efuns and
+     * names, such as `in` used as an identifier (prolang.y check_identifier).
+     */
+    readonly warnDeprecated: boolean;
 }
 
 export interface DriverPragmaStates {
@@ -69,7 +74,7 @@ export interface DriverPragmaStates {
  * lexer resets to weak types with nothing saved for every compile (lex.c `start_lex`).
  */
 function getInitialDriverPragmaState(variant: LanguageVariant): DriverPragmaState {
-    return { types: DriverTypesPragma.Weak, saveTypes: variant === LanguageVariant.FluffOS, pedantic: false, warnMissingReturn: variant === LanguageVariant.LDMud, lightweight: false, noBytesType: false };
+    return { types: DriverTypesPragma.Weak, saveTypes: variant === LanguageVariant.FluffOS, pedantic: false, warnMissingReturn: variant === LanguageVariant.LDMud, lightweight: false, noBytesType: false, warnDeprecated: variant === LanguageVariant.LDMud };
 }
 
 /** Applies one pragma name to `state`, the way the driver's lexer would. */
@@ -115,6 +120,10 @@ export function applyDriverPragma(state: DriverPragmaState, name: string, varian
             return { ...state, noBytesType: true };
         case "bytes_type":
             return { ...state, noBytesType: false };
+        case "warn_deprecated":
+            return { ...state, warnDeprecated: true };
+        case "no_warn_deprecated":
+            return { ...state, warnDeprecated: false };
     }
     return state;
 }

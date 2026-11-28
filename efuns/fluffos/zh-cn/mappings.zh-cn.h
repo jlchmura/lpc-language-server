@@ -31,7 +31,7 @@ mixed *values( mapping m );
  * 返回的映射中的键/值顺序是一致的，但不能保证将来不会改变。
  *
  */
-mapping unique_mapping( mixed *arr, string fun, object ob,
+mapping unique_mapping( mixed *arr, string fun, object|string ob,
                           mixed extra... );
 mapping unique_mapping( mixed *arr, function f, mixed extra... );
 
@@ -64,7 +64,7 @@ int mapp( mixed arg );
  */
 mapping map_mapping( mapping map,
                      string fun,
-                     object ob,
+                     object|string ob,
                      mixed extra... );
 mapping map_mapping( mapping map, function f, mixed extra... );
 
@@ -129,7 +129,7 @@ mixed *keys( mapping m );
  */
 mapping filter_mapping( mapping map,
                         string fun,
-                        object ob,
+                        object|string ob,
                         mixed extra... );
 mapping filter_mapping( mapping map, function f, mixed extra... );
 

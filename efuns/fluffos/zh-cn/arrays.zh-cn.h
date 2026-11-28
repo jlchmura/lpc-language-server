@@ -63,7 +63,7 @@ mixed unique_array( object *obarr, string separator, void | mixed skip);
  * @param {T*} arr 要排序的数组
  * @returns {T*} 排序后的数组
  */
-mixed *sort_array( mixed *arr, string fun, object ob );
+mixed *sort_array( mixed *arr, string fun, object|string ob );
 
 /**
  * sort_array() - 使用函数指针比较元素来对数组进行排序。
@@ -165,7 +165,7 @@ varargs int member_array( mixed item, mixed * | string arr, void | int start, vo
  * 如果'arr'不是一个数组，则返回0。
  *
  */
-mixed *map_array( mixed *arr, string fun, object ob, mixed extra... );
+mixed *map_array( mixed *arr, string fun, object|string ob, mixed extra... );
 
 /**
  * @template T, Y

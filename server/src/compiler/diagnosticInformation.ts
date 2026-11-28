@@ -16,6 +16,8 @@ export const Diagnostics = {
     Expected_newline_after_directive: diag(9008, DiagnosticCategory.Error, "Expected_newline_after_directive_9008", "Expected newline after directive."),
     Text_after_0_is_ignored: diag(9086, DiagnosticCategory.Warning, "Text_after_0_is_ignored_9086", "Text after {0} is ignored."),
     Text_after_0_is_not_allowed_under_pragma_pedantic: diag(9087, DiagnosticCategory.Error, "Text_after_0_is_not_allowed_under_pragma_pedantic_9087", "Text after {0} is not allowed under '#pragma pedantic'."),
+    Usage_of_in_as_an_identifier_is_deprecated_it_will_be_a_reserved_word_in_future_versions: diag(9088, DiagnosticCategory.Warning, "Usage_of_in_as_an_identifier_is_deprecated_it_will_be_a_reserved_word_in_future_versions_9088", "Usage of 'in' as an identifier is deprecated, it will be a reserved word in future versions."),
+    _0_is_a_reserved_word_in_1_and_cannot_be_used_as_a_name: diag(9089, DiagnosticCategory.Error, "_0_is_a_reserved_word_in_1_and_cannot_be_used_as_a_name_9089", "'{0}' is a reserved word in {1} and cannot be used as a name."),
     Pragma_directive_requires_at_least_one_argument: diag(9009, DiagnosticCategory.Error, "Pragma_directive_requires_at_least_one_argument_9009", "#pragma directive requires at least one argument."),
     Unexpected_endIf_directive: diag(9010, DiagnosticCategory.Error, "Unexpected_endIf_directive_9010", "Unexpected #endIf directive."),
     Catch_expression_modifier_expected: diag(9011, DiagnosticCategory.Error, "Catch_expression_modifier_expected_9011", "Catch expression modifier expected."),
