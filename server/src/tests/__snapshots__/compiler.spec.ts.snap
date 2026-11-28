@@ -452,7 +452,12 @@ exports[`Compiler > compiler/if3.c > Reports correct errors for compiler/if3.c >
 
 exports[`Compiler > compiler/ifelse.c > Reports correct errors for compiler/ifelse.c > diags-compiler/ifelse.c 1`] = `""`;
 
-exports[`Compiler > compiler/in1.c > Reports correct errors for compiler/in1.c > diags-compiler/in1.c 1`] = `""`;
+exports[`Compiler > compiler/in1.c > Reports correct errors for compiler/in1.c > diags-compiler/in1.c 1`] = `
+"
+Found 1 error.
+
+"
+`;
 
 exports[`Compiler > compiler/include1.c > Reports correct errors for compiler/include1.c > diags-compiler/include1.c 1`] = `""`;
 

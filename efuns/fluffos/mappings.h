@@ -36,7 +36,7 @@ mixed *values( mapping m );
  * guaranteed to not change in the future.
  *
  */
-mapping unique_mapping( mixed *arr, string fun, object ob,
+mapping unique_mapping( mixed *arr, string fun, object|string ob,
                           mixed extra... );
 mapping unique_mapping( mixed *arr, function f, mixed extra... );
 
@@ -72,7 +72,7 @@ function
  */
 mapping map_mapping( mapping map,
                      string fun,
-                     object ob,
+                     object|string ob,
                      mixed extra... );
 mapping map_mapping( mapping map, function f, mixed extra... );
 
@@ -143,7 +143,7 @@ function
  */
 mapping filter_mapping( mapping map,
                         string fun,
-                        object ob,
+                        object|string ob,
                         mixed extra... );
 mapping filter_mapping( mapping map, function f, mixed extra... );
 

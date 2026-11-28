@@ -242,6 +242,7 @@ function parseLpcConfigFileContentWorker(
 
     options.driverType = driverTypeToLanguageVariant(raw?.driver?.type);    
     options.driverCompatMode = raw?.driver?.compatMode === true;
+    options.driverKeywordIn = raw?.driver?.keywordIn === true;
 
     if (raw?.libInclude && isArray(raw.libInclude)) {
         options.libIncludeDirs = map(raw.libInclude as string[], dir => normalizePath(combinePaths(libRootPath, trimStart(dir,"/"))));

@@ -1,4 +1,4 @@
-import { combinePaths, CompilerHost, CompilerOptions, convertToRelativePath, forEach, getDirectoryPath, isRootedDiskPath, LoadImportResult, LpcFileHandler, LpcLoadImportResult, ModuleResolutionHost, normalizePath, pathIsAbsolute, pathIsRelative, pushIfUnique, resolvePath } from "./_namespaces/lpc.js";
+import { combinePaths, CompilerHost, CompilerOptions, convertToRelativePath, forEach, getDirectoryPath, getLibRootedFileName, isRootedDiskPath, LanguageVariant, trimStart, LoadImportResult, LpcFileHandler, LpcLoadImportResult, ModuleResolutionHost, normalizePath, pathIsAbsolute, pathIsRelative, pushIfUnique, resolvePath } from "./_namespaces/lpc.js";
 
 export interface LpcFileHandlerHost {
     getCurrentDirectory?(): string;
@@ -22,7 +22,17 @@ export function createLpcFileHandler(host: LpcFileHandlerHost): LpcFileHandler {
         loadIncludeFile,
         isEfunDefined: host.getEfunHeaderFileName ? isEfunDefined : undefined,
         getDefaultPragmas: () => host.getCompilerOptions()?.defaultPragmas,
+        getDriverFileName,
     };
+
+    function getDriverFileName(fileName: string): string {
+        const options = host.getCompilerOptions();
+        if (!options) return fileName;
+        const rooted = getLibRootedFileName(fileName, options);
+        // LDMud's compat mode names files without the leading slash (lex.c get_current_file).
+        const compatMode = options.driverType === LanguageVariant.LDMud && !!options.driverCompatMode;
+        return compatMode ? trimStart(rooted, "/") : rooted;
+    }
 
     function isEfunDefined(name: string): boolean {
         if (!efunNames) {

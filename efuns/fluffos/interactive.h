@@ -197,7 +197,7 @@ void send_gmcp( string message );
  * override this efun if you wish it to be captured by this apply.
  *
  */
-varargs void say( string str, object obj );
+varargs void say( string str, object|object* obj );
 
 /**
  * resolve() - resolve an internet address to domain name, or vice versa

@@ -205,10 +205,12 @@ For example, see this [GLPU Fork](https://github.com/jlchmura/glpu) in which the
 
 #### Driver Options - `driver`
 
-| Setting   | Description                                          |
-| --------- | ---------------------------------------------------- |
-| `type`    | Driver type. Valid options are `ldmud` or `fluffos`. |
-| `version` | The driver version string, i.e. `"3.6.7"`            |
+| Setting      | Description                                                                                                                                                                                  |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`       | Driver type. Valid options are `ldmud` or `fluffos`.                                                                                                                                         |
+| `version`    | The driver version string, i.e. `"3.6.7"`                                                                                                                                                    |
+| `compatMode` | LDMud only. The driver runs in compat mode (`-o`/`--compat`). `COMPAT_FLAG` and `__COMPAT_MODE__` are defined, and `__FILE__`, `__DIR__` and `__MASTER_OBJECT__` have no leading slash. |
+| `keywordIn`  | LDMud only. The driver was built with `--enable-keyword-in`, so `in` is a reserved word and using it as a name is an error. Without it, `in` is a name with a deprecation warning.         |
 
 #### Include - `include`
 Specifies an array of filenames or patterns to include in the program. These filenames are resolved relative to the directory containing the lpc-config.json file.

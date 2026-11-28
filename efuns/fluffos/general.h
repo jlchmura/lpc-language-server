@@ -244,11 +244,11 @@ int next_bit(string, int);
  * the  function,  and replaces the character with the return value if the
  * return value is a non-zero integer.
  */
-varargs mapping map( mapping x, string fun, object ob, mixed extra... );
+varargs mapping map( mapping x, string fun, object|string ob, mixed extra... );
 varargs mapping map( mapping x, function f, mixed extra... );
-varargs string map( string x, string fun, object ob, mixed extra... );
+varargs string map( string x, string fun, object|string ob, mixed extra... );
 varargs string map( string x, function f, mixed extra... );
-varargs mixed* map( mixed* x, string fun, object ob, mixed extra... );
+varargs mixed* map( mixed* x, string fun, object|string ob, mixed extra... );
 
 /**
  * @template T, Y

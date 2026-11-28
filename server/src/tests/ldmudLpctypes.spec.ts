@@ -99,3 +99,20 @@ describe("lpctypes elsewhere", () => {
         expect(diagnostics(`void f() { mixed t = [int]; }\n`, "strict", FluffOS)).not.toEqual([]);
     });
 });
+
+describe("an lpctype literal with no type in it", () => {
+    // Prose in a header read as code -- `bb [named board] : ...` in a help text -- left the
+    // literal without a type, and the checker crashed on it ("Debug Failure").
+    it.each([
+        ["[]", `mixed f() { return []; }\n`, ["1110: Type expected."]],
+        ["[named board]", `mixed f() { return [named board]; }\n`, [
+            "1110: Type expected.",
+            "1434: Unexpected keyword or identifier.",
+            "1128: Declaration or statement expected.",
+            "2304: Cannot find name 'named'.",
+            "2304: Cannot find name 'board'.",
+        ]],
+    ])("is a syntax error, not a crash: %s", (_label, source, expected) => {
+        expect(diagnostics(source)).toEqual(expected);
+    });
+});

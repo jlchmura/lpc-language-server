@@ -78,7 +78,7 @@ varargs <mixed*>* unique_array(mixed *arr, function f, mixed skip );
  * @param {T*} arr The array to sort
  * @returns {T*} The sorted array
  */
-mixed *sort_array( mixed *arr, string fun, object ob, mixed extra... );
+mixed *sort_array( mixed *arr, string fun, object|string ob, mixed extra... );
 
 /**
  * sort_array() - sort an array using a function pointer to compare elements.
@@ -181,7 +181,7 @@ varargs int member_array( mixed item, mixed * | string arr, void | int start, vo
  * element in the array. If 'arr' is not an array, then 0 will be returned.
  *
  */
-mixed *map_array( mixed *arr, string fun, object ob, mixed extra... );
+mixed *map_array( mixed *arr, string fun, object|string ob, mixed extra... );
 
 /**
  * @template T, Y

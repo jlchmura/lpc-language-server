@@ -9,8 +9,19 @@
 - New: LDMud - named lightweight object types, `lwobject "/path"` - #478
 - New: LDMud - a reference (`&x`, `&(arr[1..2])`) is an expression of its own, a list of `catch()` modifiers, the `visible` modifier, `variables`/`structs` inherit qualifiers and `default` visibility - #483, #488
 - New: LDMud - struct inheritance (`struct B (A)`), struct literal values checked against the struct's members, qualified struct names (`::S`, `sefun::S`), and visibility modifiers on a struct - #483, #488
+- New: `in` as a name - FluffOS reports it as a reserved word, LDMud warns once per program that it is deprecated (honouring `#pragma warn_deprecated`), and the new `driver.keywordIn` setting makes it an error for an LDMud built with `--enable-keyword-in` - #225
 - New: report compile errors the drivers raise: duplicate `case` labels, string labels mixed with number labels, redefining a `nomask` function, a bare `return;` in a typed function, `void` variables and parameters, and invalid `catch()` modifiers - #462
 - New: `\U` escapes, and a character literal is one code point - #484
+- Fix: only an object (or `0` or `mixed`) is accepted where an `object` is expected; any value was accepted before - #173
+- Fix: `__FILE__` and `__DIR__` give the mudlib path (`"/obj/a.c"`, `"/obj/"`) instead of the path on disk, so `#include __DIR__"file.c"` resolves
+- Fix: a configured player file that does not exist leaves `this_player()` typed as `object`, not as the file's path string
+- Fix: LDMud - a cast to `int`, `float`, `string`, `object` or `int*` is a conversion and accepts any value
+- Fix: LDMud - a `varargs` parameter that is a union of arrays (`varargs int*|object* args`) takes each extra argument as any of the element types
+- Fix: LDMud driver mode - `array += array` is accepted when the element types have one in common, as the driver allows
+- Fix: a `foreach` over a mapping into variables declared before the loop compares the key variable with the mapping's key type
+- Fix: a variable keeps its declared type after an assignment that does not fit, instead of becoming `mixed*`
+- Fix: an lpctype literal with no type in it (`[]`, or prose in a header read as code) is a syntax error instead of a crash
+- Fix: efun signatures - FluffOS `call_other()` takes a path, the FluffOS efuns that take a function name take the object as `object|string`, FluffOS `say()` takes an array to exclude, and LDMud `filter()` on a string or bytes takes a function name with extra arguments
 - Fix: LDMud - a closure `#'fn` of a function not declared yet is reported, as the driver does - #442
 - Fix: LDMud - `#'+` and `#'fn` closures are typed as closures, so efun overloads like `map()` keep their result type - #486
 - Fix: LDMud - a struct has no members before its definition, and a struct prototype is not a duplicate of its definition - #483, #486

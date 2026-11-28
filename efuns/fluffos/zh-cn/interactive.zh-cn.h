@@ -187,7 +187,7 @@ void send_gmcp( string message );
  * 此 efun 不会调用 receive_message() 应用，所以如果您希望它能被这个应用捕获，您可能希望重写此 efun。
  *
  */
-varargs void say( string str, object obj );
+varargs void say( string str, object|object* obj );
 
 /**
  * resolve() - 将互联网地址解析为域名，或反之亦然

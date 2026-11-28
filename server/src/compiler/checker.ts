@@ -4552,7 +4552,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 // expand the types on each side of the comma expr
                 leftType = checkExpression(varExpr.left);
                 commaRightType = checkExpression(varExpr.right);
-                if (!isTypeAssignableTo(getIndexTypeOrString(rightType), leftType)) {
+                // The key variable takes the mapping's keys: compare it with the key type, which
+                // is `mixed` for a plain `mapping` (getIndexTypeOrString() says `string`).
+                const keyType = isMappingType(rightType) ? (getTypeArguments(rightType)[0] ?? anyType) : getIndexTypeOrString(rightType);
+                if (!isTypeAssignableTo(keyType, leftType)) {
                     error(varExpr, Diagnostics.The_left_hand_side_of_the_foreach_statement_0_is_not_compatible_with_type_1, typeToString(leftType), typeToString(rightType));
                 }
             } 
@@ -5518,6 +5521,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     // file the mudlib doesn't have). The path is already reported; don't narrow the
                     // argument to the string literal type.
                     links.resolvedType = errorType;
+                } else if (isStringLiteral(specifier) && specifier.text.includes("/")) {
+                    // A path that names no file (a configured player file the mudlib doesn't
+                    // have, say) is still an object, as `object "/missing"` is: the plain one.
+                    links.resolvedType = objectType;
                 }
             }
 
@@ -10251,6 +10258,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             if (isArrayType(restType)) {
                 return getElementTypeOfArrayType(restType);
             }
+            const flattened = getFlattenedRestElementType(restType);
+            if (flattened) {
+                return flattened;
+            }
             if (!isTupleType(restType) || restType.target.combinedFlags & ElementFlags.Variable || index < restType.target.fixedLength) {
                 return getIndexedAccessType(restType, getNumberLiteralType(index));                
             }
@@ -14491,6 +14502,30 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     }
 
     // Fully type check a source file and collect the relevant diagnostics.
+    /**
+     * `in` as a name. FluffOS reserves it (lexer_utils.cc reswords[]), as does LDMud built with
+     * `--enable-keyword-in` (`driver.keywordIn`). Otherwise LDMud takes it as a name and,
+     * under `#pragma warn_deprecated` (on by default), warns about the first one in the program
+     * (prolang.y check_identifier, once per compile).
+     */
+    function checkInKeywordIdentifiers(node: SourceFile) {
+        if (node.isDeclarationFile || !node.inKeywordIdentifiers) return;
+        const names = filter(node.inKeywordIdentifiers, id => !isInJSDoc(id));
+        if (!names.length) return;
+        if (languageVariant === LanguageVariant.FluffOS || (languageVariant === LanguageVariant.LDMud && compilerOptions.driverKeywordIn)) {
+            const driverName = languageVariant === LanguageVariant.FluffOS ? "FluffOS" : "LDMud";
+            for (const id of names) {
+                error(id, Diagnostics._0_is_a_reserved_word_in_1_and_cannot_be_used_as_a_name, "in", driverName);
+            }
+        }
+        else if (languageVariant === LanguageVariant.LDMud) {
+            const first = find(names, id => getDriverPragmaStateAt(id).warnDeprecated);
+            if (first) {
+                error(first, Diagnostics.Usage_of_in_as_an_identifier_is_deprecated_it_will_be_a_reserved_word_in_future_versions);
+            }
+        }
+    }
+
     function checkSourceFileWorker(node: SourceFile) {
         const links = getNodeLinks(node);
         if (!(links.flags & NodeCheckFlags.TypeChecked)) {
@@ -14500,6 +14535,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
 
             // Grammar checking
             checkGrammarSourceFile(node);
+            checkInKeywordIdentifiers(node);
 
             clear(potentialThisCollisions);
             clear(potentialNewTargetCollisions);
@@ -14781,6 +14817,18 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         tracing?.pop();
     }    
 
+    /**
+     * LDMud compiles a cast to int, float, string, object or int* as a conversion -- to_int(),
+     * to_float(), to_string(), to_object(), to_array() -- so it accepts a value of any type
+     * (prolang.y, `cast expr0`). Other casts are declarative. FluffOS has no conversion casts:
+     * it rejects a cast between two different known types ("Cannot cast").
+     */
+    function isLdmudConversionCast(node: JSDocTypeAssertion | AssertionExpression, targetType: Type): boolean {
+        if (languageVariant !== LanguageVariant.LDMud || node.kind !== SyntaxKind.TypeAssertionExpression) return false;
+        return targetType === intType || targetType === floatType || targetType === stringType || targetType === objectType ||
+            (isArrayType(targetType) && getElementTypeOfArrayType(targetType) === intType);
+    }
+
     function checkAssertionDeferred(node: JSDocTypeAssertion | AssertionExpression) {
         const { type } = getAssertionTypeAndExpression(node);
         const errNode = isParenthesizedExpression(node) ? type : node;
@@ -14791,7 +14839,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         if (!isErrorType(targetType)) {
             addLazyDiagnostic(() => {
                 const widenedType = getWidenedType(exprType);
-                if (!isTypeComparableTo(targetType, widenedType) && isReportedByDriver(node, "cast")) {
+                if (!isTypeComparableTo(targetType, widenedType) && isReportedByDriver(node, "cast") && !isLdmudConversionCast(node, targetType)) {
                     checkTypeComparableTo(exprType, targetType, errNode, Diagnostics.Conversion_of_type_0_to_type_1_may_be_a_mistake_because_neither_type_sufficiently_overlaps_with_the_other_If_this_was_intentional_convert_the_expression_to_unknown_first);
                 }
             });
@@ -17171,6 +17219,18 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return everyType(type, t => t === objectType || !!(t.flags & TypeFlags.Object && t.symbol?.valueDeclaration && isSourceFile(t.symbol.valueDeclaration)) && !isNamedLwObjectType(t));
     }
 
+    /**
+     * Whether `source` is a value that is not an object and `target` is an object type, so
+     * the one cannot go where the other is expected (#173). Plain `lwobject` counts as an
+     * object here (efuns such as previous_object() give `object|lwobject`), and a generic
+     * source is left to its constraint.
+     */
+    function isNonObjectForObject(source: Type, target: Type): boolean {
+        return !(source.flags & (TypeFlags.Instantiable | TypeFlags.AnyOrUnknown | TypeFlags.Never | TypeFlags.UnionOrIntersection)) &&
+            !(target.flags & TypeFlags.UnionOrIntersection) &&
+            isLpcObjectType(target) && !isLpcObjectType(source) && source !== lwObjectType;
+    }
+
     function resolveExternalObjectSymbol(moduleSymbol: Symbol|undefined, referencingLocation: Node, dontResolveAlias: boolean): Symbol | undefined {
         const symbol = resolveExternalModuleSymbol(moduleSymbol);
 
@@ -19315,7 +19375,13 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     // and comparability succeeds when merely *some* union constituent matches,
                     // which let `string* += ({ "f", 123 })` through: the right element type is
                     // `string | int`, and its `string` half was enough to satisfy the check.
-                    if (isTypeAssignableTo(rightElementType, leftElementType)) {
+                    // LDMud's compiler asks less: the element types need only have one in
+                    // common (prolang.y types_add_assignment, get_sub_array_type), so driver
+                    // mode follows that.
+                    const elementsFit = driverTypeChecking && languageVariant === LanguageVariant.LDMud
+                        ? isDriverAssignable(rightElementType, leftElementType)
+                        : isTypeAssignableTo(rightElementType, leftElementType);
+                    if (elementsFit) {
                         resultType = leftType;
                     }
                 } 
@@ -28714,7 +28780,9 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                 source !== coroutineType && target !== coroutineType &&
                 source !== lpctypeType && target !== lpctypeType &&
                 source !== anyStructType && target !== anyStructType &&
-                !isNamedLwObjectType(source) && !isNamedLwObjectType(target);
+                !isNamedLwObjectType(source) && !isNamedLwObjectType(target) &&
+                // nor let an array, mapping, closure or struct pass for an `object`
+                !isNonObjectForObject(source, target);
         // The loose object relation must never paper over a missing type predicate. A callback that
         // isn't a type guard cannot satisfy a type-guard parameter, and if we let it, overloads that
         // differ only in whether their callback is a type guard can never be discriminated.
@@ -30420,6 +30488,20 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             // `object` everywhere.)
             if (!((source.flags | target.flags) & TypeFlags.UnionOrIntersection) && (isNamedLwObjectType(source) || isNamedLwObjectType(target))) {
                 if (source === lwObjectType || target === lwObjectType) return Ternary.True;
+                if (reportErrors) {
+                    reportErrorResults(originalSource, originalTarget, source, target, headMessage);
+                }
+                return Ternary.False;
+            }
+
+            // `object` and `object "/path"` hold only objects. The intrinsic `object` has no
+            // members, so a structural comparison would let any value in -- a string, an int,
+            // an array, a mapping. Both drivers reject those: LDMud's has_common_type finds
+            // nothing in common (types.c, TCLASS_OBJECT) and FluffOS's compatible[] admits only
+            // `object` and `mixed` (compiler.cc). (`mixed`, `0` and the identity case are
+            // accepted above; plain `lwobject` stays loose, as above.) A generic source is left
+            // to its constraint below.
+            if (!((source.flags | target.flags) & TypeFlags.UnionOrIntersection) && isNonObjectForObject(source, target)) {
                 if (reportErrors) {
                     reportErrorResults(originalSource, originalTarget, source, target, headMessage);
                 }
@@ -33754,7 +33836,10 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
                     if (declaresElementType && isArrayType(assignedType) && isTypeAny(assignedType.resolvedTypeArguments?.[0] ?? anyType)) {
                         return declaredType;
                     }
-                    return isTypeAssignableTo(assignedType, declaredType) ? assignedType : anyArrayType;
+                    if (isTypeAssignableTo(assignedType, declaredType)) return assignedType;
+                    // An assignment that doesn't fit is reported where it is made; the variable
+                    // keeps its declared type rather than becoming `mixed*` after it.
+                    return declaredType === autoType || declaredType === autoArrayType ? anyArrayType : declaredType;
                 }
                 const t = isInCompoundLikeAssignment(node) ? getBaseTypeOfLiteralType(declaredType) : declaredType;
                 if (t.flags & TypeFlags.Union) {
@@ -36564,9 +36649,23 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         return result;
     }
 
+    /**
+     * LDMud takes a `varargs` parameter that is a union of arrays (`varargs int*|object* args`)
+     * as an array of the union of their elements: each extra argument may be any of them
+     * (prolang.y get_flattened_type). Undefined for anything but a union of arrays.
+     */
+    function getFlattenedRestElementType(restType: Type): Type | undefined {
+        if (!(restType.flags & TypeFlags.Union) || !every((restType as UnionType).types, isArrayType)) return undefined;
+        return getUnionType(map((restType as UnionType).types, t => getElementTypeOfArrayType(t) ?? anyType));
+    }
+
     function getEffectiveRestType(signature: Signature) {
         if (signatureHasRestParameter(signature)) {
             const restType = getTypeOfSymbol(signature.parameters[signature.parameters.length - 1]);
+            const flattened = getFlattenedRestElementType(restType);
+            if (flattened) {
+                return createArrayType(flattened);
+            }
             if (!isTupleType(restType)) {
                 return isTypeAny(restType) ? anyArrayType : restType;
             }

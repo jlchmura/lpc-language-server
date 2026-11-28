@@ -240,11 +240,11 @@ void parse_add_synonym(string, string, void|string);
  * 它的参数是一个字符串，map()将每个字符（作为一个int）传递给
  * 函数，如果返回值是非零整数，则用返回值替换该字符。
  */
-varargs mapping map( mapping x, string fun, object ob, mixed extra... );
+varargs mapping map( mapping x, string fun, object|string ob, mixed extra... );
 varargs mapping map( mapping x, function f, mixed extra... );
-varargs string map( string x, string fun, object ob, mixed extra... );
+varargs string map( string x, string fun, object|string ob, mixed extra... );
 varargs string map( string x, function f, mixed extra... );
-varargs mixed* map( mixed* x, string fun, object ob, mixed extra... );
+varargs mixed* map( mixed* x, string fun, object|string ob, mixed extra... );
 
 /**
  * @template T, Y
